@@ -4,7 +4,7 @@
 // Unique building shapes: axial [q, r] offsets from the printed tiles (same axial convention as hex.ts).
 import {
   ask, buildingSpaces, categoriesIn, connected, continentsIn, count, coveredCells, gain, icons, isFull, isolated, isSponsor,
-  isStandard, later, mapOf, nameOf, P, REG, runFx, sponsorError, sponsorLevel
+  isStandard, later, mapOf, nameOf, P, REG, runFx, spendable, sponsorError, sponsorLevel
 } from '../core.ts';
 import { around, isBorder, neighbors } from '../hex.ts';
 import { CATEGORIES, CONTINENTS, type CardDef, type Category, type ContentChunk, type Ctx, type Icon } from '../types.ts';
@@ -212,7 +212,7 @@ const cards: CardDef[] = [
 /** Okapi Stable: offer one Sponsor from hand for money equal to its level, paid with one token from the card. */
 const okapiIds = (c: Ctx) => {
   const p = P(c);
-  return p.hand.filter((id) => isSponsor(id) && !sponsorError(c, id, p.up.sponsors) && p.money >= sponsorLevel(c, id));
+  return p.hand.filter((id) => isSponsor(id) && !sponsorError(c, id, p.up.sponsors) && spendable(c) >= sponsorLevel(c, id));
 };
 const fx: ContentChunk['fx'] = {
   's253:offer': (c) => {

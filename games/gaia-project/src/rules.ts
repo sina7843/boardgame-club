@@ -7,12 +7,13 @@ import type { Actor, EngineRng, GameModule, Outcome, Transition } from '@bg/game
 import { gaiaProject } from './definition.ts';
 import { SMALL_CENTERS, SMALL_SECTORS, buildMap, randomMap } from './map.ts';
 import {
-  CONTENT, RESEARCH_COST, RESEARCH_INCOME, activeSeats, addGains, advance, buildMine, burn, canBurn, canPay, chargeable, leechAmount,
+  CONTENT, RESEARCH_COST, RESEARCH_INCOME, activeSeats, addGains, advance, bowlsOk, buildMine, burn, canBurn, canPay, chargeable, flag, leechAmount,
   conversions, countBuilding, decisionOptions, factionOf, fedPlan, fedTokensAvailable, formFederation, gaiaform,
-  gaiaformPlan, gain, hasPI, log, minePlan, pay, planetTypes, queueTech, researchBlock, resolveDecision, sources,
-  spendable, specialActions, suggestFederations, techOptions, upgrade, upgradeCost, UPGRADES, vp
+  gaiaformPlan, gain, hasPI, incomeResults, log, minePlan, pay, planetTypes, queueTech, researchBlock, resolveDecision, sources,
+  specialActions, suggestFederations, techOptions, upgrade, upgradeCost, UPGRADES, vp
 } from './core.ts';
 import './content/index.ts';
+import { logTextFa } from './log-fa.ts';
 import { TRACKS, type Decision, type Gain, type GaiaState, type PlayerState } from './types.ts';
 
 export * from './types.ts';
@@ -43,27 +44,32 @@ const POWER_GAIN: Record<string, Gain> = { pw1: { k: 3 }, pw3: { o: 2 }, pw4: { 
 
 const hex = z.number().int().min(0).max(400);
 const id = z.string().min(1).max(40);
+/** Tokens from bowls I, II, III (Gaia Project, satellites); omitted = lowest bowl first. */
+const bowls = z.tuple([z.number().int().min(0).max(30), z.number().int().min(0).max(30), z.number().int().min(0).max(30)]);
 export const gaiaAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('faction'), faction: id }),
   z.strictObject({ type: z.literal('place'), hex }),
   z.strictObject({ type: z.literal('booster'), booster: id }),
   z.strictObject({ type: z.literal('mine'), hex }),
   z.strictObject({ type: z.literal('upgrade'), hex, to: z.enum(['ts', 'lab', 'pi', 'ac1', 'ac2']) }),
-  z.strictObject({ type: z.literal('gaiaform'), hex }),
-  z.strictObject({ type: z.literal('federation'), hexes: z.array(hex).min(1).max(60), token: id }),
+  z.strictObject({ type: z.literal('gaiaform'), hex, from: bowls.optional() }),
+  z.strictObject({ type: z.literal('federation'), hexes: z.array(hex).min(1).max(60), token: id, from: bowls.optional() }),
   z.strictObject({ type: z.literal('research'), track: z.enum(TRACKS) }),
-  z.strictObject({ type: z.literal('power'), id, hex: hex.optional(), pick: id.optional() }),
+  z.strictObject({ type: z.literal('power'), id, hex: hex.optional(), pick: id.optional(), brain: z.boolean().optional() }),
   z.strictObject({ type: z.literal('special'), id: z.string().min(1).max(60), hex: hex.optional() }),
   z.strictObject({ type: z.literal('pass'), booster: id.optional() }),
-  z.strictObject({ type: z.literal('convert'), id }),
+  z.strictObject({ type: z.literal('convert'), id, brain: z.boolean().optional() }),
   z.strictObject({ type: z.literal('burn') }),
   z.strictObject({ type: z.literal('decide'), choice: id }),
+  z.strictObject({ type: z.literal('end') }),
   z.strictObject({ type: z.literal('autoCharge'), mode: z.enum(['ask', 'free', 'upto', 'decline']), n: z.number().int().min(1).max(3).optional(), lastRound: z.boolean().optional() }),
   z.strictObject({ type: z.literal('resign') })
 ]);
 export type GaiaAction = z.infer<typeof gaiaAction>;
 
 export type GaiaView = Omit<GaiaState, 'ins' | 'turnDone'> & {
+  /** The current player made the main action; free actions are still open until `end` (or the next player acts). */
+  held: boolean;
   /** Open decision at the head of the queue with its options (public: who decides and between what). */
   decision: (Decision & { options: string[] }) | null;
   income: Gain[];
@@ -146,9 +152,20 @@ function startRound(s: GaiaState) {
     p.passed = !s.active[seat];
     if (p.passed) s.passOrder.push(seat);
   }
-  // Income phase
-  for (const seat of s.order) if (s.active[seat]) gain(s, seat, incomeOf(s, seat));
-  // Gaia phase
+  // Income phase. When both power charge and tokens come in and their order changes the bowls, the player picks it.
+  for (const seat of s.order) {
+    if (!s.active[seat]) continue;
+    const { pw = 0, t = 0, ...rest } = incomeOf(s, seat);
+    const r = pw && t ? incomeResults(s, seat, pw, t) : null;
+    if (r && JSON.stringify(r.tokenFirst) !== JSON.stringify(r.chargeFirst)) {
+      gain(s, seat, rest);
+      s.pending.push({ kind: 'income', seat, pw, t });
+    } else gain(s, seat, { ...rest, pw, t });
+  }
+  s.gaiaDue = true; // the gaia phase runs in flow() once the income decisions are answered
+}
+
+function gaiaPhase(s: GaiaState) {
   for (const seat of s.order) {
     if (!s.active[seat]) continue;
     const p = s.pl[seat]!;
@@ -175,7 +192,9 @@ function nextTurn(s: GaiaState) {
   // Everyone passed: clean-up, then the next round in passing order (or the end of the game).
   s.powerUsed = [];
   if (s.round >= ROUNDS) { finalScoring(s); return; }
-  s.order = s.passOrder.slice();
+  // Base rule (rulebook pp. 16, 19): the first to pass starts the next round, the others follow clockwise.
+  const first = s.passOrder[0] ?? s.order[0]!;
+  s.order = Array.from({ length: s.players }, (_, i) => (first + i) % s.players);
   startRound(s);
 }
 
@@ -205,9 +224,8 @@ function finalScoring(s: GaiaState) {
   for (const seat of seats) {
     const p = s.pl[seat]!;
     for (const t of TRACKS) if (p.research[t] >= 3) vp(s, seat, 4 * (p.research[t] - 2), `research:${t}`);
-    // Burn every burnable power first (official end-of-game conversion), then spend bowl III as credits.
-    while (canBurn(p.power)) burn(s, seat);
-    vp(s, seat, Math.floor((p.c + p.o + p.k + p.q + spendable(s, seat)) / 3), 'resources');
+    // Rulebook pp. 16, 18: only credits, knowledge and ore count; QIC and power are not converted automatically.
+    vp(s, seat, Math.floor((p.c + p.o + p.k) / 3), 'resources');
     log(s, { t: 'final', seat, vp: p.vp });
   }
   finish(s, 'score');
@@ -245,6 +263,7 @@ function flow(s: GaiaState) {
     const auto = head?.kind === 'leech' ? autoLeech(s, head) : null;
     if (head && auto) { s.pending.shift(); s.ins = 0; resolveDecision(s, head, auto); continue; }
     if (s.pending.length) return;
+    if (s.gaiaDue) { s.gaiaDue = false; gaiaPhase(s); continue; }
     if (s.phase === 'faction') {
       const next = s.order.find((seat) => s.active[seat] && !s.pl[seat]!.faction);
       if (next !== undefined) { s.current = next; return; }
@@ -264,16 +283,45 @@ function flow(s: GaiaState) {
       continue;
     }
     if (s.phase === 'actions') {
-      if (s.turnDone || s.pl[s.current]!.passed) { s.turnDone = false; nextTurn(s); continue; }
+      if (s.pl[s.current]!.passed) { s.turnDone = false; nextTurn(s); continue; }
+      return; // a done main action holds the turn for free actions (RULES E10) until `end` or the next player acts
       return;
     }
     return;
   }
 }
 
+// ---------------- held turn (RULES E10: free actions before or after the main action) ----------------
+
+/** The main action is done and nothing is open: the player may still take free actions, then `end`. */
+const held = (s: GaiaState) => s.phase === 'actions' && s.turnDone && !s.pending.length && !s.outcome;
+/** Seat whose turn comes after the current one (the current seat again when everyone else passed). */
+function nextSeat(s: GaiaState): number {
+  const n = s.order.length;
+  const at = s.order.indexOf(s.current);
+  for (let k = 1; k <= n; k++) { const seat = s.order[(at + k) % n]!; if (!s.pl[seat]!.passed) return seat; }
+  return s.current;
+}
+/** End the held turn. */
+function endTurn(s: GaiaState) { s.turnDone = false; nextTurn(s); }
+/** The next player's first action ends the held turn, so nobody can stall the table (the holder's own free actions
+ *  stay in the held turn when everyone else passed). */
+const closesHeld = (s: GaiaState, seat: number, a: GaiaAction) =>
+  held(s) && a.type !== 'end' && a.type !== 'resign' && a.type !== 'autoCharge' && seat === nextSeat(s) && (seat !== s.current || !FREE.has(a.type));
+/** Copy of the state with the held turn ended (to validate / list the next player's actions). */
+function closed(s: GaiaState): GaiaState { const t = structuredClone(s); endTurn(t); return t; }
+
 // ---------------- validation ----------------
 
 const ownsFed = (s: GaiaState, seat: number, fid: string) => s.pl[seat]!.feds.some((f) => f.id === fid);
+/** Taklons: the action names whether the brainstone is spent (RULES E6); check it on a copy. */
+function brainOk(s: GaiaState, seat: number, brain: boolean | undefined, run: (t: GaiaState) => void): boolean {
+  if (brain === undefined) return true;
+  if (brain && s.pl[seat]!.power.brain !== 3) return false;
+  const t = structuredClone(s);
+  t.pl[seat]!.mark.brainUse = brain ? 1 : 0;
+  try { run(t); return true; } catch { return false; }
+}
 
 function check(s: GaiaState, seat: number, a: GaiaAction): string | null {
   const p = s.pl[seat]!;
@@ -285,6 +333,8 @@ function check(s: GaiaState, seat: number, a: GaiaAction): string | null {
   }
   if (a.type === 'decide') return 'WRONG_PHASE';
   if (seat !== s.current) return 'NOT_YOUR_TURN';
+  if (a.type === 'end') return held(s) ? null : 'WRONG_PHASE';
+  if (s.turnDone && !FREE.has(a.type)) return 'WRONG_PHASE'; // one main action per turn
   switch (s.phase) {
     case 'faction':
       if (a.type !== 'faction') return 'WRONG_PHASE';
@@ -304,10 +354,17 @@ function check(s: GaiaState, seat: number, a: GaiaAction): string | null {
   switch (a.type) {
     case 'mine': return err(minePlan(s, seat, a.hex));
     case 'upgrade': return err(upgradeCost(s, seat, a.hex, a.to));
-    case 'gaiaform': return err(gaiaformPlan(s, seat, a.hex));
-    case 'federation':
+    case 'gaiaform': {
+      const plan = gaiaformPlan(s, seat, a.hex);
+      if (typeof plan === 'string') return plan;
+      return a.from && !bowlsOk(s, seat, plan.tokens, a.from) ? 'ILLEGAL_CHOICE' : null;
+    }
+    case 'federation': {
       if (!fedTokensAvailable(s).includes(a.token)) return 'TOKEN_UNAVAILABLE';
-      return err(fedPlan(s, seat, a.hexes));
+      const plan = fedPlan(s, seat, a.hexes);
+      if (typeof plan === 'string') return plan;
+      return a.from && (flag(s, seat, 'satelliteQic') || !bowlsOk(s, seat, plan.sats.length, a.from)) ? 'ILLEGAL_CHOICE' : null;
+    }
     case 'research':
       if (p.k < RESEARCH_COST) return 'NOT_ENOUGH_RESOURCES';
       return researchBlock(s, seat, a.track);
@@ -316,6 +373,7 @@ function check(s: GaiaState, seat: number, a: GaiaAction): string | null {
       if (!pa) return 'ILLEGAL_CHOICE';
       if (s.powerUsed.includes(a.id)) return 'ACTION_TAKEN';
       if (!canPay(s, seat, pa.cost)) return 'NOT_ENOUGH_RESOURCES';
+      if (!brainOk(s, seat, a.brain, (t) => pay(t, seat, pa.cost))) return 'ILLEGAL_CHOICE';
       if (pa.steps) {
         if (a.hex === undefined) return 'ILLEGAL_PLACEMENT';
         return err(minePlan(s, seat, a.hex, { freeSteps: pa.steps, extraCost: pa.cost }));
@@ -337,7 +395,8 @@ function check(s: GaiaState, seat: number, a: GaiaAction): string | null {
       return a.booster !== undefined && s.boosters.includes(a.booster) ? null : 'BOOSTER_UNAVAILABLE';
     case 'convert': {
       const c = conversions(s, seat).find((e) => e.id === a.id);
-      return c && c.can(x) ? null : 'NOT_ENOUGH_RESOURCES';
+      if (!c || !c.can(x)) return 'NOT_ENOUGH_RESOURCES';
+      return brainOk(s, seat, a.brain, (t) => conversions(t, seat).find((e) => e.id === a.id)!.run({ s: t, seat })) ? null : 'ILLEGAL_CHOICE';
     }
     case 'burn': return canBurn(p.power) ? null : 'NOT_ENOUGH_RESOURCES';
     default: return 'WRONG_PHASE';
@@ -349,6 +408,8 @@ function check(s: GaiaState, seat: number, a: GaiaAction): string | null {
 function act(s: GaiaState, seat: number, a: GaiaAction, events: Events) {
   const p = s.pl[seat]!;
   const x = { s, seat };
+  if (closesHeld(s, seat, a)) endTurn(s);
+  if (a.type === 'end') { endTurn(s); return; }
   s.ins = 0;
   if (a.type === 'decide') {
     const d = s.pending.shift()!;
@@ -371,18 +432,22 @@ function act(s: GaiaState, seat: number, a: GaiaAction, events: Events) {
       log(s, { t: 'booster', seat, booster: a.booster });
       return;
     case 'convert':
+      if (a.brain !== undefined) p.mark.brainUse = a.brain ? 1 : 0;
       conversions(s, seat).find((e) => e.id === a.id)!.run(x);
+      delete p.mark.brainUse;
       log(s, { t: 'convert', seat, id: a.id });
       return;
     case 'burn': burn(s, seat); log(s, { t: 'convert', seat, id: 'burn' }); return;
     case 'mine': buildMine(s, seat, a.hex); break;
     case 'upgrade': upgrade(s, seat, a.hex, a.to); break;
-    case 'gaiaform': gaiaform(s, seat, a.hex); break;
-    case 'federation': formFederation(s, seat, a.hexes, a.token); break;
+    case 'gaiaform': gaiaform(s, seat, a.hex, 0, a.from); break;
+    case 'federation': formFederation(s, seat, a.hexes, a.token, a.from); break;
     case 'research': p.k -= RESEARCH_COST; advance(s, seat, a.track); break;
     case 'power': {
       const pa = POWER_ACTIONS.find((e) => e.id === a.id)!;
+      if (a.brain !== undefined) p.mark.brainUse = a.brain ? 1 : 0;
       pay(s, seat, pa.cost);
+      delete p.mark.brainUse;
       s.powerUsed.push(pa.id);
       log(s, { t: 'power', seat, action: pa.id });
       if (pa.steps) buildMine(s, seat, a.hex!, { freeSteps: pa.steps });
@@ -441,6 +506,15 @@ function result(s: GaiaState, events: Events, resetDeadline: boolean): Transitio
 
 function legalFor(s: GaiaState, seat: number): { type: string; [k: string]: unknown }[] {
   const out: { type: string; [k: string]: unknown }[] = [];
+  if (held(s)) {
+    if (seat === s.current) {
+      for (const c of conversions(s, seat)) if (c.can({ s, seat })) out.push({ type: 'convert', id: c.id });
+      if (canBurn(s.pl[seat]!.power)) out.push({ type: 'burn' });
+      out.push({ type: 'end' });
+    }
+    if (seat === nextSeat(s)) out.push(...legalFor(closed(s), seat).filter((a) => seat !== s.current || !FREE.has(a.type)));
+    return out;
+  }
   const ok = (a: GaiaAction) => { if (!check(s, seat, a)) out.push(a); };
   if (s.pending.length) {
     const d = s.pending[0]!;
@@ -529,7 +603,7 @@ function tutorialSetup(s: GaiaState) {
 }
 
 export const pendingSeats = (s: GaiaState): number[] =>
-  s.outcome ? [] : s.pending.length ? [s.pending[0]!.seat] : s.phase === 'finished' ? [] : [s.current];
+  s.outcome ? [] : s.pending.length ? [s.pending[0]!.seat] : s.phase === 'finished' ? [] : held(s) ? [nextSeat(s)] : [s.current];
 
 // ---------------- module ----------------
 
@@ -593,7 +667,7 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
     if (actor.kind !== 'player' || actor.seat < 0 || actor.seat >= s.players) return { ok: false, errorCode: 'NOT_A_PLAYER' };
     if (!s.active[actor.seat]) return { ok: false, errorCode: 'NOT_IN_GAME' };
     if (a.type === 'resign') return { ok: true };
-    const e = check(s, actor.seat, a);
+    const e = check(closesHeld(s, actor.seat, a) ? closed(s) : s, actor.seat, a);
     return e ? { ok: false, errorCode: e } : { ok: true };
   },
 
@@ -626,7 +700,8 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
       ...rest,
       log: rest.log.slice(-VIEW_LOG), // the table shows the latest entries; the full 80 stay in the engine state
       decision: d ? { ...structuredClone(d), options: decisionOptions(s, d) } : null,
-      income: s.pl.map((p, seat) => (p.faction && s.active[seat] ? incomeOf(s, seat) : {}))
+      income: s.pl.map((p, seat) => (p.faction && s.active[seat] ? incomeOf(s, seat) : {})),
+      held: held(s)
     };
   },
 
@@ -648,8 +723,9 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
     events.push({ type: 'timed-out', seat });
     if (p.timeouts >= MAX_TIMEOUTS) removeSeat(s, seat, 'timeout');
     else {
-      const a = defaultAction(s, seat);
-      if (a && !check(s, seat, a)) act(s, seat, a, events);
+      const base = held(s) && seat === nextSeat(s) ? closed(s) : s;
+      const a = defaultAction(base, seat);
+      if (a && !check(base, seat, a)) act(s, seat, a, events);
       else removeSeat(s, seat, 'timeout');
     }
     flow(s);
@@ -677,6 +753,9 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
         strikes: p.timeouts
       })),
       shared: [{ key: 'round', label: 'دور', value: s.round, max: ROUNDS }],
+      // The one game log: the rail's MoveLog (VP lines and round starts stay out).
+      moves: s.log.filter((e): e is Exclude<typeof e, { t: 'round' }> => e.t !== 'round' && e.t !== 'vp').slice(-15)
+        .map((e) => ({ seat: e.seat, text: logTextFa(e, (id) => POWER_ACTIONS.find((x) => x.id === id)?.labelFa ?? id) })),
       strikesMax: MAX_TIMEOUTS,
       ...(s.pl.filter((p) => p.vp === top).length === 1 && top > 0 ? { leaderSeat: s.pl.findIndex((p) => p.vp === top) } : {})
     };
@@ -720,6 +799,6 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
         reply: null
       }
     ],
-    completedFa: 'بردید: ۱۰۷ در برابر ۱۰۲! معدن روی کاشی دور ۲ امتیاز داد، فدراسیون ۱۲ امتیاز و پاس با تقویت‌کننده ۲ امتیاز. در امتیاز پایانی هر دو نفر ۵ سازه و ۴ نوع سیاره داشتید و بازیکن خنثی (۱۱ سازه، ۵ نوع سیاره) اول شد؛ پس جایزه‌های ۱۲ و ۶ تقسیم شد و هر کدام در هر کاشی ۹ امتیاز گرفتید. سطح ۳ اقتصاد ۴ امتیاز داد و ۱۰ منبع باقی‌مانده (۸ اعتبار، ۱ دانش، ۱ QIC) ۳ امتیاز.'
+    completedFa: 'بردید: ۱۰۷ در برابر ۱۰۱! معدن روی کاشی دور ۲ امتیاز داد، فدراسیون ۱۲ امتیاز و پاس با تقویت‌کننده ۲ امتیاز. در امتیاز پایانی هر دو نفر ۵ سازه و ۴ نوع سیاره داشتید و بازیکن خنثی (۱۱ سازه، ۵ نوع سیاره) اول شد؛ پس جایزه‌های ۱۲ و ۶ تقسیم شد و هر کدام در هر کاشی ۹ امتیاز گرفتید. سطح ۳ اقتصاد ۴ امتیاز داد و ۹ منبع باقی‌مانده (۸ اعتبار و ۱ دانش) ۳ امتیاز.'
   }
 };

@@ -1,6 +1,6 @@
 // Blood Rage («بلاد ریج»): static data. Cards follow the Board Game Arena card list (82 cards, copies per player count);
-// the board layout (provinces, regions, villages, fjords) follows the printed board shown in the rulebook; the stat track
-// steps are reconstructed (see DECISIONS.md, «Blood Rage»).
+// the board layout (provinces, regions, villages, fjords) follows the printed board shown in the rulebook; numbers (stat
+// tracks, base STR, pillage tokens, copies) follow design/games/blood-rage/data/content.json (BGA 231218-1618).
 
 export type Region = 'manheim' | 'alfheim' | 'jotunheim';
 export type ProvinceId = 'ygg' | 'myr' | 'elv' | 'ang' | 'gim' | 'and' | 'utg' | 'hor' | 'mus';
@@ -50,21 +50,21 @@ export const STATS: Stat[] = ['rage', 'axes', 'horns'];
 export const STAT_FA: Record<Stat, string> = { rage: 'خشم', axes: 'تبر', horns: 'شاخ' };
 /** Value at each step (index = step, 0 = start). The 4th and 5th step (index 3, 4) give +10 at the end, the last step +20. */
 export const TRACKS: Record<Stat, number[]> = {
-  rage: [6, 7, 8, 9, 10, 11],
-  axes: [3, 4, 5, 6, 7, 8],
-  horns: [4, 5, 6, 7, 8, 9]
+  rage: [6, 7, 8, 9, 12, 12],
+  axes: [3, 4, 5, 6, 8, 8],
+  horns: [4, 5, 6, 7, 10, 10]
 };
 export const LAST_STEP = 5;
 
 // ---------- figures ----------
 export type FigureKind = 'leader' | 'warrior' | 'ship' | 'monster';
-export const BASE_STR: Record<Exclude<FigureKind, 'monster'>, number> = { leader: 2, warrior: 1, ship: 3 };
+export const BASE_STR: Record<Exclude<FigureKind, 'monster'>, number> = { leader: 3, warrior: 1, ship: 2 };
 export const WARRIORS = 8;
 
 // ---------- pillage rewards ----------
 export type Reward = 'rage' | 'axes' | 'horns' | 'glory' | 'all';
 export const REWARD_FA: Record<Reward, string> = { rage: 'یک پلهٔ خشم', axes: 'یک پلهٔ تبر', horns: 'یک پلهٔ شاخ', glory: '۵ افتخار', all: 'یک پله به هر سه ویژگی' };
-export const OUTER_REWARDS: Reward[] = ['rage', 'rage', 'axes', 'axes', 'horns', 'horns', 'glory', 'glory'];
+export const OUTER_REWARDS: Reward[] = ['rage', 'rage', 'rage', 'axes', 'axes', 'horns', 'horns', 'glory'];
 export const GLORY_REWARD = 5;
 /** Glory per figure that dies in Ragnarök, by age (1-based). */
 export const RAGNAROK_GLORY = [0, 2, 3, 4];
@@ -139,7 +139,7 @@ export const CARDS: CardDef[] = [
   c({ id: 'm2-valkyrie', age: 2, kind: 'monster', nameFa: 'والکیری', nameEn: 'Valkyrie', cost: 2, mstr: 2, n: [1, 1, 1, 1], textFa: 'قدرت ۲؛ در نبردی که حضور دارد به‌ازای هر نیروی نابودشدهٔ دشمن ۲ افتخار می‌گیرید.' }),
   c({ id: 'b2-backstab', age: 2, kind: 'battle', nameFa: 'خنجر پشت لوکی', nameEn: "Loki's Backstab", str: 0, n: [1, 1, 2, 2], textFa: 'اگر ببازید، ۲ افتخار از برنده می‌دزدید.' }),
   c({ id: 'b2-watch', age: 2, kind: 'battle', nameFa: 'دیده‌بانی هایمدال', nameEn: "Heimdall's Watch", str: 0, n: [1, 1, 1, 1], textFa: 'همهٔ کارت‌های آشکارشده کنار می‌روند، به‌اندازهٔ مجموع +قدرتشان افتخار می‌گیرید و همه دوباره کارت بازی می‌کنند.' }),
-  c({ id: 'b2-oath', age: 2, kind: 'battle', nameFa: 'سوگند ثور', nameEn: "Thor's Oath", str: 1, n: [1, 1, 1, 1], textFa: 'اگر ببرید، یکی از ویژگی‌هایتان را یک پله بالا می‌برید.' }),
+  c({ id: 'b2-oath', age: 2, kind: 'battle', nameFa: 'سوگند ثور', nameEn: "Thor's Oath", str: 1, n: [1, 1, 1, 2], textFa: 'اگر ببرید، یکی از ویژگی‌هایتان را یک پله بالا می‌برید.' }),
   c({ id: 'b2-tide', age: 2, kind: 'battle', nameFa: 'سیل اودین', nameEn: "Odin's Tide", str: 1, n: [1, 1, 2, 2], textFa: 'پیش از مقایسه، هر بازیکن همهٔ نیروهای خود در این نبرد به‌جز یکی را نابود می‌کند.' }),
   c({ id: 'b2-eye', age: 2, kind: 'battle', nameFa: 'چشم هایمدال', nameEn: "Heimdall's Eye", str: 2, n: [2, 3, 3, 4], textFa: 'پس از آشکار شدن کارت‌های دیگران تصمیم می‌گیرید بازیش کنید یا نه.' }),
   c({ id: 'b2-smash', age: 2, kind: 'battle', nameFa: 'خردکردن تیر', nameEn: "Tyr's Smash", str: 3, n: [0, 0, 1, 2], textFa: 'اثر ویژه ندارد.' }),
@@ -155,7 +155,7 @@ export const CARDS: CardDef[] = [
   // ---- Age 3 ----
   c({ id: 'u3-domain', age: 3, kind: 'clan', nameFa: 'قلمرو فریگا', nameEn: "Frigga's Domain", cost: 0, n: [1, 1, 1, 1], textFa: 'با پرداخت ۱ خشم با یکی از نیروهایتان که در والهالاست حمله کنید.' }),
   c({ id: 'u3-sacrifice', age: 3, kind: 'clan', nameFa: 'قربانی فریگا', nameEn: "Frigga's Sacrifice", cost: 1, n: [0, 1, 1, 1], textFa: 'به‌عنوان یک کنش، ۲ نیروی خود را از صفحه نابود کنید تا یکی از ویژگی‌هایتان یک پله بالا برود.' }),
-  c({ id: 'u3-wrath', age: 3, kind: 'clan', nameFa: 'غضب تیر', nameEn: "Tyr's Wrath", cost: 0, n: [0, 1, 1, 1], textFa: 'در نبرد می‌توانید یک کارت مأموریت را مثل کارت نبرد با ۵+ بازی کنید.' }),
+  c({ id: 'u3-wrath', age: 3, kind: 'clan', nameFa: 'غضب تیر', nameEn: "Tyr's Wrath", cost: 1, n: [0, 1, 1, 1], textFa: 'در نبرد می‌توانید یک کارت مأموریت را مثل کارت نبرد با ۵+ بازی کنید.' }),
   c({ id: 'u3-lokiwrath', age: 3, kind: 'clan', nameFa: 'غضب لوکی', nameEn: "Loki's Wrath", cost: 3, n: [0, 0, 1, 1], textFa: 'به‌ازای هر نیرویی که از والهالا آزاد می‌کنید ۳ افتخار می‌گیرید.' }),
   c({ id: 'u3-conquest', age: 3, kind: 'clan', nameFa: 'فتح ثور', nameEn: "Thor's Conquest", cost: 3, n: [1, 1, 1, 1], textFa: 'به‌ازای هر نیرویتان که پایان بازی روی صفحه است ۳ افتخار می‌گیرید.' }),
   c({ id: 'u3-throne', age: 3, kind: 'clan', nameFa: 'تخت اودین', nameEn: "Odin's Throne", cost: 2, n: [1, 1, 1, 1], textFa: 'افتخار مأموریت‌های انجام‌شده‌تان دو برابر می‌شود.' }),
@@ -165,13 +165,13 @@ export const CARDS: CardDef[] = [
   c({ id: 'm3-frost', age: 3, kind: 'monster', nameFa: 'غول یخی', nameEn: 'Frost Giant', cost: 4, mstr: 4, n: [1, 1, 1, 1], textFa: 'قدرت ۴؛ پس از غارت موفقی که در آن حضور دارد، پاداش غارت را دوباره می‌گیرید.' }),
   c({ id: 'm3-hel', age: 3, kind: 'monster', nameFa: 'سرباز هل', nameEn: 'Soldier from Hel', cost: 0, mstr: 3, n: [1, 1, 1, 1], textFa: 'قدرت ۳؛ ارتقا و حمله‌اش خشم نمی‌خواهد.' }),
   c({ id: 'm3-volur', age: 3, kind: 'monster', nameFa: 'جادوگر ولور', nameEn: 'Volur Witch', cost: 3, mstr: 3, n: [0, 1, 1, 1], textFa: 'قدرت ۳؛ به‌جای نابود شدن در یک استان بیرونی به ایگدراسیل می‌گریزد.' }),
-  c({ id: 'b3-poison', age: 3, kind: 'battle', nameFa: 'زهر لوکی', nameEn: "Loki's Poison", str: 0, n: [1, 1, 2, 2], textFa: 'اگر ببازید، کارت‌های آشکارشدهٔ برنده را به دست خود می‌گیرید.' }),
+  c({ id: 'b3-poison', age: 3, kind: 'battle', nameFa: 'زهر لوکی', nameEn: "Loki's Poison", str: 0, n: [1, 1, 1, 2], textFa: 'اگر ببازید، کارت‌های آشکارشدهٔ برنده را به دست خود می‌گیرید.' }),
   c({ id: 'b3-watch', age: 3, kind: 'battle', nameFa: 'دیده‌بانی هایمدال', nameEn: "Heimdall's Watch", str: 0, n: [1, 1, 1, 1], textFa: 'همهٔ کارت‌های آشکارشده کنار می‌روند، به‌اندازهٔ مجموع +قدرتشان افتخار می‌گیرید و همه دوباره کارت بازی می‌کنند.' }),
   c({ id: 'b3-ascension', age: 3, kind: 'battle', nameFa: 'اوج ثور', nameEn: "Thor's Ascension", str: 1, n: [1, 1, 2, 2], textFa: 'اگر ببرید ۳ خشم و ۳ افتخار می‌گیرید.' }),
   c({ id: 'b3-judgement', age: 3, kind: 'battle', nameFa: 'داوری اودین', nameEn: "Odin's Judgement", str: 2, n: [1, 1, 2, 2], textFa: 'به‌ازای هر نیروی نابودشده در این نبرد (از خودتان هم) ۲ افتخار می‌گیرید.' }),
   c({ id: 'b3-primacy', age: 3, kind: 'battle', nameFa: 'برتری ثور', nameEn: "Thor's Primacy", str: 3, n: [1, 2, 2, 2], textFa: 'متن کارت نبرد همهٔ حریفان را بی‌اثر می‌کند.' }),
   c({ id: 'b3-gaze', age: 3, kind: 'battle', nameFa: 'خیرگی هایمدال', nameEn: "Heimdall's Gaze", str: 3, n: [1, 2, 2, 2], textFa: 'پس از آشکار شدن کارت‌های دیگران تصمیم می‌گیرید بازیش کنید یا نه.' }),
-  c({ id: 'b3-crush', age: 3, kind: 'battle', nameFa: 'له‌کردن تیر', nameEn: "Tyr's Crush", str: 4, n: [1, 1, 1, 1], textFa: 'اثر ویژه ندارد.' }),
+  c({ id: 'b3-crush', age: 3, kind: 'battle', nameFa: 'له‌کردن تیر', nameEn: "Tyr's Crush", str: 4, n: [1, 1, 1, 2], textFa: 'اثر ویژه ندارد.' }),
   c({ id: 'b3-tsmite', age: 3, kind: 'battle', nameFa: 'کوبندگی تیر', nameEn: "Tyr's Smite", str: 5, n: [0, 0, 1, 1], textFa: 'اثر ویژه ندارد.' }),
   c({ id: 'b3-rage', age: 3, kind: 'battle', nameFa: 'غرّش تیر', nameEn: "Tyr's Rage", str: 6, n: [1, 1, 1, 1], textFa: 'اثر ویژه ندارد.' }),
   c({ id: 'b3-judge', age: 3, kind: 'battle', nameFa: 'قضاوت تیر', nameEn: "Tyr's Judgement", str: 8, n: [0, 0, 0, 1], textFa: 'اثر ویژه ندارد.' }),

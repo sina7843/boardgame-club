@@ -11,9 +11,10 @@ import './renderer.css';
 import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, fa, type GameAction, type GameRendererProps } from '@bg/ui';
 import {
-  BUILDING_FA, BUILD_COST, CONTENT, POWER_ACTIONS, RESEARCH_COST, RES_FA, BASE_CONVERSIONS, TRACKS, TRACK_FA, buildMap, conversions, gaiaProjectModule, leechAmount, minePlan, upgradeCost,
-  type Building, type Gain, type GaiaAction, type GaiaState, type GaiaView, type Track
+  BUILDING_FA, BUILD_COST, CONTENT, POWER_ACTIONS, RESEARCH_COST, RES_FA, BASE_CONVERSIONS, TRACKS, TRACK_FA, WHEEL, buildMap, conversions, qicFor, fedCandidates, fedCheck, fedPlan, fedTokensAvailable, gaiaformPlan, gaiaProjectModule, incomeResults, leechAmount, minePlan, upgradeCost,
+  type Bowls, type Building, type Gain, type GaiaAction, type GaiaState, type GaiaView, type Track
 } from './rules.ts';
+import { TERRANS_SPEND } from './content/factions-a.ts';
 import LAYOUT from './design/layout.json' with { type: 'json' };
 import IDS from './design/content-id-map.json' with { type: 'json' };
 
@@ -120,10 +121,25 @@ function decisionTitle(view: GaiaView, who: (s: number) => string): string {
     case 'tech': return `${who(d.seat)}: یک کاشی فناوری انتخاب کنید`;
     case 'cover': return `${who(d.seat)}: یک کاشی فناوری استاندارد را زیر ${techFa(d.adv)} بپوشانید`;
     case 'research': return `${who(d.seat)}: یک گام پژوهش رایگان`;
-    case 'lostPlanet': return `${who(d.seat)}: جای سیارهٔ گمشده را روی نقشه انتخاب کنید`;
+    case 'lostPlanet': return `${who(d.seat)}: سیارهٔ گمشده را روی یک خانهٔ خالی در دسترس بگذارید`;
+    case 'income': return `${who(d.seat)}: درآمد دور ${fa(view.round)}: ${fa(d.pw)} شارژ قدرت و ${fa(d.t)} ژتون قدرت. کدام اول؟`;
     case 'custom': return `${who(d.seat)}: ${d.labelFa}`;
   }
 }
+/** Federation problems (core fedCheck codes) as one Persian sentence (Gaia-Prompts 3). */
+const FED_FA: Record<string, (v: number, need: number) => string> = {
+  FED_EMPTY: () => 'سازه‌ها و خانه‌های ماهواره را روی نقشه بزنید.',
+  FED_BAD_HEX: () => 'ماهواره فقط روی فضای خالی می‌رود.',
+  FED_IN_FED: () => 'یکی از خانه‌ها در فدراسیون دیگر شما یا کنار آن است.',
+  FED_NO_STRUCTURE: () => 'دست‌کم یک سازهٔ بیرون از فدراسیون لازم است.',
+  FED_NOT_CONNECTED: () => 'سازه‌ها به هم وصل نیستند: خانهٔ ماهواره کم است.',
+  FED_LOW_VALUE: (v, need) => `ارزش قدرت ${fa(v)} است و دست‌کم ${fa(need)} لازم است.`,
+  FED_EXTRA_SAT: () => 'یک ماهواره اضافه است: بدون آن هم سازه‌ها وصل‌اند.',
+  FED_REDUNDANT: () => 'بدون یک سازه و یک ماهواره هم معتبر است؛ کوچک‌ترش کنید.',
+  NOT_ENOUGH_RESOURCES: () => 'برای ماهواره‌ها ژتون قدرت (آیویت‌ها: QIC) کافی ندارید.'
+};
+/** Bowls I / II / III as a short line: «کاسهٔ I: ۱، II: ۰، III: ۶». */
+const bowlsFa = (p: { b1: number; b2: number; b3: number }) => `کاسهٔ I: ${fa(p.b1)}، II: ${fa(p.b2)}، III: ${fa(p.b3)}`;
 
 function choiceFa(view: GaiaView, choice: string): string {
   const d = view.decision;
@@ -151,6 +167,7 @@ function stepFa(view: GaiaView, a: GameAction): string {
     case 'convert': return CONV_FA[a.id as string] ?? convFa(a.id as string);
     case 'burn': return 'سوزاندن قدرت';
     case 'decide': return choiceFa(view, a.choice as string);
+    case 'end': return 'پایان نوبت';
     default: return a.type;
   }
 }
@@ -171,9 +188,9 @@ function CostPill({ g, plus }: { g: Gain; plus?: boolean }) {
 
 const FREE = new Set(['convert', 'burn']);
 const toState = (v: GaiaView): GaiaState => {
-  const { decision, income, ...rest } = structuredClone(v);
+  const { decision, income, held, ...rest } = structuredClone(v);
   void decision; void income;
-  return { ...rest, ins: 0, turnDone: false } as GaiaState;
+  return { ...rest, ins: 0, turnDone: !!held } as GaiaState;
 };
 const NO_RNG = { rng: null as never, logicalTime: 0 };
 /** Apply the steps that the rules accept, in order; stops at the first one they reject. */
@@ -222,23 +239,26 @@ export function gaiaSeatCard(seat: SummarySeat, turn: boolean) {
     stats: undefined,
     badge: undefined,
     done: undefined,
+    // The VP plaque and turn order sit in the body row so the head keeps room for the name and the «شما» badge.
+    score: undefined,
+    scoreLabel: undefined,
     ...(seat.status === 'passed' ? { foot: <span className="gp-panel__foot">پاس داده{seat.badges?.some((b) => b.key === 'firstNext') ? '؛ نفر اول دور بعد' : ''}</span> } : {}),
     ...(faction ? { sub: <span className="gp-panel__faction" data-faction={fid}><img className="gp-planet" src={art(`art/planet-art/planet-${COLORS[faction.home]}.webp`)} alt="" />{faction.nameFa}</span> } : {}),
-    score: <span className="gp-side">
-      <span className="gp-vp" title="امتیاز" data-vp={seat.primary?.value ?? 0}><b>{fa(seat.primary?.value ?? 0)}</b></span>
-      {seat.turnOrder !== undefined && <span className={turn ? 'gp-order is-turn' : 'gp-order'} title="ترتیب نوبت در این دور">{fa(seat.turnOrder)}</span>}
-    </span>,
     detail: <div className="gp-panel">
       <div className="gp-panel__res">
+        <span className="gp-side">
+          <span className="gp-vp" title="امتیاز" aria-label={`${fa(seat.primary?.value ?? 0)} امتیاز`} data-vp={seat.primary?.value ?? 0}><b>{fa(seat.primary?.value ?? 0)}</b></span>
+          {seat.turnOrder !== undefined && <span className={turn ? 'gp-order is-turn' : 'gp-order'} title="ترتیب نوبت در این دور" aria-label={`نوبت ${fa(seat.turnOrder)} در این دور`}>{fa(seat.turnOrder)}</span>}
+        </span>
         {PANEL_RES.map(([k, label]) => <span key={k} className="gp-r" title={label} data-res={k}>
-          <span><img className="gp-ic" src={RES_ICON[k]} alt="" />{fa(stat(k))}</span>
-          {inc && <small>{plus(inc[k])}</small>}
+          <span><img className="gp-ic" src={RES_ICON[k]} alt={label} />{fa(stat(k))}</span>
+          <small>{plus(inc?.[k])}</small>
         </span>)}
       </div>
       {pow && <div className="gp-panel__pow" title="چرخهٔ قدرت: ناحیهٔ گایا و کاسه‌های I، II، III">
         {PANEL_BOWLS.map(([k, label]) => <span key={k} data-bowl={k} className={`gp-bowl${k === 'gaia' ? ' gp-bowl--g' : ''}${k === 'b3' && (pow[k] ?? 0) >= POWER_READY ? ' is-ready' : ''}`}><i>{label}</i><b>{fa(pow[k] ?? 0)}</b></span>)}
       </div>}
-      {inc && <div className="gp-panel__inc"><img className="gp-ic" src={RES_ICON.pw} alt="" />شارژ قدرت <b>{plus(inc.pwCharge)}</b><span>ژتون قدرت <b>{plus(inc.pwTokens)}</b></span></div>}
+      <div className="gp-panel__inc"><img className="gp-ic" src={RES_ICON.pw} alt="" />شارژ قدرت <b>{plus(inc?.pwCharge)}</b><span className="bgv-sep" />ژتون قدرت <b>{plus(inc?.pwTokens)}</b></div>
     </div>
   };
 }
@@ -263,8 +283,10 @@ interface Ctx {
   fresh: (key: string) => string;
   /** Engine error code for an action the viewer cannot take now ('' when it is legal). */
   reasonOf: (a: GameAction) => string;
-  /** Hexes of the federation proposal being shown (engine suggestion), or null. */
+  /** Hexes of the federation being picked (starts as the engine's suggestion), or null. */
   proposal: number[] | null;
+  /** Federation token → action, when the picked federation is valid. */
+  fedActs: Map<string, GameAction>;
 }
 
 const M = LAYOUT.map;
@@ -276,7 +298,16 @@ const NB = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]] as const;
 /** Space map (COMPONENTS.md §3): sector art on the hex grid, outer sector strokes, pieces, selectable hexes. */
 const SpaceMap = memo(function SpaceMap({ c }: { c: Ctx }) {
   const { view } = c;
-  const [zoom, setZoom] = useState(1);
+  const phoneMap = useMedia('(max-width: 760px)');
+  // Phone: open zoomed (hex ≥44px at 360–390 wide, COMPONENTS 9.9); pan by scrolling. Desktop: fit.
+  const [zoom, setZoom] = useState(() => (typeof matchMedia === 'function' && matchMedia('(max-width: 760px)').matches ? 2 : 1));
+  const scroller = useRef<HTMLDivElement>(null);
+  const pickKey = [...c.pickHex.keys()].join(',');
+  useEffect(() => { // phone: bring the first pickable hex into the middle of the map view
+    const box = scroller.current;
+    const el = phoneMap && pickKey ? box?.querySelector<HTMLElement>('.gp-hex[data-pick]') : null;
+    if (box && el) box.scrollTo({ left: el.offsetLeft - box.clientWidth / 2, top: el.offsetTop - box.clientHeight / 2 });
+  }, [phoneMap, pickKey]);
   const xy = (h: { q: number; r: number }) => ({ x: HX * h.q, y: HY * (h.r + h.q / 2) });
   const cs = view.hexes.map(xy);
   const minX = Math.min(...cs.map((p) => p.x)) - HW / 2, maxX = Math.max(...cs.map((p) => p.x)) + HW / 2;
@@ -322,7 +353,7 @@ const SpaceMap = memo(function SpaceMap({ c }: { c: Ctx }) {
         <button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label="کوچک‌تر" onClick={() => setZoom((z) => Math.max(1, z - 0.25))}>−</button>
         <button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label="جا شدن" onClick={() => setZoom(1)}>⤢</button>
       </div>
-      <div className="gp-mapscroll" dir="ltr">
+      <div className="gp-mapscroll" dir="ltr" ref={scroller}>
         <div className="gp-map" role="group" aria-label="نقشهٔ فضا" style={{ aspectRatio: `${W} / ${H}`, width: `${zoom * 100}%` }}>
           {view.placements.map((p) => {
             const n = p.sector.replace(/[AB]/, '');
@@ -339,9 +370,9 @@ const SpaceMap = memo(function SpaceMap({ c }: { c: Ctx }) {
           {view.hexes.map((h, i) => {
             const p = P(cs[i]!);
             const acts = c.pickHex.get(i);
-            const picked = c.pickedHex === i;
-            const hinted = c.expectedHex === i;
             const prop = !!c.proposal?.includes(i);
+            const picked = c.pickedHex === i || (!!acts && prop);
+            const hinted = c.expectedHex === i;
             if (!acts && !picked && !hinted && !prop) return null;
             const label = `${h.planet === 'e' ? 'فضای خالی' : h.planet}، بخش ${fa(h.sector)}${h.building && h.owner !== null ? `، ${BUILDING_FA[h.building]} ${c.who(h.owner)}` : ''}`;
             const cost = acts && !picked ? c.costOf(i) : null;
@@ -363,6 +394,9 @@ const RB = LAYOUT.researchBoard;
 const SB = LAYOUT.scoringBoard;
 const FB = LAYOUT.factionBoard;
 const CLUSTER = RB.playerMarker.cluster.offsets as Record<string, number[][]>;
+/** Bescods: the printed board swaps the PI and academy spaces (rulebook p. 21, RULES E9); centres measured on
+ *  art/boards/faction-Bescods.webp (1753×999), widths as the shared template. */
+const BESCODS_SLOTS = { PI: { centres: [[895, 487]], widthPct: FB.slots.PI.widthPct }, AC: { centres: [[250, 483], [440, 483]], widthPct: FB.slots.AC.widthPct } };
 
 /** Research board (§4) with the federation supply under it. */
 const ResearchBoard = memo(function ResearchBoard({ c }: { c: Ctx }) {
@@ -428,9 +462,17 @@ const ResearchBoard = memo(function ResearchBoard({ c }: { c: Ctx }) {
         {RB.powerActions.ids.map((id, i) => { const [x, y] = RB.powerActions.centres[i] as [number, number]; return action(id, x, y, RB.powerActions.buttonPct.w, RB.powerActions.buttonPct.h, RB.powerActions.usedTokenWidthPct); })}
         {RB.qicActions.ids.map((id, i) => { const [x, y] = RB.qicActions.centres[i] as [number, number]; return action(id, x, y, RB.qicActions.buttonPct.w, RB.qicActions.buttonPct.h, RB.qicActions.usedTokenWidthPct); })}
       </div>
-      <ul className="gp-fedsupply" data-gp-board="fedsupply" aria-label="ذخیرهٔ توکن‌های فدراسیون">
+    </div>
+  );
+});
+
+/** Federation token supply (§4.8): beside the scoring board and boosters (HANDOFF decision 11). */
+const FedSupply = memo(function FedSupply({ c }: { c: Ctx }) {
+  const { view } = c;
+  return (
+    <ul className="gp-fedsupply" data-gp-board="fedsupply" aria-label="ذخیرهٔ توکن‌های فدراسیون">
         {Object.entries(view.fedSupply).map(([id, n]) => {
-          const a = c.proposal ? c.legal.find((x) => x.type === 'federation' && x.token === id && JSON.stringify(x.hexes) === JSON.stringify(c.proposal)) : undefined;
+          const a = c.fedActs.get(id);
           const img = <img src={fedArt(id)} alt={fedFa(id)} draggable={false} />;
           return (
             <li key={id} className={n ? undefined : 'is-empty'} data-gp-piece="fed" data-id={id}>
@@ -440,8 +482,7 @@ const ResearchBoard = memo(function ResearchBoard({ c }: { c: Ctx }) {
             </li>
           );
         })}
-      </ul>
-    </div>
+    </ul>
   );
 });
 
@@ -512,7 +553,7 @@ const FactionBoardView = memo(function FactionBoardView({ c, seat }: { c: Ctx; s
   const W = FB.w, H = FB.h;
   const own = seat === c.me;
   const built = (b: Building[]) => view.hexes.filter((h) => h.owner === seat && b.includes(h.building!)).length + (b.includes('mine') ? view.hexes.filter((h) => h.extra === seat).length : 0);
-  const slots = (Object.entries(FB.slots) as [string, { centres: number[][]; widthPct: number }][]).flatMap(([k, def]) => {
+  const slots = (Object.entries(fid === 'bescods' ? { ...FB.slots, ...BESCODS_SLOTS } : FB.slots) as [string, { centres: number[][]; widthPct: number }][]).flatMap(([k, def]) => {
     const kinds: Building[] = k === 'MI' ? ['mine'] : k === 'TS' ? ['ts'] : k === 'RL' ? ['lab'] : k === 'PI' ? ['pi'] : ['ac1', 'ac2'];
     const b = built(kinds);
     return def.centres.slice(b).map(([x, y], i) => <img key={`${k}${b + i}`} className="gp-at gp-slot" data-gp-piece={k} data-slot={b + i} data-seat={seat}
@@ -579,6 +620,18 @@ const FactionBoardView = memo(function FactionBoardView({ c, seat }: { c: Ctx; s
 type Mode = { kind: 'mine' | 'upgrade' | 'gaiaform' | 'federation' | 'pass' | 'research'; id?: undefined } | { kind: 'power' | 'special'; id: string };
 type Tab = 'map' | 'research' | 'scoring' | 'board';
 
+/** The page theme (root `data-theme`): the action bar is a page card, outside the dark felt stage. */
+function usePageTheme(): 'light' | 'dark' {
+  const read = (): 'light' | 'dark' => (typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+  const [theme, setTheme] = useState(read);
+  useEffect(() => {
+    const o = new MutationObserver(() => setTheme(read()));
+    o.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => o.disconnect();
+  }, []);
+  return theme;
+}
+
 /** Live media query (phone layout renders only the open tab). */
 function useMedia(query: string) {
   const [on, setOn] = useState(() => typeof matchMedia === 'function' && matchMedia(query).matches);
@@ -603,6 +656,9 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const [boardSeat, setBoardSeat] = useState<number | null>(null);
   const [autoOpen, setAutoOpen] = useState(false);
   const [fedIdx, setFedIdx] = useState(0);
+  const [fedSel, setFedSel] = useState<number[]>([]);
+  const [brainSpend, setBrainSpend] = useState(false);
+  const [lostSel, setLostSel] = useState<number | null>(null);
   // Phone zoom dock (9.7): a tap focuses a piece; its tip node is cloned here (no HTML parsing), the close button empties it.
   const dock = useRef<HTMLDivElement>(null);
   const showTip = (e: React.FocusEvent) => {
@@ -622,7 +678,9 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
 
   const sending = outbox.length > 0;
   // My own turn with nothing open: everything is a local draft until «تأیید».
-  const drafting = mySeat !== null && !served.outcome && !served.pending.length && served.current === mySeat && legalActions.some((a) => a.type !== 'resign');
+  // A held turn (main action done, RULES E10) belongs to its holder for free actions and to the next player for their move.
+  const turnSeat = useMemo(() => gaiaProjectModule.pendingSeats(toState(served))[0], [served]);
+  const drafting = mySeat !== null && !served.outcome && !served.pending.length && (served.current === mySeat || turnSeat === mySeat) && legalActions.some((a) => a.type !== 'resign');
   // The engine runs once per snapshot or draft step, never per render (hover, sheet, tab).
   const steps = useMemo(() => [...outbox, ...(drafting ? draft : [])].flatMap((a) => (a.type === 'batch' ? a.actions as GameAction[] : [a])), [outbox, draft, drafting]);
   const sim = useMemo(() => simulate(served, mySeat, steps), [served, mySeat, steps]);
@@ -631,11 +689,37 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const sentSteps = steps.length - (drafting ? draft.length : 0);
   useEffect(() => { if (drafting && sim.n < steps.length) setDraft((d) => d.slice(0, Math.max(0, sim.n - sentSteps))); }, [drafting, sim.n, steps.length, sentSteps]);
   useEffect(() => { if (!drafting) { setDraft([]); setMode(null); setHexSel(null); } }, [drafting]);
+  // Gaia-Prompts 5: a Gaia Project or satellites as the last draft step: the player picks the bowls (default I, II, III).
+  const bowlEdit = useMemo(() => {
+    const last = drafting ? draft[draft.length - 1] : undefined;
+    if (!last || mySeat === null || (last.type !== 'gaiaform' && last.type !== 'federation')) return null;
+    const before = simulate(served, mySeat, [...outbox, ...draft.slice(0, -1)]).s;
+    if (last.type === 'federation' && CONTENT.factions[before.pl[mySeat]!.faction ?? '']?.flags?.satelliteQic) return null;
+    const plan = last.type === 'gaiaform' ? gaiaformPlan(before, mySeat, last.hex as number) : fedPlan(before, mySeat, last.hexes as number[]);
+    if (typeof plan === 'string') return null;
+    const n = 'tokens' in plan ? plan.tokens : plan.sats.length;
+    const pw = before.pl[mySeat]!.power;
+    const caps: Bowls = [pw.b1 + (pw.brain === 1 ? 1 : 0), pw.b2 + (pw.brain === 2 ? 1 : 0), pw.b3 + (pw.brain === 3 ? 1 : 0)]; // the brainstone counts in its bowl
+    if (!n || caps.filter((x) => x > 0).length < 2) return null;
+    let left = n;
+    const def = caps.map((cap) => { const k = Math.min(cap, left); left -= k; return k; }) as Bowls;
+    return { kind: last.type, n, caps, from: (last.from as Bowls | undefined) ?? def };
+  }, [drafting, draft, mySeat, served, outbox]);
+  /** Move one token of the pick into bowl `i` (+1) or out of it (−1), keeping the total. */
+  const moveBowl = (i: number, dir: 1 | -1) => {
+    if (!bowlEdit) return;
+    const f = [...bowlEdit.from] as Bowls;
+    const j = dir > 0 ? [2, 1, 0].find((k) => k !== i && f[k]! > 0) : [0, 1, 2].find((k) => k !== i && f[k]! < bowlEdit.caps[k]!);
+    if (j === undefined || (dir > 0 ? f[i]! >= bowlEdit.caps[i]! : f[i]! <= 0)) return;
+    f[i] = f[i]! + dir; f[j] = f[j]! - dir;
+    setDraft((d) => [...d.slice(0, -1), { ...d[d.length - 1]!, from: f }]);
+  };
   // Pieces new in this state fade in once (CSS); pieces that move glide by their own left/top transition.
   // Refs, not render-local sets: StrictMode renders twice and the memoized boards keep the first render's closure.
   const seen = useRef<{ seq: number | null; keys: Set<string>; drawn: Set<string> }>({ seq: null, keys: new Set(), drawn: new Set() });
   useEffect(() => { const s = seen.current; for (const k of s.drawn) s.keys.add(k); s.drawn.clear(); s.seq = view.seq; });
   const phone = useMedia('(max-width: 760px)');
+  const pageTheme = usePageTheme();
 
   const who = (s: number) => (s === mySeat ? t('you') : seatName(s));
   const legal = useMemo(() => (sending ? [] : drafting && steps.length
@@ -643,12 +727,24 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
     : legalActions).filter((a) => a.type !== 'resign') as GameAction[], [sending, drafting, steps.length, state, mySeat, legalActions]);
   const myDecision = mySeat !== null && view.decision?.seat === mySeat;
   const hasMain = draft.some((a) => !FREE.has(a.type) && a.type !== 'decide');
-  const canConfirm = drafting && hasMain && !myDecision;
+  /** After the draft my main action is done and only free actions remain before «تأیید» ends the turn. */
+  const heldNow = drafting && state.turnDone && state.current === mySeat && !state.pending.length && !state.outcome;
+  /** A main action is still possible: when everyone else passed, the held turn's holder also plays the next turn. */
+  const mainLegal = legal.some((a) => !FREE.has(a.type) && a.type !== 'end' && a.type !== 'decide');
+  const onlyFree = heldNow && !mainLegal;
+  const canConfirm = drafting && (hasMain || (heldNow && !expected)) && !myDecision;
   const actionsTurn = legal.some((a) => a.type === 'pass');
   const hint = (a: GameAction) => same(expected, a);
 
+  // Taklons (RULES E6): with the brainstone in bowl III, power spending says whether it is spent.
+  const brainChoice = mySeat !== null && state.pl[mySeat]?.power.brain === 3;
   const add = (a: GameAction) => {
     if (busy || sending) return;
+    if (brainChoice && (a.type === 'convert' || a.type === 'power') && a.brain === undefined) {
+      const pick = { ...a, brain: brainSpend };
+      // Keeping the brainstone is impossible when bowl III alone cannot pay: then it is spent (engine default).
+      if (gaiaProjectModule.validate(state, { kind: 'player', seat: mySeat! }, pick as GaiaAction).ok) a = pick;
+    }
     if (!drafting) { onAction(a); return; } // out of turn (leech) and decisions already open on the server
     setDraft((d) => [...d, a]);
     setMode(null); setHexSel(null); setSheet(false);
@@ -656,14 +752,22 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const back = () => { if (mode || hexSel !== null) { setMode(null); setHexSel(null); } else setDraft((d) => d.slice(0, -1)); };
   const cancel = () => { setDraft([]); setMode(null); setHexSel(null); };
   // One request per turn (atomic on the server); tutorials check each scripted step, so they go one by one.
-  const confirm = () => { if (!canConfirm) return; setOutbox(expected || draft.length === 1 ? draft : [{ type: 'batch', actions: draft }]); setDraft([]); setSheet(false); };
+  const confirm = () => {
+    if (!canConfirm) return;
+    // «تأیید» ends the turn explicitly (`end`); tutorials check each scripted step, so they send the steps alone.
+    const out = !expected && heldNow ? [...draft, { type: 'end' }] : draft;
+    if (!out.length) return;
+    setOutbox(expected || out.length === 1 ? out : [{ type: 'batch', actions: out }]); setDraft([]); setSheet(false);
+  };
 
   // What a hex does in the current step.
   const ofMode = (a: GameAction) => (mode ? (mode.kind === 'power' || mode.kind === 'special' ? a.type === mode.kind && a.id === mode.id : a.type === mode.kind) : true);
   const lostPlanet = view.decision?.kind === 'lostPlanet';
+  useEffect(() => { if (!lostPlanet) setLostSel(null); }, [lostPlanet]);
   const pickHex = useMemo(() => {
     const out = new Map<number, GameAction[]>();
-    if (sending || (mode && (mode.kind === 'research' || mode.kind === 'pass' || mode.kind === 'federation'))) return out;
+    if (sending || (mode && (mode.kind === 'research' || mode.kind === 'pass'))) return out;
+    if (mode?.kind === 'federation') { if (mySeat !== null) for (const i of fedCandidates(state, mySeat)) out.set(i, []); return out; }
     for (const a of legal) {
       const hx = typeof a.hex === 'number' ? a.hex : a.type === 'decide' && lostPlanet ? Number(a.choice) : null;
       if (hx === null || !ofMode(a)) continue;
@@ -671,9 +775,11 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
       out.set(hx, [...(out.get(hx) ?? []), a]);
     }
     return out;
-  }, [legal, mode, sending, lostPlanet]); // eslint-disable-line react-hooks/exhaustive-deps -- ofMode reads mode
+  }, [legal, mode, sending, lostPlanet, state, mySeat]); // eslint-disable-line react-hooks/exhaustive-deps -- ofMode reads mode
   const onHex = (i: number) => {
+    if (mode?.kind === 'federation') { setFedSel((sel) => (sel.includes(i) ? sel.filter((x) => x !== i) : [...sel, i].sort((a, b) => a - b))); return; }
     const list = pickHex.get(i) ?? [];
+    if (lostPlanet && list.length) { setLostSel(i); return; } // Gaia-Prompts 8: pick, then «تأیید»
     if (list.length === 1) add(list[0]!);
     else if (list.length > 1) setHexSel(i);
   };
@@ -684,6 +790,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
     add(a);
   };
   const costOf = (i: number) => {
+    if (mySeat !== null && mode?.kind === 'special' && mode.id === 'faction:ivits') { const q = qicFor(state, mySeat, i); return q ? { q } : null; }
     if (mySeat === null || mode?.kind !== 'mine') return null;
     const plan = minePlan(state, mySeat, i);
     return typeof plan === 'string' ? null : plan.cost;
@@ -695,12 +802,16 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
     return r.ok ? '' : r.errorCode;
   };
   const proposals = useMemo(() => [...new Set(legal.filter((a) => a.type === 'federation').map((a) => JSON.stringify(a.hexes)))].map((x) => JSON.parse(x) as number[]), [legal]);
-  const proposal = mode?.kind === 'federation' && proposals.length ? proposals[fedIdx % proposals.length]! : null;
+  const proposal = mode?.kind === 'federation' ? fedSel : null;
+  // Federation by hand (Gaia-Prompts 3): the hexes picked on the map, checked by the engine as they change.
+  const fc = mode?.kind === 'federation' && mySeat !== null && fedSel.length ? fedCheck(state, mySeat, fedSel) : null;
+  const fedActs = useMemo(() => new Map(fc && !fc.error ? fedTokensAvailable(state).map((token): [string, GameAction] => [token, { type: 'federation', hexes: fedSel, token }]) : []),
+    [fc?.error, fedSel, state]); // eslint-disable-line react-hooks/exhaustive-deps -- fc derives from fedSel + state
   const lastHex = drafting && !mode ? [...draft].reverse().find((a) => typeof a.hex === 'number')?.hex as number | undefined : undefined;
   const fresh = (k: string) => { const s = seen.current; s.drawn.add(k); return s.seq !== null && s.seq !== view.seq && !s.keys.has(k) ? ' gp-new' : ''; };
   // Stable while nothing the boards show changes, so the memoized boards skip sheet/tab/auto-charge re-renders.
-  const c: Ctx = useMemo(() => ({ view, state, me: mySeat, who, legal, pickHex, pickedHex: hexSel ?? lastHex ?? null, onHex, tryAct, hint, expectedHex, costOf, fresh, reasonOf, proposal }),
-    [view, state, mySeat, legal, pickHex, hexSel, lastHex, expectedHex, mode, busy, sending, drafting, expected, lang, seatName, onAction, proposal]); // eslint-disable-line react-hooks/exhaustive-deps -- the closures read exactly these
+  const c: Ctx = useMemo(() => ({ view, state, me: mySeat, who, legal, pickHex, pickedHex: hexSel ?? lostSel ?? lastHex ?? null, onHex, tryAct, hint, expectedHex, costOf, fresh, reasonOf, proposal, fedActs }),
+    [view, state, mySeat, legal, pickHex, hexSel, lostSel, lastHex, expectedHex, mode, busy, sending, drafting, expected, lang, seatName, onAction, proposal, fedActs]); // eslint-disable-line react-hooks/exhaustive-deps -- the closures read exactly these
 
   // Main-action buttons: legal from the engine, or disabled with the engine's reason.
   /** Reason for a disabled main button: the engine's most relevant error code, and for a resource shortfall the exact
@@ -740,7 +851,9 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const startMain = (k: 'mine' | 'upgrade' | 'gaiaform' | 'research' | 'federation' | 'pass') => {
     const list = legal.filter((a) => a.type === k);
     // federation: open on the tutorial's proposal when there is one, else the engine's first
-    setFedIdx(k === 'federation' && expected?.type === 'federation' ? Math.max(0, proposals.findIndex((h) => JSON.stringify(h) === JSON.stringify(expected.hexes))) : 0);
+    const fi = k === 'federation' && expected?.type === 'federation' ? Math.max(0, proposals.findIndex((h) => JSON.stringify(h) === JSON.stringify(expected.hexes))) : 0;
+    setFedIdx(fi);
+    if (k === 'federation') setFedSel(proposals[fi] ?? []);
     setSheet(false); // the choices stay in the flow line and on the board; the open sheet would cover them on a phone
     if (k === 'research' || k === 'federation' || k === 'pass') { if (k === 'pass' && list.length === 1) { add(list[0]!); return; } setMode({ kind: k }); if (k === 'federation') setTab('map'); if (k === 'research') setTab('research'); if (k === 'pass') setTab('scoring'); return; }
     setMode({ kind: k as 'mine' | 'upgrade' | 'gaiaform' }); setTab('map'); setSheet(false);
@@ -771,16 +884,79 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
       : hexSel !== null ? t('pickTo') : mode ? `${mode.kind === 'power' || mode.kind === 'special' ? stepFa(view, { type: mode.kind, id: mode.id }) : t(mode.kind)}: ${t('pickHex')}`
         : view.phase === 'faction' ? t('pickFaction') : view.phase === 'setup' ? t('place') : view.phase === 'booster' ? t('boosterPhase')
           : canConfirm ? t('ready') : t('pickAction');
-  type Opt = { a: GameAction; cost?: Gain | null; reason?: string };
+  type Opt = { a: GameAction; cost?: Gain | null; reason?: string; img?: string; note?: string };
+  const lvlFa = (track: Track) => { const l = me?.research[track] ?? 0; return lang === 'en' ? `${l} → ${l + 1}` : `${fa(l)}←${fa(Math.min(5, l + 1))}`; };
+  const dec = myDecision ? view.decision : null;
+  const income = dec?.kind === 'income' ? incomeResults(state, dec.seat, dec.pw, dec.t) : null;
+  const decisionOpts = (): Opt[] => {
+    // Gaia-Prompts 1: all six tracks with the step each one makes; closed tracks stay visible, disabled.
+    if (dec?.kind === 'research') return TRACKS.map((track) => {
+      const a: GameAction = { type: 'decide', choice: track };
+      return { a, note: lvlFa(track), ...(decisions.some((x) => x.choice === track) ? {} : { reason: 'این مسیر بسته است' }) };
+    });
+    if (dec?.kind === 'custom' && (dec.source === 'faction:terrans' || dec.source === 'faction:itars')) return [];
+    return decisions.map((a) => ({
+      a,
+      ...(dec?.kind === 'tech' || dec?.kind === 'cover' ? { img: techArt(String(a.choice)) } : {}),
+      // Gaia-Prompts 4: preview of the bowls for each order.
+      ...(income ? { note: `پس از درآمد: ${bowlsFa(a.choice === 'charge-first' ? income.chargeFirst : income.tokenFirst)}` } : {})
+    }));
+  };
+  /** Small faction board beside a faction's own prompt (Gaia-Prompts 6–7). */
+  const facThumb = (seat: number) => {
+    const fid = view.pl[seat]?.faction;
+    const path = fid ? FACTIONS[fid]?.board : undefined;
+    return path ? <img className="gp-facthumb" src={ART_SM[`./art-sm/${path.slice(4)}`] ?? art(path)} alt={factionFa(fid!)} /> : null;
+  };
+  const decAct = (choice: string) => decisions.find((a) => a.choice === choice);
+  const facPrompt = (() => {
+    const row = (seat: number | null, body: ReactNode, kind: string) => <div className="gp-facprompt" data-gp-pending={kind}>{seat !== null && facThumb(seat)}<div className="gp-facprompt__body">{body}</div></div>;
+    if (dec?.kind === 'custom' && dec.source === 'faction:terrans') {
+      const done = decAct('done');
+      return row(dec.seat, <>
+        <p><b>{factionFa('terrans')}</b>: {fa(Number(dec.data ?? 0))} قدرت از ناحیهٔ گایا به کاسهٔ II رفت. با مؤسسه، این قدرت را برای تبدیل خرج کنید.</p>
+        <div className="gp-free">{decisions.filter((a) => a.choice !== 'done').map((a) => {
+          const k = String(a.choice);
+          return <button key={k} type="button" className={`gp-chipbtn${hint(a) ? ' gp-hint' : ''}`} data-option="decide" disabled={busy} onClick={() => add(a)}>
+            {fa(TERRANS_SPEND[k]?.pw ?? 0)} قدرت → {RES_FA[k as keyof Gain] ?? k}</button>;
+        })}</div>
+        {done && <div className="gp-btnrow"><Button size="sm" data-option="decide" disabled={busy} onClick={() => add(done)}>تمام</Button></div>}
+      </>, 'custom');
+    }
+    if (dec?.kind === 'custom' && dec.source === 'faction:itars') {
+      const yes = decAct('yes'), no = decAct('no');
+      return row(dec.seat, <>
+        <p><b>{factionFa('itars')}</b>: {fa(Number(view.pl[dec.seat]?.mark.itarsAside ?? 0))} ژتون در ناحیهٔ گایا دارید. هر ۴ ژتون یک کاشی فناوری؛ تبدیل می‌کنید؟</p>
+        <div className="gp-btnrow">
+          {yes && <Button size="sm" data-option="decide" disabled={busy} onClick={() => add(yes)}>یک کاشی (۴ ژتون)</Button>}
+          {no && <Button size="sm" variant="secondary" data-option="decide" disabled={busy} onClick={() => add(no)}>رد</Button>}
+        </div>
+      </>, 'custom');
+    }
+    if (dec?.kind === 'lostPlanet') {
+      const a = lostSel !== null ? decAct(String(lostSel)) : undefined;
+      return row(null, <>
+        <p><b>ناوبری ۵</b>: سیارهٔ گمشده را روی یک خانهٔ خالی در دسترس بگذارید. مثل ساخت معدن امتیاز می‌دهد و دیگران شارژ می‌کنند.</p>
+        <div className="gp-btnrow">
+          <Button size="sm" data-option={a ? 'decide' : undefined} disabled={busy || !a} onClick={() => a && add(a)}>تأیید: معدن روی سیارهٔ گمشده</Button>
+          <Button size="sm" variant="secondary" disabled={lostSel === null} onClick={() => setLostSel(null)}>{t('back')}</Button>
+        </div>
+      </>, 'lostPlanet');
+    }
+    if (mode?.kind === 'special' && mode.id === 'faction:ivits' && mySeat !== null) {
+      return row(mySeat, <p><b>{factionFa('ivits')}</b>: ایستگاه فضایی را روی یک خانهٔ خالی در برد بگذارید. ارزش ۱ در فدراسیون دارد و سازه نیست؛ QIC فقط برای برد بیشتر.</p>, 'special');
+    }
+    return null;
+  })();
   const costIf = (g: Gain | string) => (typeof g === 'string' ? null : g);
   const options: Opt[] = hexSel !== null ? (pickHex.get(hexSel) ?? []).map((a) => ({ a, cost: a.type === 'upgrade' && mySeat !== null ? costIf(upgradeCost(state, mySeat, a.hex as number, a.to as 'ts')) : null }))
     : mode?.kind === 'research' ? TRACKS.map((track) => {
       const a: GameAction = { type: 'research', track };
-      return { a, cost: { k: RESEARCH_COST }, ...(legal.some((x) => same(x, a)) ? {} : { reason: REASON_FA[reasonOf(a)] ?? reasonOf(a) }) };
+      return { a, cost: { k: RESEARCH_COST }, note: lvlFa(track), ...(legal.some((x) => same(x, a)) ? {} : { reason: REASON_FA[reasonOf(a)] ?? reasonOf(a) }) };
     })
-      : mode?.kind === 'federation' ? legal.filter((a) => a.type === 'federation' && JSON.stringify(a.hexes) === JSON.stringify(proposal)).map((a) => ({ a }))
+      : mode?.kind === 'federation' ? [...fedActs.values()].map((a) => ({ a, img: fedArt(String(a.token)) }))
         : mode?.kind === 'pass' ? legal.filter((a) => a.type === 'pass').map((a) => ({ a })) : mode?.kind === 'power' && mode.id === 'qic2' ? legal.filter((a) => a.type === 'power' && a.id === 'qic2').map((a) => ({ a }))
-          : myDecision && view.decision?.kind !== 'lostPlanet' ? decisions.map((a) => ({ a }))
+          : myDecision && view.decision?.kind !== 'lostPlanet' ? decisionOpts()
             : drafting && view.phase === 'booster' && !draft.length ? legal.filter((a) => a.type === 'booster').map((a) => ({ a })) : [];
   const optionFa = (a: GameAction) => (a.type === 'federation' ? fedFa(a.token as string) : a.type === 'power' && a.pick ? fedFa(a.pick as string)
     : a.type === 'upgrade' ? BUILDING_FA[a.to as Building] : a.type === 'research' ? TRACK_FA[a.track as Track] : stepFa(view, a));
@@ -788,14 +964,15 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const spent: Gain = {};
   if (drafting && mySeat !== null && me) for (const r of ['c', 'o', 'k', 'q'] as const) { const d = (served.pl[mySeat]?.[r] ?? 0) - me[r]; if (d > 0) spent[r] = d; }
 
-  const clock = <span className="gp-turnline">{view.phase === 'actions' ? `${t('round')} ${fa(view.round)} ${t('of6')}` : ''}</span>;
+  // The shell already shows the round; row 1 keeps a slot for the turn clock (filled by the shell when it portals one).
+  const clock = <span className="gp-clockslot" data-gp-clock />;
   const bar = (
-    <div className={`gp-actbar${drafting || leech ? '' : ' is-waiting'}${sheet ? ' is-open' : ''}`} data-gp-actbar data-gp-pending={view.decision?.kind}>
+    <div className={`gp-actbar${drafting || leech ? '' : ' is-waiting'}${sheet ? ' is-open' : ''}`} data-gp-actbar data-gp-pending={view.decision?.kind} data-theme={pageTheme}>
       <div className="gp-actbar__row1">
         <p className="gp-actbar__say">{view.outcome ? 'بازی تمام شد'
           : sending ? t('sending')
             : drafting || myDecision ? <><b>{myDecision ? t('decide') : t('yourTurn')}</b>: {prompt}</>
-              : mySeat === null ? `${t('spectating')}: ${t('turnOf')} ${who(waitingFor)}` : `${t('turnOf')} ${who(waitingFor)}`}</p>
+              : mySeat === null ? <>{t('spectating')}: {t('turnOf')} <bdi>{who(waitingFor)}</bdi></> : <>{t('turnOf')} <bdi>{who(waitingFor)}</bdi></>}</p>
         {clock}
         {me && !expected && <Button size="sm" variant="ghost" className="gp-autobtn" aria-expanded={autoOpen} onClick={() => setAutoOpen(!autoOpen)}>{t('auto')}: {autoLabel}</Button>}
         <button type="button" className="gp-lang" aria-label="زبان لایهٔ بازی" onClick={() => { const n = lang === 'fa' ? 'en' : 'fa'; setLang(n); try { localStorage.setItem('gp.lang', n); } catch { /* storage blocked */ } }}>{lang === 'fa' ? 'EN' : 'فا'}</button>
@@ -804,10 +981,13 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
       {autoPanel}
       {leech && (
         <div className="gp-leech" data-gp-pending="leech">
-          <p>{(() => {
+          {(() => {
             const n = leechAmount(state, leech.seat, leech.amount);
-            return `${who(leech.from)} کنار شما ساخت. ${fa(n)} قدرت شارژ می‌کنید؟ هزینه ${fa(Math.max(0, n - 1))} امتیاز`;
-          })()}</p>
+            const cost = `هزینه ${fa(Math.max(0, n - 1))} امتیاز`;
+            return decisions.some((a) => a.choice === 'token-first')
+              ? <div className="gp-facprompt">{facThumb(leech.seat)}<p className="gp-facprompt__body"><b>{who(leech.seat)}</b> ({factionFa('taklons')}): {who(leech.from)} کنار شما ساخت و {fa(n)} قدرت شارژ می‌شود ({cost}). ژتون مؤسسه را کی بگیرید؟</p></div>
+              : <p>{`${who(leech.from)} کنار شما ساخت. ${fa(n)} قدرت شارژ می‌کنید؟ ${cost}`}</p>;
+          })()}
           <div className="gp-btnrow">
             {decisions.map((a) => <Button key={String(a.choice)} size="sm" variant={a.choice === 'decline' ? 'secondary' : 'primary'} className={hint(a) ? 'gp-hint' : undefined} disabled={busy} onClick={() => add(a)}>
               {a.choice === 'accept' ? `شارژ ${fa(leechAmount(state, leech.seat, leech.amount))} قدرت` : a.choice === 'decline' ? 'رد' : choiceFa(view, String(a.choice))}</Button>)}
@@ -817,15 +997,34 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
       )}
       {(drafting || (myDecision && !leech)) && (
         <div className="gp-actbar__rows">
-          {(draft.length > 0 || mode || hexSel !== null || myDecision || options.length > 0) && (
+          {(draft.length > 0 || heldNow || mode || hexSel !== null || myDecision || options.length > 0) && (
             <div className="gp-flow" data-gp-pending={myDecision ? view.decision?.kind : undefined}>
               {flowSteps.length > 0 && <ol className="gp-steps">{flowSteps}{!canConfirm && <li className="gp-step is-now">…</li>}</ol>}
               {Object.keys(spent).length > 0 && <p className="gp-spent">هزینهٔ این نوبت: <CostPill g={spent} /></p>}
-              {proposal && <p className="gp-spent">پیشنهاد {fa((fedIdx % proposals.length) + 1)} از {fa(proposals.length)}: {fa(proposal.length)} خانه روی نقشه. توکن را انتخاب کنید.
-                {proposals.length > 1 && <Button size="sm" variant="ghost" onClick={() => setFedIdx(fedIdx + 1)}>پیشنهاد بعدی</Button>}</p>}
-              {options.length > 0 && <div className="gp-btnrow">{options.map(({ a, cost, reason: why }, k) => <span key={k} className="gp-mainbtn">
+              {bowlEdit && <div className="gp-bowlpick" data-gp-pending="bowls">
+                <p className="gp-spent"><b>{bowlEdit.kind === 'gaiaform' ? 'پروژهٔ گایا' : 'ماهواره‌ها'}</b>: {fa(bowlEdit.n)} ژتون {bowlEdit.kind === 'gaiaform' ? 'به ناحیهٔ گایا می‌رود' : 'از بازی بیرون می‌رود'}. از کدام کاسه‌ها؟</p>
+                {(['I', 'II', 'III'] as const).map((label, i) => <div key={label} className="gp-bowlrow">
+                  <span>کاسهٔ {label} ({fa(bowlEdit.caps[i]!)} ژتون)</span>
+                  <Button size="sm" variant="secondary" aria-label={`یکی کمتر از کاسهٔ ${label}`} disabled={busy || bowlEdit.from[i]! <= 0} onClick={() => moveBowl(i, -1)}>−</Button>
+                  <b>{fa(bowlEdit.from[i]!)}</b>
+                  <Button size="sm" variant="secondary" aria-label={`یکی بیشتر از کاسهٔ ${label}`} disabled={busy || bowlEdit.from[i]! >= bowlEdit.caps[i]!} onClick={() => moveBowl(i, 1)}>+</Button>
+                </div>)}
+                <small>جمع {fa(bowlEdit.n)} از {fa(bowlEdit.n)}</small>
+              </div>}
+              {mode?.kind === 'federation' && <div className="gp-fedsel" data-gp-pending="federation">
+                <p className="gp-spent">سازه‌ها و خانه‌های ماهواره را روی نقشه بزنید{fc && !fc.error ? '، سپس توکن فدراسیون را انتخاب کنید' : ''}.</p>
+                {fc && <p className="gp-spent">ارزش قدرت <b>{fa(fc.value)} از {fa(fc.need)}</b>{fc.value >= fc.need ? ' ✓' : ''}<span className="bgv-sep" />ماهواره {fa(fc.sats.length)}<span className="bgv-sep" />سازه‌ها {fa(fc.buildings.length)}</p>}
+                <div className="gp-btnrow">
+                  <Button size="sm" variant="secondary" disabled={!proposals.length} onClick={() => { const n = fedIdx + 1; setFedIdx(n); setFedSel(proposals[n % proposals.length] ?? []); }}>پیشنهادها ({fa(proposals.length)})</Button>
+                  <Button size="sm" variant="ghost" disabled={!fedSel.length} onClick={() => setFedSel([])}>پاک کردن</Button>
+                </div>
+                {fc?.error && <div className="bgv-banner bgv-banner--danger gp-fedwarn" role="status"><div className="bgv-banner__body">
+                  <b className="bgv-banner__title">این فدراسیون ساخته نمی‌شود</b>{FED_FA[fc.error]?.(fc.value, fc.need) ?? fc.error}</div></div>}
+              </div>}
+              {facPrompt}
+              {options.length > 0 && <div className="gp-btnrow">{options.map(({ a, cost, reason: why, img, note }, k) => <span key={k} className="gp-mainbtn">
                 <Button size="sm" variant="secondary" data-option={why ? undefined : a.type} data-reason={why ? reasonOf(a) : undefined} title={why} disabled={busy || !!why}
-                  className={`${a.type === 'pass' ? 'gp-pass-pick' : ''}${hint(a) ? ' gp-hint' : ''}`} onClick={() => add(a)}>{optionFa(a)}{cost && <CostPill g={cost} />}</Button>
+                  className={`${a.type === 'pass' ? 'gp-pass-pick' : ''}${img ? ' gp-optbtn' : ''}${hint(a) ? ' gp-hint' : ''}`} onClick={() => add(a)}>{img && <img className="gp-optimg" src={img} alt="" />}{optionFa(a)}{note && <small className="gp-optnote">{note}</small>}{cost && <CostPill g={cost} />}</Button>
                 {why && <small className="gp-reason">{why}</small>}</span>)}</div>}
               <div className="gp-btnrow">
                 <Button size="sm" className={`gp-confirm${canConfirm && expected && draft.some((a) => same(expected, a)) ? ' gp-hint' : ''}`} disabled={!canConfirm || busy} onClick={confirm}>{t('confirm')}</Button>
@@ -834,7 +1033,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
               </div>
             </div>
           )}
-          {drafting && view.phase === 'actions' && !hasMain && !mode && hexSel === null && !myDecision && (
+          {drafting && view.phase === 'actions' && !hasMain && !onlyFree && !mode && hexSel === null && !myDecision && (
             <div className="gp-main">
               {MAIN.map((m) => {
                 const why = reasons[m.kind] ?? null;
@@ -849,9 +1048,11 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
               <Button size="sm" variant="secondary" className={`gp-pass${expected?.type === 'pass' ? ' gp-hint' : ''}`} data-move="pass" disabled={!actionsTurn || busy} onClick={() => startMain('pass')}>{t('pass')}</Button>
             </div>
           )}
-          {drafting && view.phase === 'actions' && !hasMain && !mode && !myDecision && convs.length > 0 && (
+          {drafting && view.phase === 'actions' && (!hasMain || heldNow) && !mode && !myDecision && convs.length > 0 && (
             <div className="gp-free" aria-label={t('free')}>
               <small>{t('free')}</small>
+              {brainChoice && <button type="button" className="gp-chipbtn" aria-pressed={brainSpend} title="سنگ مغز ۳ قدرت ارزش دارد و به کاسهٔ I برمی‌گردد" onClick={() => setBrainSpend(!brainSpend)}>
+                <img className="gp-ic" src={art(IDS.pieces.brainstone)} alt="" />{brainSpend ? 'سنگ مغز خرج می‌شود' : 'سنگ مغز نگه داشته می‌شود'}</button>}
               {convs.map((a) => {
                 const ok = legal.some((x) => same(x, a));
                 return <button key={a.type === 'burn' ? 'burn' : String(a.id)} type="button" className={`gp-chipbtn${hint(a) ? ' gp-hint' : ''}`} data-move={a.type} data-reason={ok ? undefined : reasonOf(a)}
@@ -865,20 +1066,33 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
     </div>
   );
 
-  const facPick = drafting && view.phase === 'faction' && !draft.length && (
+  const facOpen = legal.filter((a) => a.type === 'faction');
+  const facDraft = draft.find((a) => a.type === 'faction');
+  const facPick = drafting && view.phase === 'faction' && (
     <section className="gp-zone gp-factions" aria-label={t('pickFaction')}>
-      {legal.filter((a) => a.type === 'faction').map((a) => {
-        const f = CONTENT.factions[a.faction as string]!;
-        return (
-          <article key={f.id} className="gp-faccard" data-faction={f.id}>
-            <img className="gp-faccard__art" src={art(FACTIONS[f.id]?.portrait ?? '')} alt="" />
-            <header><img className="gp-planet" src={art(`art/planet-art/planet-${COLORS[f.home]}.webp`)} alt="" /><strong>{lang === 'en' ? FACTIONS[f.id]?.nameEn : f.nameFa}</strong> <bdi>{lang === 'en' ? f.nameFa : f.nameEn}</bdi></header>
-            <p>{f.abilityFa}</p>
-            <p><small>مؤسسه: {f.piFa}</small></p>
-            <Button size="sm" className={`gp-faction-pick${hint(a) ? ' gp-hint' : ''}`} disabled={busy} onClick={() => add(a)}>انتخاب {f.nameFa}</Button>
-          </article>
-        );
-      })}
+      <p className="gp-factions__say"><b>{who(mySeat!)}</b>، جناحتان را انتخاب کنید (به ترتیب نوبت).</p>
+      <div className="gp-facgrid">
+        {Object.values(CONTENT.factions).sort((a, b) => WHEEL.indexOf(a.home) - WHEEL.indexOf(b.home)).map((f) => {
+          const a = facOpen.find((x) => x.faction === f.id);
+          const owner = served.pl.findIndex((p) => p.faction === f.id);
+          const picked = facDraft?.faction === f.id;
+          const status = picked ? 'انتخاب شما' : owner >= 0 ? who(owner) : a ? 'آزاد' : 'هم‌رنگش گرفته شد';
+          const body = <>
+            <img className="gp-faccard__art" src={art(FACTIONS[f.id]?.board ?? '')} srcSet={srcSet(FACTIONS[f.id]?.board ?? '', FB.w)} sizes="(max-width: 760px) 45vw, 14vw" width={FB.w} height={FB.h} alt="" loading="lazy" decoding="async" />
+            <strong>{lang === 'en' ? FACTIONS[f.id]?.nameEn : f.nameFa}</strong><small>{status}</small>
+            <Tip title={f.nameFa} text={<>{f.abilityFa}<br />مؤسسه: {f.piFa}</>} />
+          </>;
+          return a && !facDraft
+            ? <button key={f.id} type="button" className={`gp-faccard gp-faction-pick${hint(a) ? ' gp-hint' : ''}`} data-faction={f.id} data-pick="selectable" aria-label={`انتخاب ${f.nameFa}`} disabled={busy} onClick={() => add(a)}>{body}</button>
+            : <span key={f.id} className="gp-faccard" data-faction={f.id} tabIndex={0} data-pick={picked ? 'picked' : a ? undefined : 'dim'}>{body}</span>;
+        })}
+      </div>
+      <div className="gp-btnrow">
+        {facDraft ? <>
+          <Button size="sm" className="gp-faction-ok" disabled={busy} onClick={confirm}>ثبت {factionFa(String(facDraft.faction))}</Button>
+          <Button size="sm" variant="secondary" disabled={busy} onClick={cancel}>{t('back')}</Button>
+        </> : <Button size="sm" variant="secondary" disabled={busy || !facOpen.length} onClick={() => add(facOpen[Math.floor(Math.random() * facOpen.length)]!)}>تصادفی</Button>}
+      </div>
     </section>
   );
 
@@ -887,7 +1101,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const tabOrder = mySeat !== null && seats.includes(mySeat) ? [mySeat, ...seats.filter((s) => s !== mySeat)] : seats;
 
   return (
-    <div className="gp" onFocus={showTip} onKeyDown={(e) => { if (e.key === 'Escape') { (document.activeElement as HTMLElement | null)?.blur?.(); dock.current?.firstElementChild?.replaceChildren(); } }} data-seq={served.seq} data-round={view.round} data-phase={view.phase} data-turn={sending ? 'sending' : drafting ? 'draft' : myDecision ? 'decide' : 'wait'} data-tab={tab} lang={lang} dir={lang === 'en' ? 'ltr' : 'rtl'}>
+    <div className="gp" onFocus={showTip} onKeyDown={(e) => { if (e.key === 'Escape') { (document.activeElement as HTMLElement | null)?.blur?.(); dock.current?.firstElementChild?.replaceChildren(); } }} data-seq={served.seq} data-round={view.round} data-phase={view.phase} data-turn={sending ? 'sending' : onlyFree && !draft.length ? 'held' : drafting ? 'draft' : myDecision ? 'decide' : 'wait'} data-tab={tab} lang={lang} dir={lang === 'en' ? 'ltr' : 'rtl'}>
       {mySeat !== null && bar}
       {phone && <div className="gp-zoomdock" ref={dock} role="dialog" aria-label="بزرگ‌نمایی"><div className="gp-zoomdock__body" style={{ display: 'contents' }} />
         <button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label="بستن" onClick={() => dock.current?.firstElementChild?.replaceChildren()}>✕</button></div>}
@@ -896,76 +1110,56 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
         {(['map', 'research', 'scoring', 'board'] as const).map((k) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(k === 'map' ? 'map' : k === 'research' ? 'tracks' : k === 'scoring' ? 'scoring' : 'mine2')}</button>)}
       </nav>
       {facPick}
-      {(!phone || tab === 'map') && <section className="gp-zone" data-zone="map"><SpaceMap c={c} /></section>}
-      <section className="gp-zone gp-zone--mid">
+      {(!phone || tab === 'research' || tab === 'map') && <section className="gp-zone gp-top">
         {(!phone || tab === 'research') && <div data-zone="research"><ResearchBoard c={c} /></div>}
-        {(!phone || tab === 'scoring') && <div data-zone="scoring"><ScoringBoard c={c} /></div>}
-      </section>
+        {(!phone || tab === 'map') && <div data-zone="map"><SpaceMap c={c} /></div>}
+      </section>}
       {shown !== undefined && (!phone || tab === 'board') && (
         <section className="gp-zone" data-zone="board">
-          <div className="gp-ptabs" role="tablist" aria-label="صفحهٔ بازیکن‌ها">
-            {tabOrder.map((s) => <button key={s} type="button" role="tab" aria-selected={s === shown} onClick={() => setBoardSeat(s)}><i className={`bgv-seat seat-${s + 1}`} />{s === mySeat ? `${seatName(s)}، ${t('you')}` : seatName(s)}</button>)}
-          </div>
-          <FactionBoardView c={c} seat={shown} />
+          {phone ? <>
+            <div className="gp-ptabs" role="tablist" aria-label="صفحهٔ بازیکن‌ها">
+              {tabOrder.map((s) => <button key={s} type="button" role="tab" aria-selected={s === shown} onClick={() => setBoardSeat(s)}><i className={`bgv-seat seat-${s + 1}`} /><bdi>{seatName(s)}</bdi>{s === mySeat ? `، ${t('you')}` : ''}</button>)}
+            </div>
+            <FactionBoardView c={c} seat={shown} />
+          </> : <div className="gp-pboards">
+            {tabOrder.map((s) => <article key={s} className="gp-pb" data-seat={s}>
+              <header className="gp-pb__head"><i className={`bgv-seat seat-${s + 1}`} /><b><bdi>{seatName(s)}</bdi></b>{s === mySeat && <span className="bgv-badge bgv-badge--sm">{t('you')}</span>}
+                <span className="bgv-sep" /><span>{lang === 'en' ? FACTIONS[view.pl[s]!.faction!]?.nameEn : factionFa(view.pl[s]!.faction!)}</span></header>
+              <FactionBoardView c={c} seat={s} />
+            </article>)}
+          </div>}
         </section>
       )}
-      <details className="gp-log">
-        <summary>رویدادهای اخیر</summary>
-        <ol>{view.log.slice(-12).reverse().map((e) => <li key={e.seq}>{logFa(e, who)}</li>)}</ol>
-      </details>
+      {(!phone || tab === 'scoring') && <section className="gp-zone gp-split--even" data-zone="scoring">
+        <ScoringBoard c={c} />
+        <FedSupply c={c} />
+      </section>}
     </div>
   );
 }
 
-const VP_KIND_FA: Record<string, string> = {
-  round: 'کاشی‌های دور', final: 'امتیاز پایانی', research: 'پژوهش (پایان بازی)', resources: 'منابع باقی‌مانده', tech: 'فناوری‌ها',
-  booster: 'بوسترها', faction: 'توانایی جناح', ac2: 'آکادمی', ts: 'ایستگاه تجاری', qic3: 'اقدام QIC'
-};
-const START_VP = 10;
-
-/** End of game (not designed yet, HANDOFF.md: Table-Result pattern): score by source for every player. */
+/** End of game (Gaia-Prompts 10, inside the DS Table-Result): game points, final tiles, research (levels 3 to 5),
+ *  resources (each 3), total. Ties share the rank (same total). */
 function Breakdown({ view, who }: { view: GaiaView; who: (s: number) => string }) {
   const seats = view.pl.flatMap((p, s) => (p.faction ? [s] : []));
-  const kinds = [...new Set(seats.flatMap((s) => Object.keys(view.pl[s]!.vpBy ?? {})))];
   const order = [...seats].sort((a, b) => view.pl[b]!.vp - view.pl[a]!.vp);
+  const by = (s: number, k: string) => view.pl[s]!.vpBy?.[k] ?? 0;
+  const sign = (n: number) => (n > 0 ? `+${fa(n)}` : fa(n));
   return (
-    <section className="gp-zone gp-result" aria-label="امتیاز تفکیکی">
-      <h3>امتیاز تفکیکی</h3>
+    <section className="gp-zone gp-result" aria-label="نتیجهٔ پایانی تفکیکی">
+      <h3>نتیجهٔ پایانی تفکیکی</h3>
       <div className="gp-result__scroll"><table className="bgv-table">
-        <thead><tr><th>بازیکن</th><th>شروع</th>{kinds.map((k) => <th key={k}>{VP_KIND_FA[k] ?? k}</th>)}<th>فدراسیون، پاداش‌ها و شارژ</th><th>جمع</th></tr></thead>
+        <thead><tr><th>رتبه</th><th>بازیکن</th><th>امتیاز بازی</th><th>کاشی‌های پایانی</th><th>پژوهش (۳ تا ۵)</th><th>منابع (هر ۳)</th><th>جمع</th></tr></thead>
         <tbody>{order.map((s) => {
           const p = view.pl[s]!;
-          const by = kinds.map((k) => p.vpBy?.[k] ?? 0);
-          const other = p.vp - START_VP - by.reduce((a, b) => a + b, 0);
-          return <tr key={s}><td><i className={`bgv-seat seat-${s + 1}`} /> {who(s)} <small>{factionFa(p.faction!)}</small></td><td>{fa(START_VP)}</td>{by.map((v, k) => <td key={k}>{fa(v)}</td>)}<td>{fa(other)}</td><td><b>{fa(p.vp)}</b></td></tr>;
+          const fin = by(s, 'final'), res = by(s, 'research'), left = by(s, 'resources');
+          const rank = 1 + seats.filter((o) => view.pl[o]!.vp > p.vp).length;
+          return <tr key={s} className={s === order[0] ? 'is-top' : undefined}><td><b>{fa(rank)}</b></td>
+            <td><i className={`bgv-seat seat-${s + 1}`} /> {who(s)} <small>{factionFa(p.faction!)}</small></td>
+            <td>{fa(p.vp - fin - res - left)}</td><td>{sign(fin)}</td><td>{sign(res)}</td><td>{sign(left)}</td><td><b>{fa(p.vp)}</b></td></tr>;
         })}</tbody>
       </table></div>
+      <p className="gp-note">کاشی‌های پایانی ۱۸، ۱۲ و ۶ امتیاز؛ تساوی جمع رتبه‌ها را تقسیم می‌کند. در بازی دونفره بازیکن خنثی هم در رتبه‌بندی کاشی‌ها هست.</p>
     </section>
   );
 }
-
-function logFa(e: GaiaView['log'][number], who: (s: number) => string): string {
-  switch (e.t) {
-    case 'faction': return `${who(e.seat)} جناح ${factionFa(e.faction)} را برداشت`;
-    case 'place': return `${who(e.seat)} ${BUILDING_FA[e.building]} شروع را گذاشت`;
-    case 'booster': return `${who(e.seat)} بوستر برداشت: ${boosterFa(e.booster)}`;
-    case 'round': return `دور ${fa(e.round)} آغاز شد`;
-    case 'mine': return `${who(e.seat)} معدن ساخت${e.steps ? ` (${fa(e.steps)} گام زمین‌سازی)` : ''}`;
-    case 'upgrade': return `${who(e.seat)} به ${BUILDING_FA[e.to]} ارتقا داد`;
-    case 'gaiaform': return `${who(e.seat)} پروژهٔ گایا را شروع کرد`;
-    case 'federation': return `${who(e.seat)} فدراسیون ساخت: ${fedFa(e.token)}`;
-    case 'research': return `${who(e.seat)} در ${TRACK_FA[e.track]} به سطح ${fa(e.level)} رسید`;
-    case 'power': return `${who(e.seat)} اقدام قدرت: ${POWER_ACTIONS.find((p) => p.id === e.action)?.labelFa ?? e.action}`;
-    case 'special': return `${who(e.seat)} اقدام ویژه: ${specialFa(e.action)}`;
-    case 'convert': return `${who(e.seat)} تبدیل: ${e.id === 'burn' ? 'سوزاندن قدرت' : CONV_FA[e.id] ?? convFa(e.id)}`;
-    case 'leech': return `${who(e.seat)} ${fa(e.amount)} قدرت گرفت (${fa(e.vp)} امتیاز)`;
-    case 'decline': return `${who(e.seat)} قدرت را نپذیرفت`;
-    case 'tech': return `${who(e.seat)} کاشی گرفت: ${techFa(e.tech)}`;
-    case 'pass': return `${who(e.seat)} پاس داد`;
-    case 'vp': return `${who(e.seat)} ${fa(e.n)} امتیاز`;
-    case 'final': return `امتیاز نهایی ${who(e.seat)}: ${fa(e.vp)}`;
-    case 'timeout': return `زمان ${who(e.seat)} تمام شد`;
-    case 'left': return `${who(e.seat)} ${e.reason === 'resign' ? 'انصراف داد' : 'به‌علت تأخیر خارج شد'}`;
-  }
-}
-

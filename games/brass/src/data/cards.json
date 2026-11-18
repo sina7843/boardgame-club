@@ -1,0 +1,518 @@
+{
+ "note": "The 64-card draw deck of rules.ts CARDS (minPlayers = from which player count a copy is used) + the two wilds (900, 901). Industry cards have several printed variants with the same rule; the variant is chosen by copy index.",
+ "cards": [
+  {
+   "id": 0,
+   "kind": "location",
+   "loc": "cannock",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-cannock.webp"
+  },
+  {
+   "id": 1,
+   "kind": "location",
+   "loc": "cannock",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-cannock.webp"
+  },
+  {
+   "id": 2,
+   "kind": "location",
+   "loc": "tamworth",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-tamworth.webp"
+  },
+  {
+   "id": 3,
+   "kind": "location",
+   "loc": "belper",
+   "minPlayers": 4,
+   "art": "art/cards-location/card-belper.webp"
+  },
+  {
+   "id": 4,
+   "kind": "location",
+   "loc": "belper",
+   "minPlayers": 4,
+   "art": "art/cards-location/card-belper.webp"
+  },
+  {
+   "id": 5,
+   "kind": "location",
+   "loc": "derby",
+   "minPlayers": 4,
+   "art": "art/cards-location/card-derby.webp"
+  },
+  {
+   "id": 6,
+   "kind": "location",
+   "loc": "derby",
+   "minPlayers": 4,
+   "art": "art/cards-location/card-derby.webp"
+  },
+  {
+   "id": 7,
+   "kind": "location",
+   "loc": "derby",
+   "minPlayers": 4,
+   "art": "art/cards-location/card-derby.webp"
+  },
+  {
+   "id": 8,
+   "kind": "location",
+   "loc": "leek",
+   "minPlayers": 3,
+   "art": "art/cards-location/card-leek.webp"
+  },
+  {
+   "id": 9,
+   "kind": "location",
+   "loc": "leek",
+   "minPlayers": 3,
+   "art": "art/cards-location/card-leek.webp"
+  },
+  {
+   "id": 10,
+   "kind": "location",
+   "loc": "stoke-on-trent",
+   "minPlayers": 3,
+   "art": "art/cards-location/card-stoke-on-trent.webp"
+  },
+  {
+   "id": 11,
+   "kind": "location",
+   "loc": "stoke-on-trent",
+   "minPlayers": 3,
+   "art": "art/cards-location/card-stoke-on-trent.webp"
+  },
+  {
+   "id": 12,
+   "kind": "location",
+   "loc": "stoke-on-trent",
+   "minPlayers": 3,
+   "art": "art/cards-location/card-stoke-on-trent.webp"
+  },
+  {
+   "id": 13,
+   "kind": "location",
+   "loc": "stone",
+   "minPlayers": 3,
+   "art": "art/cards-location/card-stone.webp"
+  },
+  {
+   "id": 14,
+   "kind": "location",
+   "loc": "stone",
+   "minPlayers": 3,
+   "art": "art/cards-location/card-stone.webp"
+  },
+  {
+   "id": 15,
+   "kind": "location",
+   "loc": "uttoxeter",
+   "minPlayers": 3,
+   "art": "art/cards-location/card-uttoxeter.webp"
+  },
+  {
+   "id": 16,
+   "kind": "location",
+   "loc": "uttoxeter",
+   "minPlayers": 4,
+   "art": "art/cards-location/card-uttoxeter.webp"
+  },
+  {
+   "id": 17,
+   "kind": "location",
+   "loc": "stafford",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-stafford.webp"
+  },
+  {
+   "id": 18,
+   "kind": "location",
+   "loc": "stafford",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-stafford.webp"
+  },
+  {
+   "id": 19,
+   "kind": "location",
+   "loc": "burton-on-trent",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-burton-on-trent.webp"
+  },
+  {
+   "id": 20,
+   "kind": "location",
+   "loc": "burton-on-trent",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-burton-on-trent.webp"
+  },
+  {
+   "id": 21,
+   "kind": "location",
+   "loc": "birmingham",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-birmingham.webp"
+  },
+  {
+   "id": 22,
+   "kind": "location",
+   "loc": "birmingham",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-birmingham.webp"
+  },
+  {
+   "id": 23,
+   "kind": "location",
+   "loc": "birmingham",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-birmingham.webp"
+  },
+  {
+   "id": 24,
+   "kind": "location",
+   "loc": "walsall",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-walsall.webp"
+  },
+  {
+   "id": 25,
+   "kind": "location",
+   "loc": "wolverhampton",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-wolverhampton.webp"
+  },
+  {
+   "id": 26,
+   "kind": "location",
+   "loc": "wolverhampton",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-wolverhampton.webp"
+  },
+  {
+   "id": 27,
+   "kind": "location",
+   "loc": "coalbrookdale",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-coalbrookdale.webp"
+  },
+  {
+   "id": 28,
+   "kind": "location",
+   "loc": "coalbrookdale",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-coalbrookdale.webp"
+  },
+  {
+   "id": 29,
+   "kind": "location",
+   "loc": "coalbrookdale",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-coalbrookdale.webp"
+  },
+  {
+   "id": 30,
+   "kind": "location",
+   "loc": "dudley",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-dudley.webp"
+  },
+  {
+   "id": 31,
+   "kind": "location",
+   "loc": "dudley",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-dudley.webp"
+  },
+  {
+   "id": 32,
+   "kind": "location",
+   "loc": "kidderminster",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-kidderminster.webp"
+  },
+  {
+   "id": 33,
+   "kind": "location",
+   "loc": "kidderminster",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-kidderminster.webp"
+  },
+  {
+   "id": 34,
+   "kind": "location",
+   "loc": "worcester",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-worcester.webp"
+  },
+  {
+   "id": 35,
+   "kind": "location",
+   "loc": "worcester",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-worcester.webp"
+  },
+  {
+   "id": 36,
+   "kind": "location",
+   "loc": "coventry",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-coventry.webp"
+  },
+  {
+   "id": 37,
+   "kind": "location",
+   "loc": "coventry",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-coventry.webp"
+  },
+  {
+   "id": 38,
+   "kind": "location",
+   "loc": "coventry",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-coventry.webp"
+  },
+  {
+   "id": 39,
+   "kind": "location",
+   "loc": "nuneaton",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-nuneaton.webp"
+  },
+  {
+   "id": 40,
+   "kind": "location",
+   "loc": "redditch",
+   "minPlayers": 2,
+   "art": "art/cards-location/card-redditch.webp"
+  },
+  {
+   "id": 41,
+   "kind": "industry",
+   "industries": [
+    "coal"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-coal-1.webp"
+  },
+  {
+   "id": 42,
+   "kind": "industry",
+   "industries": [
+    "coal"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-coal-2.webp"
+  },
+  {
+   "id": 43,
+   "kind": "industry",
+   "industries": [
+    "coal"
+   ],
+   "minPlayers": 4,
+   "art": "art/cards-industry/card-coal-1.webp"
+  },
+  {
+   "id": 44,
+   "kind": "industry",
+   "industries": [
+    "iron"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-iron-1.webp"
+  },
+  {
+   "id": 45,
+   "kind": "industry",
+   "industries": [
+    "iron"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-iron-2.webp"
+  },
+  {
+   "id": 46,
+   "kind": "industry",
+   "industries": [
+    "iron"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-iron-1.webp"
+  },
+  {
+   "id": 47,
+   "kind": "industry",
+   "industries": [
+    "iron"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-iron-2.webp"
+  },
+  {
+   "id": 48,
+   "kind": "industry",
+   "industries": [
+    "brewery"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-brewery-1.webp"
+  },
+  {
+   "id": 49,
+   "kind": "industry",
+   "industries": [
+    "brewery"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-brewery-2.webp"
+  },
+  {
+   "id": 50,
+   "kind": "industry",
+   "industries": [
+    "brewery"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-brewery-3.webp"
+  },
+  {
+   "id": 51,
+   "kind": "industry",
+   "industries": [
+    "brewery"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-brewery-1.webp"
+  },
+  {
+   "id": 52,
+   "kind": "industry",
+   "industries": [
+    "brewery"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-brewery-2.webp"
+  },
+  {
+   "id": 53,
+   "kind": "industry",
+   "industries": [
+    "pottery"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-pottery.webp"
+  },
+  {
+   "id": 54,
+   "kind": "industry",
+   "industries": [
+    "pottery"
+   ],
+   "minPlayers": 2,
+   "art": "art/cards-industry/card-pottery.webp"
+  },
+  {
+   "id": 55,
+   "kind": "industry",
+   "industries": [
+    "pottery"
+   ],
+   "minPlayers": 4,
+   "art": "art/cards-industry/card-pottery.webp"
+  },
+  {
+   "id": 56,
+   "kind": "industry",
+   "industries": [
+    "cotton",
+    "manufacturer"
+   ],
+   "minPlayers": 3,
+   "art": "art/cards-industry/card-cotton-manufacturer-1.webp"
+  },
+  {
+   "id": 57,
+   "kind": "industry",
+   "industries": [
+    "cotton",
+    "manufacturer"
+   ],
+   "minPlayers": 3,
+   "art": "art/cards-industry/card-cotton-manufacturer-2.webp"
+  },
+  {
+   "id": 58,
+   "kind": "industry",
+   "industries": [
+    "cotton",
+    "manufacturer"
+   ],
+   "minPlayers": 3,
+   "art": "art/cards-industry/card-cotton-manufacturer-3.webp"
+  },
+  {
+   "id": 59,
+   "kind": "industry",
+   "industries": [
+    "cotton",
+    "manufacturer"
+   ],
+   "minPlayers": 3,
+   "art": "art/cards-industry/card-cotton-manufacturer-1.webp"
+  },
+  {
+   "id": 60,
+   "kind": "industry",
+   "industries": [
+    "cotton",
+    "manufacturer"
+   ],
+   "minPlayers": 3,
+   "art": "art/cards-industry/card-cotton-manufacturer-2.webp"
+  },
+  {
+   "id": 61,
+   "kind": "industry",
+   "industries": [
+    "cotton",
+    "manufacturer"
+   ],
+   "minPlayers": 3,
+   "art": "art/cards-industry/card-cotton-manufacturer-3.webp"
+  },
+  {
+   "id": 62,
+   "kind": "industry",
+   "industries": [
+    "cotton",
+    "manufacturer"
+   ],
+   "minPlayers": 4,
+   "art": "art/cards-industry/card-cotton-manufacturer-1.webp"
+  },
+  {
+   "id": 63,
+   "kind": "industry",
+   "industries": [
+    "cotton",
+    "manufacturer"
+   ],
+   "minPlayers": 4,
+   "art": "art/cards-industry/card-cotton-manufacturer-2.webp"
+  },
+  {
+   "id": 900,
+   "kind": "wild-location",
+   "art": "art/cards-wild/card-wild-location.webp"
+  },
+  {
+   "id": 901,
+   "kind": "wild-industry",
+   "art": "art/cards-wild/card-wild-industry.webp"
+  }
+ ],
+ "back": "art/card-backs/card-back.webp"
+}

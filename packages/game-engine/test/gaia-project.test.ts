@@ -33,7 +33,8 @@ function ready(factions: string[], seed = 1): EngineSnapshot {
   return snap;
 }
 /** Put the seat in front, clear decisions (direct state edit for focused rule tests). */
-const turnOf = (snap: EngineSnapshot, seat: number) => { st(snap).current = seat; st(snap).pending = []; return snap; };
+// Fresh turn for `seat` (a finished main action holds the turn until `end`, RULES E10).
+const turnOf = (snap: EngineSnapshot, seat: number) => { st(snap).current = seat; st(snap).pending = []; st(snap).turnDone = false; return snap; };
 const emptyBoard = (s: GaiaState) => s.hexes.forEach((h) => { h.owner = null; h.building = null; h.extra = null; h.sats = []; h.feds = []; });
 /** A home-planet hex at exactly distance d from `from` (or -1). */
 const findHex = (s: GaiaState, ok: (i: number) => boolean) => s.hexes.findIndex((_, i) => ok(i));
@@ -521,7 +522,7 @@ describe('gaia-project tutorial', () => {
       expect(st(snap).pending).toEqual([]);
     }
     const s = st(snap);
-    expect(s.outcome).toEqual({ reason: 'score', placements: [{ seat: 0, place: 1, score: 107 }, { seat: 1, place: 2, score: 102 }] });
+    expect(s.outcome).toEqual({ reason: 'score', placements: [{ seat: 0, place: 1, score: 107 }, { seat: 1, place: 2, score: 101 }] });
     const why = (seat: number, w: string) => s.log.filter((e) => e.t === 'vp' && e.seat === seat && e.why === w).reduce((a, e) => a + (e as { n: number }).n, 0);
     expect([why(0, 'round'), why(0, 'booster'), why(0, 'final:f1'), why(0, 'final:f3'), why(0, 'research:eco'), why(0, 'resources')]).toEqual([2, 2, 9, 9, 4, 3]);
     expect(s.pl[0]!.feds).toEqual([{ id: 'fed1', green: false }]);
@@ -662,9 +663,9 @@ describe('gaia-project auto-charge and the client draft', () => {
       const s = st(snap);
       const moves = legal(snap, seat).filter((a) => a.type !== 'resign');
       if (!s.pending.length) {
-        const { decision, income, ...rest } = gaiaProjectModule.project(s, p(seat)) as never as Record<string, unknown>;
+        const { decision, income, held, ...rest } = gaiaProjectModule.project(s, p(seat)) as never as Record<string, unknown>;
         void decision; void income;
-        const rebuilt = { ...rest, ins: 0, turnDone: false } as never as GaiaState;
+        const rebuilt = { ...rest, ins: 0, turnDone: !!held } as never as GaiaState;
         for (const a of moves.slice(0, 12)) {
           const server = gaiaProjectModule.apply(structuredClone(s), p(seat), a as never, { rng: null as never, logicalTime: 0 }).nextState;
           const client = gaiaProjectModule.apply(structuredClone(rebuilt), p(seat), a as never, { rng: null as never, logicalTime: 0 }).nextState;

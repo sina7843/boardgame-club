@@ -36,11 +36,12 @@
 /* ---------- action bar (COMPONENTS.md §8) ---------- */
 .gp-actbar { position: sticky; inset-block-start: 0; will-change: transform; contain: layout; z-index: var(--z-dock, 20); display: flex; flex-direction: column; gap: 8px; padding: 10px 16px;
   border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-card), inset 0 0 0 1px var(--line); font-size: 15px; line-height: 1.6; }
+.gp-actbar { color: var(--text); }
 .gp-actbar.is-waiting { background: var(--surface-sunken); color: var(--text-muted); }
+.gp-clockslot:empty { display: none; }
 .gp-actbar__row1 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .gp-actbar__say { flex: 1 1 320px; min-inline-size: 0; margin: 0; }
 .gp-actbar__say b { color: var(--heading); font-weight: 900; }
-.gp-turnline { font-size: 13px; font-weight: 700; color: var(--text-muted); }
 .gp-lang { block-size: 30px; padding-inline: 10px; border: 0; border-radius: var(--radius-sm); background: var(--surface-sunken); color: var(--text-muted); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
 .gp-sheetbtn { display: none; }
 .gp-actbar__rows { display: flex; flex-direction: column; gap: 8px; }
@@ -68,7 +69,17 @@
 
 /* ---------- zones and tabs ---------- */
 .gp-zone { contain: layout; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--radius-md); background: var(--felt-plate, var(--surface-sunken)); min-inline-size: 0; }
-.gp-zone--mid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+/* BGA «View all» (HANDOFF decision 2): research | map at the same height, every player's board in two columns (own
+   first), scoring | boosters with the federation supply. Rows keep left-to-right order in every language. */
+.gp-zone.gp-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.387fr); gap: 14px; align-items: center; direction: ltr; }
+.gp-pboards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; direction: ltr; }
+.gp-pb { display: grid; gap: 8px; min-inline-size: 0; }
+.gp-pb__head { display: flex; align-items: center; gap: 6px; min-inline-size: 0; font-size: 14px; color: var(--text); }
+.gp-pb__head b { color: var(--heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gp-split--even { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 10px 16px; align-items: start; direction: ltr; }
+.gp-split--even > .gp-col { display: contents; }
+.gp-split--even > .gp-col > .gp-board { grid-column: 1; grid-row: 1 / span 3; }
+.gp[dir="rtl"] :is(.gp-top, .gp-pboards, .gp-split--even) > *, .gp[dir="rtl"] .gp-split--even > .gp-col > * { direction: rtl; }
 .gp-col { display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; }
 .gp-tabs { display: none; gap: 2px; padding: 3px; border-radius: var(--radius-md); background: var(--felt-plate, var(--surface-sunken)); }
 .gp-tabs button { flex: 1; block-size: 36px; padding-inline: 6px; border: 0; border-radius: var(--radius-sm); background: none; color: var(--felt-muted, var(--text-muted)); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
@@ -77,8 +88,6 @@
 .gp-ptabs button { flex: none; display: inline-flex; align-items: center; gap: 6px; block-size: 32px; padding-inline: 10px; border: 0; border-radius: var(--radius-pill);
   background: var(--surface-sunken); color: var(--felt-muted, var(--text-muted)); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
 .gp-ptabs button[aria-selected="true"] { background: var(--felt-control, var(--surface)); color: var(--brand-ink, var(--heading)); }
-.gp-log { font-size: 13px; color: var(--text-muted); }
-.gp-log ol { margin: 6px 0 0; padding-inline-start: 18px; }
 
 /* ---------- placed pieces ---------- */
 .gp-board { position: relative; inline-size: 100%; contain: layout; }
@@ -175,20 +184,46 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
 .gp-orange { background: #E07A22; color: #FFFFFF; }
 
 /* faction choice */
-.gp-factions { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-.gp-faccard { display: grid; gap: 6px; align-content: start; padding: 12px; border-radius: var(--radius-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); font-size: 13.5px; line-height: 1.6; }
-.gp-faccard__art { inline-size: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-sm); }
-.gp-faccard header { display: flex; align-items: center; gap: 6px; }
-.gp-faccard p { margin: 0; }
+/* Faction pick (Gaia-Prompts 9): all 14 boards, one template; taken ones dimmed. */
+.gp-factions { display: grid; gap: var(--space-3); }
+.gp-factions__say { margin: 0; font-size: 14px; }
+.gp-facgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-3); }
+.gp-faccard { position: relative; display: grid; gap: 4px; justify-items: center; align-content: start; padding: var(--space-3); border: 0; border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-ring); color: var(--text); font: inherit; font-size: 13px; text-align: center; }
+.gp-faccard strong { color: var(--heading); }
+.gp-faccard small { color: var(--text-muted); font-size: 11.5px; }
+.gp-faccard__art { inline-size: 100%; block-size: auto; border-radius: var(--radius-xs); }
+/* Decision options with a piece (tech tile, federation token) and a note (research step, bowls after income). */
+.gp-optbtn { gap: 8px; }
+.gp-optimg { inline-size: 40px; block-size: auto; flex: none; }
+.gp-optnote { color: var(--text-muted); font-size: 11.5px; font-weight: 400; }
+.gp-fedsel { display: grid; gap: 6px; }
+.gp-fedwarn { font-size: 13.5px; }
+/* Bowl pick for Gaia Project / satellite tokens (Gaia-Prompts 5). */
+.gp-bowlpick { display: grid; gap: 6px; }
+.gp-bowlrow { display: flex; align-items: center; gap: var(--space-2); font-size: 13.5px; }
+.gp-bowlrow > span { flex: 1; }
+.gp-bowlrow > b { min-inline-size: 2ch; text-align: center; }
+/* A faction's own prompt with its board beside it (Gaia-Prompts 6–8). */
+.gp-facprompt { display: flex; align-items: flex-start; gap: var(--space-3); }
+.gp-facprompt__body { flex: 1; display: grid; gap: 6px; margin: 0; font-size: 13.5px; line-height: 1.6; }
+.gp-facprompt__body p { margin: 0; }
+.gp-facthumb { inline-size: 110px; block-size: auto; flex: none; border-radius: var(--radius-xs); }
+@media (max-width: 760px) { .gp-facthumb { inline-size: 72px; } }
 
 /* ---------- phone (§9): four tabs, one zone at a time, action bar at the bottom with the actions sheet ---------- */
 @media (max-width: 760px) {
   .gp { gap: 10px; }
   .gp-tabs { display: flex; }
+  .gp-tabs button { block-size: 44px; }
+  .gp-zone.gp-top, .gp-split--even { display: flex; flex-direction: column; }
+  .gp-zone { padding: 8px; }
+  /* zoom controls sit above the map, never on a hex; 44px targets */
+  .gp-zoom { position: static; display: flex; justify-content: flex-end; gap: 8px; padding: 6px; }
+  .gp-zoom .bgv-btn { min-inline-size: 44px; min-block-size: 44px; }
   .gp-actbar { order: 99; position: sticky; inset-block-start: auto; inset-block-end: 0; padding: 8px 12px; font-size: 14px; }
   .gp-sheetbtn { display: inline-flex; }
   /* collapsed bar = one short line + «کنش‌ها»; the rest opens with the sheet */
-  .gp-actbar:not(.is-open) :is(.gp-autobtn, .gp-lang, .gp-turnline, .gp-auto) { display: none; }
+  .gp-actbar:not(.is-open) :is(.gp-autobtn, .gp-lang, .gp-auto) { display: none; }
   .gp-actbar__say { flex-basis: 0; flex-grow: 1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   .gp-actbar:not(.is-open) .gp-actbar__rows > :not(.gp-flow) { display: none; }
   .gp-actbar.is-open .gp-actbar__rows { max-block-size: 60dvh; overflow: auto; }
@@ -199,13 +234,8 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
   .gp-main .bgv-btn, .gp-mainbtn .bgv-btn { inline-size: 100%; min-block-size: 48px; }
   .gp-mainbtn { display: grid; }
   .gp-free .gp-chipbtn { block-size: 44px; }
-  .gp-zone, [data-zone="research"], [data-zone="scoring"] { display: none; }
-  .gp-zone.gp-zone--mid { display: contents; }
   .gp-zone.gp-factions { display: grid; }
-  .gp[data-tab="map"] .gp-zone[data-zone="map"],
-  .gp[data-tab="board"] .gp-zone[data-zone="board"] { display: flex; padding: 8px; }
-  .gp[data-tab="research"] [data-zone="research"],
-  .gp[data-tab="scoring"] [data-zone="scoring"] { display: block; }
+  .gp-facgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gp-hex { min-inline-size: 0; }
   .gp-own > img:first-child { block-size: 72px; }
   .gp-boosters { gap: 6px; }
@@ -231,7 +261,7 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
 .gp-vp b { min-inline-size: 32px; padding: 1px 4px; border-radius: 6px; background: rgb(13 26 35 / 0.78); color: #FFFFFF; font-size: 18px; font-weight: 900; text-align: center; line-height: 1.35; }
 .gp-order { inline-size: 28px; block-size: 28px; border-radius: 50%; background: var(--success); color: #FFFFFF; font-size: 15px; font-weight: 900; display: grid; place-items: center; }
 .gp-order.is-turn { background: var(--primary); color: var(--on-primary); }
-.gp-panel__res { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 6px 4px; border-radius: var(--radius-sm); background: var(--surface-sunken); }
+.gp-panel__res { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); align-items: center; gap: 4px 6px; padding-block: 8px; border-block: 1px solid var(--line); }
 .gp-r { display: grid; justify-items: center; gap: 0; }
 .gp-r > span { display: flex; align-items: center; gap: 4px; font-size: 17px; font-weight: 900; color: var(--heading); }
 .gp-r .gp-ic { block-size: 22px; }

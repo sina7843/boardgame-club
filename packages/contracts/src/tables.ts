@@ -150,7 +150,9 @@ export const publicSummarySchema = z.object({
     strikes: z.number().int().optional(),
     turnOrder: z.number().int().optional(),
     income: z.record(z.string(), z.number()).optional(),
-    power: z.record(z.string(), z.number()).optional()
+    power: z.record(z.string(), z.number()).optional(),
+    /** Extra public panel data for games with their own rail card (handoffs: TM, Brass); never hidden information. */
+    detail: z.custom<object>((v) => typeof v === 'object' && v !== null && !Array.isArray(v)).optional()
   })),
   shared: z.array(z.object({ key: z.string(), label: z.string(), value: z.union([z.number(), z.string()]), max: z.number().optional() })).optional(),
   strikesMax: z.number().int().optional(),

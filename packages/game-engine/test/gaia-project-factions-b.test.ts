@@ -27,7 +27,8 @@ function ready(factions: string[], seed = 1): EngineSnapshot {
   }
   return snap;
 }
-const turnOf = (snap: EngineSnapshot, seat: number) => { st(snap).current = seat; st(snap).pending = []; return snap; };
+// Fresh turn for `seat` (a finished main action holds the turn until `end`, RULES E10).
+const turnOf = (snap: EngineSnapshot, seat: number) => { st(snap).current = seat; st(snap).pending = []; st(snap).turnDone = false; return snap; };
 const seatOf = (snap: EngineSnapshot, f: string) => st(snap).pl.findIndex((pl) => pl.faction === f);
 const own = (s: GaiaState, seat: number) => s.hexes.flatMap((h, i) => (h.owner === seat ? [i] : []));
 const emptyBoard = (s: GaiaState) => s.hexes.forEach((h) => { h.owner = null; h.building = null; h.extra = null; h.sats = []; h.feds = []; });
@@ -88,12 +89,13 @@ describe("gaia-project factions-b: Bal T'aks", () => {
 });
 
 describe('gaia-project factions-b: Gleens', () => {
-  it('start: no QIC of their own, navigation 1 gives a real QIC at set-up; afterwards QIC becomes ore until the QIC academy', () => {
+  it('start: no QIC; the navigation-1 QIC at set-up is ore too (RULES E14); QIC becomes ore until the QIC academy', () => {
     let snap = ready(['gleens', 'geodens']);
     const g = seatOf(snap, 'gleens');
     let s = st(snap);
     expect(s.pl[g]!.research.nav).toBe(1);
-    expect(s.pl[g]!.q).toBeGreaterThanOrEqual(1); // the set-up QIC is a real QIC
+    expect(s.pl[g]!.q).toBe(0); // the set-up QIC became ore
+    expect(s.pl[g]!.o).toBeGreaterThanOrEqual(5);
     snap = turnOf(snap, g);
     s = st(snap);
     Object.assign(s.pl[g]!, { q: 0, o: 5, k: 15 });

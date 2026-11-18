@@ -7,7 +7,7 @@ import { arkNova, MAP_CHOICES } from './definition.ts';
 import { CONTENT } from './content/index.ts';
 import {
   ANIMAL, BREAK_MAX, PROJECT, REG, SPONSOR, bonusFa, ctx, donationCost, icons, range, registerContent,
-  resetBuffer, shuffle, strengthOf, target, vp, handLimit, flush
+  resetBuffer, seatsFrom, shuffle, strengthOf, target, vp, handLimit, flush, appealIncome
 } from './core.ts';
 import { TILES, answer, answerError, beginTurn, placeOptions, rank, settle } from './flow.ts';
 import { CONTINENTS, UNIS, type ActionKey, type Answer, type Player, type Prompt, type State } from './types.ts';
@@ -61,7 +61,8 @@ function setMap(p: Player, id: string) {
 }
 
 export function setupState(n: number, options: Record<string, unknown>, rng: EngineRng): State {
-  const mapOpt = (MAP_CHOICES as readonly string[]).includes(String(options.map)) ? String(options.map) : 'A';
+  // Maps 1–8 for everyone are no longer offered (RULES.md E5) but still set up, so tables created before keep replaying.
+  const mapOpt = [...MAP_CHOICES, ...ADVANCED].includes(String(options.map)) ? String(options.map) : 'A';
   const first = rng.nextInt(n);
   const deck = shuffle(rng, [...Object.keys(ANIMAL), ...Object.keys(SPONSOR)].map(Number).concat(Object.keys(PROJECT).map(Number).filter((id) => !isBase(id))));
   const baseDeck = shuffle(rng, Object.keys(PROJECT).map(Number).filter(isBase));
@@ -158,12 +159,32 @@ function done(before: string, s: State, events: Transition<State>['internalEvent
   const changes: ScheduleChange[] = s.outcome ? [{ kind: 'clear', deadlineKey: 'turn' }] : sig(s) !== before ? [{ kind: 'set', deadlineKey: 'turn' }] : [];
   return { nextState: s, internalEvents: events, scheduleChanges: changes };
 }
-function resign(s: State, seat: number) {
-  const others = rank(s, s.players.map((_, k) => k).filter((k) => k !== seat));
-  s.outcome = { placements: [...others, { seat, place: s.n, score: vp(s.players[seat]!) }], reason: 'resign' };
+/** Resign (RULES.md E6, BGA zombie mode): with 2+ players left the game goes on without this seat, which leaves the turn
+ * order and is ranked last; otherwise the game ends now. */
+function resign(s: State, seat: number, rng: EngineRng) {
+  const left = seatsFrom(s, 0).filter((k) => k !== seat);
+  if (left.length >= 2) {
+    s.out = [...(s.out ?? []), seat];
+    const d = s.drafts[seat];
+    if (s.stage === 'draft' && d) applyDraft(s, seat, d.cards.slice(0, 4), d.maps[0], rng);
+    zombie(s, rng);
+    return;
+  }
+  const placements = rank(s, left);
+  for (const k of [seat, ...[...(s.out ?? [])].reverse()]) placements.push({ seat: k, place: placements.length + 1, score: vp(s.players[k]!) });
+  s.outcome = { placements, reason: 'resign' };
   s.stage = 'over';
   s.queue = [];
   s.act = null;
+}
+/** Resigned seats never decide: their pending prompts get the timeout answer (their own turn: the X-token action). */
+function zombie(s: State, rng: EngineRng) {
+  for (let guard = 0; guard < 500; guard++) {
+    const h = head(s);
+    if (!h || s.outcome || s.stage !== 'play' || !s.out?.includes(h.seat)) return;
+    answer(s, rng, autoAnswer(s, h, rng));
+    flush(s);
+  }
 }
 /** Passive answer used on timeout: X-token action with the slot-1 card, skip optional prompts, else the first option. */
 export function autoAnswer(s: State, q: Prompt, rng: EngineRng): Answer {
@@ -215,7 +236,7 @@ export function projectState(s: State, viewer: Viewer) {
     brk: s.brk, brkMax: s.brkMax, zoosAvail: [...s.zoosAvail], unisAvail: [...s.unisAvail], assoc: structuredClone(s.assoc),
     donations: s.donations, donationCost: donationCost(s), baseProjects: [...s.baseProjects], projects: [...s.projects],
     ptoks: structuredClone(s.ptoks), extraSupports: structuredClone(s.extraSupports), bonusTiles: structuredClone(s.bonusTiles),
-    cp10: s.cp10, endAt: s.endAt, turnsDone: s.turnsDone, inTurn: s.inTurn,
+    cp10: s.cp10, endAt: s.endAt, turnsDone: s.turnsDone, inTurn: s.inTurn, out: [...(s.out ?? [])],
     act: s.act ? { seat: s.act.seat, card: s.act.card, owner: s.act.owner, strength: s.act.strength, up: s.act.up, count: s.act.count } : null,
     log: structuredClone(s.log), final: structuredClone(s.final), outcome: s.outcome, options: { ...s.options },
     maps: Object.fromEntries([...mapIds].map((id) => [id, mapView(id)])),
@@ -238,7 +259,7 @@ export function projectState(s: State, viewer: Viewer) {
 export type ArkView = ReturnType<typeof projectState>;
 
 export function legal(s: State, viewer: Viewer): ActionHint[] {
-  if (s.outcome || viewer.kind !== 'player') return [];
+  if (s.outcome || viewer.kind !== 'player' || s.out?.includes(viewer.seat)) return [];
   const seat = viewer.seat;
   const out: ActionHint[] = [];
   const d = s.drafts[seat];
@@ -254,6 +275,18 @@ export function legal(s: State, viewer: Viewer): ActionHint[] {
   return out;
 }
 
+/** BGA rail panel data (HANDOFF «HUD و publicSummary»): public numbers only, same for every viewer. */
+export function arkDetail(s: State, seat: number) {
+  const p = s.players[seat]!;
+  return {
+    seat, money: p.money, appeal: p.appeal, cp: p.cp, rep: p.rep, x: p.x, vp: vp(p), target: target(p.cp), income: appealIncome(p.appeal),
+    handCount: p.hand.length, handLimit: p.map ? handLimit(ctx(s, seat, { nextInt: () => 0 })) : 3, workers: p.workers,
+    slots: [...p.slots], strengths: p.slots.map((k) => strengthOf(p, k)), up: { ...p.up }, tok: structuredClone(p.tok),
+    icons: icons(s, seat), map: p.map, out: !!s.out?.includes(seat)
+  };
+}
+export type ArkDetail = ReturnType<typeof arkDetail>;
+
 // ---------------- Module ----------------
 export const arkNovaModule: GameModule<State, ArkAction, ArkView> = {
   manifest: arkNova.manifest,
@@ -264,6 +297,7 @@ export const arkNovaModule: GameModule<State, ArkAction, ArkView> = {
   validate(s, actor, a) {
     if (s.outcome) return { ok: false, errorCode: 'GAME_FINISHED' };
     if (actor.kind !== 'player' || actor.seat < 0 || actor.seat >= s.n) return { ok: false, errorCode: 'NOT_A_PLAYER' };
+    if (s.out?.includes(actor.seat)) return { ok: false, errorCode: 'RESIGNED' };
     if (a.type === 'resign') return { ok: true };
     if (a.type === 'draft') { const e = draftError(s, actor.seat, a); return e ? { ok: false, errorCode: e } : { ok: true }; }
     const h = head(s);
@@ -278,11 +312,12 @@ export const arkNovaModule: GameModule<State, ArkAction, ArkView> = {
     const before = sig(s);
     resetBuffer();
     s.seq += 1;
-    if (a.type === 'resign') { resign(s, seat); return done(before, s, [{ type: 'resigned', seat }]); }
-    if (a.type === 'draft') { applyDraft(s, seat, a.keep, a.map, ectx.rng); return done(before, s, [{ type: 'drafted', seat }]); }
+    if (a.type === 'resign') { resign(s, seat, ectx.rng); return done(before, s, [{ type: 'resigned', seat }]); }
+    if (a.type === 'draft') { applyDraft(s, seat, a.keep, a.map, ectx.rng); zombie(s, ectx.rng); return done(before, s, [{ type: 'drafted', seat }]); }
     s.players[seat]!.timeouts = 0;
     const { type: _t, ...ans } = a;
     answer(s, ectx.rng, ans);
+    zombie(s, ectx.rng);
     return done(before, s, [{ type: 'answered', seat }]);
   },
 
@@ -302,6 +337,7 @@ export const arkNovaModule: GameModule<State, ArkAction, ArkView> = {
         s.players[seat]!.timeouts += 1;
         applyDraft(s, seat, d.cards.slice(0, 4), d.maps[0], ectx.rng);
       }
+      zombie(s, ectx.rng);
       return done(before, s, [{ type: 'timed-out', seats }]);
     }
     const seat = pendingSeatsOf(s)[0];
@@ -315,6 +351,7 @@ export const arkNovaModule: GameModule<State, ArkAction, ArkView> = {
       answer(s, ectx.rng, autoAnswer(s, h, ectx.rng));
       flush(s);
     }
+    zombie(s, ectx.rng);
     return done(before, s, [{ type: 'timed-out', seat }]);
   },
 
@@ -332,7 +369,8 @@ export const arkNovaModule: GameModule<State, ArkAction, ArkView> = {
           { key: 'appeal', label: 'جذابیت', value: p.appeal, icon: 'star' },
           { key: 'cp', label: 'حفاظت', value: p.cp, icon: 'shield' }
         ],
-        ...(won === seat ? { status: 'winner' as const } : {})
+        detail: arkDetail(s, seat),
+        ...(won === seat ? { status: 'winner' as const } : s.out?.includes(seat) ? { status: 'out' as const } : {})
       })),
       shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'break', label: 'وقفه', value: s.brk, max: s.brkMax }],
       ...(leaders.length === 1 ? { leaderSeat: leaders[0]! } : {})

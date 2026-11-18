@@ -6,10 +6,10 @@
 // most M€ breaks ties, otherwise the place is shared. Hidden: hands, deck, offers, draft packs, prompt contents.
 import { z } from 'zod';
 import type { ActionHint, Actor, EngineRng, GameModule, Outcome, Transition, Viewer } from '@bg/game-sdk';
-import { RES, type Answer, type PlayerState, type Prompt, type TmState } from './api.ts';
+import { RES, TAGS, type Answer, type PlayerState, type Prompt, type Tag, type TmState } from './api.ts';
 import {
   AWARD_COSTS, AWARDS, MILESTONE_COST, MILESTONES, PROJECTS, G, autoAnswer, autoPay, awardError, canConvertHeat, canConvertPlants,
-  answerError, cardCost, def, doPay, drawCards, greeneryPlants, milestoneError, payError, payOptsFor, playCard,
+  answerError, cardCost, citiesOf, def, doPay, drawCards, greeneriesOf, greeneryPlants, tagsOf, values, PROJECT_FA, milestoneError, payError, payOptsFor, playCard,
   playError, projectCost, projectError, promptOptions, resolvePrompt, runEffects, runProject, score, shuffle, tableau, terraformed,
   maxPay, type Pay, type Project, type Rt, type Score
 } from './core.ts';
@@ -54,11 +54,27 @@ export interface TmPublicPlayer {
   corp: string | null; tr: number; res: PlayerState['res']; prod: PlayerState['prod']; played: string[]; cardRes: Record<string, number>;
   used: string[]; passed: boolean; hand: number; ready: boolean; score: Score;
 }
+/** What the viewer needs to build the action bar without repeating rules: payment values, plants per greenery and the
+ *  engine's error code for every action that is not legal right now (key `play:<id>`, `cardAction:<id>`,
+ *  `project:<id>`, `milestone:<id>`, `award:<id>`, `convertPlants`, `convertHeat`). */
+export interface TmMe extends Pick<PlayerState, 'hand' | 'corpOffer' | 'offer' | 'pack' | 'drafted' | 'pick' | 'draftPick'> {
+  values: { steel: number; titanium: number; heat: boolean };
+  plantsPerGreenery: number;
+  blocked: Record<string, string>;
+}
+/** Panel body of one seat (publicSummary `detail`, HANDOFF «HUD و publicSummary»). */
+export interface TmDetail {
+  corp: string | null; tr: number; score: number; hand: number; res: PlayerState['res']; prod: PlayerState['prod'];
+  tags: Record<Tag | 'event', number>; cities: number; greeneries: number; firstPlayer: boolean; actionsTaken: number | null;
+  phase: TmState['phase']; ready: boolean;
+}
 export interface TmView extends Omit<TmState, 'players' | 'deck' | 'discard' | 'queue' | 'timeouts'> {
   deck: number;
   discard: number;
   players: TmPublicPlayer[];
-  me: Pick<PlayerState, 'hand' | 'corpOffer' | 'offer' | 'pack' | 'drafted' | 'pick' | 'draftPick'> | null;
+  me: TmMe | null;
+  /** Public progress per seat: milestone and award metrics (actions sheet «۳۱ از ۳۵», «شما ۴، بیشترین ۴»). */
+  metrics: Record<string, number[]>;
   /** The pending prompt if it is the viewer's (contents may be private); otherwise only who is deciding. */
   prompt: Prompt | null;
   promptSeat: number | null;
@@ -210,7 +226,10 @@ function corpSelect(s: TmState, rng: EngineRng) {
  */
 function tutorialPosition(s: TmState): TmState {
   const zero = () => emptyRes();
-  Object.assign(s, { generation: 9, phase: 'action', firstPlayer: 0, current: 0, temperature: 4, oxygen: 13, oceans: 8 });
+  // The learner already took this turn's first action (Power Plant), so the script's actions pair up into full turns and
+  // the last step is a real pass at the start of a turn (rulebook p.8, RULES.md E4).
+  Object.assign(s, { generation: 9, phase: 'action', firstPlayer: 0, current: 0, actionsTaken: 1, temperature: 4, oxygen: 13, oceans: 8 });
+  s.log.push({ seat: 0, kind: 'play', card: '141' });
   for (const id of ['04', '06', '07', '13', '28', '32', '33', '34']) s.tiles[id] = { kind: 'ocean', owner: null };
   s.tiles['30'] = { kind: 'city', owner: 0 };
   s.tiles['38'] = { kind: 'greenery', owner: 0 };
@@ -314,7 +333,8 @@ function validateAction(s: TmState, seat: number, a: TmAction): string | null {
     case 'convertPlants': return canConvertPlants(s, seat) ? null : 'CANNOT_CONVERT';
     case 'convertHeat': return canConvertHeat(s, seat) ? null : 'CANNOT_CONVERT';
     case 'endTurn': return s.actionsTaken === 1 ? null : 'NO_ACTION_TAKEN';
-    case 'pass': return null;
+    // Rulebook p.8 (RULES.md E4): passing means taking no action this turn; after one action only «پایان نوبت».
+    case 'pass': return s.actionsTaken === 0 ? null : 'ACTION_TAKEN';
     default: return 'WRONG_PHASE';
   }
 }
@@ -396,13 +416,41 @@ function resignOutcome(s: TmState, seat: number) {
   s.outcome = { placements: [...rank(s, s.players.map((_, k) => k).filter((k) => k !== seat)), { seat, place: s.playerCount, score: score(s, seat).total }], reason: 'resign' };
 }
 
+/** Error code per action the viewer cannot take right now (only on their own action turn without a pending decision). */
+function blockedFor(s: TmState, seat: number): Record<string, string> {
+  const p = s.players[seat]!;
+  if (s.phase !== 'action' || s.current !== seat || s.queue.length || !p.firstActionDone || s.outcome) return {};
+  const out: Record<string, string> = {};
+  const check = (key: string, a: TmAction) => { const e = validateAction(s, seat, a); if (e) out[key] = e; };
+  for (const id of p.hand) check(`play:${id}`, { type: 'play', card: id });
+  for (const id of tableau(s, seat)) if (def(id).action) check(`cardAction:${id}`, { type: 'cardAction', card: id });
+  for (const pr of Object.keys(PROJECTS) as Project[]) if (pr !== 'sellPatents') check(`project:${pr}`, { type: 'project', project: pr });
+  for (const m of MILESTONES) check(`milestone:${m.id}`, { type: 'milestone', id: m.id });
+  for (const aw of AWARDS) check(`award:${aw.id}`, { type: 'award', id: aw.id });
+  check('convertPlants', { type: 'convertPlants' });
+  check('convertHeat', { type: 'convertHeat' });
+  return out;
+}
+
+const LOG_TEXT: Record<string, string> = {
+  pass: 'پاس داد', endTurn: 'پایان نوبت', convertPlants: 'گیاه به فضای سبز', convertHeat: 'گرما به دما', firstAction: 'کنش اول شرکت',
+  play: 'بازی کرد', cardAction: 'کنش کارت', project: 'پروژهٔ استاندارد', milestone: 'نقطهٔ عطف', award: 'جایزه'
+};
+/** One public log line, at most 40 characters (contracts `moves[].text`). */
+function logText(l: TmState['log'][number]): string {
+  const goal = (id: string) => MILESTONES.find((m) => m.id === id)?.nameFa ?? AWARDS.find((a) => a.id === id)?.nameFa ?? '';
+  const what = l.card ? def(l.card).nameFa : l.detail ? PROJECT_FA[l.detail as Project] ?? goal(l.detail) : '';
+  const t = `${LOG_TEXT[l.kind] ?? l.kind}${what ? `: ${what}` : ''}`;
+  return t.length > 40 ? `${t.slice(0, 39)}…` : t;
+}
+
 export const terraformingMarsModule: GameModule<TmState, TmAction, TmView> = {
   manifest: terraformingMars.manifest,
   actionSchema: tmAction as unknown as z.ZodType<TmAction>,
 
   setup({ playerCount, options, rng }) {
     if (playerCount < 2 || playerCount > 5) throw new Error('terraforming-mars needs 2–5 players');
-    const corporateEra = opt(options.corporateEra, true);
+    const corporateEra = opt(options.corporateEra, true); // the site always passes the manifest default (off, RULES.md E7)
     const pool = CARDS.filter((c) => corporateEra || !c.ce);
     const s: TmState = {
       playerCount, corporateEra, draft: opt(options.draft, false), generation: 1, phase: 'corp', firstPlayer: rng.nextInt(playerCount), current: 0, actionsTaken: 0,
@@ -450,7 +498,11 @@ export const terraformingMarsModule: GameModule<TmState, TmAction, TmView> = {
         corp: p.corp, tr: p.tr, res: p.res, prod: p.prod, played: p.played, cardRes: p.cardRes, used: p.used, passed: p.passed, hand: p.hand.length,
         ready: simultaneous ? (s.phase === 'draft' ? !!p.draftPick || p.pack.length < 2 : !!p.pick) : false, score: score(s, k)
       })),
-      me: mine ? { hand: mine.hand, corpOffer: mine.corpOffer, offer: mine.offer, pack: mine.pack, drafted: mine.drafted, pick: mine.pick, draftPick: mine.draftPick } : null,
+      me: mine ? {
+        hand: mine.hand, corpOffer: mine.corpOffer, offer: mine.offer, pack: mine.pack, drafted: mine.drafted, pick: mine.pick, draftPick: mine.draftPick,
+        values: values(s, me), plantsPerGreenery: greeneryPlants(s, me), blocked: blockedFor(s, me)
+      } : null,
+      metrics: Object.fromEntries([...MILESTONES, ...AWARDS].map((g) => [g.id, players.map((_, k) => g.value(s, k))])),
       prompt: q && q.seat === me ? q : null,
       promptSeat: q ? q.seat : null
     };
@@ -474,17 +526,25 @@ export const terraformingMarsModule: GameModule<TmState, TmAction, TmView> = {
         out.push({ type: 'pass' });
       } else if (!p.firstActionDone) out.push({ type: 'firstAction', corp: p.corp });
       else {
-        for (const id of p.hand) if (ok({ type: 'play', card: id })) { const c = def(id); out.push({ type: 'play', card: id, cost: cardCost(s, seat, c), steel: c.tags.includes('building'), titanium: c.tags.includes('space') }); }
-        for (const id of tableau(s, seat)) if (def(id).action && !cardActionError(s, seat, id) && ok({ type: 'cardAction', card: id })) out.push({ type: 'cardAction', card: id, cost: def(id).action!.cost ?? 0 });
-        for (const pr of Object.keys(PROJECTS) as Project[]) {
-          if (pr === 'sellPatents' ? p.hand.length > 0 : ok({ type: 'project', project: pr })) out.push({ type: 'project', project: pr, cost: projectCost(s, seat, pr) });
+        // `pay` = the engine's default payment (autoPay); the renderer starts its payment dock from it.
+        for (const id of p.hand) if (ok({ type: 'play', card: id })) {
+          const c = def(id), cost = cardCost(s, seat, c);
+          out.push({ type: 'play', card: id, cost, steel: c.tags.includes('building'), titanium: c.tags.includes('space'), pay: autoPay(s, seat, cost, payOptsFor(c)) });
         }
-        for (const m of MILESTONES) if (ok({ type: 'milestone', id: m.id })) out.push({ type: 'milestone', id: m.id });
-        for (const aw of AWARDS) if (ok({ type: 'award', id: aw.id })) out.push({ type: 'award', id: aw.id, cost: AWARD_COSTS[s.awards.length] });
+        for (const id of tableau(s, seat)) if (def(id).action && !cardActionError(s, seat, id) && ok({ type: 'cardAction', card: id })) {
+          const ad = def(id).action!, cost = ad.cost ?? 0;
+          out.push({ type: 'cardAction', card: id, cost, steel: !!ad.payWith?.steel, titanium: !!ad.payWith?.titanium, pay: autoPay(s, seat, cost, ad.payWith ?? {}) });
+        }
+        for (const pr of Object.keys(PROJECTS) as Project[]) {
+          const cost = projectCost(s, seat, pr);
+          if (pr === 'sellPatents' ? p.hand.length > 0 : ok({ type: 'project', project: pr })) out.push({ type: 'project', project: pr, cost, ...(pr === 'sellPatents' ? {} : { pay: autoPay(s, seat, cost, {}) }) });
+        }
+        for (const m of MILESTONES) if (ok({ type: 'milestone', id: m.id })) out.push({ type: 'milestone', id: m.id, cost: MILESTONE_COST, pay: autoPay(s, seat, MILESTONE_COST, {}) });
+        for (const aw of AWARDS) if (ok({ type: 'award', id: aw.id })) out.push({ type: 'award', id: aw.id, cost: AWARD_COSTS[s.awards.length], pay: autoPay(s, seat, AWARD_COSTS[s.awards.length]!, {}) });
         if (canConvertPlants(s, seat)) out.push({ type: 'convertPlants' });
         if (canConvertHeat(s, seat)) out.push({ type: 'convertHeat' });
         if (s.actionsTaken === 1) out.push({ type: 'endTurn' });
-        out.push({ type: 'pass' });
+        else out.push({ type: 'pass' });
       }
     }
     out.push({ type: 'resign' });
@@ -523,33 +583,47 @@ export const terraformingMarsModule: GameModule<TmState, TmAction, TmView> = {
   },
 
   publicSummary(s) {
-    // Headline = terraform rating (cheap, public); full VP breakdown stays in the view's per-seat score.
-    const trs = s.players.map((p) => p.tr);
-    const top = Math.max(...trs);
+    // HANDOFF «HUD و publicSummary»: headline = current total score (BGA), at most 4 stats, the panel body in `detail`.
+    const totals = s.players.map((_, k) => score(s, k).total);
+    const top = Math.max(...totals);
     const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
     const ready = (p: PlayerState) => (s.phase === 'draft' ? !!p.draftPick || p.pack.length < 2 : !!p.pick);
     const simultaneous = s.phase === 'corp' || s.phase === 'research' || s.phase === 'draft';
+    const detail = (p: PlayerState, seat: number): TmDetail => ({
+      corp: p.corp, tr: p.tr, score: totals[seat]!, hand: p.hand.length, res: { ...p.res }, prod: { ...p.prod },
+      tags: { ...Object.fromEntries(TAGS.map((t) => [t, tagsOf(s, seat, t)])), event: p.played.filter((id) => def(id).kind === 'event').length } as TmDetail['tags'],
+      cities: citiesOf(s, { seat }), greeneries: greeneriesOf(s, seat), firstPlayer: seat === s.firstPlayer, phase: s.phase, ready: simultaneous && ready(p),
+      actionsTaken: !s.outcome && s.phase === 'action' && s.current === seat ? s.actionsTaken : null
+    });
     return {
       seats: s.players.map((p, seat) => ({
         seat,
-        primary: { label: 'رتبه', value: p.tr },
+        primary: { label: 'امتیاز', value: totals[seat]! },
         stats: [
-          { key: 'mc', label: 'مگاکردیت', value: p.res.mc, icon: 'coins' },
+          { key: 'tr', label: 'رتبه', value: p.tr },
+          { key: 'mc', label: 'مگاکردیت', value: p.res.mc, icon: 'coins', delta: p.prod.mc },
           { key: 'hand', label: 'کارت', value: p.hand.length, icon: 'layers' },
-          { key: 'plants', label: 'گیاه', value: p.res.plants, resource: 'green' }
+          { key: 'plants', label: 'گیاه', value: p.res.plants, resource: 'green', delta: p.prod.plants }
         ],
         ...(winners.has(seat) ? { status: 'winner' as const }
           : s.outcome ? {}
           : simultaneous ? (ready(p) ? { status: 'done' as const } : {})
-          : p.passed ? { status: 'passed' as const } : {})
+          : p.passed ? { status: 'passed' as const } : {}),
+        badges: seat === s.firstPlayer ? [{ key: 'first', label: 'نفر اول' }] : [],
+        turnOrder: ((seat - s.firstPlayer + s.playerCount) % s.playerCount) + 1,
+        // `detail` is the DS-contract panel body (HANDOFF); the SDK type gains it with the shared change, until then it rides along.
+        ...({ detail: detail(p, seat) } as object)
       })),
       shared: [
         { key: 'generation', label: 'نسل', value: s.generation },
         { key: 'temperature', label: 'دما', value: s.temperature },
         { key: 'oxygen', label: 'اکسیژن', value: s.oxygen, max: 14 },
-        { key: 'oceans', label: 'اقیانوس', value: s.oceans, max: 9 }
+        { key: 'oceans', label: 'اقیانوس', value: s.oceans, max: 9 },
+        { key: 'deck', label: 'دسته', value: s.deck.length },
+        { key: 'discard', label: 'دورریز', value: s.discard.length }
       ],
-      ...(trs.filter((v) => v === top).length === 1 ? { leaderSeat: trs.indexOf(top) } : {})
+      moves: s.log.slice(-40).map((l) => ({ seat: l.seat, text: logText(l) })),
+      ...(totals.filter((v) => v === top).length === 1 ? { leaderSeat: totals.indexOf(top) } : {})
     };
   },
 
@@ -559,12 +633,12 @@ export const terraformingMarsModule: GameModule<TmState, TmAction, TmView> = {
     introFa: 'نسل آخر یک بازی است. دما ۴+ درجه است (۲ پله تا ۸+)، اکسیژن ۱۳٪ (۱ پله تا ۱۴٪) و ۸ اقیانوس روی نقشه است (۱ تا ۹). هر بار یکی از این‌ها را بالا ببرید ۱ رتبهٔ زمین‌سازی (TR) می‌گیرید. شما با شرکت تورگیت رتبهٔ ۲۴ دارید و حریف با کردیکور ۳۰؛ اما با کامل کردن مریخ، فضای سبز کنار شهر و یک نقطهٔ عطف از او جلو می‌زنید. در هر نوبت ۱ یا ۲ کنش انجام می‌دهید.',
     steps: [
       {
-        instructionFa: 'کارت «سیارک» (۱۴ مگاکردیت، نشان فضا) را بازی کنید. تیتانیوم برای کارت‌های فضایی هر واحد ۳ مگاکردیت می‌ارزد، پس ۲ تیتانیوم و ۸ مگاکردیت پرداخت می‌شود. دما ۱ پله (۲ درجه) بالا می‌رود، ۱ رتبه و ۲ تیتانیوم می‌گیرید.',
-        expected: { type: 'play', card: '009' }, reply: null
+        instructionFa: 'کارت «سیارک» (۱۴ مگاکردیت، نشان فضا) را بازی کنید. تیتانیوم برای کارت‌های فضایی هر واحد ۳ مگاکردیت می‌ارزد، پس ۲ تیتانیوم و ۸ مگاکردیت پرداخت می‌شود. دما ۱ پله (۲ درجه) بالا می‌رود، ۱ رتبه و ۲ تیتانیوم می‌گیرید. کنش اول این نوبت را با «نیروگاه» انجام داده‌اید، پس این کنش دوم شماست؛ نوبت به حریف می‌رسد و او برای این نسل پاس می‌دهد.',
+        expected: { type: 'play', card: '009' }, reply: { type: 'pass' }
       },
       {
-        instructionFa: '۸ گرما را به ۱ پلهٔ دما تبدیل کنید: دما به ۸+ می‌رسد و ۱ رتبهٔ دیگر می‌گیرید. این کنش دوم شماست، پس نوبت به حریف می‌رسد و او برای این نسل پاس می‌دهد.',
-        expected: { type: 'convertHeat' }, reply: { type: 'pass' }
+        instructionFa: 'حریف پاس داده، پس نوبت‌ها به شما برمی‌گردد. ۸ گرما را به ۱ پلهٔ دما تبدیل کنید: دما به ۸+ می‌رسد و ۱ رتبهٔ دیگر می‌گیرید.',
+        expected: { type: 'convertHeat' }, reply: null
       },
       {
         instructionFa: 'پروژهٔ استاندارد «سفرهٔ آب» را با ۱۸ مگاکردیت بخرید تا آخرین اقیانوس را بگذارید.',
@@ -587,7 +661,7 @@ export const terraformingMarsModule: GameModule<TmState, TmAction, TmView> = {
         expected: { type: 'milestone', id: 'gardener' }, reply: null
       },
       {
-        instructionFa: 'پاس بدهید. نسل تمام می‌شود و تولید انجام می‌شود؛ چون دما، اکسیژن و اقیانوس‌ها همه کامل‌اند، پس از دور پایانی فضای سبز (که کسی ۸ گیاه ندارد) امتیازها شمرده می‌شوند.',
+        instructionFa: 'این کنش دوم بود و نوبت تازه‌ای شروع شده که در آن هنوز کنشی نکرده‌اید؛ پس می‌توانید پاس بدهید. نسل تمام می‌شود و تولید انجام می‌شود؛ چون دما، اکسیژن و اقیانوس‌ها همه کامل‌اند، پس از دور پایانی فضای سبز (که کسی ۸ گیاه ندارد) امتیازها شمرده می‌شوند.',
         expected: { type: 'pass' }, reply: null
       }
     ],

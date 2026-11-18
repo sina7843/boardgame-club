@@ -27,7 +27,8 @@ function ready(factions: string[], seed = 1): EngineSnapshot {
   }
   return snap;
 }
-const turnOf = (snap: EngineSnapshot, seat: number) => { st(snap).current = seat; st(snap).pending = []; return snap; };
+// Fresh turn for `seat` (a finished main action holds the turn until `end`, RULES E10).
+const turnOf = (snap: EngineSnapshot, seat: number) => { st(snap).current = seat; st(snap).pending = []; st(snap).turnDone = false; return snap; };
 const emptyBoard = (s: GaiaState) => s.hexes.forEach((h) => { h.owner = null; h.building = null; h.extra = null; h.sats = []; h.feds = []; });
 
 /** Seat 0 to act on an empty board; round tiles that never fire in these tests (r3 = mines only). */

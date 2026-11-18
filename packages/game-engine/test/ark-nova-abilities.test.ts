@@ -312,6 +312,7 @@ describe('ark nova abilities: action cards and tokens', () => {
     s.players[low]!.appeal = 4;
     s.players[imm]!.appeal = 20; s.players[imm]!.zoo = [225];
     play(s, me, 470);
+    answer(s, { value: 'ability' }); // RULES.md E3: the order matters here (12 appeal would pass 10), so it is asked
     const ven = (k: number) => s.players[k]!.slots.map((c) => s.players[k]!.tok[c].venom);
     expect(ven(hi)).toEqual([1, 1, 0, 0, 0]);
     expect(ven(low)).toEqual([0, 0, 0, 0, 0]);
@@ -323,6 +324,8 @@ describe('ark nova abilities: action cards and tokens', () => {
     const s = fresh();
     s.players[0]!.appeal = 4; s.players[1]!.appeal = 5;
     play(s, 0, 449);
+    expect(head(s)).toMatchObject({ k: 'option', fx: 'core:animalOrder' }); // RULES.md E3
+    answer(s, { value: 'ability' });
     expect(s.players[0]!.appeal).toBeGreaterThan(5);
     expect(s.players[1]!.tok[s.players[1]!.slots[0]!].venom).toBe(1);
   });
@@ -350,6 +353,7 @@ describe('ark nova abilities: action cards and tokens', () => {
     s.players[2]!.appeal = 5; s.players[2]!.cp = 2; // ahead on conservation only
     s.players[3]!.appeal = 30; s.players[3]!.cp = 9; s.players[3]!.zoo = [225];
     play(s, 0, 474);
+    answer(s, { value: 'ability' }); // RULES.md E3: ability before this card's conservation
     const con = (k: number) => s.players[k]!.slots.map((c) => s.players[k]!.tok[c].con);
     expect(con(1)).toEqual([0, 0, 0, 1, 1]);
     expect(con(2)).toEqual([0, 0, 0, 0, 1]);

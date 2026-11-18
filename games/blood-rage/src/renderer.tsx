@@ -1,553 +1,909 @@
-// بلاد ریج renderer: Midgard on a night sea. The map is an SVG ring of eight provinces around Yggdrasil with four fjords;
-// figures stand in village slots. Under it: the clans (glory, Rage, stat tracks, upgrades), your reserve, your hand and the
-// pillage battle. Hidden things (hands, drafted packs, quests, chosen battle cards) are only drawn for their owner.
+// بلاد ریج renderer — the BGA layout of design/games/blood-rage (HANDOFF «تصمیم‌های اصلی», COMPONENTS.md §2–§24, layout.json):
+// sticky status bar with the BGA buttons → map box (board art on the sea, tokens = handoff art) → «یک کارت نگه دارید» (draft)
+// → «دست من» → clan sheets; rail = BGA player boards, then the log. Every move: buttons → target on the map / sheet / hand →
+// «ثبت». The renderer computes no rules: targets, costs and effects come from `legalActions` (ENGINE.md §9).
 import './renderer.css';
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { Button, DockSlot, ZoomBoard, type GameAction, type GameRendererProps } from '@bg/ui';
-import {
-  adjacent, CARD_BY_ID, CARDS, FJORDS, FJORD_IDS, PROVINCES, REGION_FA, REWARD_FA, RING, STAT_FA, STATS, TRACKS, LAST_STEP, RAGNAROK_GLORY,
-  type CardDef, type FjordId, type Place, type ProvinceId, type Stat
-} from './data.ts';
-import { villagesFree, type BRView, type BattleView, type Figure, type LogEntry } from './rules.ts';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { RailSlot, type GameAction, type GameRendererProps } from '@bg/ui';
+import IDS from './content/content-id-map.json' with { type: 'json' };
+import { CARD_BY_NUM, CLANS, FJORDS as C_FJORDS, MAP_SIZE, PROVINCES as C_PROV, SLOTS, ART_OF_DEF, RAGNAROK_GLORY } from './content/index.ts';
+import { CARD_BY_ID } from './data.ts';
+import type { BloodRageView, FigureView, PendingKind, SeatView, StatKey, Where, BattleRecordView } from './contract.ts';
+import type { LogEntry } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-const CLAN_FA = ['آبی', 'زرد', 'قرمز', 'عاج', 'بنفش'];
-const clanColor = (seat: number) => `var(--seat-${(seat % 5) + 1})`;
-/** Seat → clan of the printed game (raven, serpent, wolf, bear, ram): emblem and figure portraits in cards.webp. */
-const CLAN_NAME = ['کلاغ', 'مار', 'گرگ', 'خرس', 'قوچ'];
-const CLAN_ART = [
-  { emblem: 139, warrior: 140, leader: 141, ship: 142 },
-  { emblem: 135, warrior: 136, leader: 137, ship: 138 },
-  { emblem: 131, warrior: 132, leader: 133, ship: 134 },
-  { emblem: 143, warrior: 144, leader: 145, ship: 146 },
-  { emblem: 147, warrior: 148, leader: 149, ship: 150 }
-];
-const cell = (k: number) => ({ x: (k % 14) * 150, y: Math.floor(k / 14) * 230 });
-const spritePos = (k: number) => `${((k % 14) / 13) * 100}% ${(Math.floor(k / 14) / 10) * 100}%`;
-const KIND_FA: Record<string, string> = { leader: 'رهبر', warrior: 'جنگجو', ship: 'کشتی', monster: 'هیولا' };
-const CARD_KIND_FA: Record<CardDef['kind'], string> = { clan: 'ارتقای قبیله', warrior: 'ارتقای جنگجو', ship: 'ارتقای کشتی', leader: 'ارتقای رهبر', monster: 'هیولا', battle: 'نبرد', quest: 'مأموریت' };
-const REWARD_GLYPH: Record<string, string> = { rage: 'خ+', axes: 'ت+', horns: 'ش+', glory: '۵', all: '★' };
-const PHASE_FA: Record<string, string> = {
-  draft: 'هدیهٔ خدایان (درفت)', action: 'کنش‌ها', discard: 'دور ریختن', quest: 'مأموریت‌ها', ragnarok: 'راگناروک', release: 'آزادی والهالا', endage: 'پایان عصر', over: 'پایان بازی'
-};
-const STAGE_FA: Record<BattleView['stage'], string> = {
-  call: 'فراخوان نبرد', cards: 'انتخاب کارت', reveal: 'آشکار شدن کارت‌ها', tide: 'سیل اودین', late: 'کارت‌های دیررس', protect: 'حمایت فریگا', apply: 'نتیجه', after: 'پایان نبرد'
-};
-const iso = (s: string) => `⁨${s}⁩`;
-
-// ---------- geometry (coordinates of the printed board in the rulebook, 441 x 441) ----------
-/** Where the island picture (board.webp) sits in these coordinates. */
-const PIC = { x: -1.5, y: -3.9, size: 450.7 };
-/** Village circles and the pillage-reward square of every province, read off the board picture. */
-const SLOTS: Record<Exclude<ProvinceId, 'ygg'>, { v: [number, number][]; reward: [number, number] }> = {
-  myr: { v: [[107, 122], [148, 105], [138, 160]], reward: [135, 130] },
-  elv: { v: [[178, 43], [218, 52], [157, 68], [207, 130]], reward: [207, 90] },
-  ang: { v: [[290, 82], [330, 95], [263, 127], [330, 135], [298, 165]], reward: [300, 125] },
-  mus: { v: [[323, 197], [358, 210], [295, 232], [375, 247], [323, 268]], reward: [337, 233] },
-  hor: { v: [[267, 292], [320, 322], [235, 347], [278, 367]], reward: [282, 322] },
-  utg: { v: [[193, 313], [157, 348], [207, 373]], reward: [188, 345] },
-  and: { v: [[83, 288], [143, 290], [108, 347]], reward: [113, 302] },
-  gim: { v: [[47, 203], [90, 185], [142, 190], [68, 238], [107, 247]], reward: [98, 215] }
-};
-const YGG: [number, number] = [212, 232];
-const FJORD_AT: Record<FjordId, [number, number]> = { f1: [281, 50], f2: [353, 317], f3: [120, 373], f4: [70, 147] };
-function slotPositions(p: ProvinceId): { x: number; y: number }[] {
-  if (p === 'ygg') return Array.from({ length: 20 }, (_, k) => ({ x: YGG[0] - 40 + (k % 5) * 20, y: YGG[1] + 10 + Math.floor(k / 5) * 20 }));
-  return SLOTS[p].v.map(([x, y]) => ({ x, y }));
+const ART = import.meta.glob<string>('./art/**/*.webp', { eager: true, import: 'default' });
+const art = (path: string) => ART[`./art/${path}`] ?? '';
+// ponytail: one module-level language (one Blood Rage table per page); move to a React context if two tables ever share a page.
+let LANG: 'fa' | 'en' = 'fa';
+const t = (faText: string, en: string) => (LANG === 'en' ? en : faText);
+const fa = (n: number) => (LANG === 'en' ? String(n) : n.toLocaleString('fa-IR', { useGrouping: Math.abs(n) >= 1000 }).replace(/٬/g, ','));
+const SLUG = (clan: number) => CLANS.find((c) => c.id === clan)?.slug ?? 'wolf';
+const CLAN_FA = (clan: number) => { const c = CLANS.find((x) => x.id === clan); return (LANG === 'en' ? c?.nameEn : c?.nameFa) ?? ''; };
+const cc = (clan: number) => ({ '--cc': `var(--bdr-${SLUG(clan)})` }) as CSSProperties;
+const ink = (clan: number) => ({ color: `var(--bdr-${SLUG(clan)}-ink)` });
+/** Game-art coordinates: the board is a fixed LTR picture (layout.json x/16 %, y/16 %); some pieces carry dir=rtl text, so physical left. */
+const pos = (x: number, y: number): CSSProperties => ({ left: `${(x / MAP_SIZE) * 100}%`, top: `${(y / MAP_SIZE) * 100}%` }); // ds-check-ignore: LTR game-art coordinates
+const PROV_KEY = ['ygg', 'myr', 'elv', 'ang', 'mus', 'hor', 'utg', 'and', 'gim'];
+const provOfKey = (k: string | undefined) => (k === undefined ? -1 : PROV_KEY.indexOf(k));
+const provFa = (n: number) => (LANG === 'en' ? C_PROV[n]?.nameEn : C_PROV[n]?.nameFa) ?? '';
+const STAT_L: Record<StatKey, [string, string]> = { rage: ['خشم', 'Rage'], axe: ['تبر', 'Axes'], horn: ['شاخ', 'Horns'] };
+const STAT_FA = new Proxy({} as Record<StatKey, string>, { get: (_, k: StatKey) => t(...STAT_L[k]) });
+const KIND_L: Record<string, [string, string]> = { leader: ['سردار', 'Leader'], warrior: ['جنگجو', 'Warrior'], ship: ['کشتی', 'Ship'], monster: ['هیولا', 'Monster'] };
+const REWARD_L: Record<string, [string, string]> = { yggdrasil: ['هر سه ویژگی قبیله یک پله', 'All three clan stats +1'], rage: ['ویژگی خشم یک پله', 'Rage stat +1'], axe: ['ویژگی تبر یک پله', 'Axes stat +1'], horn: ['ویژگی شاخ یک پله', 'Horns stat +1'], glory: ['۵ افتخار', '5 Glory'] };
+const REWARD_FA = new Proxy({} as Record<string, string>, { get: (_, k: string) => (REWARD_L[k] ? t(...REWARD_L[k]!) : '') });
+const PHASES: [string, string, string][] = [['draft', 'هدایای خدایان', "Gods' Gifts"], ['action', 'اقدام', 'Action'], ['discard', 'دور ریختن', 'Discard'], ['quest', 'مأموریت‌ها', 'Quests'], ['ragnarok', 'راگناروک', 'Ragnarök'], ['valhalla', 'آزادی از والهالا', 'Release Valhalla']];
+const readLang = (): 'fa' | 'en' => { try { return localStorage.getItem('bdr-lang') === 'en' ? 'en' : 'fa'; } catch { return 'fa'; } };
+/** The page theme (html data-theme): the status bar, dialogs and sheet are DS boards on the page theme, not on the night stage. */
+function usePageTheme(): 'light' | 'dark' {
+  const read = () => (typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+  const [theme, setTheme] = useState<'light' | 'dark'>(read);
+  useEffect(() => {
+    if (typeof MutationObserver === 'undefined') return;
+    const o = new MutationObserver(() => setTheme(read()));
+    o.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => o.disconnect();
+  }, []);
+  return theme;
 }
-const rewardAt = (p: Exclude<ProvinceId, 'ygg'>) => ({ x: SLOTS[p].reward[0], y: SLOTS[p].reward[1] });
-const fjordSlot = (f: FjordId, k: number) => { const c = FJORD_AT[f]; return { x: c[0] + ((k % 2) - 0.5) * 22, y: c[1] + (Math.floor(k / 2) - 0.5) * 22 }; };
-
-
-// ---------- card art (cards.webp: 14 × 11 sprite of illustrations) ----------
-const ART: Record<string, number[]> = {
-  "Loki's Trickery": [0], "Thor's Hammer": [2], "Heimdall's Sight": [3], "Odin's Smite": [4], "Frigga's Grace": [6], "Tyr's Bash": [8],
-  "Tyr's Smash": [9, 42], "Tyr's Crush": [11, 43, 77], "Tyr's Smite": [12, 44, 78], 'Manheim!': [13, 47, 81], 'Jotunheim!': [15, 49, 83],
-  'Alfheim!': [17, 51, 85], 'Glorious Death!': [19, 54, 88], 'Yggdrasil!': [20, 53, 86], 'Brothers in Arms': [22], "Loki's Dragons": [23],
-  Troll: [24], 'Lord of Hammers': [25], 'Dwarf Chieftain': [26], 'Sea Serpent': [27], "Loki's Blessing": [28], "Loki's Domain": [29],
-  "Frigga's Charm": [30], "Tyr's Domain": [31], "Thor's Glory": [32], "Frigga's Succor": [33], "Loki's Backstab": [34], "Odin's Tide": [36],
-  "Heimdall's Eye": [38], "Thor's Oath": [41], "Tyr's Rage": [45, 79], "Heimdall's Watch": [46, 80], 'Experts in Arms': [56], 'Fire Dragons': [57],
-  'Lord of Axes': [58], Valkyrie: [59], 'Dark Elf': [60], 'Fire Giant': [61], "Odin's Inspiration": [62], "Thor's Domain": [63],
-  "Loki's Eminence": [64], "Frigga's Protection": [65], "Tyr's Challenge": [66], "Tyr's Prowess": [67], "Loki's Poison": [68],
-  "Thor's Ascension": [69], "Heimdall's Gaze": [71], "Odin's Judgement": [72], "Thor's Primacy": [75], 'Masters in Arms': [90],
-  'Eternal Dragons': [91], 'Lord of Spears': [92], 'Volur Witch': [93], 'Frost Giant': [94], 'Soldier from Hel': [95], "Frigga's Domain": [96],
-  "Odin's Throne": [97], "Tyr's Wrath": [98], "Loki's Wrath": [99], "Frigga's Sacrifice": [100], "Thor's Conquest": [101], 'Widespread!': [106],
-  "Tyr's Judgement": [120]
-};
-function artStyle(def: CardDef): CSSProperties | undefined {
-  const cells = ART[def.nameEn];
-  if (!cells) return undefined;
-  const k = cells[Math.min(def.age, cells.length) - 1]!;
-  return { backgroundPosition: spritePos(k) };
+/** Phone layout (layout.json `squareMap` ≤760): action sheet, auto-zoom. */
+function usePhone(): boolean {
+  const [phone, setPhone] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(max-width: 760px)');
+    const f = () => setPhone(mq.matches);
+    f();
+    mq.addEventListener('change', f);
+    return () => mq.removeEventListener('change', f);
+  }, []);
+  return phone;
 }
 
-/** One SVG pattern per portrait (clan warriors, leaders, ships and monsters), cut from cards.webp. */
-const PORTRAITS = [
-  ...CLAN_ART.flatMap((c) => [`f${c.warrior}`, `f${c.leader}`, `s${c.ship}`]),
-  ...CARDS.filter((d) => d.kind === 'monster').map((d) => `f${ART[d.nameEn]?.[0] ?? 0}`)
-];
-function FigurePatterns() {
-  return (
-    <defs>
-      {[...new Set(PORTRAITS)].map((id) => {
-        const c = cell(Number(id.slice(1)));
-        const box = id.startsWith('s') ? { x: c.x + 15, y: c.y + 60, w: 120 } : { x: c.x + 25, y: c.y + 22, w: 100 };
-        return (
-          <pattern key={id} id={`blr-pat-${id}`} width="1" height="1" patternContentUnits="objectBoundingBox" viewBox={`${box.x} ${box.y} ${box.w} ${box.w}`} preserveAspectRatio="xMidYMid slice">
-            <image href="/games/blood-rage/cards.webp" width="2100" height="2530" />
-          </pattern>
-        );
-      })}
-    </defs>
-  );
+// ---------- art lookups (content-id-map.json) ----------
+type Tokens = Record<string, Record<string, string>>;
+const FIG_TOKENS = IDS.figureTokens as unknown as Tokens;
+/** clan slug → engine card id → upgraded token path (copies of the 5th-player cards share the same art). */
+const TOKEN_BY_DEF: Record<string, Record<string, string>> = Object.fromEntries(Object.entries(FIG_TOKENS).filter(([k]) => k !== 'fifthPlayerCopies').map(([slug, m]) => [slug,
+  Object.fromEntries(Object.entries(m).filter(([k]) => k.startsWith('card-')).map(([k, v]) => [CARD_BY_NUM[Number(k.slice(5))]?.def ?? k, v]))]));
+function cardArt(num: number | null | undefined, def?: string): string {
+  if (num === null || num === undefined) return '';
+  const c = CARD_BY_NUM[num];
+  return art(`cards/${c?.art ?? ART_OF_DEF[def ?? ''] ?? ''}.webp`);
 }
-
-type Hint = GameAction;
-
-function CardView({ def, selected, dim, onClick, children, label }: { def: CardDef; selected?: boolean; dim?: boolean; onClick?: () => void; children?: ReactNode; label?: string }) {
-  const big = def.kind === 'battle' ? (def.str === null ? 'X' : `+${fa(def.str!)}`) : def.kind === 'quest' ? fa(def.glory!) : def.mstr !== undefined ? fa(def.mstr) : fa(def.cost ?? 0);
-  const sub = def.kind === 'battle' ? 'قدرت' : def.kind === 'quest' ? 'افتخار' : def.mstr !== undefined ? `قدرت · هزینه ${fa(def.cost ?? 0)}` : 'خشم';
-  const inner = (
-    <>
-      <span className="blr-card__art" style={artStyle(def)} aria-hidden />
-      <span className="blr-card__kind">{CARD_KIND_FA[def.kind]}<i>{fa(def.age)}</i></span>
-      <b className="blr-card__num" aria-hidden>{big}</b>
-      <small className="blr-card__sub">{sub}</small>
-      <span className="blr-card__name">{def.nameFa}</span>
-      <span className="blr-card__text">{def.textFa}</span>
-    </>
-  );
-  return (
-    <div className={`blr-card blr-card--${def.kind}${selected ? ' is-selected' : ''}${dim ? ' is-dim' : ''}`}>
-      {onClick
-        ? <button type="button" className="blr-card__face" aria-pressed={selected} aria-label={label ?? `${def.nameFa}، ${CARD_KIND_FA[def.kind]}`} onClick={onClick}>{inner}</button>
-        : <div className="blr-card__face" role="img" aria-label={label ?? `${def.nameFa}، ${CARD_KIND_FA[def.kind]}`}>{inner}</div>}
-      {children}
-    </div>
-  );
+const cardBack = (age: number) => art(`card-backs/age-${age}-back.webp`);
+function tokenArt(v: BloodRageView, f: FigureView): string {
+  const seat = v.seats[f.seat]!;
+  const slug = SLUG(seat.clan);
+  const up = f.kind === 'monster' ? f.def : f.kind === 'leader' ? defOf(v, seat.upgrades.leader) : f.kind === 'warrior' ? defOf(v, seat.upgrades.warrior) : defOf(v, seat.upgrades.ship);
+  const byDef = up ? TOKEN_BY_DEF[slug]?.[up] : undefined;
+  return art(byDef ?? FIG_TOKENS[slug]?.[f.kind] ?? '');
 }
-const CardBack = ({ label = 'کارت پنهان' }: { label?: string }) => <div className="blr-card blr-card--back" role="img" aria-label={label}><span aria-hidden>ᚱ</span></div>;
+const defOf = (v: BloodRageView, num: number | null) => (num === null ? null : v.defs[num] ?? CARD_BY_NUM[num]?.def ?? null);
+function cardTitle(num: number): { en: string; fa: string; text: string; textEn: string; type: string } {
+  const c = CARD_BY_NUM[num];
+  if (c) return { en: c.titleEn, fa: c.titleFa, text: c.rulesFa, textEn: c.rulesEn, type: c.type };
+  return { en: '', fa: '', text: '', textEn: '', type: '' };
+}
+const figName = (_v: BloodRageView, f: FigureView) => (f.kind === 'monster' && f.def ? (LANG === 'en' ? CARD_BY_ID[f.def]?.nameEn : CARD_BY_ID[f.def]?.nameFa) ?? t('هیولا', 'Monster') : t(...KIND_L[f.kind]!));
 
-function describe(e: LogEntry, name: (s: number) => string): string {
-  const who = e.seat >= 0 ? iso(name(e.seat)) : '';
-  const pf = (x?: string) => (x && x in PROVINCES ? PROVINCES[x as ProvinceId].nameFa : x?.startsWith('f') ? 'خلیج' : '');
-  switch (e.e) {
-    case 'age': return `عصر ${fa(e.n ?? 1)} شروع شد.`;
-    case 'end-action': return 'مرحلهٔ کنش‌ها تمام شد.';
-    case 'invade': return `${who} در ${pf(e.at)} نیرو آورد.`;
-    case 'march': return `${who} به ${pf(e.at)} لشکر کشید.`;
-    case 'pillage': return `${who} غارت ${pf(e.at)} را اعلام کرد.`;
-    case 'call': return `${who} نیرویی را به نبرد فراخواند.`;
-    case 'upgrade': return `${who} ارتقا داد: ${e.card ? CARD_BY_ID[e.card]?.nameFa : ''}.`;
-    case 'commit': return `${who} به یک مأموریت تعهد داد.`;
-    case 'pass': return `${who} گذشت.`;
-    case 'win': return `${who} نبرد ${pf(e.at)} را برد.`;
-    case 'tie': return `نبرد ${pf(e.at)} مساوی شد؛ همه باختند.`;
-    case 'reward': return `${who} پاداش ${pf(e.at)} را گرفت.`;
-    case 'watch': return `${who} با دیده‌بانی هایمدال ${fa(e.n ?? 0)} افتخار گرفت.`;
-    case 'quest': return `${who} مأموریت را انجام داد (${fa(e.n ?? 0)} افتخار).`;
-    case 'quest-failed': return `${who} مأموریت را انجام نداد.`;
-    case 'ragnarok': return `راگناروک: ${pf(e.at)} نابود شد.`;
-    case 'final': return `${who} امتیاز نهایی ${fa(e.n ?? 0)}.`;
-    case 'resign': return `${who} انصراف داد.`;
-    case 'sacrifice': return `${who} دو نیرو قربانی کرد.`;
-    default: return '';
+// ---------- map positions (layout.json §11) ----------
+function figurePositions(v: BloodRageView): Map<string, { x: number; y: number }> {
+  const out = new Map<string, { x: number; y: number }>();
+  const ygg = v.figures.filter((f) => f.where === 'yggdrasil');
+  const step = 360 / Math.max(ygg.length, 6);
+  ygg.forEach((f, i) => { const a = ((-120 + i * step) * Math.PI) / 180; out.set(f.id, { x: C_PROV[0]!.x + 130 * Math.cos(a), y: C_PROV[0]!.y + 130 * Math.sin(a) }); });
+  for (const fj of C_FJORDS) {
+    const here = v.figures.filter((f) => f.where === `fjord:${fj.id}`);
+    here.forEach((f, i) => out.set(f.id, { x: fj.x + (i - (here.length - 1) / 2) * 95, y: fj.y }));
   }
+  for (const f of v.figures) if (f.where.startsWith('village:')) { const s = SLOTS[Number(f.where.slice(8))]; if (s) out.set(f.id, { x: s.x, y: s.y }); }
+  return out;
 }
+function wherePos(w: Where): { x: number; y: number } | null {
+  if (w === 'yggdrasil') return { x: C_PROV[0]!.x, y: C_PROV[0]!.y };
+  if (w.startsWith('village:')) { const s = SLOTS[Number(w.slice(8))]; return s ? { x: s.x, y: s.y } : null; }
+  if (w.startsWith('fjord:')) { const f = C_FJORDS[Number(w.slice(6))]; return f ? { x: f.x, y: f.y } : null; }
+  return null;
+}
+const whereProvince = (w: Where) => (w === 'yggdrasil' ? 0 : w.startsWith('village:') ? SLOTS[Number(w.slice(8))]?.province ?? -1 : -1);
 
-// ---------- the renderer ----------
-type Mode = { t: 'invade'; group?: string } | { t: 'march'; from?: ProvinceId; sel: number[] } | { t: 'pillage' } | { t: 'sacrifice'; sel: number[] } | null;
-const monShip = (f: Figure) => f.kind === 'ship' || f.mon === 'm1-serpent';
+// ---------- the selection state ----------
+type Mode =
+  | { k: 'invade'; figure?: string; to?: Where }
+  | { k: 'march'; from?: number; to?: number; figs?: string[] }
+  | { k: 'pillage'; province?: number }
+  | { k: 'upgrade' | 'monster' | 'quest'; card?: number; index?: number }
+  | { k: 'clan'; card: number; target?: number; figs?: string[]; stat?: StatKey }
+  | { k: 'pass' }
+  | { k: 'decide'; to?: Where; figure?: string; cards?: number[]; figs?: string[]; province?: number | null; all?: boolean };
 
-export default function BloodRageRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<BRView>) {
-  const hints = legalActions as Hint[];
-  const me = mySeat !== null && view.me ? mySeat : null;
-  const [mode, setMode] = useState<Mode>(null);
-  const [pickCards, setPickCards] = useState<number[]>([]);
-  const [pickFigs, setPickFigs] = useState<number[]>([]);
-  const [slotFor, setSlotFor] = useState<number | null>(null);
-  useEffect(() => { setMode(null); setPickCards([]); setPickFigs([]); setSlotFor(null); }, [view.seq, view.step, view.battle?.stage, view.choice?.k]);
+type H = GameAction & { [k: string]: unknown };
 
-  const act = (a: Hint) => { if (!busy) onAction(a); };
-  const has = (type: string) => hints.some((h) => h.type === type);
-  const hintsOf = (type: string) => hints.filter((h) => h.type === type);
-  const nm = (seat: number) => iso(seatName(seat));
-  const myClan = me === null ? null : view.seats[me]!;
-  const figs = view.figs;
-  const byPlace = (p: Place) => figs.filter((f) => f.at === p).sort((a, b) => a.id - b.id);
-  const reserve = me === null ? [] : figs.filter((f) => f.seat === me && f.at === 'reserve');
-  const valhalla = (seat: number) => figs.filter((f) => f.seat === seat && f.at === 'valhalla');
-  const mineOnBoard = me === null ? [] : figs.filter((f) => f.seat === me && f.at !== 'reserve' && f.at !== 'valhalla');
-  const defOf = (id: number) => CARD_BY_ID[view.me?.hand.find((c) => c.id === id)?.def ?? view.me?.pack.find((c) => c.id === id)?.def ?? view.me?.quests.find((c) => c.id === id)?.def ?? '']!;
-  const myTurn = view.step === 'action' && view.turn === me && !view.battle && !view.choice && !view.spent;
-  const choice = view.choice && view.choice.seat === me ? view.choice : null;
-  const battle = view.battle;
-  const exp = expected as Hint | null;
+export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<BloodRageView>) {
+  const hints = legalActions as H[];
+  const [mode, setMode] = useState<Mode | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [tab, setTab] = useState<'map' | 'hand' | 'clan' | 'players'>('map');
+  const [shownBattle, setShownBattle] = useState<number | null>(null);
+  const [lang, setLang] = useState<'fa' | 'en'>(readLang);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [nudge, setNudge] = useState<string | null>(null);
+  const [inShell, setInShell] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const theme = usePageTheme();
+  useEffect(() => { setInShell(!!wrapRef.current?.closest('[data-hud="on"]')); }, []);
+  useEffect(() => {
+    // «جزئیات آمار» on the shell rail cards (bloodRageSeatCard) opens our stats dialog
+    const f = (e: Event) => setOpen((e as CustomEvent<string>).detail);
+    window.addEventListener('bdr-open', f);
+    return () => window.removeEventListener('bdr-open', f);
+  }, []);
+  useEffect(() => { setNudge(null); }, [mode]);
+  LANG = lang;
+  const phone = usePhone();
+  const boxRef = useRef<HTMLElement>(null);
+  const seenBattles = useRef(v.battles.length);
+  const lastDoom = v.log.filter((e) => e.e === 'ragnarok').at(-1)?.n ?? 0;
+  const seenDoom = useRef(lastDoom);
+  useEffect(() => { setMode(null); setSheetOpen(false); setNudge(null); }, [v.seq]);
+  useEffect(() => {
+    // §22: the end of every Age opens the quests / Ragnarök summary once
+    if (lastDoom > seenDoom.current) setOpen('endage');
+    seenDoom.current = lastDoom;
+  }, [lastDoom]);
+  const switchLang = (l: 'fa' | 'en') => { setLang(l); try { localStorage.setItem('bdr-lang', l); } catch { /* private mode */ } };
+  useEffect(() => {
+    if (v.battles.length > seenBattles.current) { setShownBattle(v.battles.length - 1); setOpen('battle'); }
+    seenBattles.current = v.battles.length;
+  }, [v.battles.length]);
 
-  // ----- which places the board offers right now -----
-  const targets = new Set<string>();
-  const sources = new Set<string>();
-  const hintedFigs = new Set<number>();
-  if (me !== null && !busy) {
-    if (choice?.k === 'freeInvade') {
-      const f = figs.find((x) => x.id === choice.fig);
-      if (f) {
-        const ship = monShip(f);
-        if (ship) FJORD_IDS.forEach((p) => targets.add(p));
-        else {
-          RING.filter((p) => !view.destroyed.includes(p) && villagesFree(view, p) > 0).forEach((p) => targets.add(p));
-          if (f.mon === 'm2-elf') targets.add('ygg');
+  const name = (s: number) => seatName(s);
+  const me = mySeat !== null ? v.seats[mySeat] ?? null : null;
+  const kind = (v.pending && mySeat !== null && v.pending.seats.includes(mySeat) ? v.pending.kind : null) as PendingKind | null;
+  const myTurn = !kind && v.phase === 'action' && v.turn === mySeat && !v.battle;
+  const send = (a: GameAction) => { if (!busy) { onAction(a); setMode(null); } };
+  const of = (type: string) => hints.filter((h) => h.type === type && !h.disabled);
+  const decides = hints.filter((h) => h.type === 'decide');
+  const exp = expected as H | null;
+  const hintCls = (on: boolean) => (on ? ' bdr-hint' : '');
+  const posMap = useMemo(() => figurePositions(v), [v]);
+
+  // ---------- targets on the map for the current mode ----------
+  const spots: { to: Where; on: boolean; onClick: () => void }[] = [];
+  const provRings: { p: number; on: boolean; onClick: () => void }[] = [];
+  const selFigs = new Map<string, { on: boolean; onClick: () => void }>();
+  let ghost: { figure: string; to: Where } | null = null;
+  let note: ReactNode = null;
+  const effects: string[] = [];
+
+  if (mode?.k === 'invade' && mode.figure) {
+    for (const h of of('invade').filter((x) => x.figure === mode.figure)) {
+      const to = h.to as Where;
+      spots.push({ to, on: mode.to === to, onClick: () => setMode({ ...mode, to }) });
+      if (mode.to === to) for (const e of (h.effects as { figures?: string[] }[] | undefined) ?? []) effects.push(...(e.figures ?? []));
+    }
+    if (mode.to) ghost = { figure: mode.figure, to: mode.to };
+  }
+  if (mode?.k === 'march') {
+    const marches = of('march');
+    if (mode.from === undefined) for (const p of [...new Set(marches.map((h) => h.from as number))]) provRings.push({ p, on: false, onClick: () => setMode({ k: 'march', from: p }) });
+    else {
+      for (const h of marches.filter((x) => x.from === mode.from)) {
+        const p = h.to as number;
+        provRings.push({ p, on: mode.to === p, onClick: () => setMode({ ...mode, to: p, figs: (h.figures as string[]).slice() }) });
+      }
+      const h = marches.find((x) => x.from === mode.from && x.to === mode.to);
+      if (h) {
+        const max = h.maxFigures as number;
+        for (const f of v.figures.filter((x) => x.seat === mySeat && whereProvince(x.where) === mode.from && x.kind !== 'ship' && !x.where.startsWith('fjord'))) {
+          const on = mode.figs?.includes(f.id) ?? false;
+          selFigs.set(f.id, { on, onClick: () => setMode({ ...mode, figs: on ? mode.figs!.filter((x) => x !== f.id) : (mode.figs ?? []).length < max ? [...(mode.figs ?? []), f.id] : mode.figs }) });
         }
       }
-    } else if (choice?.k === 'hammer') {
-      const f = figs.find((x) => x.id === choice.fig);
-      if (f) (['ygg', ...RING] as ProvinceId[]).filter((p) => p !== f.at && !view.destroyed.includes(p) && adjacent(f.at as ProvinceId, p) && villagesFree(view, p) > 0).forEach((p) => targets.add(p));
-    } else if (battle?.stage === 'call' && battle.caller === me) {
-      hintsOf('call').forEach((h) => { if (typeof h.figure === 'number') hintedFigs.add(h.figure as number); });
-    } else if (myTurn && mode) {
-      if (mode.t === 'invade' && mode.group) for (const h of hintsOf('invade')) if (groupOf(figs.find((f) => f.id === h.figure)) === mode.group) targets.add(h.at as string);
-      if (mode.t === 'march') {
-        if (!mode.from) hintsOf('march').forEach((h) => sources.add(h.from as string));
-        else (['ygg', ...RING] as ProvinceId[]).filter((p) => p !== mode.from && !view.destroyed.includes(p) && (p === 'ygg' || villagesFree(view, p) >= Math.max(1, mode.sel.length))).forEach((p) => targets.add(p));
-      }
-      if (mode.t === 'pillage') hintsOf('pillage').concat(hintsOf('challenge')).forEach((h) => targets.add(h.at as string));
     }
   }
-  function groupOf(f?: Figure): string { return f ? `${f.at === 'valhalla' ? 'v-' : ''}${f.kind}${f.mon ? `:${f.mon}` : ''}` : ''; }
-
-  const clickPlace = (p: Place) => {
-    if (busy) return;
-    if (choice?.k === 'freeInvade' && targets.has(p)) return act({ type: 'decide', yes: true, at: p });
-    if (choice?.k === 'hammer' && targets.has(p)) return act({ type: 'decide', yes: true, at: p });
-    if (!myTurn || !mode) return;
-    if (mode.t === 'invade' && mode.group && targets.has(p)) {
-      const fig = hintsOf('invade').find((h) => groupOf(figs.find((f) => f.id === h.figure)) === mode.group && h.at === p);
-      if (fig) act({ type: 'invade', figure: fig.figure, at: p });
-    } else if (mode.t === 'march') {
-      if (!mode.from && sources.has(p)) setMode({ t: 'march', from: p as ProvinceId, sel: figs.filter((f) => f.seat === me && f.at === p && !monShip(f)).map((f) => f.id) });
-      else if (mode.from && targets.has(p) && mode.sel.length) act({ type: 'march', from: mode.from, to: p, figures: mode.sel });
-    } else if (mode.t === 'pillage' && targets.has(p)) {
-      const h = hintsOf('pillage').find((x) => x.at === p) ?? hintsOf('challenge').find((x) => x.at === p);
-      if (h) act({ type: h.type, at: p });
+  if (mode?.k === 'pillage') for (const h of of('pillage')) { const p = h.province as number; provRings.push({ p, on: mode.province === p, onClick: () => setMode({ k: 'pillage', province: p }) }); }
+  if (mode?.k === 'clan') {
+    const hs = of('clanAction').filter((h) => h.card === mode.card);
+    for (const h of hs) if (typeof h.target === 'number') { const p = h.target; provRings.push({ p, on: mode.target === p, onClick: () => setMode({ ...mode, target: p }) }); }
+    if (hs.some((h) => h.target === undefined)) for (const f of v.figures.filter((x) => x.seat === mySeat && !['reserve', 'valhalla', 'box'].includes(x.where))) {
+      const on = mode.figs?.includes(f.id) ?? false;
+      selFigs.set(f.id, { on, onClick: () => setMode({ ...mode, figs: on ? mode.figs!.filter((x) => x !== f.id) : [...(mode.figs ?? []), f.id].slice(-2) }) });
     }
-  };
-  const clickFig = (f: Figure) => {
-    if (busy) return;
-    if (battle?.stage === 'call' && battle.caller === me && hintedFigs.has(f.id)) return act({ type: 'call', figure: f.id });
-    if (choice?.k === 'tide' && choice.figs?.includes(f.id)) return setPickFigs([f.id]);
-    if (choice?.k === 'protect' && choice.figs?.includes(f.id)) return setPickFigs((s) => (s.includes(f.id) ? s.filter((x) => x !== f.id) : s.length < (myClan?.rage ?? 0) ? [...s, f.id] : s));
-    if (mode?.t === 'march' && mode.from && f.seat === me && f.at === mode.from && !monShip(f)) setMode({ ...mode, sel: mode.sel.includes(f.id) ? mode.sel.filter((x) => x !== f.id) : [...mode.sel, f.id] });
-    else if (mode?.t === 'sacrifice' && f.seat === me && mineOnBoard.some((x) => x.id === f.id)) setMode({ ...mode, sel: mode.sel.includes(f.id) ? mode.sel.filter((x) => x !== f.id) : mode.sel.length < 2 ? [...mode.sel, f.id] : mode.sel });
-    else if (mode?.t === 'march' && !mode.from && sources.has(f.at as string)) clickPlace(f.at as Place);
-    else if (f.at !== 'reserve' && f.at !== 'valhalla' && (targets.has(f.at as string))) clickPlace(f.at as Place);
-  };
+  }
+  const dm = mode?.k === 'decide' ? mode : null;
+  if (kind === 'freeInvade' || kind === 'extraWarrior' || kind === 'loserInvade') {
+    for (const h of decides) {
+      const to = (h.choice as { to?: Where } | null)?.to;
+      if (!to) continue;
+      const on = dm?.to === to;
+      spots.push({ to, on, onClick: () => setMode({ k: 'decide', to }) });
+      if (on) { for (const e of (h.effects as { figures?: string[] }[] | undefined) ?? []) effects.push(...(e.figures ?? [])); if (typeof h.figure === 'string') ghost = { figure: h.figure, to }; }
+    }
+  }
+  if (kind === 'callToBattle') {
+    for (const h of decides) {
+      const c = h.choice as { figure?: string } | string;
+      if (typeof c !== 'object' || !c.figure) continue;
+      const fid = c.figure;
+      selFigs.set(fid, { on: dm?.figure === fid, onClick: () => setMode({ k: 'decide', figure: fid }) });
+      if (dm?.figure === fid) for (const to of h.targets as Where[]) spots.push({ to, on: dm.to === to, onClick: () => setMode({ k: 'decide', figure: fid, to }) });
+    }
+    if (dm?.figure && dm.to) ghost = { figure: dm.figure, to: dm.to };
+  }
+  if (kind === 'moveLeader') for (const h of decides) if (typeof h.choice === 'number') { const p = h.choice; provRings.push({ p, on: dm?.province === p, onClick: () => setMode({ k: 'decide', province: p }) }); }
+  if (kind === 'saveFigure' || kind === 'keepOneFigure') {
+    const list = kind === 'saveFigure' ? ((decides[0]?.figures as string[]) ?? []) : decides.map((h) => h.choice as string);
+    const max = kind === 'saveFigure' ? (decides[0]?.max as number) : 1;
+    for (const fid of list) {
+      const on = dm?.figs?.includes(fid) ?? false;
+      selFigs.set(fid, { on, onClick: () => setMode({ k: 'decide', figs: on ? dm!.figs!.filter((x) => x !== fid) : [...(dm?.figs ?? []), fid].slice(-max) }) });
+    }
+  }
 
-  // ----- hand actions -----
-  const upgradeHint = (id: number) => hintsOf('upgrade').find((h) => h.card === id);
-  const needSlot = (def: CardDef) => (def.kind === 'monster' && myClan!.monsters.every(Boolean)) || (def.kind === 'clan' && myClan!.clans.every(Boolean));
-  const doUpgrade = (id: number) => { const d = defOf(id); if (needSlot(d)) setSlotFor(id); else act({ type: 'upgrade', card: id }); };
+  // ---------- status bar ----------
+  const btn = (label: ReactNode, act: string, onClick: () => void, o: { variant?: string; pressed?: boolean; disabled?: boolean; title?: string; hint?: boolean } = {}) => (
+    <button key={act} type="button" data-act={act} className={`bgv-btn bgv-btn--${o.variant ?? 'secondary'} bgv-btn--sm${hintCls(!!o.hint)}`}
+      aria-pressed={o.pressed} disabled={busy || o.disabled} title={o.title} onClick={onClick}>{label}</button>
+  );
+  const confirm = (a: GameAction | null, label = 'ثبت') => [
+    btn(label === 'ثبت' ? t('ثبت', 'Confirm') : label, 'confirm', () => (a ? send(a) : setNudge(t('اول هدف را روی نقشه، صفحهٔ قبیله یا دست انتخاب کنید.', 'Pick the target on the map, clan sheet or hand first.'))), { variant: 'primary', hint: !!a && !!exp && JSON.stringify(exp) === JSON.stringify(a) }),
+    btn(t('انصراف', 'Cancel'), 'cancel', () => setMode(null), { variant: 'ghost' })
+  ];
+  const costPill = (rage: number | undefined) => <span className="bdr-pill">{rage ? <><img src={art('tokens/icon-rage-mini.webp')} alt="" /><span className="bdr-num">{fa(rage)}</span></> : 'رایگان'}</span>;
+  let text: ReactNode = null;
+  let buttons: ReactNode[] = [];
+  let waiting = false;
+  let actionList: { label: string; sub: string; act: string; go: () => void; hint?: boolean; variant?: string }[] = [];
+  const handPick = new Map<number, { on: boolean; onClick: () => void }>();
+  const sheetPick = new Map<string, { on: boolean; onClick: () => void }>();
 
-  // ----- status line -----
-  let status: string;
-  if (view.outcome) status = 'بازی تمام شد.';
-  else if (battle) status = `نبرد ${PROVINCES[battle.at].nameFa}: ${STAGE_FA[battle.stage]}${battle.stage === 'call' && battle.caller !== null ? ` — نوبت ${nm(battle.caller)}` : ''}`;
-  else if (view.choice) status = view.choice.seat === me ? 'تصمیم شما لازم است' : `منتظر تصمیم ${nm(view.choice.seat)}`;
-  else if (view.step === 'draft') status = view.me && view.me.pack.length ? `از بسته ${fa(view.draft?.need ?? 1)} کارت بردارید و بقیه را به نفر بعد بدهید` : 'منتظر بقیه برای برداشتن کارت';
-  else if (view.step === 'action') status = view.turn === me ? 'نوبت شماست؛ یک کنش انجام دهید' : view.turn !== null ? `نوبت ${nm(view.turn)}` : '';
-  else if (view.step === 'discard') status = view.discarded[me ?? 0] ? 'منتظر بقیه' : 'یک کارت را برای عصر بعد نگه دارید';
-  else status = PHASE_FA[view.step] ?? '';
+  if (v.outcome) text = <>{t('بازی تمام شد.', 'The game is over.')}</>;
+  else if (kind) {
+    const pickCard = (cards: number[], one: boolean) => {
+      for (const c of cards) {
+        const on = dm?.cards?.includes(c) ?? false;
+        handPick.set(c, { on, onClick: () => setMode({ k: 'decide', cards: one ? [c] : on ? dm!.cards!.filter((x) => x !== c) : [...(dm?.cards ?? []), c] }) });
+      }
+    };
+    switch (kind) {
+      case 'draftPick': {
+        const h = hints.find((x) => x.type === 'draftPick');
+        const need = (h?.need as number) ?? 1;
+        const chosen = dm?.cards ?? [];
+        for (const c of (h?.cards as number[]) ?? []) {
+          const on = chosen.includes(c);
+          handPick.set(c, { on, onClick: () => setMode({ k: 'decide', cards: on ? chosen.filter((x) => x !== c) : need === 1 ? [c] : [...chosen, c].slice(-need) }) });
+        }
+        text = <>هدایای خدایان: {need === 2 ? 'دو کارت' : 'یک کارت'} نگه دارید</>;
+        const a = chosen.length === need ? { type: 'draftPick', cards: chosen } : null;
+        buttons = [btn(chosen.length ? <>نگه دار: {chosen.map((c) => cardTitle(c).en).join('، ')}</> : 'نگه دار', 'keep', () => (a ? send(a) : setNudge(need === 2 ? t('دو کارت از دستهٔ رسیده انتخاب کنید.', 'Pick two cards from the pack.') : t('یک کارت از دستهٔ رسیده انتخاب کنید.', 'Pick a card from the pack.'))), { variant: 'primary' })];
+        break;
+      }
+      case 'battleCard': {
+        pickCard(decides.map((h) => (h.choice as { card: number }).card), true);
+        text = <>نبرد در <b>{provFa(v.battle?.province ?? 0)}</b>: یک کارت نبرد انتخاب کنید</>;
+        const c = dm?.cards?.[0];
+        buttons = [btn('بازی کارت', 'play-card', () => (c !== undefined ? send({ type: 'decide', kind, choice: { card: c } }) : setNudge(t('یک کارت از دست انتخاب کنید.', 'Pick a card from your hand.'))), { variant: 'primary', hint: !!exp && exp.type === 'decide' && c !== undefined && (exp.choice as { card?: number })?.card === c })];
+        break;
+      }
+      case 'discardKeep': {
+        pickCard(decides.map((h) => h.choice as number), true);
+        text = <>دور ریختن: فقط یک کارت برای عصر بعد نگه دارید</>;
+        const c = dm?.cards?.[0];
+        buttons = [btn('دور ریختن بقیه', 'discard', () => (c !== undefined ? send({ type: 'decide', kind, choice: c }) : setNudge(t('کارتی را که نگه می‌دارید انتخاب کنید.', 'Pick the card you keep.'))), { variant: 'primary' })];
+        break;
+      }
+      case 'callToBattle': {
+        text = <>نبرد در <b>{provFa(v.battle?.province ?? 0)}</b>: یک مهره برای پیوستن به نبرد انتخاب کنید</>;
+        const canAll = decides.some((h) => h.choice === 'passAll');
+        if (dm?.all) {
+          note = <>تأیید کنید که تا پایان همین نبرد رد می‌کنید.</>;
+          buttons = [btn('ثبت', 'confirm', () => send({ type: 'decide', kind, choice: 'passAll' }), { variant: 'primary' }), btn('انصراف', 'cancel', () => setMode(null), { variant: 'ghost' })];
+        } else if (dm?.figure) {
+          buttons = confirm(dm.to ? { type: 'decide', kind, choice: { figure: dm.figure, to: dm.to } } : null);
+        } else {
+          buttons = [btn('رد', 'pass', () => send({ type: 'decide', kind, choice: 'pass' })), ...(canAll ? [btn('رد تا پایان این نبرد', 'pass-all', () => setMode({ k: 'decide', all: true }), { variant: 'danger' })] : [])];
+        }
+        break;
+      }
+      case 'freeInvade': case 'extraWarrior': case 'loserInvade': {
+        const fig = v.figures.find((f) => f.id === (v.pending?.figure ?? ''));
+        text = kind === 'freeInvade' ? <>یورش رایگان با <b>{fig ? figName(v, fig) : 'مهره'}</b>: روستا را روی نقشه انتخاب کنید</>
+          : kind === 'extraWarrior' ? <>یاری فریگا: یک جنگجوی دیگر رایگان در {provFa(v.pending?.province ?? 0)}؟</> : <>برکت لوکی: یورش رایگان یک جنگجو در {provFa(v.pending?.province ?? 0)}؟</>;
+        buttons = dm?.to ? confirm({ type: 'decide', kind, choice: { to: dm.to } }) : [btn('رد', 'pass', () => send({ type: 'decide', kind, choice: null }))];
+        break;
+      }
+      case 'instantPillage':
+        text = <>قلمرو تور: با ۲ خشم {provFa(v.pending?.province ?? 0)} را فوراً غارت کنید؟</>;
+        buttons = [btn(<>غارت {costPill(2)}</>, 'pillage', () => send({ type: 'decide', kind, choice: true }), { variant: 'primary' }), btn('رد', 'pass', () => send({ type: 'decide', kind, choice: false }))];
+        break;
+      case 'raiseStat':
+        text = <>یک ویژگی را یک پله بالا ببرید</>;
+        buttons = decides.map((h) => {
+          const st = h.choice as StatKey;
+          const next = me ? Math.min(5, me.steps[st] + 1) : 0;
+          return btn(<>{STAT_FA[st]} ← {fa(TRACK[st][next]!)}</>, `stat-${st}`, () => send({ type: 'decide', kind, choice: st }), { disabled: !!h.disabled, title: h.disabled ? 'این ویژگی در آخرین پله است' : undefined, hint: !!exp && exp.choice === st });
+        });
+        break;
+      case 'moveLeader':
+        text = <>سرور پتک‌ها: سردار را به استان همسایه ببرید یا بماند</>;
+        buttons = typeof dm?.province === 'number' ? confirm({ type: 'decide', kind, choice: dm.province }) : [btn('ماندن', 'pass', () => send({ type: 'decide', kind, choice: null }))];
+        break;
+      case 'keepCards': {
+        const cards = (decides[0]?.cards as number[]) ?? [];
+        const max = (decides[0]?.max as number) ?? 0;
+        for (const c of cards) { const on = dm?.cards?.includes(c) ?? false; handPick.set(c, { on, onClick: () => setMode({ k: 'decide', cards: on ? dm!.cards!.filter((x) => x !== c) : [...(dm?.cards ?? []), c].slice(-max) }) }); }
+        text = <>دلاوری تیر: کارت‌های آشکار را با ۱ خشم برای هر کدام نگه دارید</>;
+        const keep = dm?.cards ?? [];
+        buttons = [btn(<>نگه‌داری {costPill(keep.length)}</>, 'keep', () => send({ type: 'decide', kind, choice: keep }), { variant: 'primary' })];
+        break;
+      }
+      case 'saveFigure': {
+        const sel = dm?.figs ?? [];
+        text = <>پناه فریگا: برای هر مهره ۱ خشم بدهید تا نابود نشود</>;
+        buttons = [btn(<>نگه‌داری {costPill(sel.length)}</>, 'keep', () => send({ type: 'decide', kind, choice: sel }), { variant: 'primary' })];
+        break;
+      }
+      case 'keepOneFigure':
+        text = <>موج اودین: مهره‌ای را که می‌ماند روی نقشه انتخاب کنید</>;
+        buttons = confirm(dm?.figs?.[0] ? { type: 'decide', kind, choice: dm.figs[0] } : null);
+        break;
+      case 'afterReveal': {
+        const c = v.pending?.card;
+        text = <>پس از آشکار شدن: کارت {c !== undefined ? <b>{cardTitle(c).en}</b> : ''} را بازی می‌کنید؟</>;
+        buttons = [btn('بازی کارت', 'play-card', () => c !== undefined && send({ type: 'decide', kind, choice: { card: c } }), { variant: 'primary' }), btn('رد', 'pass', () => send({ type: 'decide', kind, choice: null }))];
+        break;
+      }
+    }
+  } else if (myTurn && me) {
+    const inv = of('invade');
+    const ups = of('upgrade');
+    if (!mode) {
+      text = <><b>{name(mySeat!)}</b>: {t('یک اقدام انتخاب کنید', 'choose an action')}</>;
+      const qs = of('quest');
+      const monsters = ups.filter((h) => h.slot === 'monster');
+      const others = ups.filter((h) => h.slot !== 'monster');
+      const list: { label: string; sub: string; act: string; go: () => void; hint?: boolean; variant?: string }[] = [
+        ...(qs.length ? [{ label: t('بازی مأموریت', 'Play quest'), sub: t('رایگان', 'Free'), act: 'quest', go: () => setMode({ k: 'quest' }), hint: exp?.type === 'quest' }] : []),
+        ...(others.length ? [{ label: t('ارتقا', 'Upgrade'), sub: t('خشم = قدرت کارت', 'Rage = card STR'), act: 'upgrade', go: () => setMode({ k: 'upgrade' }), hint: exp?.type === 'upgrade' && exp.slot !== 'monster' }] : []),
+        ...(monsters.length ? [{ label: t('بازی هیولا', 'Play monster'), sub: monsters.map((h) => `${cardTitle(h.card as number)[LANG === 'en' ? 'en' : 'fa']}، ${fa((h.cost as { rage: number }).rage)} ${t('خشم', 'rage')}`).join('، '), act: 'monster', go: () => setMode({ k: 'monster' }), hint: exp?.type === 'upgrade' && exp.slot === 'monster' }] : []),
+        ...(inv.length ? [{ label: t('یورش', 'Invade'), sub: t('خشم = قدرت مهره', 'Rage = figure STR'), act: 'invade', go: () => setMode({ k: 'invade' }), hint: exp?.type === 'invade' }] : []),
+        ...(of('march').length ? [{ label: t('لشکرکشی', 'March'), sub: t('۱ خشم', '1 rage'), act: 'march', go: () => setMode({ k: 'march' }), hint: exp?.type === 'march' }] : []),
+        ...(of('pillage').length ? [{ label: t('غارت', 'Pillage'), sub: t('رایگان', 'Free'), act: 'pillage', go: () => setMode({ k: 'pillage' }), hint: exp?.type === 'pillage' }] : []),
+        ...[...new Set(of('clanAction').map((h) => h.card as number))].map((c) => ({ label: cardTitle(c)[LANG === 'en' ? 'en' : 'fa'] || t('اقدام قبیله', 'Clan action'), sub: '', act: `clan-${c}`, go: () => setMode({ k: 'clan', card: c }) })),
+        { label: t('کنار کشیدن', 'Pass'), sub: t('خشم باقی می‌سوزد', 'Remaining rage is lost'), act: 'pass', go: () => setMode({ k: 'pass' }), hint: exp?.type === 'pass', variant: 'leave' }
+      ];
+      actionList = list;
+      buttons = phone
+        ? [btn(t('اقدام‌ها', 'Actions'), 'actions', () => setSheetOpen(true), { variant: 'primary', hint: list.some((x) => x.hint) })]
+        : list.map((x) => btn(x.label, x.act, x.go, { hint: x.hint, variant: x.variant }));
+    } else if (mode.k === 'invade') {
+      const figs = [...new Map(inv.map((h) => [h.figure as string, h])).values()];
+      text = mode.figure ? <>روستا را برای یورش با <b>{figName(v, v.figures.find((f) => f.id === mode.figure)!)}</b> انتخاب کنید</> : <>یورش با:</>;
+      buttons = [
+        ...figs.map((h) => { const f = v.figures.find((x) => x.id === h.figure)!; return btn(<>{figName(v, f)} {costPill((h.cost as { rage: number }).rage)}</>, `invade-${f.kind}`, () => setMode({ k: 'invade', figure: f.id }), { pressed: mode.figure === f.id }); }),
+        ...confirm(mode.figure && mode.to ? { type: 'invade', figure: mode.figure, to: mode.to } : null)
+      ];
+      const h = inv.find((x) => x.figure === mode.figure && x.to === mode.to);
+      if (h) note = <><span className="bdr-rage"><img src={art('tokens/icon-rage-mini.webp')} alt="" /><span className="bdr-num">{fa((h.cost as { rage: number }).rage)}</span></span> خشم {fa(me.rage)} ← {fa(me.rage - (h.cost as { rage: number }).rage)}، مهره روی نقشه {fa(me.onMap + 1)} از {fa(me.horns)}{effects.length ? <>، اثر: <b>{effects.map((id) => { const f = v.figures.find((x) => x.id === id); return f ? `${figName(v, f)} ${name(f.seat)}` : id; }).join('، ')}</b> نابود می‌شود</> : null}.</>;
+    } else if (mode.k === 'march') {
+      text = mode.from === undefined ? <>لشکرکشی: استان مبدأ را انتخاب کنید</> : mode.to === undefined ? <>لشکرکشی از <b>{provFa(mode.from)}</b>: مقصد را انتخاب کنید</> : <>لشکرکشی از <b>{provFa(mode.from)}</b> به <b>{provFa(mode.to)}</b>: مهره‌ها را روی نقشه انتخاب کنید</>;
+      buttons = confirm(mode.from !== undefined && mode.to !== undefined && mode.figs?.length ? { type: 'march', from: mode.from, to: mode.to, figures: mode.figs } : null);
+      if (mode.to !== undefined) note = <>هزینه ۱ خشم؛ {fa(mode.figs?.length ?? 0)} مهره.</>;
+    } else if (mode.k === 'pillage') {
+      text = <>غارت: استان را روی نقشه انتخاب کنید</>;
+      buttons = confirm(mode.province !== undefined ? { type: 'pillage', province: mode.province } : null);
+      if (mode.province !== undefined) note = <>پاداش: {REWARD_FA[v.pillage[mode.province]?.reward ?? '']}</>;
+    } else if (mode.k === 'upgrade' || mode.k === 'monster' || mode.k === 'quest') {
+      const list = mode.k === 'quest' ? of('quest') : ups.filter((h) => (mode.k === 'monster') === (h.slot === 'monster'));
+      for (const h of list) { const c = h.card as number; handPick.set(c, { on: mode.card === c, onClick: () => setMode({ k: mode.k, card: c }) }); }
+      const h = list.find((x) => x.card === mode.card);
+      const needIndex = !!h?.replace;
+      if (h && needIndex) {
+        const slotKind = h.slot as string;
+        const arr = slotKind === 'monster' ? me.upgrades.monster : me.upgrades.clan;
+        arr.forEach((_, i) => sheetPick.set(`${slotKind}${i}`, { on: mode.index === i, onClick: () => setMode({ ...mode, index: i }) }));
+      }
+      text = mode.k === 'quest' ? <>بازی مأموریت: کارت را انتخاب کنید</> : needIndex && mode.card !== undefined ? <>ارتقای جایگزین را روی صفحهٔ قبیله انتخاب کنید</> : <>{mode.k === 'monster' ? 'بازی هیولا' : 'ارتقا'}: کارت را انتخاب کنید</>;
+      const a: GameAction | null = !h ? null : mode.k === 'quest' ? { type: 'quest', card: h.card } : needIndex && mode.index === undefined ? null : { type: 'upgrade', card: h.card, slot: h.slot, ...(needIndex ? { index: mode.index } : {}) };
+      buttons = confirm(a);
+      if (h && mode.k !== 'quest') note = <>هزینه: {costPill((h.cost as { rage: number }).rage)}{needIndex ? '، کارت قبلی دور ریخته می‌شود' : ''}</>;
+    } else if (mode.k === 'clan') {
+      const t = cardTitle(mode.card);
+      const hs = of('clanAction').filter((h) => h.card === mode.card);
+      const sacrifice = hs.some((h) => h.target === undefined);
+      text = <>{t.fa}: {sacrifice ? 'دو مهرهٔ خود را روی نقشه و یک ویژگی انتخاب کنید' : 'استان را روی نقشه انتخاب کنید'}</>;
+      const a: GameAction | null = sacrifice ? (mode.figs?.length === 2 && mode.stat ? { type: 'clanAction', card: mode.card, figures: mode.figs, stat: mode.stat } : null) : mode.target !== undefined ? { type: 'clanAction', card: mode.card, target: mode.target } : null;
+      buttons = [...(sacrifice ? (['rage', 'axe', 'horn'] as StatKey[]).map((st) => btn(STAT_FA[st], `stat-${st}`, () => setMode({ ...mode, stat: st }), { pressed: mode.stat === st, disabled: me.steps[st] >= 5 })) : []), ...confirm(a)];
+    } else if (mode.k === 'pass') {
+      text = <>کنار کشیدن: همهٔ خشم باقی ({fa(me.rage)}) از دست می‌رود و تا پایان این فاز اقدامی ندارید</>;
+      buttons = confirm({ type: 'pass' });
+    }
+  } else {
+    waiting = true;
+    const who = v.pending?.seats ?? (v.turn !== null ? [v.turn] : []);
+    text = who.length ? <>{t('منتظر', 'Waiting for')} <b>{who.map(name).join('، ')}</b>{v.battle ? <> (نبرد در {provFa(v.battle.province)})</> : v.phase === 'draft' ? ' (هدایای خدایان)' : v.phase === 'discard' ? ' (دور ریختن)' : ''}</> : <>…</>;
+  }
+  if (mode?.k === 'march' || mode?.k === 'pillage') { /* notes set above */ }
 
-  const doomed = view.step === 'over' ? null : view.doom;
-  const tokenAge = (p: ProvinceId) => view.ragnarok.indexOf(p) + 1;
-  const names = (seat: number) => nm(seat);
+  // ---------- auto-zoom onto the legal villages (phone §25) ----------
+  const spotKey = phone ? spots.map((x) => x.to).join(',') : '';
+  useEffect(() => {
+    if (!spotKey) { setZoom(1); return; }
+    const pts = spotKey.split(',').map((w) => wherePos(w as Where)).filter((x): x is { x: number; y: number } => !!x);
+    const xs = pts.map((q) => q.x), ys = pts.map((q) => q.y);
+    const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) + 360;
+    const z = Math.min(2.5, Math.max(1, MAP_SIZE / span));
+    setZoom(z);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2 / MAP_SIZE, cy = (Math.min(...ys) + Math.max(...ys)) / 2 / MAP_SIZE;
+    requestAnimationFrame(() => {
+      const box = boxRef.current, map = box?.querySelector<HTMLElement>('.bdr-map');
+      if (box && map) box.scrollTo({ left: cx * map.offsetWidth - box.clientWidth / 2, top: cy * map.offsetHeight - box.clientHeight / 2 }); // ds-check-ignore: DOM scroll API of the LTR map box
+    });
+  }, [spotKey]);
 
-  const renderFigure = (f: Figure, pos: { x: number; y: number }) => {
-    const sel = pickFigs.includes(f.id) || (mode?.t === 'march' && mode.sel.includes(f.id)) || (mode?.t === 'sacrifice' && mode.sel.includes(f.id));
-    const clickable = hintedFigs.has(f.id) || (choice?.k === 'tide' && choice.figs?.includes(f.id)) || (choice?.k === 'protect' && choice.figs?.includes(f.id))
-      || (mode?.t === 'march' && mode.from === f.at && f.seat === me && !monShip(f)) || (mode?.t === 'sacrifice' && f.seat === me);
-    const dead = battle?.dead.includes(f.id);
-    const label = `${KIND_FA[f.kind]}${f.mon ? ` ${CARD_BY_ID[f.mon]?.nameFa}` : ''} ${names(f.seat)} (${CLAN_FA[f.seat % 5]})`;
+  // ---------- pieces ----------
+  const doomed = new Set(effects);
+  const battleProv = v.battle?.province ?? null;
+  const lastBattle: BattleRecordView | null = v.battles.length ? v.battles[v.battles.length - 1]! : null;
+
+  const mapBox = (
+    <section ref={boxRef} className={`bdr-mapbox${zoom > 1 ? ' is-zoomed' : ''}`} dir="ltr" aria-label={t('نقشه', 'Map')} id="bdr-map"
+      style={{ backgroundImage: `url(${art('backgrounds/sea-background.webp')})`, '--zoom': zoom } as CSSProperties}>
+      <img src={art('branding/blood-rage-logo.webp')} className="bdr-mapbox__logo" alt="Blood Rage" />
+      <div className="bdr-pager" dir="rtl">
+        <button className="bdr-agebadge" type="button" data-open="ages" aria-label="مسیر عصرها" onClick={() => setOpen('ages')}>{t('عصر', 'Age')} {fa(v.age)}</button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بخش قبلی" onClick={() => document.getElementById('bdr-map')?.scrollIntoView({ behavior: 'smooth' })}><img src={art('ui-icons/button-page-up.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بخش بعدی" onClick={() => document.getElementById('bdr-sheets')?.scrollIntoView({ behavior: 'smooth' })}><img src={art('ui-icons/button-page-down.webp')} alt="" /></button>
+      </div>
+      {lastBattle && <button className="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-mapbox__battle" type="button" data-open="battle" dir="rtl" onClick={() => { setShownBattle(v.battles.length - 1); setOpen('battle'); }}>{t('آخرین نبرد', 'Last battle')}: {provFa(lastBattle.province)}</button>}
+      <div className="bdr-mapbox__tools">
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بزرگ‌تر" onClick={() => setZoom((z) => Math.min(2, z + 0.25))}><img src={art('ui-icons/button-zoom-plus.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="کل نقشه" onClick={() => setZoom(1)}><img src={art('ui-icons/button-zoom-center.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="کوچک‌تر" onClick={() => setZoom((z) => Math.max(1, z - 0.25))}><img src={art('ui-icons/button-zoom-minus.webp')} alt="" /></button>
+      </div>
+      <div className="bdr-mapbox__bottom" dir="rtl">
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" data-open="archive" aria-label="بایگانی نبردها" onClick={() => setOpen('archive')}><img src={art('ui-icons/button-archive.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" data-open="discard" aria-label={`کارت‌های نبرد دورریخته: ${fa(v.discardPublic.length)}`} onClick={() => setOpen('discard')}><img src={art('ui-icons/button-discard.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open="valhalla" onClick={() => setOpen('valhalla')}>{t('والهالا', 'Valhalla')} ({fa(v.figures.filter((f) => f.where === 'valhalla').length)})</button>
+      </div>
+      {spotKey && zoom > 1 && <span className="bdr-mapinfo" dir="rtl">{t(`بزرگ‌نمایی خودکار: ${fa(spots.length)} روستا`, `Auto zoom: ${spots.length} villages`)}</span>}
+      <div className="bdr-map" data-age={v.age}>
+        <img className="bdr-base" src={art('boards/main-board.webp')} alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان" />
+        {C_PROV.map((p) => {
+          if (v.destroyed.includes(p.id)) return <img key={`d${p.id}`} src={art('tokens/ragnarok.webp')} className="bdr-at bdr-destroyed" style={pos(p.x, p.y)} data-province={p.id} alt={`${p.nameFa} نابود شده`} />;
+          const pl = v.pillage[p.id];
+          if (!pl) return null;
+          const icon = art(IDS.pillageReward[pl.reward as keyof typeof IDS.pillageReward]);
+          if (pl.pillaged) return <span key={`r${p.id}`} className="bdr-at bdr-pdone" style={pos(p.x, p.y)} data-province={p.id} dir="rtl"><img src={icon} alt="" /><span>غارت موفق{pl.by !== undefined ? <><br />توسط <b>{name(pl.by)}</b></> : null}</span></span>;
+          return <img key={`r${p.id}`} src={icon} className="bdr-at bdr-reward" style={pos(p.x, p.y)} data-province={p.id} title={`پاداش غارت: ${REWARD_FA[pl.reward]}`} alt={REWARD_FA[pl.reward]} />;
+        })}
+        {v.doom !== null && C_PROV[v.doom] && <img src={art('tokens/icon-destiny.webp')} className="bdr-at bdr-doom" style={pos(C_PROV[v.doom]!.doomX, C_PROV[v.doom]!.doomY)} title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی" />}
+        {battleProv !== null && C_PROV[battleProv] && <img src={art('tokens/battle.webp')} className="bdr-at bdr-battlemark" style={pos(C_PROV[battleProv]!.x, C_PROV[battleProv]!.y - 90)} alt={`نبرد در ${provFa(battleProv)}`} />}
+        {v.figures.map((f) => {
+          const at = posMap.get(f.id);
+          if (!at) return null;
+          const sel = selFigs.get(f.id);
+          const cls = `bdr-at bdr-tok${sel ? (sel.on ? ' is-on' : ' is-sel') : ''}${doomed.has(f.id) ? ' is-fx' : ''}`;
+          const alt = `${figName(v, f)} ${name(f.seat)}، قدرت ${fa(f.str)}`;
+          const inner = <><img src={tokenArt(v, f)} alt={alt} />{doomed.has(f.id) && <img src={art('ui-icons/remove.webp')} className="bdr-x" alt="" />}{mode?.k === 'march' && sel?.on && <img src={art('tokens/icon-march.webp')} className="bdr-mk" alt="" />}</>;
+          return sel
+            ? <button key={f.id} type="button" className={cls} style={pos(at.x, at.y)} data-fig={f.id} data-seat={f.seat} aria-pressed={sel.on} aria-label={alt} disabled={busy} onClick={sel.onClick}>{inner}</button>
+            : <span key={f.id} className={cls} style={pos(at.x, at.y)} data-fig={f.id} data-seat={f.seat}>{inner}</span>;
+        })}
+        {spots.map((s) => {
+          const at = wherePos(s.to);
+          if (!at) return null;
+          const p = s.to.startsWith('fjord:') ? 'آبدره' : provFa(whereProvince(s.to));
+          const isExp = !!exp && JSON.stringify(exp).includes(`"${s.to}"`);
+          return <button key={s.to} type="button" className={`bdr-spot${s.on ? ' is-on' : ''}${hintCls(isExp)}`} style={pos(at.x, at.y)} data-slot={s.to.split(':')[1] ?? s.to} aria-pressed={s.on} aria-label={`${p}، روستای خالی`} disabled={busy} onClick={s.onClick}>{!s.on && <img src={art('ui-icons/spot-target.webp')} alt="" />}</button>;
+        })}
+        {ghost && (() => { const f = v.figures.find((x) => x.id === ghost!.figure); const at = wherePos(ghost!.to); return f && at ? <span className="bdr-at bdr-tok is-ghost" style={pos(at.x, at.y)}><img src={tokenArt(v, f)} alt="" /></span> : null; })()}
+        {provRings.map((r) => {
+          const p = C_PROV[r.p]!;
+          const isExp = !!exp && (exp.province === r.p || exp.to === r.p || exp.from === r.p);
+          return <button key={`p${r.p}`} type="button" className={`bdr-prov${r.on ? ' is-on' : ''}${hintCls(isExp)}`} style={pos(p.x, p.y + 70)} data-province={r.p} aria-pressed={r.on} aria-label={`${p.nameFa}، انتخاب استان`} disabled={busy} onClick={r.onClick}>{p.nameFa}</button>;
+        })}
+      </div>
+    </section>
+  );
+
+  // ---------- hand ----------
+  const cardBtn = (c: number, pick: { on: boolean; onClick: () => void } | undefined, off = false, tag?: string) => {
+    const t = cardTitle(c);
+    const isExp = !!exp && (exp.card === c || (exp.choice as { card?: number } | null)?.card === c || (exp.cards as number[] | undefined)?.includes(c));
     return (
-      <g key={f.id} transform={`translate(${pos.x} ${pos.y}) scale(0.6)`} className={`blr-fig blr-fig--${f.kind}${sel ? ' is-sel' : ''}${clickable ? ' is-hot' : ''}${dead ? ' is-dead' : ''}${exp && typeof exp.figure === 'number' && exp.figure === f.id ? ' is-hint' : ''}`}
-        style={{ ['--c' as string]: clanColor(f.seat) }} role={clickable ? 'button' : 'img'} aria-label={label} tabIndex={clickable ? 0 : undefined}
-        onClick={clickable ? (e) => { e.stopPropagation(); clickFig(f); } : undefined}
-        onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickFig(f); } } : undefined}>
-        <ellipse cy="12" rx={f.kind === 'ship' ? 18 : 12} ry="4" className="blr-fig__shadow" />
-        {(() => {
-          const r = f.kind === 'warrior' ? 12 : 16;
-          const k = f.kind === 'monster' ? ART[CARD_BY_ID[f.mon ?? '']?.nameEn ?? '']?.[0] : CLAN_ART[f.seat % 5]![f.kind as 'warrior' | 'leader' | 'ship'];
-          return <>
-            {f.kind === 'monster' ? <path d={`M0 ${-r - 6} L${r + 6} 0 L0 ${r + 6} L${-r - 6} 0Z`} className="blr-fig__body" /> : <circle r={r + 3} className="blr-fig__body" />}
-            <circle r={r} fill={`url(#blr-pat-${f.kind === 'ship' ? 's' : 'f'}${k ?? 0})`} />
-            {f.kind === 'leader' && <path d="M-9 -19 L-7 -27 L-2 -22 L0 -29 L2 -22 L7 -27 L9 -19Z" className="blr-fig__crown" />}
-          </>;
-        })()}
-      </g>
+      <div className="bdr-hcard" key={c}>
+        <button className={`bdr-card${hintCls(!!isExp && !!pick)}`} type="button" data-card={c} data-flip={`card-${c}`} data-pick={pick ? (pick.on ? 'picked' : 'selectable') : off ? 'off' : undefined}
+          aria-pressed={pick ? pick.on : undefined} aria-label={`${t.en} (${t.fa}): ${t.text}`} disabled={busy || !pick} onClick={pick?.onClick}>
+          <img src={cardArt(c, v.defs[c])} alt="" />{pick?.on && <span className="bdr-check" aria-hidden>✓</span>}{tag && <span className="bdr-cardtag">{tag}</span>}
+        </button>
+        <Tip c={c} age={CARD_BY_NUM[c]?.age ?? v.age} />
+      </div>
+    );
+  };
+  const draftPack = kind === 'draftPick' ? ((hints.find((x) => x.type === 'draftPick')?.cards as number[]) ?? []) : [];
+  const discarding = kind === 'discardKeep';
+
+  // ---------- clan sheets ----------
+  const order = mySeat !== null ? [mySeat, ...v.seats.map((s) => s.seat).filter((s) => s !== mySeat)] : v.seats.map((s) => s.seat);
+  const reserveTarget = mode?.k === 'invade' ? new Set(of('invade').map((h) => h.figure as string)) : null;
+  const sheet = (s: SeatView) => {
+    const slug = SLUG(s.clan);
+    const sh = IDS.clanSheet[slug as keyof typeof IDS.clanSheet];
+    const mine = s.seat === mySeat;
+    const repOf = (k: string) => (reserveTarget && mine ? v.figures.find((f) => f.seat === s.seat && f.kind === k && f.where === 'reserve' && reserveTarget.has(f.id)) : undefined);
+    const cell = (key: string, kindAttr: string, num: number | null, base: string, invKind?: string) => {
+      const pick = sheetPick.get(key);
+      const rep = invKind ? repOf(invKind) : undefined;
+      const monsterRep = kindAttr.startsWith('monster') && num !== null && reserveTarget && mine ? v.figures.find((f) => f.seat === s.seat && f.kind === 'monster' && f.monster === num && reserveTarget.has(f.id)) : undefined;
+      const inv = rep ?? monsterRep;
+      const content = <>
+        <img src={num !== null ? cardArt(num, v.defs[num]) : art(base)} alt={num !== null ? `${cardTitle(num).en} — ${cardTitle(num).fa}` : ''} />
+        {inv && <span className={`bdr-slot__inv${mode?.k === 'invade' && mode.figure === inv.id ? ' is-on' : ''}`}><img src={art('ui-icons/hover-invade.webp')} alt="" /></span>}
+        {pick && <span className={`bdr-slot__inv${pick.on ? ' is-on' : ''}`} />}
+        {num !== null && <Tip c={num} age={CARD_BY_NUM[num]?.age ?? 1} />}
+      </>;
+      const click = pick?.onClick ?? (inv ? () => setMode({ k: 'invade', figure: inv.id }) : undefined);
+      return click
+        ? <button key={key} type="button" className="bdr-slot" data-slot-kind={kindAttr} data-card={num ?? undefined} aria-pressed={pick?.on} disabled={busy} onClick={click}>{content}</button>
+        : <div key={key} className="bdr-slot" data-slot-kind={kindAttr} data-card={num ?? undefined}>{content}</div>;
+    };
+    return (
+      <article key={s.seat} className={`bdr-sheet${mine ? ' is-me' : ''}`} style={cc(s.clan)} data-seat={s.seat} data-flip-anchor={`sheet-${s.seat}`}>
+        <h3 className="bdr-sheet__name" style={ink(s.clan)}><bdi>{name(s.seat)}</bdi></h3>
+        <div className="bdr-sheet__btns">
+          <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open={`reserve-${s.seat}`} onClick={() => setOpen(`reserve-${s.seat}`)}>{t('ذخیره', 'Reserve')}: {fa(s.reserve)}</button>
+          <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open={`quests-${s.seat}`} onClick={() => setOpen(`quests-${s.seat}`)}>{t('مأموریت‌ها', 'Quests')}: {fa(s.questCount)}</button>
+        </div>
+        <div className="bdr-slots" dir="ltr" style={{ '--cols': 5 } as CSSProperties}>
+          {cell('clanCard', 'clan-card', null, sh.clanCard)}
+          {cell('leader', 'leader', s.upgrades.leader, sh.leader, 'leader')}
+          {cell('warrior', 'warrior', s.upgrades.warrior, sh.warrior, 'warrior')}
+          {cell('monster0', 'monster', s.upgrades.monster[0] ?? null, sh.monsterSlot)}
+          {cell('monster1', 'monster2', s.upgrades.monster[1] ?? null, sh.monsterSlot)}
+          <div className="bdr-slot is-void" aria-hidden="true" />
+          {cell('ship', 'ship', s.upgrades.ship, sh.ship, 'ship')}
+          {[0, 1, 2].map((i) => cell(`clan${i}`, `clan${i}`, s.upgrades.clan[i] ?? null, sh.clanSlot))}
+        </div>
+      </article>
     );
   };
 
-  const seatsOrdered = view.seats;
+  // ---------- rail (hidden inside the table shell: the shell draws these from publicSummary via bloodRageSeatCard) ----------
+  const panel = (s: SeatView) => {
+    const turn = v.turn === s.seat || (v.pending?.seats.includes(s.seat) ?? false);
+    const d: SeatDetail = {
+      seat: s.seat, clan: s.clan, glory: s.glory, rage: v.phase === 'action' ? s.rage : s.values.rage, hand: s.handCount, first: v.first === s.seat, onMap: s.onMap,
+      steps: s.steps, values: s.values, passed: v.phase === 'action' && s.passed && !s.resigned, noRage: v.phase === 'action' && !s.passed && s.rage === 0 && !s.resigned,
+      out: s.resigned, reserve: s.reserve, valhalla: s.valhalla, quests: s.questCount
+    };
+    return (
+      <div key={s.seat} className={`bdr-panel${turn ? ' is-turn' : ''}${s.resigned ? ' is-out' : ''}`} style={cc(s.clan)} data-seat={s.seat} data-flip-anchor={`seat-${s.seat}`}>
+        <div className="bdr-panel__head"><b style={ink(s.clan)}><bdi>{name(s.seat)}</bdi></b>{s.seat === mySeat && <span className="bgv-badge bgv-badge--sm">{t('شما', 'You')}</span>}</div>
+        <div className="bdr-panel__score" title={t('افتخار', 'Glory')}><b className="bdr-num">{fa(s.glory)}</b> ★ <small>{t('افتخار', 'Glory')}</small></div>
+        <PanelBody d={d} />
+        <button className="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-panel__more" type="button" data-open={`stats-${s.seat}`} onClick={() => setOpen(`stats-${s.seat}`)}>{t('جزئیات آمار', 'Stats details')}</button>
+      </div>
+    );
+  };
+
+  const logBox = (
+    <section className="bdr bdr-logbox" aria-label={t('گزارش', 'Log')} dir={lang === 'en' ? 'ltr' : 'rtl'}>
+      <h3>{t('گزارش', 'Log')}</h3>
+      <ol className="bgv-log">{v.log.slice(-30).reverse().map((e, i) => <li key={i} className={`bgv-log__item${i === 0 ? ' is-new' : ''}`}>{e.seat >= 0 && v.seats[e.seat] && <b style={ink(v.seats[e.seat]!.clan)}><bdi>{name(e.seat)}</bdi></b>} {logText(e)}</li>)}</ol>
+    </section>
+  );
+  const dialog = renderDialog(open, v, mySeat, name, shownBattle, () => setOpen(null), (i) => { setShownBattle(i); setOpen('battle'); });
 
   return (
-    <div className="blr" data-phase={view.step} data-seq={view.seq}>
-      <div className="blr__head">
-        <span className="blr-chip blr-chip--age">عصر {fa(view.age)} از ۳</span>
-        <span className="blr-chip">{PHASE_FA[view.step]}</span>
-        {doomed && <span className="blr-chip blr-chip--doom">راگناروک: {PROVINCES[doomed].nameFa}</span>}
-        <span className="blr-chip blr-chip--ragn" title="استان نابودشونده در هر عصر">
-          {view.ragnarok.map((p, i) => <span key={p} className={view.destroyed.includes(p) ? 'is-gone' : view.age === i + 1 ? 'is-now' : ''}>{fa(i + 1)}: {PROVINCES[p].nameFa}</span>)}
-        </span>
-      </div>
-      <p className={`blr__status${myTurn || choice || (battle && (battle.caller === me || battle.waiting.includes(me ?? -1))) ? ' is-mine' : ''}`} role="status" aria-live="polite">{status}</p>
-
-      <div className="blr__main">
-        <div className="blr__board">
-          <ZoomBoard label="نقشهٔ میدگارد">
-            <svg className="blr-map" viewBox={`${PIC.x} ${PIC.y} ${PIC.size} ${PIC.size}`} role="group" aria-label="نقشهٔ میدگارد">
-              <FigurePatterns />
-              <image href="/games/blood-rage/sea.webp" x={PIC.x} y={PIC.y} width={PIC.size} height={PIC.size} preserveAspectRatio="xMidYMid slice" className="blr-board" />
-              <image href="/games/blood-rage/board.webp" x={PIC.x} y={PIC.y} width={PIC.size} height={PIC.size} className="blr-board" />
-              {RING.map((p) => {
-                const dead = view.destroyed.includes(p);
-                const tg = targets.has(p), src = sources.has(p), pl = view.pillaged.includes(p);
-                const here = byPlace(p);
-                const inBattle = battle?.at === p;
-                const slots = slotPositions(p);
-                const rw = rewardAt(p);
-                const clickable = tg || src;
-                const spots = [...slots, { x: rw.x, y: rw.y }];
-                return (
-                  <g key={p} className={`blr-prov blr-prov--${PROVINCES[p].region}${dead ? ' is-destroyed' : ''}${tg ? ' is-target' : ''}${src ? ' is-source' : ''}${inBattle ? ' is-battle' : ''}${doomed === p ? ' is-doom' : ''}`}
-                    role={clickable ? 'button' : 'group'} tabIndex={clickable ? 0 : undefined} aria-label={`${PROVINCES[p].nameFa}، ${REGION_FA[PROVINCES[p].region!]}${dead ? '، نابودشده' : ''}${pl ? '، غارت‌شده' : ''}${tg ? '، قابل انتخاب' : ''}`}
-                    onClick={clickable ? () => clickPlace(p) : undefined} onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickPlace(p); } } : undefined}>
-                    <g className="blr-prov__land">{spots.map((q, k) => <circle key={k} cx={q.x} cy={q.y} r="30" />)}</g>
-                    {!dead && slots.map((q, k) => <circle key={k} cx={q.x} cy={q.y} r="12" className="blr-slot" />)}
-                    {!dead && here.map((f, k) => renderFigure(f, slots[k] ?? slots[0]!))}
-                    <text x={rw.x} y={rw.y + 25} className="blr-prov__name" textAnchor="middle">{PROVINCES[p].nameFa}</text>
-                    {dead
-                      ? <text x={rw.x} y={rw.y + 4} className="blr-prov__dead" textAnchor="middle">نابود شد</text>
-                      : <g transform={`translate(${rw.x} ${rw.y})`} className={`blr-token${pl ? ' is-flipped' : ''}`}>
-                        <circle r="11" /><text textAnchor="middle" dy="4">{pl ? '✕' : REWARD_GLYPH[view.rewards[p]]}</text>
-                        <title>{pl ? 'غارت شده' : `پاداش: ${REWARD_FA[view.rewards[p]]}`}</title>
-                      </g>}
-                    {tokenAge(p) > 0 && !dead && <g transform={`translate(${rw.x + 16} ${rw.y - 14})`} className="blr-ragn"><circle r="7" /><text textAnchor="middle" dy="3">{fa(tokenAge(p))}</text><title>راگناروک عصر {fa(tokenAge(p))}</title></g>}
-                  </g>
-                );
-              })}
-              {FJORD_IDS.map((f) => {
-                const c = FJORD_AT[f];
-                const here = byPlace(f);
-                const tg = targets.has(f);
-                const inBattle = battle && (FJORDS[f] as ProvinceId[]).includes(battle.at);
-                return (
-                  <g key={f} className={`blr-fjord${tg ? ' is-target' : ''}${inBattle ? ' is-battle' : ''}`} role={tg ? 'button' : 'group'} tabIndex={tg ? 0 : undefined}
-                    aria-label={`خلیج میان ${PROVINCES[FJORDS[f][0]].nameFa} و ${PROVINCES[FJORDS[f][1]].nameFa}${tg ? '، قابل انتخاب' : ''}`}
-                    onClick={tg ? () => clickPlace(f) : undefined} onKeyDown={tg ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickPlace(f); } } : undefined}>
-                    <ellipse cx={c[0]} cy={c[1]} rx="30" ry="24" className="blr-fjord__water" />
-                    {here.map((fg, k) => renderFigure(fg, fjordSlot(f, k)))}
-                  </g>
-                );
-              })}
-              <g className={`blr-prov blr-ygg${targets.has('ygg') ? ' is-target' : ''}${sources.has('ygg') ? ' is-source' : ''}${battle?.at === 'ygg' ? ' is-battle' : ''}`}
-                role={targets.has('ygg') || sources.has('ygg') ? 'button' : 'group'} tabIndex={targets.has('ygg') || sources.has('ygg') ? 0 : undefined}
-                aria-label={`ایگدراسیل${view.pillaged.includes('ygg') ? '، غارت‌شده' : ''}`}
-                onClick={targets.has('ygg') || sources.has('ygg') ? () => clickPlace('ygg') : undefined}>
-                <circle cx={YGG[0]} cy={YGG[1] + 30} r="75" className="blr-prov__land blr-ygg__land" />
-                <text x={YGG[0]} y={YGG[1] - 12} className="blr-prov__name" textAnchor="middle">ایگدراسیل</text>
-                {byPlace('ygg').map((f, k) => renderFigure(f, slotPositions('ygg')[k] ?? slotPositions('ygg')[0]!))}
-                <g transform={`translate(${YGG[0]} ${YGG[1]})`} className={`blr-token${view.pillaged.includes('ygg') ? ' is-flipped' : ''}`}>
-                  <circle r="11" /><text textAnchor="middle" dy="4">{view.pillaged.includes('ygg') ? '✕' : REWARD_GLYPH.all}</text>
-                  <title>{view.pillaged.includes('ygg') ? 'غارت شده' : 'پاداش: یک پله به هر سه ویژگی'}</title>
-                </g>
-              </g>
-            </svg>
-          </ZoomBoard>
-          <ul className="blr-legend" aria-label="راهنمای نقشه">
-            <li><i className="lg lg--leader" />رهبر (قدرت ۲)</li><li><i className="lg lg--warrior" />جنگجو (۱)</li><li><i className="lg lg--ship" />کشتی (۳، فقط خلیج)</li><li><i className="lg lg--monster" />هیولا</li>
-            <li>خ+ / ت+ / ش+: پلهٔ خشم / تبر / شاخ؛ ۵: پنج افتخار؛ ★: هر سه</li>
-          </ul>
-        </div>
-
-        <div className="blr__side">
-          <section className="blr-seats" aria-label="قبیله‌ها">
-            {seatsOrdered.map((s) => {
-              const v = valhalla(s.seat).length;
-              const onBoard = figs.filter((f) => f.seat === s.seat && f.at !== 'reserve' && f.at !== 'valhalla').length;
-              const turn = view.turn === s.seat && view.step === 'action';
-              return (
-                <article key={s.seat} className={`blr-seat${s.seat === me ? ' is-me' : ''}${turn ? ' is-turn' : ''}${s.resigned ? ' is-out' : ''}`} style={{ ['--c' as string]: clanColor(s.seat) }}>
-                  <header>
-                    <i className="blr-seat__dot blr-emblem" style={{ backgroundPosition: spritePos(CLAN_ART[s.seat % 5]!.emblem) }} aria-hidden />
-                    <b>{nm(s.seat)}</b><small>قبیلهٔ {CLAN_NAME[s.seat % 5]} · {CLAN_FA[s.seat % 5]}{s.seat === me ? ' · شما' : ''}{s.seat === view.first ? ' · آغازگر' : ''}{s.resigned ? ' · انصراف' : ''}</small>
-                    <span className="blr-seat__glory" aria-label={`${fa(s.glory)} افتخار`}><b>{fa(s.glory)}</b> افتخار</span>
-                  </header>
-                  <dl className="blr-seat__stats">
-                    <div className={s.rage === 0 && view.step === 'action' ? 'is-zero' : ''}><dt>خشم</dt><dd>{view.step === 'action' ? `${fa(s.rage)}/` : ''}{fa(TRACKS.rage[s.steps.rage]!)}</dd></div>
-                    <div><dt>تبر</dt><dd>{fa(TRACKS.axes[s.steps.axes]!)}</dd></div>
-                    <div><dt>شاخ</dt><dd>{fa(onBoard)}/{fa(TRACKS.horns[s.steps.horns]!)}</dd></div>
-                    <div><dt>والهالا</dt><dd>{fa(v)}</dd></div>
-                    <div><dt>کارت</dt><dd>{fa(s.hand)}</dd></div>
-                    <div><dt>مأموریت</dt><dd>{fa(s.quests)}</dd></div>
-                  </dl>
-                  <div className="blr-tracks" aria-hidden>
-                    {STATS.map((st) => TRACKS[st].map((v, k) => <i key={`${st}${k}`} className={k === s.steps[st] ? 'on' : k < s.steps[st] ? 'past' : ''} title={`${STAT_FA[st]}: پلهٔ ${fa(s.steps[st] + 1)} از ${fa(LAST_STEP + 1)}`}>{fa(v)}</i>))}
-                  </div>
-                  <ul className="blr-slots" aria-label={`ارتقاهای ${CLAN_FA[s.seat % 5]}`}>
-                    {[s.warrior, s.leader, s.ship, ...s.monsters, ...s.clans].filter(Boolean).map((d, i) => <li key={i} title={CARD_BY_ID[d!]?.textFa}>{CARD_BY_ID[d!]?.nameFa}</li>)}
-                  </ul>
-                </article>
-              );
-            })}
-          </section>
-          {me !== null && (
-            <section className="blr-reserve" aria-label="ذخیرهٔ شما">
-              <h3>ذخیرهٔ شما</h3>
-              <ul>
-                {Object.entries(Object.groupBy(reserve, (f) => groupOf(f))).map(([g, list]) => (
-                  <li key={g}><b>{fa(list!.length)}×</b> {KIND_FA[list![0]!.kind]}{list![0]!.mon ? ` (${CARD_BY_ID[list![0]!.mon!]?.nameFa})` : ''}</li>
-                ))}
-                {reserve.length === 0 && <li className="bgv-muted">ذخیره خالی است</li>}
-              </ul>
-            </section>
-          )}
-        </div>
-      </div>
-
-      {/* ----- battle ----- */}
-      {battle && (
-        <section className="blr-battle" aria-label="نبرد">
-          <h3>نبرد در {PROVINCES[battle.at].nameFa}{battle.rep ? ' (غارت دوباره)' : ''} <small>{STAGE_FA[battle.stage]}</small></h3>
-          {battle.stage === 'call' && <p className="blr__hint">فراخوان نبرد: هر بازیکن می‌تواند یک نیرو از استان مجاور بیاورد.</p>}
-          <ul className="blr-battle__sides">
-            {[...new Set(figs.filter((f) => f.at === battle.at || (FJORD_IDS as string[]).includes(f.at) && (FJORDS[f.at as FjordId] as string[]).includes(battle.at)).map((f) => f.seat).concat(Object.keys(battle.chosen).map(Number)))].sort((a, b) => a - b).map((seat) => {
-              const v = battle.chosen[String(seat)];
-              return (
-                <li key={seat} style={{ ['--c' as string]: clanColor(seat) }} className={battle.winner === seat ? 'is-winner' : battle.losers.includes(seat) ? 'is-loser' : ''}>
-                  <b>{nm(seat)}</b>
-                  {v === undefined ? <small>{battle.waiting.includes(seat) ? 'در حال انتخاب کارت…' : ''}</small> : v === 'hidden' ? <CardBack label={`کارت پنهان ${nm(seat)}`} /> : v === 'none' ? <small>بدون کارت</small> : <CardView def={CARD_BY_ID[v]!} />}
-                  {battle.totals[String(seat)] !== undefined && <span className="blr-total">قدرت {fa(battle.totals[String(seat)]!)}</span>}
-                  {battle.muted.includes(seat) && <small>متن کارت بی‌اثر شد</small>}
-                </li>
-              );
-            })}
-          </ul>
-          {battle.waiting.length > 0 && <p className="blr__hint">منتظر انتخاب کارت: {battle.waiting.map(nm).join('، ')}</p>}
-        </section>
-      )}
-
-      {/* ----- decisions ----- */}
-      {choice && me !== null && (
-        <section className="blr-choice" aria-label="تصمیم">
-          {choice.k === 'freeInvade' && <><p>حمله رایگان با نیروی ارتقاگرفته: روی یک جای روشن نقشه بزنید.</p><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'decide', yes: false })}>نه، بگذرید</Button></>}
-          {choice.k === 'succor' && <><p>یاری فریگا: یک جنگجوی دیگر را هم رایگان در {PROVINCES[choice.at!].nameFa} بگذارید؟</p><div className="blr-row"><Button disabled={busy} onClick={() => act({ type: 'decide', yes: true })}>بله</Button><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'decide', yes: false })}>نه</Button></div></>}
-          {choice.k === 'domain' && <><p>قلمرو ثور: ۲ خشم بدهید و {PROVINCES[choice.at!].nameFa} را بی‌درنگ غارت کنید؟</p><div className="blr-row"><Button disabled={busy || (myClan?.rage ?? 0) < 2} onClick={() => act({ type: 'decide', yes: true })}>بله (۲ خشم)</Button><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'decide', yes: false })}>نه</Button></div></>}
-          {choice.k === 'blessing' && <><p>برکت لوکی: یک جنگجو را رایگان در {PROVINCES[choice.at!].nameFa} بگذارید؟</p><div className="blr-row"><Button disabled={busy} onClick={() => act({ type: 'decide', yes: true })}>بله</Button><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'decide', yes: false })}>نه</Button></div></>}
-          {choice.k === 'stat' && <><p>یکی از ویژگی‌هایتان را یک پله بالا ببرید:</p><div className="blr-row">{STATS.map((st: Stat) => <Button key={st} disabled={busy || (myClan?.steps[st] ?? 0) >= LAST_STEP} onClick={() => act({ type: 'decide', stat: st })}>{STAT_FA[st]} ← {fa(TRACKS[st][Math.min(LAST_STEP, (myClan?.steps[st] ?? 0) + 1)]!)}</Button>)}</div></>}
-          {choice.k === 'hammer' && <><p>سالار چکش‌ها: رهبر را به استانی مجاور ببرید (روی نقشه بزنید) یا همان‌جا بمانید.</p><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'decide', yes: false })}>همان‌جا بماند</Button></>}
-          {choice.k === 'prowess' && <><p>دلیری تیر: هر کارت بازی‌شده را با ۱ خشم نگه دارید.</p><div className="blr-cards">{choice.cards?.map((id) => <CardView key={id} def={defOf(id) ?? CARD_BY_ID[view.me?.hand.find((c) => c.id === id)?.def ?? '']!} selected={pickCards.includes(id)} onClick={() => setPickCards((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))} />)}</div><Button disabled={busy} onClick={() => act({ type: 'decide', cards: pickCards })}>{pickCards.length ? `نگه داشتن (${fa(pickCards.length)} خشم)` : 'هیچ‌کدام'}</Button></>}
-          {choice.k === 'protect' && <><p>حمایت فریگا: روی نیروهای خودتان در نبرد بزنید تا با ۱ خشم برای هر کدام نجات پیدا کنند ({fa(pickFigs.length)} انتخاب‌شده، خشم {fa(myClan?.rage ?? 0)}).</p><Button disabled={busy} onClick={() => act({ type: 'decide', figures: pickFigs })}>{pickFigs.length ? 'نجات انتخاب‌شده‌ها' : 'هیچ‌کدام'}</Button></>}
-          {choice.k === 'tide' && <><p>سیل اودین: روی تنها نیرویی که می‌ماند بزنید؛ بقیه نابود می‌شوند.</p><Button disabled={busy || pickFigs.length !== 1} onClick={() => act({ type: 'decide', figures: pickFigs })}>تأیید</Button></>}
-          {choice.k === 'late' && <><p>کارت دیررس: بازیش کنید؟ قدرت‌ها تا اینجا: {battle ? Object.entries(battle.totals).map(([k, v]) => `${nm(Number(k))} ${fa(v)}`).join('، ') : ''}</p><div className="blr-row"><Button disabled={busy} onClick={() => act({ type: 'decide', yes: true })}>بازی کن</Button><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'decide', yes: false })}>نگه دار</Button></div></>}
-        </section>
-      )}
-
-      {/* ----- action phase controls ----- */}
-      {myTurn && me !== null && (
-        <section className="blr-actions" aria-label="کنش‌های شما">
-          <div className="blr-row">
-            <Button variant={mode?.t === 'invade' ? 'primary' : 'secondary'} disabled={busy || !has('invade')} onClick={() => setMode(mode?.t === 'invade' ? null : { t: 'invade' })}>حمله</Button>
-            <Button variant={mode?.t === 'march' ? 'primary' : 'secondary'} disabled={busy || !has('march')} onClick={() => setMode(mode?.t === 'march' ? null : { t: 'march', sel: [] })}>لشکرکشی (۱ خشم)</Button>
-            <Button variant={mode?.t === 'pillage' ? 'primary' : 'secondary'} disabled={busy || !(has('pillage') || has('challenge'))} onClick={() => setMode(mode?.t === 'pillage' ? null : { t: 'pillage' })}>غارت</Button>
-            {has('sacrifice') && <Button variant={mode?.t === 'sacrifice' ? 'primary' : 'secondary'} disabled={busy} onClick={() => setMode(mode?.t === 'sacrifice' ? null : { t: 'sacrifice', sel: [] })}>قربانی</Button>}
+    <div className="bdr-wrap" ref={wrapRef}>
+    <div className={`bdr bdr-table${inShell ? ' is-shell' : ''}`} dir={lang === 'en' ? 'ltr' : 'rtl'} lang={lang} data-age={v.age} data-phase={v.phase} data-tab={tab} data-seq={v.seq}>
+      <div className="bdr-main">
+        <div className="bdr-top">
+          <nav className="bdr-tabs" role="tablist" aria-label={t('بخش‌های میز', 'Table sections')} style={{ '--tabs': inShell ? 3 : 4 } as CSSProperties}>
+            {([['map', t('نقشه', 'Map')], ['hand', `${t('دست', 'Hand')} ${v.me ? fa(v.me.hand.length) : ''}`], ['clan', t('قبیلهٔ من', 'My clan')], ...(inShell ? [] : [['players', t('بازیکنان', 'Players')]])] as [typeof tab, string][]).map(([k, l]) =>
+              <button key={k} type="button" role="tab" className={`bgv-btn bgv-btn--sm bgv-btn--${tab === k ? 'primary' : 'secondary'}`} aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>)}
+          </nav>
+          <div className="bdr-lang" data-theme={theme} role="group" aria-label={t('زبان بازی', 'Game language')}>
+            <button type="button" aria-pressed={lang === 'fa'} onClick={() => switchLang('fa')}>فا</button>
+            <button type="button" aria-pressed={lang === 'en'} onClick={() => switchLang('en')}>EN</button>
           </div>
-          {mode?.t === 'invade' && (
-            <div className="blr-row blr-groups" aria-label="نیرویی را برای حمله انتخاب کنید">
-              {Object.entries(Object.groupBy(hintsOf('invade').map((h) => figs.find((f) => f.id === h.figure)!).filter(Boolean), (f) => groupOf(f))).map(([g, list]) => {
-                const f = list![0]!;
-                const cost = hintsOf('invade').find((h) => h.figure === f.id);
-                void cost;
-                return <Button key={g} variant={mode.group === g ? 'primary' : 'secondary'} disabled={busy} onClick={() => setMode({ t: 'invade', group: g })}>{KIND_FA[f.kind]}{f.mon ? ` ${CARD_BY_ID[f.mon]?.nameFa}` : ''}{f.at === 'valhalla' ? ' (از والهالا)' : ''}</Button>;
-              })}
-              <p className="blr__hint">{mode.group ? 'روی یک جای روشن نقشه بزنید.' : 'ابتدا نیرو را انتخاب کنید.'}</p>
-            </div>
-          )}
-          {mode?.t === 'march' && <p className="blr__hint">{!mode.from ? 'استانی را که می‌خواهید از آن لشکر ببرید انتخاب کنید.' : `از ${PROVINCES[mode.from].nameFa}: ${fa(mode.sel.length)} نیرو انتخاب‌شده (روی نیروها بزنید تا کم/زیاد شوند)؛ حالا مقصد را انتخاب کنید.`}</p>}
-          {mode?.t === 'pillage' && <p className="blr__hint">استانی را انتخاب کنید که نیرویی در آن (یا خلیج کنارش) دارید.</p>}
-          {mode?.t === 'sacrifice' && <>
-            <p className="blr__hint">دو نیروی خودتان را روی نقشه انتخاب کنید ({fa(mode.sel.length)}/۲) و ویژگی را بالا ببرید:</p>
-            <div className="blr-row">{STATS.map((st: Stat) => <Button key={st} disabled={busy || mode.sel.length !== 2 || (myClan?.steps[st] ?? 0) >= LAST_STEP} onClick={() => act({ type: 'sacrifice', figures: mode.sel, stat: st })}>{STAT_FA[st]}</Button>)}</div>
-          </>}
+        </div>
+        <section className={`bdr-bar${waiting ? ' is-waiting' : ''}`} data-theme={theme} aria-label={t('نوار وضعیت', 'Status bar')} aria-live="polite">
+          <div className="bdr-bar__row"><p className="bdr-bar__text">{text}</p>{buttons}</div>
+          {nudge ? <p className="bdr-bar__note is-nudge" role="alert">{nudge}</p> : note && <p className="bdr-bar__note">{note}</p>}
         </section>
-      )}
-
-      {/* ----- hand ----- */}
-      {view.me && (view.me.hand.length > 0 || view.me.pack.length > 0 || view.me.quests.length > 0) && (
-        <section className="blr-hand" aria-label="کارت‌های شما">
-          {view.step === 'draft' && view.me.pack.length > 0 && (
-            <>
-              <h3>بستهٔ درفت <small>{fa(view.draft?.need ?? 1)} کارت بردارید</small></h3>
-              <div className="blr-cards">
-                {view.me.pack.map((c) => (
-                  <CardView key={c.id} def={CARD_BY_ID[c.def]!} selected={pickCards.includes(c.id)} onClick={() => setPickCards((s) => (s.includes(c.id) ? s.filter((x) => x !== c.id) : s.length < (view.draft?.need ?? 1) ? [...s, c.id] : [...s.slice(1), c.id]))} />
-                ))}
-              </div>
-              <DockSlot><Button disabled={busy || pickCards.length !== (view.draft?.need ?? 1)} onClick={() => act({ type: 'pick', cards: pickCards })}>برداشتن {fa(pickCards.length)}/{fa(view.draft?.need ?? 1)}</Button></DockSlot>
-            </>
-          )}
-          {view.me.hand.length > 0 && (
-            <>
-              <h3>دست شما <small>{fa(view.me.hand.length)} کارت</small></h3>
-              <div className="blr-cards">
-                {view.me.hand.map((c) => {
-                  const def = CARD_BY_ID[c.def]!;
-                  const picking = (battle?.stage === 'cards' && battle.waiting.includes(me ?? -1)) || (view.step === 'discard' && !view.discarded[me ?? 0]);
-                  const up = myTurn && upgradeHint(c.id);
-                  const qh = myTurn && hintsOf('quest').some((h) => h.card === c.id);
-                  return (
-                    <CardView key={c.id} def={def} selected={pickCards.includes(c.id)} onClick={picking ? () => setPickCards([c.id]) : undefined}>
-                      {up && <Button size="sm" disabled={busy} onClick={() => doUpgrade(c.id)}>ارتقا ({fa(def.cost ?? 0)} خشم)</Button>}
-                      {qh && <Button size="sm" variant="secondary" disabled={busy} onClick={() => act({ type: 'quest', card: c.id })}>تعهد به مأموریت</Button>}
-                    </CardView>
-                  );
-                })}
-              </div>
-              {slotFor !== null && myClan && (
-                <div className="blr-row blr-slotpick" role="group" aria-label="جایگزین کدام ارتقا شود؟">
-                  <p>جایگزین کدام کارت شود؟</p>
-                  {(defOf(slotFor).kind === 'monster' ? myClan.monsters : myClan.clans).map((d, i) => <Button key={i} variant="secondary" disabled={busy} onClick={() => act({ type: 'upgrade', card: slotFor, slot: i })}>{d ? CARD_BY_ID[d]!.nameFa : 'خالی'}</Button>)}
-                  <Button variant="ghost" onClick={() => setSlotFor(null)}>انصراف</Button>
-                </div>
-              )}
-              {battle?.stage === 'cards' && battle.waiting.includes(me ?? -1) && <DockSlot><Button disabled={busy || pickCards.length !== 1} onClick={() => act({ type: 'play', card: pickCards[0]! })}>بازی کارت</Button></DockSlot>}
-              {view.step === 'discard' && !view.discarded[me ?? 0] && !battle && (
-                <DockSlot><div className="blr-row">
-                  <Button disabled={busy || pickCards.length !== 1} onClick={() => act({ type: 'keep', card: pickCards[0]! })}>نگه داشتن برای عصر بعد</Button>
-                  <Button variant="secondary" disabled={busy} onClick={() => act({ type: 'keep', card: null })}>دور ریختن همه</Button>
-                </div></DockSlot>
-              )}
-            </>
-          )}
-          {view.me.quests.length > 0 && (
-            <>
-              <h3>مأموریت‌های تعهدشده <small>تا پایان عصر پنهان است</small></h3>
-              <div className="blr-cards">{view.me.quests.map((c) => <CardView key={c.id} def={CARD_BY_ID[c.def]!} />)}</div>
-            </>
-          )}
+        {v.final && <FinalTable v={v} name={name} />}
+        {mapBox}
+        {draftPack.length > 0 && (
+          <section className="bgv-felt bdr-zone" aria-label="یک کارت نگه دارید">
+            <h2 className="bdr-ztitle">{t('یک کارت نگه دارید', 'Keep a card')}</h2>
+            <p className="bdr-zsub">{t('دستهٔ رسیده؛ بقیه به نفر چپ می‌رود', 'The rest goes to the next player clockwise')}</p>
+            <div className="bdr-hand">{draftPack.map((c) => cardBtn(c, handPick.get(c)))}</div>
+          </section>
+        )}
+        {v.me && (
+          <section className="bgv-felt bdr-zone bdr-handzone" aria-label="دست من">
+            <h2 className="bdr-ztitle">{t('دست من', 'My hand')}</h2>
+            {v.me.hand.length === 0 && <p className="bdr-zsub">دست خالی است.</p>}
+            <div className="bdr-hand">{v.me.hand.map((c) => cardBtn(c, kind === 'draftPick' ? undefined : handPick.get(c), discarding && !handPick.get(c)?.on))}</div>
+            {v.me.quests.length > 0 && <><p className="bdr-zsub">مأموریت‌های متعهدشده</p><div className="bdr-hand">{v.me.quests.map((c) => cardBtn(c, undefined))}</div></>}
+          </section>
+        )}
+        <section className="bgv-felt bdr-zone bdr-sheetszone" aria-label="صفحه‌های قبیله" id="bdr-sheets">
+          <div className="bdr-sheets">{order.map((s) => sheet(v.seats[s]!))}</div>
         </section>
+      </div>
+      {inShell ? <RailSlot>{logBox}</RailSlot> : (
+        <aside className="bdr-rail" aria-label={t('بازیکن‌ها', 'Players')}>
+          {v.seats.map(panel)}
+          {logBox}
+        </aside>
       )}
+      {dialog}
+      {sheetOpen && phone && actionList.length > 0 && (
+        <div className="bdr-scrim bdr-scrim--sheet" data-theme={theme} onClick={(e) => { if (e.target === e.currentTarget) setSheetOpen(false); }}>
+          <section className="bgv-sheet bdr-bsheet" role="dialog" aria-modal="true" aria-label={t('اقدام‌ها', 'Actions')}>
+            <span className="bgv-sheet__handle" />
+            <div className="bdr-bsheet__head"><b>{t('یک اقدام انتخاب کنید', 'Choose an action')}</b>{me && <span className="bdr-pill"><img src={art('tokens/icon-rage-mini.webp')} alt="" /><span className="bdr-num">{fa(me.rage)}</span></span>}</div>
+            <div className="bdr-sgrid">{actionList.map((x) => (
+              <button key={x.act} type="button" data-act={x.act} className={`bgv-btn bgv-btn--${x.variant === 'leave' ? 'ghost' : 'secondary'}${hintCls(!!x.hint)}`} disabled={busy} onClick={() => { setSheetOpen(false); x.go(); }}>
+                {x.label}{x.sub && <small>{x.sub}</small>}
+              </button>))}</div>
+            {me && <p className="bdr-note">{t(`مهره روی نقشه ${fa(me.onMap)} از ${fa(me.horns)} (شاخ)`, `Figures on the map ${me.onMap} of ${me.horns} (Horns)`)}</p>}
+          </section>
+        </div>
+      )}
+    </div>
+    </div>
+  );
+}
 
-      {/* ----- dock buttons ----- */}
-      {me !== null && myTurn && <DockSlot><Button variant="secondary" disabled={busy || !has('pass')} onClick={() => act({ type: 'pass' })}>گذشتن (رها کردن خشم)</Button></DockSlot>}
-      {me !== null && battle?.stage === 'call' && battle.caller === me && <DockSlot><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'call' })}>فراخوانی نمی‌کنم</Button></DockSlot>}
+/** Public per-seat data of the BGA player board (rules.ts publicSummary `detail`). */
+export interface SeatDetail {
+  seat: number; clan: number; glory: number; rage: number; hand: number; first: boolean; onMap: number;
+  steps: Record<StatKey, number>; values: Record<StatKey, number>; passed: boolean; noRage: boolean; out: boolean; reserve: number; valhalla: number; quests: number;
+}
+/** BGA player board body (§18), shared by the shell rail and the renderer's own rail outside the shell. */
+function PanelBody({ d }: { d: SeatDetail }) {
+  return (
+    <>
+      <div className="bdr-panel__line1">
+        <img src={art(IDS.clanIcon[String(d.clan) as keyof typeof IDS.clanIcon])} className="bdr-panel__clan" alt={`${t('قبیلهٔ', 'Clan')} ${CLAN_FA(d.clan)}`} title={`${t('قبیلهٔ', 'Clan')} ${CLAN_FA(d.clan)}`} />
+        <span className="bdr-ragebox" title={t(`خشم فعلی؛ شروع هر عصر ${fa(d.values.rage)}`, `Current rage; ${d.values.rage} each Age`)}><img src={art('tokens/icon-rage.webp')} alt="" /><b className="bdr-num">{fa(d.rage)}</b></span>
+        <span className="bdr-cardbox" title={t('کارت در دست', 'Cards in hand')}><img src={art('ui-icons/board-card.webp')} alt="" /><b className="bdr-num">{fa(d.hand)}</b></span>
+        {d.first && <img src={art('tokens/firstplayer.webp')} className="bdr-fp" title={t('بازیکن اول این عصر', 'First player this Age')} alt={t('بازیکن اول', 'First player')} />}
+      </div>
+      <div className="bdr-stats">
+        {(['rage', 'axe', 'horn'] as StatKey[]).map((st) => (
+          <span key={st} className={`bdr-stat${d.steps[st] >= 3 ? ' is-legend' : ''}`} title={`${STAT_FA[st]}: ${t('پلهٔ', 'step')} ${fa(d.steps[st] + 1)} ${t('از ۶', 'of 6')}`}>
+            <img src={art(`tokens/icon-${st}-mini.webp`)} alt={STAT_FA[st]} /><span className="bdr-num">{st === 'horn' ? `${fa(d.onMap)}/${fa(d.values.horn)}` : `${fa(d.values[st])}/${fa(TRACK[st][5]!)}`}</span>
+          </span>
+        ))}
+      </div>
+      <div className="bdr-panel__badges">
+        {d.out && <span className="bgv-badge bgv-badge--sm">{t('انصراف', 'Resigned')}</span>}
+        {d.passed && <span className="bgv-badge bgv-badge--sm">{t('کنار کشید', 'Passed')}</span>}
+        {d.noRage && <span className="bgv-badge bgv-badge--sm bgv-badge--warning">{t('خشم تمام شد', 'Out of rage')}</span>}
+      </div>
+    </>
+  );
+}
+/** Rail panel in the table shell (apps/web SEAT_CARDS): glory + BGA board body from publicSummary `detail`. */
+export function bloodRageSeatCard(seat: { seat: number; primary?: { value: number }; status?: string; detail?: unknown }, turn: boolean) {
+  const d = seat.detail as SeatDetail | undefined;
+  if (!d) return {};
+  return {
+    stats: undefined,
+    score: <span className="bdr bdr-side" style={cc(d.clan)}><span className="bdr-panel__score"><b className="bdr-num">{fa(d.glory)}</b> ★</span></span>,
+    scoreLabel: t('افتخار', 'Glory'),
+    ...(d.out ? { sub: t('انصراف داده', 'Resigned') } : turn ? { sub: t('در نوبت', 'To act') } : {}),
+    detail: (
+      <div className="bdr bdr-panel--shell" style={cc(d.clan)}>
+        <PanelBody d={d} />
+        <button className="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-panel__more" type="button" data-open={`stats-${d.seat}`}
+          onClick={() => window.dispatchEvent(new CustomEvent('bdr-open', { detail: `stats-${d.seat}` }))}>{t('جزئیات آمار', 'Stats details')}</button>
+      </div>
+    )
+  };
+}
 
-      <section className="blr-log" aria-label="رویدادها">
-        <h3>رویدادهای اخیر</h3>
-        <ol>{view.log.slice(-8).reverse().map((e, i) => { const t = describe(e, seatName); return t ? <li key={`${view.seq}-${i}`}>{t}</li> : null; })}</ol>
-        <p className="blr__hint">افتخار مردن در راگناروک برای هر نیرو: {RAGNAROK_GLORY.slice(1).map((g, i) => `عصر ${fa(i + 1)}: ${fa(g)}`).join('، ')}</p>
+const TRACK: Record<StatKey, number[]> = { rage: [6, 7, 8, 9, 12, 12], axe: [3, 4, 5, 6, 8, 8], horn: [4, 5, 6, 7, 10, 10] };
+
+function Tip({ c, age }: { c: number; age: number }) {
+  const card = CARD_BY_NUM[c];
+  if (!card) return null;
+  const TYPE_FA: Record<string, string> = { battle: 'نبرد', quest: 'مأموریت', clan: 'ارتقای قبیله', leader: 'ارتقای سردار', warrior: 'ارتقای جنگجو', ship: 'ارتقای کشتی', monster: 'هیولا' };
+  const val = card.type === 'battle' ? (card.value < 0 ? 'قدرت: بالاترین کارت حریف' : `قدرت +${fa(card.value)}`) : card.type === 'quest' ? `${fa(card.value)} افتخار` : `هزینه ${fa(card.value)} خشم`;
+  return (
+    <div className="bdr-tip" role="tooltip">
+      <img src={cardArt(c)} alt="" />
+      <div><h3>{card.titleFa}<small dir="ltr">{card.titleEn}</small></h3>
+        <p>{TYPE_FA[card.type] ?? card.type}<span className="bgv-sep" />{val}<span className="bgv-sep" />عصر {fa(age)}<span className="bgv-sep" />{fa(card.minPlayers)}+ نفر</p>
+        <p>{card.rulesFa}</p><p className="bdr-tip__en" dir="ltr">{card.rulesEn}</p></div>
+    </div>
+  );
+}
+
+function FinalTable({ v, name }: { v: BloodRageView; name: (s: number) => string }) {
+  const rows = [...v.final!].sort((a, b) => a.place - b.place);
+  return (
+    <section className="bdr-frame" data-theme={typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'} aria-label={t('پایان بازی', 'Game over')}>
+      <h2>{t('پایان بازی', 'Game over')}</h2>
+      <table className="bdr-table">
+        <thead><tr><th>رتبه</th><th>بازیکن</th><th>افتخار</th><th>خشم</th><th>تبر</th><th>شاخ</th><th>کارت‌های پایانی</th><th>جمع</th></tr></thead>
+        <tbody>{rows.map((r) => (
+          <tr key={r.seat} className={r.place === 1 ? 'is-win' : ''}>
+            <td>{fa(r.place)}</td><td><bdi>{name(r.seat)}</bdi></td><td>{fa(r.glory)}</td>
+            {(['rage', 'axe', 'horn'] as StatKey[]).map((st) => <td key={st}><span className="bdr-num">{r.legend[st] ? `+${fa(r.legend[st])}` : fa(0)}</span></td>)}
+            <td>{fa(r.cards)}</td><td><b>{fa(r.total)}</b></td>
+          </tr>
+        ))}</tbody>
+      </table>
+    </section>
+  );
+}
+
+function Dlg({ title, onClose, children }: { title: ReactNode; onClose: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => { ref.current?.focus(); }, []);
+  return (
+    <div className="bdr-scrim" data-theme={typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <section ref={ref} tabIndex={-1} role="dialog" aria-modal="true" className="bgv-dialog bdr-dlg" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
+        <header className="bdr-dlg__head"><h2>{title}</h2><button type="button" className="bgv-btn bgv-btn--secondary bgv-btn--sm" onClick={onClose}>{t('بستن', 'Close')}</button></header>
+        {children}
       </section>
     </div>
   );
 }
 
-// (kept for the table shell: the renderer module's default export is the component)
-export type { BRView };
+function BattleBox({ v, r, name }: { v: BloodRageView; r: BattleRecordView; name: (s: number) => string }) {
+  const tok = (id: string) => { const f = v.figures.find((x) => x.id === id); return f ? <img key={id} src={tokenArt(v, f)} alt={figName(v, f)} /> : null; };
+  return (
+    <div className="bdr-battle">
+      {r.lines.map((l) => {
+        const s = v.seats[l.seat]!;
+        return (
+          <div key={l.seat} className={`bdr-bline${r.winner === l.seat ? ' is-win' : ''}`} style={cc(s.clan)}>
+            <div className="bdr-bline__who"><img src={art(IDS.clanIcon[String(s.clan) as keyof typeof IDS.clanIcon])} alt="" /><span><bdi>{name(l.seat)}</bdi>{l.seat === r.attacker && <small>(غارتگر)</small>}</span></div>
+            <span className="bdr-bline__str bdr-num">{fa(l.str)}</span>
+            <span className="bdr-bline__card">{l.cards.length ? l.cards.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={cardTitle(c).en} />) : <small>بی‌کارت</small>}</span>
+            <span className="bdr-bline__figs">{l.figures.map(tok)}</span>
+          </div>
+        );
+      })}
+      <p className={`bdr-result${r.winner === null ? ' is-bad' : ''}`}>
+        {r.winner === null ? 'برابری: همه باختند و کسی غارت نکرد.' : <><b><bdi>{name(r.winner)}</bdi></b> برد{r.pillaged ? ' و غارت موفق شد' : ''}؛ افتخار نبرد = تبر برنده.</>}
+      </p>
+    </div>
+  );
+}
+
+function renderDialog(open: string | null, v: BloodRageView, mySeat: number | null, name: (s: number) => string, shown: number | null, close: () => void, showBattle: (i: number) => void): ReactNode {
+  if (!open) return null;
+  const tok = (f: FigureView) => <img key={f.id} src={tokenArt(v, f)} alt={`${figName(v, f)} ${name(f.seat)}`} />;
+  if (open === 'ages') return (
+    <Dlg title="مسیر عصرها" onClose={close}>
+      <ul className="bdr-ages">{[1, 2, 3].map((a) => (
+        <li key={a} className={a === v.age ? 'is-cur' : a < v.age ? 'is-past' : ''}>
+          <img src={cardBack(a)} alt="" style={{ blockSize: 28 }} /><b>عصر {fa(a)}</b>
+          {a === v.age && PHASES.map(([k, l, en]) => <span key={k} className={k === v.phase ? 'bdr-pill' : ''}>{t(l, en)}</span>)}
+          <small>راگناروک در {provFa(v.ragnarok[a - 1] ?? 0)}، {fa(RAGNAROK_GLORY[a] ?? 0)} افتخار برای هر مهره</small>
+        </li>))}</ul>
+    </Dlg>
+  );
+  if (open === 'battle') { const r = v.battles[shown ?? v.battles.length - 1]; return r ? <Dlg title={<>نبرد در {provFa(r.province)}!</>} onClose={close}><BattleBox v={v} r={r} name={name} /></Dlg> : null; }
+  if (open === 'archive') return (
+    <Dlg title="بایگانی نبردها" onClose={close}>
+      {v.battles.length === 0 ? <p>هنوز نبردی نشده است.</p> : <ul className="bdr-ages">{v.battles.map((r, i) => (
+        <li key={i}><b>عصر {fa(r.age)}</b> {provFa(r.province)}<span className="bgv-sep" />{r.winner === null ? 'برابری' : <>برنده: <bdi>{name(r.winner)}</bdi></>}
+          <button type="button" className="bgv-btn bgv-btn--secondary bgv-btn--sm" onClick={() => showBattle(i)}>نمایش</button></li>))}</ul>}
+    </Dlg>
+  );
+  if (open === 'discard') return (
+    <Dlg title="کارت‌های نبرد دورریخته" onClose={close}>
+      {v.discardPublic.length ? <div className="bdr-cardrow">{v.discardPublic.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={`${cardTitle(c).en} — ${cardTitle(c).fa}`} />)}</div> : <p>هنوز کارتی دور ریخته نشده است.</p>}
+    </Dlg>
+  );
+  if (open === 'valhalla') return (
+    <Dlg title="والهالا" onClose={close}>
+      <div className="bdr-valh">{v.seats.map((s) => { const fs = v.figures.filter((f) => f.seat === s.seat && f.where === 'valhalla'); return fs.length ? <div key={s.seat} style={cc(s.clan)}><bdi>{name(s.seat)}</bdi>{fs.map(tok)}</div> : null; })}</div>
+      {!v.figures.some((f) => f.where === 'valhalla') && <p>والهالا خالی است.</p>}
+    </Dlg>
+  );
+  if (open === 'endage') return <EndAge v={v} name={name} onClose={close} />;
+  const [k, n] = open.split('-');
+  const seat = Number(n);
+  const s = v.seats[seat];
+  if (!s) return null;
+  if (k === 'reserve') return (
+    <Dlg title={<>ذخیره: <bdi>{name(seat)}</bdi></>} onClose={close}>
+      <div className="bdr-resgrid">{v.figures.filter((f) => f.seat === seat && f.where === 'reserve').map(tok)}</div>
+    </Dlg>
+  );
+  if (k === 'quests') return (
+    <Dlg title={<>مأموریت‌ها: <bdi>{name(seat)}</bdi></>} onClose={close}>
+      {seat === mySeat && v.me ? (v.me.quests.length ? <div className="bdr-cardrow">{v.me.quests.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={`${cardTitle(c).en} — ${cardTitle(c).fa}: ${cardTitle(c).text}`} />)}</div> : <p>مأموریتی ندارید.</p>)
+        : <p>{fa(s.questCount)} مأموریت رو به پایین.</p>}
+    </Dlg>
+  );
+  if (k === 'stats') {
+    const ROWY: Record<StatKey, number> = { rage: 80, axe: 183, horn: 286 };
+    const STEPX = [229, 328, 427, 527, 626, 725];
+    return (
+      <Dlg title={<>آمار <bdi>{name(seat)}</bdi></>} onClose={close}>
+        <div className="bdr-statboard" dir="ltr"><img src={art('boards/clan-statistics.webp')} alt="مسیر ویژگی‌ها" />
+          {(['rage', 'axe', 'horn'] as StatKey[]).map((st) => <img key={st} className="bdr-stok" src={art(IDS.clanIcon[String(s.clan) as keyof typeof IDS.clanIcon])} alt={`${STAT_FA[st]}: پلهٔ ${fa(s.steps[st] + 1)}`}
+            style={{ left: `${(STEPX[s.steps[st]]! / 800) * 100}%`, top: `${((ROWY[st] - 6) / 347) * 100}%` }} />)} {/* ds-check-ignore: LTR stat board art */}
+        </div>
+        <p>خشم {fa(s.values.rage)}<span className="bgv-sep" />تبر {fa(s.values.axe)}<span className="bgv-sep" />شاخ {fa(s.values.horn)}<span className="bgv-sep" />والهالا {fa(s.valhalla)}</p>
+      </Dlg>
+    );
+  }
+  return null;
+}
+
+/** §22 end of the Age: committed quests with the result, Ragnarök (province, figures lost, glory) and the Valhalla release. */
+function EndAge({ v, name, onClose }: { v: BloodRageView; name: (s: number) => string; onClose: () => void }) {
+  const rIdx = v.log.map((e) => e.e).lastIndexOf('ragnarok');
+  const start = v.log.slice(0, rIdx).map((e) => e.e).lastIndexOf('end-action');
+  const quests = v.log.slice(start + 1, rIdx).filter((e) => e.e === 'quest' || e.e === 'quest-failed');
+  const after = v.log.slice(rIdx + 1);
+  const rag = v.log[rIdx];
+  const doom = after.filter((e) => e.e === 'doom');
+  const release = after.filter((e) => e.e === 'release');
+  const age = rag?.n ?? v.age;
+  const prov = provOfKey(rag?.at);
+  const qArt = (def?: string) => (def ? art(`cards/${ART_OF_DEF[def] ?? ''}.webp`) : '');
+  return (
+    <Dlg title={t(`عصر ${fa(age)}، پایان عصر`, `Age ${age}: end of the Age`)} onClose={onClose}>
+      <h3>{t('مأموریت‌ها', 'Quests')}</h3>
+      {quests.length ? <div className="bdr-cardrow">{quests.map((e, i) => (
+        <div key={i} className="bdr-q">
+          <img src={qArt(e.card)} alt={CARD_BY_ID[e.card ?? '']?.nameEn ?? ''} />
+          <b><bdi>{name(e.seat)}</bdi></b>
+          {e.e === 'quest' ? <span className="bdr-ok">{t(`انجام شد +${fa(e.n ?? 0)}`, `Done +${e.n ?? 0}`)}</span> : <span className="bdr-no2">{t('ناموفق', 'Failed')}</span>}
+        </div>))}</div> : <p>{t('مأموریتی متعهد نشده بود.', 'No quests were committed.')}</p>}
+      <h3>{t('راگناروک', 'Ragnarök')}</h3>
+      <p className="bdr-ragline"><img src={art('tokens/ragnarok.webp')} alt="" />{t(`استان ${provFa(prov)} نابود شد؛ هر مهره ${fa(RAGNAROK_GLORY[age] ?? 0)} افتخار.`, `${provFa(prov)} was destroyed; ${RAGNAROK_GLORY[age] ?? 0} glory per figure.`)}</p>
+      {doom.length > 0 && <table className="bdr-table"><thead><tr><th>{t('بازیکن', 'Player')}</th><th>{t('مهره‌های نابود', 'Figures lost')}</th><th>{t('افتخار', 'Glory')}</th></tr></thead>
+        <tbody>{doom.map((e) => <tr key={e.seat}><td><bdi>{name(e.seat)}</bdi></td><td>{fa(e.w ?? 0)}</td><td><span className="bdr-num">+{fa(e.n ?? 0)}</span></td></tr>)}</tbody></table>}
+      <h3>{t('آزادی از والهالا', 'Release Valhalla')}</h3>
+      {release.length ? <ul className="bdr-ages">{release.map((e) => <li key={e.seat}><bdi>{name(e.seat)}</bdi><span className="bgv-sep" />{t(`${fa(e.w ?? 0)} مهره به ذخیره`, `${e.w ?? 0} figures back to reserve`)}{(e.n ?? 0) > 0 && <><span className="bgv-sep" /><span className="bdr-num">+{fa(e.n!)}</span> {t('افتخار (لوکی)', 'glory (Loki)')}</>}</li>)}</ul> : <p>{t('والهالا خالی بود.', 'Valhalla was empty.')}</p>}
+    </Dlg>
+  );
+}
+
+function logText(e: LogEntry): string {
+  const p = (k?: string) => provFa(provOfKey(k));
+  const c = (d?: string) => (LANG === 'en' ? CARD_BY_ID[d ?? '']?.nameEn : CARD_BY_ID[d ?? '']?.nameFa) ?? '';
+  const n = fa(e.n ?? 0), w = fa(e.w ?? 0);
+  switch (e.e) {
+    case 'age': return t(`عصر ${n} شروع شد.`, `Age ${n} begins.`);
+    case 'invade': return e.at?.startsWith('f') ? t('یورش به آبدره.', 'invades a fjord.') : t(`یورش به ${p(e.at)}.`, `invades ${p(e.at)}.`);
+    case 'march': return t(`لشکرکشی از ${p(e.to)} به ${p(e.at)}.`, `marches from ${p(e.to)} to ${p(e.at)}.`);
+    case 'pillage': return t(`${p(e.at)} را غارت می‌کند.`, `pillages ${p(e.at)}.`);
+    case 'call': return t(`مهره‌ای را به نبرد ${p(e.at)} فراخواند.`, `calls a figure to the battle in ${p(e.at)}.`);
+    case 'win': return t(`نبرد ${p(e.at)} را برد.`, `wins the battle in ${p(e.at)}.`);
+    case 'tie': return t(`نبرد ${p(e.at)} برابر شد؛ همه باختند.`, `the battle in ${p(e.at)} is a tie; everybody loses.`);
+    case 'reward': return t(`پاداش غارت ${p(e.at)} را گرفت.`, `takes the pillage reward of ${p(e.at)}.`);
+    case 'upgrade': return t(`ارتقا: ${c(e.card)}.`, `upgrades: ${c(e.card)}.`);
+    case 'commit': return t('یک مأموریت متعهد شد.', 'commits a quest.');
+    case 'quest': return t(`مأموریت ${c(e.card)} انجام شد (+${n}).`, `completes ${c(e.card)} (+${n}).`);
+    case 'quest-failed': return t(`مأموریت ${c(e.card)} ناموفق بود.`, `fails ${c(e.card)}.`);
+    case 'ragnarok': return t(`راگناروک: ${p(e.at)} نابود شد.`, `Ragnarök: ${p(e.at)} is destroyed.`);
+    case 'doom': return t(`راگناروک: ${w} مهره در ${p(e.at)} نابود شد (+${n} افتخار).`, `loses ${w} figures in Ragnarök (+${n} glory).`);
+    case 'release': return t(`${w} مهره از والهالا آزاد شد${(e.n ?? 0) > 0 ? ` (+${n} افتخار)` : ''}.`, `${w} figures leave Valhalla${(e.n ?? 0) > 0 ? ` (+${n} glory)` : ''}.`);
+    case 'pass': return t('کنار کشید.', 'passes.');
+    case 'timeout': return t('زمان نوبت تمام شد؛ نوبت رد شد.', 'ran out of time; turn skipped.');
+    case 'resign': return t('انصراف داد.', 'resigns.');
+    case 'watch': return t(`دیدبان هایمدال: ${n} افتخار.`, `Heimdall's Watch: ${n} glory.`);
+    case 'sacrifice': return t('فداکاری فریگا.', "Frigga's Sacrifice.");
+    case 'end-action': return t('فاز اقدام تمام شد.', 'The Action phase ends.');
+    case 'final': return t(`امتیاز نهایی: ${n}.`, `final score: ${n}.`);
+    default: return '';
+  }
+}

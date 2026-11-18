@@ -64,7 +64,7 @@ describe('ark nova setup', () => {
     const s = st(game(n, 7));
     expect(s.stage).toBe('draft');
     expect(s.players).toHaveLength(n);
-    expect(s.brkMax).toBe({ 2: 15, 3: 12, 4: 10 }[n]);
+    expect(s.brkMax).toBe({ 2: 9, 3: 12, 4: 15 }[n]); // RULES.md E1
     expect(s.baseProjects).toHaveLength(n === 4 ? 4 : 3);
     expect(s.bonusTiles[5]).toHaveLength(2);
     expect(s.bonusTiles[8]).toHaveLength(2);
@@ -592,5 +592,141 @@ describe('ark-nova publicSummary', () => {
     expect(sum.seats[0]!.stats!.length).toBe(3);
     expect(sum.shared![0]!.value).toBe(st(snap).deck.length);
     expect(JSON.stringify(sum)).not.toContain('"hand"');
+    // BGA rail panel data in `detail` (HANDOFF «HUD و publicSummary»): counts only, never the cards themselves.
+    const s = st(snap);
+    expect(sum.seats[1]!.detail).toMatchObject({ seat: 1, handCount: s.players[1]!.hand.length, handLimit: 3, slots: s.players[1]!.slots, rep: 1 });
+    expect(JSON.stringify(sum.seats[1]!.detail)).not.toContain('finals');
+  });
+});
+
+describe('ark nova RULES.md engine fixes (تفاوت موتور با دفترچه)', () => {
+  const optionValues = (snap: EngineSnapshot) => (st(snap).queue[0] as { options: { value: string }[] }).options.map((o) => o.value);
+
+  it('E1 break track: 2p 9, 3p 12, 4p 15 spaces (rulebook p. 4, 7)', () => {
+    expect([2, 3, 4].map((n) => st(game(n, 31)).brkMax)).toEqual([9, 12, 15]);
+    // A 2-player Cards action (2 break steps) from 7 reaches the last space at 9 and triggers the break.
+    let snap = drafted(game(2, 32));
+    const s = st(snap);
+    const f = s.first;
+    s.brk = 7;
+    s.players[f]!.slots = ['animals', 'build', 'association', 'sponsors', 'cards'];
+    restartTurn(s, f);
+    snap = choose(snap, 'a:cards:0');
+    expect(st(snap).brk).toBe(9);
+    expect(st(snap).breakDue).toBe(f);
+  });
+
+  it('E2 venom: the last 2 money are reserved while a Venom token is pending; under 2 money only the poisoned card or Sponsors stay legal', () => {
+    const snap = drafted(game(2, 33));
+    const s = st(snap);
+    const f = s.first;
+    const pl = s.players[f]!;
+    pl.slots = ['animals', 'build', 'association', 'sponsors', 'cards'];
+    pl.tok.cards.venom = 1;
+    pl.money = 1;
+    restartTurn(s, f);
+    const starved = optionValues(snap);
+    expect(starved).toContain('a:cards:0');
+    expect(starved.filter((v) => !/^(a:cards|a:sponsors|x:cards)/.test(v))).toEqual([]);
+    // With 5 money and Venom pending only 3 may be spent (a 2-space enclosure for 4 would leave less than 2).
+    pl.money = 5;
+    restartTurn(s, f);
+    expect(optionValues(snap)).toContain('x:animals'); // enough money: every action stays legal
+    const c = core.ctx(s, f, { nextInt: () => 0 });
+    expect(core.spendable(c)).toBe(3);
+    pl.tok.cards.venom = 0;
+    expect(core.spendable(c)).toBe(5);
+  });
+
+  it('E6 resign in 3-4 players: the game goes on without the resigner (skipped, ranked last); the last but one resign ends it', () => {
+    let snap = drafted(game(3, 35));
+    const f = st(snap).first;
+    const [a, b] = [(f + 1) % 3, (f + 2) % 3];
+    snap = act(snap, a, { type: 'resign' }); // not their turn
+    expect(st(snap).outcome).toBeNull();
+    expect(st(snap).out).toEqual([a]);
+    expect(reject(snap, a, { type: 'answer', value: 'x' })).toBe('RESIGNED');
+    expect(hints(snap, a)).toEqual([]);
+    expect(arkNovaModule.publicSummary!(st(snap)).seats[a]!.status).toBe('out');
+    snap = choose(snap, `x:${st(snap).players[f]!.slots[0]}`);
+    expect(head(snap).seat).toBe(b); // the resigner's turn is skipped
+    snap = choose(snap, `x:${st(snap).players[b]!.slots[0]}`);
+    expect(head(snap).seat).toBe(f);
+    // Resigning on your own turn: the turn passes on; then only 2 are left, and the next resign ends the game.
+    const four = drafted(game(4, 36));
+    const g = st(four).first;
+    let s4 = act(four, g, { type: 'resign' });
+    expect(st(s4).outcome).toBeNull();
+    expect(head(s4).seat).toBe((g + 1) % 4);
+    s4 = act(s4, (g + 2) % 4, { type: 'resign' });
+    s4 = act(s4, (g + 1) % 4, { type: 'resign' });
+    expect(st(s4).outcome?.reason).toBe('resign');
+    expect(st(s4).outcome!.placements.map((x) => [x.seat, x.place])).toEqual([[(g + 3) % 4, 1], [(g + 1) % 4, 2], [(g + 2) % 4, 3], [g, 4]]);
+  });
+
+  it('E3 animal effect order: asked only when the card\'s appeal changes who Venom hits; either answer applies both effects', () => {
+    const base = () => {
+      const s = st(drafted(game(2, 37)));
+      const c = core.ctx(s, 0, { nextInt: () => 0 });
+      flow.settle(s, { nextInt: () => 0 });
+      s.queue = []; s.act = null;
+      return { s, c };
+    };
+    const platypus = core.ANIMAL[449]!; // Venom 1, +appeal
+    // Opponent at 5 appeal, me at 4: with the platypus's appeal first nobody has more appeal → the order is asked.
+    for (const [ans, poisoned] of [['ability', 1], ['gains', 0]] as const) {
+      const { s, c } = base();
+      s.players[0]!.appeal = 4; s.players[1]!.appeal = 5;
+      core.playAnimal(c, { card: 449, home: null, cost: 0, folder: 0 });
+      flow.settle(s, { nextInt: () => 0 });
+      expect(s.queue[0]).toMatchObject({ k: 'option', seat: 0, label: 'اول کدام اثر؟' });
+      flow.answer(s, { nextInt: () => 0 }, { value: ans });
+      expect(s.players[0]!.appeal).toBe(4 + platypus.appeal);
+      expect(s.players[1]!.tok[s.players[1]!.slots[0]!].venom).toBe(poisoned);
+    }
+    // Opponent far ahead: the order cannot change the result → no question, fixed order as before.
+    const { s, c } = base();
+    s.players[0]!.appeal = 0; s.players[1]!.appeal = 40;
+    core.playAnimal(c, { card: 449, home: null, cost: 0, folder: 0 });
+    flow.settle(s, { nextInt: () => 0 });
+    expect(s.queue.some((q) => q.k === 'option' && q.label === 'اول کدام اثر؟')).toBe(false);
+    expect(s.players[1]!.tok[s.players[1]!.slots[0]!].venom).toBe(1);
+  });
+
+  it('E3 left-edge token before or after the project reward: offered only when the reward reaches a milestone decision', () => {
+    const p0 = { cp: 1, rep: 1, marks: [] as string[], up: { cards: false }, left: [true] };
+    expect(core.rewardHitsDecision(p0 as never, 1, 0)).toBe(true); // reaches conservation 2 (upgrade or worker)
+    expect(core.rewardHitsDecision({ ...p0, cp: 2, marks: ['c2'] } as never, 2, 0)).toBe(false); // 4: no milestone
+    expect(core.rewardHitsDecision({ ...p0, rep: 4 } as never, 0, 1)).toBe(true); // reputation 5 (upgrade)
+    expect(core.rewardHitsDecision({ ...p0, cp: 8, marks: ['c2', 'c5', 'c8'] } as never, 2, 0)).toBe(false); // 10 = everyone, not a choice of order
+    // In a game: the reward waits for the left-token answer; «b<i>» takes the token first, «<i>» the old order.
+    const s = st(drafted(game(2, 38)));
+    const p = s.players[0]!;
+    p.cp = 1;
+    s.baseProjects.forEach((id) => { s.ptoks[id] = [null, null, null]; });
+    const c = core.ctx(s, 0, { nextInt: () => 0 });
+    s.queue = []; s.act = null;
+    // Base project «Africa» (2 Africa icons → 2 conservation): a partner zoo + Western Green Mamba give the 2 icons.
+    s.baseProjects = [103]; s.ptoks = { 103: [null, null, null] };
+    p.partners = ['africa']; p.zoo = [470];
+    const o = core.projectOptions(c, false).find((x) => x.from === 'board');
+    expect(o).toBeDefined();
+    core.supportProject(c, o!);
+    flow.settle(s, { nextInt: () => 0 });
+    const h = s.queue[0] as { k: string; options: { value: string }[] };
+    expect(h.k).toBe('option');
+    expect(h.options.some((x) => x.value.startsWith('b'))).toBe(true);
+    const cpBefore = p.cp;
+    flow.answer(s, { nextInt: () => 0 }, { value: h.options.find((x) => x.value.startsWith('b'))!.value });
+    expect(p.cp).toBeGreaterThanOrEqual(cpBefore + core.PROJECT[o!.project]!.slots[o!.slot]!.cp);
+    expect(p.left.filter((x) => !x)).toHaveLength(1);
+  });
+
+  it('E5 map options: only Map A, Map 0 and the advanced draft (no «map n for everyone»)', () => {
+    const opt = arkNovaModule.manifest.options!.find((o) => o.key === 'map')!;
+    expect(opt.choices.map((x) => x.value)).toEqual(['A', '0', 'advanced']);
+    // Tables created before the change still replay with their fixed map; unknown values fall back to Map A.
+    expect(st(game(2, 34, { map: '3' })).players.every((x) => x.map === '3')).toBe(true);
+    expect(st(game(2, 34, { map: 'zz' })).players.every((x) => x.map === 'A')).toBe(true);
   });
 });

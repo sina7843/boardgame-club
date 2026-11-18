@@ -25,8 +25,8 @@ const FACTIONS: FactionDef[] = [
   },
   {
     id: 'gleens', nameFa: 'گلین‌ها', nameEn: 'Gleens', home: 'd',
-    // Official board (boardgamers faction-boards/gleens.ts + player.ts): no starting QIC (the navigation-1 QIC taken at
-    // set-up is a real QIC), PI income 4 charge + 1 ore, ore instead of QIC until the QIC academy, a mine on a gaia
+    // Official board: no starting QIC; the navigation-1 QIC at set-up becomes ore like every QIC (rulebook pp. 6, 20,
+    // RULES E14), PI income 4 charge + 1 ore, ore instead of QIC until the QIC academy, a mine on a gaia
     // planet costs 1 ore instead of 1 QIC.
     start: { q: 0, research: { nav: 1 } },
     flags: { qicAsOreUntilAc2: true },
@@ -42,7 +42,7 @@ const FACTIONS: FactionDef[] = [
         upgrade: (x, e) => { if (e.to === 'pi') gainFedToken(x.s, x.seat, 'gleens'); }
       }
     },
-    abilityFa: 'شروع بدون QIC و در سطح ۱ ناوبری (که ۱ QIC می‌دهد). پس از آماده‌سازی تا وقتی آکادمی QIC نساخته‌اید به‌جای هر QIC یک سنگ معدن می‌گیرید. معدن روی سیارهٔ گایا به‌جای ۱ QIC، ۱ سنگ معدن اضافه هزینه دارد و ۲ امتیاز می‌دهد.',
+    abilityFa: 'شروع بدون QIC و در سطح ۱ ناوبری. تا وقتی آکادمی QIC نساخته‌اید به‌جای هر QIC (QIC سطح ۱ ناوبری در شروع هم) یک سنگ معدن می‌گیرید. معدن روی سیارهٔ گایا به‌جای ۱ QIC، ۱ سنگ معدن اضافه هزینه دارد و ۲ امتیاز می‌دهد.',
     piFa: 'درآمد مؤسسهٔ سیاره‌ای ۴ شارژ قدرت و ۱ سنگ معدن است و با ساخت آن بی‌درنگ ژتون فدراسیون ویژهٔ گلین‌ها (۱ سنگ معدن، ۱ دانش، ۲ اعتبار) را می‌گیرید.'
   },
   {

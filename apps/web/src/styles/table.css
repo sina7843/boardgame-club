@@ -75,6 +75,14 @@ html[data-immersive] .app-page { gap: 0; }
   .tbl-overlay:not(.tbl-overlay--side) > .tbl-chatsheet { inline-size: var(--chat-w); block-size: auto; border-radius: var(--radius-lg); }
 }
 @media (min-width: 1200px) { .tbl-chatbtn { display: none; } }
+/* BGA-style tables (Gaia, TM, Brass, Ark Nova, Blood Rage handoffs): no chat column; the game column takes the width and
+   the player rail is 360px (300px for Gaia and Ark Nova). Chat opens as a sheet from the game-bar button at every width. */
+.tbl-screen--bga { --rail-w: 360px; }
+.tbl-screen--gaia-project, .tbl-screen--ark-nova { --rail-w: 300px; }
+.tbl-screen--bga .tbl-chatbtn { display: inline-flex; }
+/* Phone: BGA tables draw their own bottom dock (steps, cost, «ثبت»/«برگرد»); the shell dock stays only for tutorials. */
+@media (max-width: 899px) { .tbl-dock--bga { display: none; } }
+@media (min-width: 900px) { .tbl-screen--bga.bgv-tablescreen--desk { grid-template-columns: var(--rail-w) minmax(0, 1fr); } }
 
 @media (max-width: 899px) {
   .tbl-felt { padding: var(--space-2); }

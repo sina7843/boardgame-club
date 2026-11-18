@@ -186,6 +186,8 @@ export interface State {
   /** Final scoring breakdown (filled at game end). */
   final: { seat: number; vp: number; appeal: number; cp: number; target: number }[] | null;
   outcome: Outcome | null;
+  /** Seats that resigned in a 3–4 player game: out of the turn order, ranked last (RULES.md E6). */
+  out?: number[];
   options: { map: string };
 }
 
@@ -281,6 +283,8 @@ export interface AbilityImpl {
   now?: (c: Ctx, v: AbilityValue) => void;
   /** After finishing the Animals action. */
   after?: (c: Ctx, v: AbilityValue) => void;
+  /** Interactive abilities: whom (and how) it would affect now; the effect order is asked only when this differs (RULES.md E3). */
+  affects?: (c: Ctx, v: AbilityValue) => unknown;
   /** Ongoing while the animal is in the zoo (`c.card` = the animal). */
   on?: EventHandlers;
   q?: Queries;

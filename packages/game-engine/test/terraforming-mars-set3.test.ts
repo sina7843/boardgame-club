@@ -160,7 +160,7 @@ describe('terraforming-mars set3: events and tiles', () => {
     const s3 = mine(clean());
     st(s3).tiles['01'] = { kind: 'city', owner: 1 };
     P0(s3).hand.push('081');
-    expect(reject(s3, 0, { type: 'play', card: '081' })).toBe('NO_SPACE');
+    expect(reject(s3, 0, { type: 'play', card: '081' })).toBe('ACCEPTED'); // RULES.md E1: the tile is skipped, the card is playable
   });
 
   it('Commercial District: production, special tile, 1 VP per adjacent city', () => {

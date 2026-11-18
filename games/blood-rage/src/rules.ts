@@ -10,16 +10,22 @@ import { z } from 'zod';
 import type { Actor, ActionHint, EngineContext, EngineRng, GameModule, Outcome, PublicSummary, Transition, Viewer } from '@bg/game-sdk';
 import { bloodRage as def } from './definition.ts';
 import {
-  ageDeck, adjacent, CARD_BY_ID, DESTROYED_AT_START, ENDGAME_BONUS_LAST, ENDGAME_BONUS_STEP, GLORY_REWARD,
+  adjacent, BASE_STR, CARD_BY_ID, DESTROYED_AT_START, FJORDS, ENDGAME_BONUS_LAST, ENDGAME_BONUS_STEP, GLORY_REWARD,
   isFjord, isUpgrade, LAST_STEP, OUTER, OUTER_REWARDS, PROVINCES, RAGNAROK_GLORY, RING, STATS, TRACKS, WARRIORS,
   type CardId, type FigureKind, type Place, type ProvinceId, type Reward, type Stat, placesOf, FJORD_IDS, PROVINCE_IDS
 } from './data.ts';
+import { CARDS as CONTENT_CARDS, PROVINCES as CONTENT_PROVINCES } from './content/index.ts';
 
 export const HAND_PICKS = 6;
+/** inst[num] = engine card id of BGA card `num` (index 0 unused). */
+const INST: CardId[] = ['', ...CONTENT_CARDS.map((x) => x.def)];
 export const DEAL = 8;
+/** Shared-frame rule: the third timeout removes the clan (as a resignation). */
+export const MAX_TIMEOUTS = 3;
 
 // ---------- state ----------
-export interface Figure { id: number; seat: number; kind: FigureKind; mon: CardId | null; at: Place | 'reserve' | 'valhalla' | 'box' }
+/** `slot` = village (1..32, content.json) while `at` is an outer province; `card` = the upgrade card of a monster. */
+export interface Figure { id: number; seat: number; kind: FigureKind; mon: CardId | null; at: Place | 'reserve' | 'valhalla' | 'box'; slot?: number; card?: number }
 export interface Clan {
   hand: number[]; quests: number[];
   warrior: number | null; leader: number | null; ship: number | null;
@@ -27,6 +33,8 @@ export interface Clan {
   steps: Record<Stat, number>; rage: number; glory: number; passed: boolean;
   /** Order of resignation (1 = first), null while playing. */
   resigned: number | null;
+  /** Clan (ENGINE §2 ClanId): 1 wolf, 2 serpent, 3 raven, 4 bear, 5 ram. */
+  clan: number;
 }
 export type Step = 'draft' | 'action' | 'discard' | 'quest' | 'ragnarok' | 'release' | 'endage' | 'over';
 export type Choice =
@@ -43,7 +51,8 @@ export type Choice =
 export interface Battle {
   seat: number; at: ProvinceId; rep: boolean;
   stage: 'call' | 'cards' | 'reveal' | 'tide' | 'late' | 'protect' | 'apply' | 'after';
-  call: { order: number[]; idx: number; moved: boolean };
+  /** `out` = seats that chose «رد تا پایان این نبرد» (passAll, ENGINE §11.7). */
+  call: { order: number[]; idx: number; moved: boolean; out?: number[] };
   /** seat → chosen card instance (null = none, absent = not chosen yet). */
   chosen: Record<string, number | null>;
   revealed: boolean;
@@ -61,10 +70,21 @@ export interface Battle {
   muted: number[];
   totals: Record<string, number>;
 }
+export interface BattleRecord { age: number; province: ProvinceId; attacker: number; lines: { seat: number; str: number; cards: number[]; figures: number[] }[]; winner: number | null; pillaged: boolean }
 export interface LogEntry { seat: number; e: string; n?: number; at?: string; card?: string; to?: string; w?: number }
 export interface BRState {
   players: number;
   tutorial: boolean;
+  /** Table option (ENGINE §11.4): `noDraft` deals 6 cards in every Age. */
+  draftMode?: 'draft' | 'noDraft';
+  /** Turn timeouts per seat (ENGINE §2 `timeouts`). */
+  timeouts?: number[];
+  /** Who pillaged each province successfully this Age (ENGINE §2 `pillage.by`). */
+  pillagedBy?: Partial<Record<ProvinceId, number>>;
+  /** Battle cards the winners discarded (public, ENGINE §2 `discardPublic`). */
+  discardPublic?: number[];
+  /** Battle archive (ENGINE §2 `battles`). */
+  battles?: BattleRecord[];
   age: 1 | 2 | 3;
   step: Step;
   first: number;
@@ -91,7 +111,7 @@ export interface BRState {
 
 // ---------- views ----------
 export interface SeatView {
-  seat: number; steps: Record<Stat, number>; rage: number; glory: number; passed: boolean; resigned: boolean;
+  seat: number; clan: number; steps: Record<Stat, number>; rage: number; glory: number; passed: boolean; resigned: boolean;
   hand: number; quests: number;
   warrior: string | null; leader: string | null; ship: string | null; monsters: (string | null)[]; clans: (string | null)[];
 }
@@ -123,7 +143,7 @@ const provSchema = z.enum(['ygg', 'myr', 'elv', 'ang', 'gim', 'and', 'utg', 'hor
 const statSchema = z.enum(['rage', 'axes', 'horns']);
 export const brAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('pick'), cards: z.array(int).min(1).max(2) }),
-  z.strictObject({ type: z.literal('invade'), figure: int, at: placeSchema }),
+  z.strictObject({ type: z.literal('invade'), figure: int, at: placeSchema, slot: z.number().int().min(1).max(32).optional() }),
   z.strictObject({ type: z.literal('march'), from: provSchema, to: provSchema, figures: z.array(int).min(1).max(20) }),
   z.strictObject({ type: z.literal('upgrade'), card: int, slot: z.number().int().min(0).max(2).optional() }),
   z.strictObject({ type: z.literal('quest'), card: int }),
@@ -131,11 +151,11 @@ export const brAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('challenge'), at: provSchema }),
   z.strictObject({ type: z.literal('sacrifice'), figures: z.array(int).length(2), stat: statSchema }),
   z.strictObject({ type: z.literal('pass') }),
-  z.strictObject({ type: z.literal('call'), figure: int.optional() }),
+  z.strictObject({ type: z.literal('call'), figure: int.optional(), all: z.literal(true).optional(), slot: z.number().int().min(1).max(32).optional() }),
   z.strictObject({ type: z.literal('play'), card: int.nullable() }),
   z.strictObject({ type: z.literal('keep'), card: int.nullable() }),
   z.strictObject({
-    type: z.literal('decide'), yes: z.boolean().optional(), at: placeSchema.optional(), stat: statSchema.optional(),
+    type: z.literal('decide'), yes: z.boolean().optional(), at: placeSchema.optional(), slot: z.number().int().min(1).max(32).optional(), stat: statSchema.optional(),
     figures: z.array(int).max(20).optional(), cards: z.array(int).max(20).optional()
   }),
   z.strictObject({ type: z.literal('resign') })
@@ -164,11 +184,33 @@ export function has(s: Pick<BRState, 'clans' | 'inst'>, seat: number, id: CardId
   const slots = [c.warrior, c.leader, c.ship, ...c.monsters, ...c.clans];
   return slots.some((i) => i !== null && s.inst[i] === id);
 }
-const inReserve = (s: BRState, seat: number, kind: FigureKind) => s.figs.find((f) => f.seat === seat && f.kind === kind && f.at === 'reserve');
-const onBoard = (f: Figure) => f.at !== 'reserve' && f.at !== 'valhalla' && f.at !== 'box';
+export const inReserve = (s: BRState, seat: number, kind: FigureKind) => s.figs.find((f) => f.seat === seat && f.kind === kind && f.at === 'reserve');
+export const onBoard = (f: Figure) => f.at !== 'reserve' && f.at !== 'valhalla' && f.at !== 'box';
 export const boardCount = (s: Pick<BRState, 'figs'>, seat: number) => s.figs.filter((f) => f.seat === seat && onBoard(f)).length;
+/** Villages (content.json slot ids) of each province; Yggdrasil has none (no limit). */
+export const VILLAGES: Record<ProvinceId, number[]> = Object.fromEntries(PROVINCE_IDS.map((p) => [p, CONTENT_PROVINCES[p === 'ygg' ? 0 : RING.indexOf(p as Exclude<ProvinceId, 'ygg'>) + 1]!.villages ?? []])) as Record<ProvinceId, number[]>;
+export const SLOT_PROVINCE: Record<number, ProvinceId> = Object.fromEntries(PROVINCE_IDS.flatMap((p) => VILLAGES[p].map((v) => [v, p]))) as Record<number, ProvinceId>;
+const inOuter = (f: Figure) => f.at !== 'reserve' && f.at !== 'valhalla' && f.at !== 'box' && isOuter(f.at as Place);
+/** Village of every figure in an outer province: its stored slot when valid, else the lowest free village (stable). */
+export function slotMap(s: Pick<BRState, 'figs'>): Map<number, number> {
+  const out = new Map<number, number>();
+  const used = new Set<number>();
+  const outer = s.figs.filter(inOuter);
+  for (const f of outer) if (f.slot !== undefined && SLOT_PROVINCE[f.slot] === f.at && !used.has(f.slot)) { out.set(f.id, f.slot); used.add(f.slot); }
+  for (const f of outer) {
+    if (out.has(f.id)) continue;
+    const v = VILLAGES[f.at as ProvinceId].find((x) => !used.has(x));
+    if (v !== undefined) { out.set(f.id, v); used.add(v); }
+  }
+  return out;
+}
+/** Empty villages of a province. */
+export const freeSlots = (s: Pick<BRState, 'figs'>, p: ProvinceId): number[] => {
+  const used = new Set(slotMap(s).values());
+  return VILLAGES[p].filter((v) => !used.has(v));
+};
 export const villagesFree = (s: Pick<BRState, 'figs'>, p: ProvinceId) => (p === 'ygg' ? 99 : PROVINCES[p].villages - s.figs.filter((f) => f.at === p).length);
-const shipLike = (f: Figure) => f.kind === 'ship' || (f.kind === 'monster' && f.mon === 'm1-serpent');
+export const shipLike = (f: Figure) => f.kind === 'ship' || (f.kind === 'monster' && f.mon === 'm1-serpent');
 const freeMon = (f: Figure) => f.kind === 'monster' && (f.mon === 'm1-dwarf' || f.mon === 'm3-hel');
 
 /** Strength of a clan's figures in a set of places (pairs of warriors count together). */
@@ -177,8 +219,8 @@ export function groupStr(s: Pick<BRState, 'figs' | 'clans' | 'inst'>, seat: numb
   const w: Record<string, number> = {};
   for (const f of s.figs) {
     if (f.seat !== seat || !places.includes(f.at as Place)) continue;
-    if (f.kind === 'leader') sum += 2;
-    else if (f.kind === 'ship') sum += 3;
+    if (f.kind === 'leader') sum += BASE_STR.leader;
+    else if (f.kind === 'ship') sum += BASE_STR.ship;
     else if (f.kind === 'monster') sum += f.mon === 'm2-elf' ? (f.at === 'ygg' ? 3 : 1) : CARD_BY_ID[f.mon!]!.mstr!;
     else w[f.at] = (w[f.at] ?? 0) + 1;
   }
@@ -231,21 +273,27 @@ const canRaise = (s: BRState, seat: number) => STATS.some((st) => s.clans[seat]!
 const ownStat = (s: BRState, seat: number) => { if (canRaise(s, seat)) s.queue.push({ k: 'stat', seat }); };
 
 // ---------- setup ----------
-function emptyClan(): Clan {
+function emptyClan(clan: number): Clan {
   return {
     hand: [], quests: [], warrior: null, leader: null, ship: null, monsters: [null, null], clans: [null, null, null],
-    steps: { rage: 0, axes: 0, horns: 0 }, rage: 0, glory: 0, passed: false, resigned: null
+    steps: { rage: 0, axes: 0, horns: 0 }, rage: 0, glory: 0, passed: false, resigned: null, clan
   };
 }
 
 function startAge(s: BRState, rng: EngineRng) {
   const n = s.players;
-  const ids = shuffle(rng, ageDeck(s.age, n)).map((d) => { s.inst.push(d); return s.inst.length - 1; });
+  // Card ids are the BGA card numbers (content.json); `inst[num]` is the engine card id.
+  const ids = shuffle(rng, CONTENT_CARDS.filter((x) => x.age === s.age && x.minPlayers <= n).map((x) => x.num));
   s.packs = Array.from({ length: n }, (_, i) => ids.slice(i * DEAL, (i + 1) * DEAL));
   s.step = 'draft';
   s.draft = { need: n === 2 ? 2 : 1, picked: Array.from({ length: n }, () => false), round: 0 };
   s.discarded = Array.from({ length: n }, () => false);
   log(s, { seat: -1, e: 'age', n: s.age });
+  if (s.draftMode === 'noDraft') {
+    // E13: no draft in any Age — each clan gets 6 cards of the Age deck; the card kept from the last Age stays apart.
+    s.clans.forEach((c, i) => { if (live(s, i)) c.hand.push(...s.packs[i]!.slice(0, HAND_PICKS)); });
+    beginAction(s);
+  }
 }
 
 function beginAction(s: BRState) {
@@ -261,9 +309,13 @@ export function setup(ctx: { playerCount: number; options: Record<string, unknow
   const n = Math.min(5, Math.max(2, ctx.playerCount));
   const rng = ctx.rng;
   const tutorial = ctx.options.tutorial === true;
+  const draftMode = ctx.options.draftMode === 'noDraft' ? 'noDraft' : 'draft';
+  const first = rng.nextInt(n);
+  // E12: clans are dealt at random (the rulebook lets players choose; the table has no clan picker yet).
+  const clanIds = shuffle(rng, [1, 2, 3, 4, 5]).slice(0, n);
   const s: BRState = {
-    players: n, tutorial, age: 1, step: 'draft', first: rng.nextInt(n), turn: 0, spent: false, inst: [],
-    clans: Array.from({ length: n }, emptyClan), figs: [],
+    players: n, tutorial, draftMode, timeouts: Array.from({ length: n }, () => 0), pillagedBy: {}, discardPublic: [], battles: [], age: 1, step: 'draft', first, turn: 0, spent: false, inst: [...INST],
+    clans: clanIds.map(emptyClan), figs: [],
     rewards: { ygg: 'all' } as Record<ProvinceId, Reward>, pillaged: [], destroyed: [], ragnarok: [],
     packs: [], draft: { need: 1, picked: [], round: 0 }, discarded: [], battle: null, queue: [], log: [], resignSeq: 0, seq: 0, outcome: null
   };
@@ -289,7 +341,7 @@ function tutorialPosition(s: BRState): BRState {
   s.ragnarok = ['utg', 'hor', 'mus'];
   s.destroyed = ['and'];
   s.rewards = { ygg: 'all', myr: 'axes', elv: 'glory', ang: 'rage', gim: 'horns', and: 'glory', utg: 'rage', hor: 'axes', mus: 'horns' };
-  const give = (seat: number, defs: CardId[]) => { for (const d of defs) { s.inst.push(d); s.clans[seat]!.hand.push(s.inst.length - 1); } };
+  const give = (seat: number, defs: CardId[]) => { for (const d of defs) s.clans[seat]!.hand.push(CONTENT_CARDS.find((x) => x.def === d && !s.clans.some((c) => c.hand.includes(x.num)))!.num); };
   give(0, ['q3-man', 'm3-hel', 'b3-rage', 'b3-crush']);
   give(1, ['b3-tsmite', 'b3-crush']);
   const put = (seat: number, kind: FigureKind, k: number, at: Place) => {
@@ -330,23 +382,35 @@ function endTurn(s: BRState) {
 export function invadeCost(s: BRState, seat: number, f: Figure, fromValhalla = false): number {
   if (fromValhalla) return 1;
   if (f.kind === 'leader') return 0;
-  if (f.kind === 'warrior') return 1;
-  if (f.kind === 'ship') return 3;
+  // E14: the cost is the figure's current STR — Experts/Masters in Arms make a lone warrior STR 2 (Brothers keep it at 1).
+  if (f.kind === 'warrior') return has(s, seat, 'w2-experts') || has(s, seat, 'w3-masters') ? 2 : BASE_STR.warrior;
+  if (f.kind === 'ship') return BASE_STR.ship;
   if (freeMon(f)) return 0;
   return f.mon === 'm2-elf' ? 1 : CARD_BY_ID[f.mon!]!.mstr!;
 }
 export function invadeTargets(s: Pick<BRState, 'figs' | 'destroyed'>, f: Figure): Place[] {
-  if (shipLike(f)) return FJORD_IDS;
+  // E2: a fjord stays in play while at least one of the provinces it supports is alive.
+  if (shipLike(f)) return FJORD_IDS.filter((x) => FJORDS[x].some((p) => alive(s, p)));
   const out: Place[] = OUTER.filter((p) => alive(s, p) && villagesFree(s, p) > 0);
   if (f.kind === 'monster' && f.mon === 'm2-elf') out.push('ygg');
   return out;
 }
-const canBoard = (s: BRState, seat: number) => boardCount(s, seat) < hornsOf(s, seat);
+export const canBoard = (s: BRState, seat: number) => boardCount(s, seat) < hornsOf(s, seat);
 
-function place(s: BRState, f: Figure, at: Place) { void s; f.at = at; }
+/** Move a figure; entering an outer province takes the given village if it is free, else the lowest free one. */
+function place(s: BRState, f: Figure, at: Place, slot?: number) {
+  f.at = 'box';
+  delete f.slot;
+  if (isOuter(at)) {
+    const free = freeSlots(s, at);
+    const v = slot !== undefined && free.includes(slot) ? slot : free[0];
+    if (v !== undefined) f.slot = v;
+  }
+  f.at = at;
+}
 /** An invasion: the figure arrives, and Troll / Fire Giant destroy the enemies already there. */
-function invadeInto(s: BRState, f: Figure, at: Place) {
-  place(s, f, at);
+function invadeInto(s: BRState, f: Figure, at: Place, slot?: number) {
+  place(s, f, at, slot);
   if (isFjord(at) || !isOuter(at)) return;
   const others = s.figs.filter((x) => x.at === at && x.seat !== f.seat);
   if (f.kind === 'monster' && f.mon === 'm1-troll') for (const x of others) if (x.kind === 'warrior') kill(s, x);
@@ -413,9 +477,10 @@ const activeText = (s: BRState, b: Battle, seat: number, id: CardId): boolean =>
 };
 const anyActive = (s: BRState, b: Battle, id: CardId): number[] => Object.keys(b.chosen).map(Number).filter((seat) => activeText(s, b, seat, id));
 
-function discardCard(s: BRState, seat: number, inst: number) {
+function discardCard(s: BRState, seat: number, inst: number, pub = false) {
   const c = s.clans[seat]!;
   c.hand = c.hand.filter((i) => i !== inst);
+  if (pub) (s.discardPublic ??= []).push(inst);
 }
 
 function totalOf(s: BRState, b: Battle, seat: number, skipLate = false): number {
@@ -433,7 +498,7 @@ function stepBattle(s: BRState): boolean {
       }
       if (villagesFree(s, b.at) <= 0) { finishCall(s); return true; }
       const seat = b.call.order[b.call.idx]!;
-      if (callable(s, seat, b.at).length === 0) { b.call.idx++; return true; }
+      if ((b.call.out ?? []).includes(seat) || callable(s, seat, b.at).length === 0) { b.call.idx++; return true; }
       return false;
     }
     case 'cards': {
@@ -455,7 +520,7 @@ function stepBattle(s: BRState): boolean {
           const inst = b.chosen[seat];
           if (inst === null || inst === undefined) continue;
           sum += Math.max(0, cardBonus(s, b, seat));
-          discardCard(s, seat, inst);
+          discardCard(s, seat, inst, true);
         }
         s.clans[w]!.glory += sum;
         log(s, { seat: w, e: 'watch', n: sum });
@@ -496,9 +561,11 @@ function stepBattle(s: BRState): boolean {
     case 'protect': {
       const parts = b.parts;
       b.totals = Object.fromEntries(parts.map((seat) => [seat, totalOf(s, b, seat)]));
-      const best = Math.max(...parts.map((seat) => b.totals[seat]!), 0);
-      const top = parts.filter((seat) => b.totals[seat] === best);
-      b.winner = top.length === 1 && parts.length > 0 ? top[0]! : null;
+      // E15: a resigned clan cannot win; E7: a clan whose figures all died is still in `parts` and can win with its card.
+      const contenders = parts.filter((seat) => live(s, seat));
+      const best = Math.max(...contenders.map((seat) => b.totals[seat]!), 0);
+      const top = contenders.filter((seat) => b.totals[seat] === best);
+      b.winner = top.length === 1 ? top[0]! : null;
       b.losers = parts.filter((seat) => seat !== b.winner);
       for (const seat of b.losers) {
         const figs = battleFigs(s, seat, b.at).map((f) => f.id);
@@ -544,6 +611,7 @@ function reward(s: BRState, b: Battle, seat: number) {
     else raise(s, seat, r);
   }
   if (!s.pillaged.includes(b.at)) s.pillaged.push(b.at);
+  (s.pillagedBy ??= {})[b.at] = seat;
   log(s, { seat, e: 'reward', at: b.at, card: r });
 }
 
@@ -553,6 +621,10 @@ function applyBattle(s: BRState) {
   const w = b.winner;
   const wc = w === null ? null : s.clans[w]!;
   const protectedFigs = new Set(b.saved);
+  const lines = parts.map((seat) => {
+    const card = b.chosen[seat];
+    return { seat, str: b.totals[seat] ?? 0, cards: card === null || card === undefined ? [] : [card], figures: battleFigs(s, seat, b.at).map((f) => f.id) };
+  });
   // losers lose their figures (a Protection saves some)
   for (const seat of b.losers) for (const f of battleFigs(s, seat, b.at)) if (!protectedFigs.has(f.id)) kill(s, f);
   const deadOf = (seat: number) => b.dead.filter((id) => s.figs[id]!.seat === seat).length;
@@ -592,12 +664,13 @@ function applyBattle(s: BRState) {
     if (inst !== null && inst !== undefined) {
       if (poison.length) { discardCard(s, w, inst); s.clans[poison[0]!]!.hand.push(inst); }
       else if (has(s, w, 'u2-prowess') && wc!.rage > 0) s.queue.push({ k: 'prowess', seat: w, cards: [inst] });
-      else if (!(isLateCard(s.inst[inst]!) && b.late[w] === false)) discardCard(s, w, inst);
+      else if (!(isLateCard(s.inst[inst]!) && b.late[w] === false)) discardCard(s, w, inst, true);
     }
   }
   for (const seat of b.losers) {
     if (has(s, seat, 'u1-blessing') && inReserve(s, seat, 'warrior') && canBoard(s, seat) && villagesFree(s, b.at) > 0) s.queue.push({ k: 'blessing', seat, at: b.at });
   }
+  (s.battles ??= []).push({ age: s.age, province: b.at, attacker: b.seat, lines, winner: w, pillaged: w !== null && w === b.seat });
   b.stage = 'after';
 }
 
@@ -629,12 +702,18 @@ function resolveQuests(s: BRState) {
 function resolveRagnarok(s: BRState) {
   const p = s.ragnarok[s.age - 1]!;
   const per = RAGNAROK_GLORY[s.age]!;
+  const dead: Record<number, { w: number; n: number }> = {};
   for (const f of s.figs.filter((x) => (placesOf(p) as Place[]).includes(x.at as Place))) {
     const seat = f.seat;
+    const before = s.clans[seat]!.glory;
     if (kill(s, f)) s.clans[seat]!.glory += per * (has(s, seat, 'u2-inspiration') ? 2 : 1);
+    const d = (dead[seat] ??= { w: 0, n: 0 });
+    d.w++; d.n += s.clans[seat]!.glory - before;
   }
   s.destroyed.push(p);
-  log(s, { seat: -1, e: 'ragnarok', at: p });
+  log(s, { seat: -1, e: 'ragnarok', at: p, n: s.age });
+  // §22 «عصر n، فاز راگناروک»: figures lost and glory per clan
+  for (const [seat, d] of Object.entries(dead)) log(s, { seat: Number(seat), e: 'doom', w: d.w, n: d.n, at: p });
   s.step = 'release';
 }
 
@@ -642,7 +721,9 @@ function resolveRelease(s: BRState) {
   for (const [seat, c] of s.clans.entries()) {
     const back = s.figs.filter((f) => f.seat === seat && f.at === 'valhalla');
     for (const f of back) f.at = 'reserve';
-    c.glory += back.length * ((has(s, seat, 'u1-lokidomain') ? 1 : 0) + (has(s, seat, 'u2-eminence') ? 2 : 0) + (has(s, seat, 'u3-lokiwrath') ? 3 : 0));
+    const g = back.length * ((has(s, seat, 'u1-lokidomain') ? 1 : 0) + (has(s, seat, 'u2-eminence') ? 2 : 0) + (has(s, seat, 'u3-lokiwrath') ? 3 : 0));
+    c.glory += g;
+    if (back.length) log(s, { seat, e: 'release', w: back.length, n: g });
   }
   s.step = 'endage';
 }
@@ -672,6 +753,7 @@ function placements(s: BRState): Outcome {
 
 function endAge(s: BRState, rng: EngineRng) {
   s.pillaged = [];
+  s.pillagedBy = {};
   s.first = (s.first + 1) % s.players;
   for (const c of s.clans) c.passed = false;
   if (s.age === 3 || s.tutorial) {
@@ -690,7 +772,6 @@ function settle(s: BRState, rng: EngineRng) {
   for (let guard = 0; guard < 500; guard++) {
     if (s.outcome) return;
     if (alivePlayers(s) <= 1 && s.players > 1) { s.outcome = placements(s); s.step = 'over'; return; }
-    if (!s.battle) for (const f of s.figs) if (!live(s, f.seat) && f.at !== 'box') f.at = 'box';
     const pend = pending(s);
     const auto = pend.find((seat) => !live(s, seat));
     if (auto !== undefined) { const a = defaultAction(s, auto); if (a) { run(s, auto, a, rng); continue; } }
@@ -746,9 +827,12 @@ function validateAction(s: BRState, seat: number, a: BRAction): { ok: true } | {
   if (s.battle) {
     const b = s.battle;
     if (b.stage === 'call' && a.type === 'call') {
+      // E5: «رد تا پایان این نبرد» only when at least 2 figures could still join (BGA «Pass all»).
+      if (a.all) return a.figure === undefined && callable(s, seat, b.at).length >= 2 ? OK : bad('BR_BAD_CALL');
       if (a.figure === undefined) return OK;
       const f = s.figs[a.figure];
       if (!f || !callable(s, seat, b.at).some((x) => x.id === f.id)) return bad('BR_BAD_CALL');
+      if (a.slot !== undefined && !freeSlots(s, b.at).includes(a.slot)) return bad('BR_VILLAGE_TAKEN');
       return OK;
     }
     if (b.stage === 'cards' && a.type === 'play') {
@@ -782,6 +866,7 @@ function validateAction(s: BRState, seat: number, a: BRAction): { ok: true } | {
       if (f.at !== 'reserve' && !(fromV && has(s, seat, 'u3-domain'))) return bad('BR_BAD_FIGURE');
       if (!canBoard(s, seat)) return bad('BR_HORNS');
       if (!invadeTargets(s, f).includes(a.at)) return bad('BR_BAD_PLACE');
+      if (a.slot !== undefined && (!isOuter(a.at) || !freeSlots(s, a.at).includes(a.slot))) return bad('BR_VILLAGE_TAKEN');
       if (invadeCost(s, seat, f, fromV) > c.rage) return bad('BR_NO_RAGE');
       return OK;
     }
@@ -840,6 +925,7 @@ function validateChoice(s: BRState, seat: number, q: Choice, a: BRAction): { ok:
       if (!a.yes) return OK;
       const f = s.figs[q.fig]!;
       if (a.at === undefined || !invadeTargets(s, f).includes(a.at) || !canBoard(s, seat) || f.at !== 'reserve') return bad('BR_BAD_PLACE');
+      if (a.slot !== undefined && (!isOuter(a.at) || !freeSlots(s, a.at).includes(a.slot))) return bad('BR_VILLAGE_TAKEN');
       return OK;
     }
     case 'succor': return !a.yes || villagesFree(s, q.at) > 0 ? OK : bad('BR_NO_ROOM');
@@ -869,7 +955,7 @@ function applyChoice(s: BRState, seat: number, q: Choice, a: Extract<BRAction, {
     case 'freeInvade': {
       if (!a.yes) break;
       const f = s.figs[q.fig]!;
-      invadeInto(s, f, a.at!);
+      invadeInto(s, f, a.at!, a.slot);
       log(s, { seat, e: 'invade', at: a.at!, n: 0 });
       afterInvade(s, seat, a.at!, false);
       break;
@@ -877,7 +963,7 @@ function applyChoice(s: BRState, seat: number, q: Choice, a: Extract<BRAction, {
     case 'succor': {
       if (!a.yes) break;
       const w = inReserve(s, seat, 'warrior');
-      if (w && villagesFree(s, q.at) > 0 && canBoard(s, seat)) place(s, w, q.at);
+      if (w && villagesFree(s, q.at) > 0 && canBoard(s, seat)) place(s, w, q.at, a.slot);
       break;
     }
     case 'domain': {
@@ -888,17 +974,17 @@ function applyChoice(s: BRState, seat: number, q: Choice, a: Extract<BRAction, {
       return;
     }
     case 'stat': raise(s, seat, a.stat!); break;
-    case 'hammer': if (a.yes) s.figs[q.fig]!.at = a.at as ProvinceId; break;
+    case 'hammer': if (a.yes) place(s, s.figs[q.fig]!, a.at as ProvinceId); break;
     case 'blessing': {
       if (!a.yes) break;
       const w = inReserve(s, seat, 'warrior');
-      if (w && villagesFree(s, q.at) > 0 && canBoard(s, seat)) place(s, w, q.at);
+      if (w && villagesFree(s, q.at) > 0 && canBoard(s, seat)) place(s, w, q.at, a.slot);
       break;
     }
     case 'prowess': {
       const keep = a.cards ?? [];
       c.rage -= keep.length;
-      for (const i of q.cards) if (!keep.includes(i)) discardCard(s, seat, i);
+      for (const i of q.cards) if (!keep.includes(i)) discardCard(s, seat, i, true);
       break;
     }
     case 'protect': {
@@ -929,7 +1015,7 @@ function run(s: BRState, seat: number, a: BRAction, rng: EngineRng) {
     c.resigned = ++s.resignSeq;
     c.rage = 0; c.passed = true;
     c.hand = []; c.quests = [];
-    for (const f of s.figs) if (f.seat === seat && !s.battle) f.at = 'box';
+    // E15: the figures stay on the map (BGA zombie): never called, never play a card, always lose a battle.
     log(s, { seat, e: 'resign' });
     return;
   }
@@ -940,10 +1026,11 @@ function run(s: BRState, seat: number, a: BRAction, rng: EngineRng) {
       if (a.figure !== undefined) {
         const f = s.figs[a.figure]!;
         const from = f.at;
-        place(s, f, b.at);
+        place(s, f, b.at, a.slot);
         b.call.moved = true;
         log(s, { seat, e: 'call', at: b.at, to: String(from) });
       }
+      if (a.all) b.call.out = [...(b.call.out ?? []), seat];
       b.call.idx++;
       return;
     }
@@ -974,7 +1061,7 @@ function run(s: BRState, seat: number, a: BRAction, rng: EngineRng) {
       const f = s.figs[a.figure]!;
       const fromV = f.at === 'valhalla';
       c.rage -= invadeCost(s, seat, f, fromV);
-      invadeInto(s, f, a.at);
+      invadeInto(s, f, a.at, a.slot);
       log(s, { seat, e: 'invade', at: a.at, n: f.id });
       s.spent = true;
       afterInvade(s, seat, a.at, false);
@@ -1001,7 +1088,7 @@ function run(s: BRState, seat: number, a: BRAction, rng: EngineRng) {
         const old = c.monsters[i];
         if (old !== null && old !== undefined) {
           const oldMon = s.figs.find((f) => f.seat === seat && f.kind === 'monster' && f.mon === s.inst[old]);
-          if (oldMon) oldMon.at = 'box';
+          if (oldMon) { oldMon.at = 'box'; delete oldMon.slot; }
         }
         c.monsters[i] = a.card;
       }
@@ -1011,7 +1098,7 @@ function run(s: BRState, seat: number, a: BRAction, rng: EngineRng) {
       if (d.kind === 'leader') fig = inReserve(s, seat, 'leader');
       else if (d.kind === 'warrior') fig = inReserve(s, seat, 'warrior');
       else if (d.kind === 'ship') fig = inReserve(s, seat, 'ship');
-      else if (d.kind === 'monster') fig = newFigure(s, seat, 'monster', d.id);
+      else if (d.kind === 'monster') { fig = newFigure(s, seat, 'monster', d.id); fig.card = a.card; }
       if (fig && canBoard(s, seat)) s.queue.push({ k: 'freeInvade', seat, fig: fig.id });
       break;
     }
@@ -1034,6 +1121,13 @@ function run(s: BRState, seat: number, a: BRAction, rng: EngineRng) {
     default: break;
   }
   void rng;
+}
+
+/** E4: a timed-out battle card is a random card from the hand (rng); everything else is the default. */
+function timeoutAction(s: BRState, seat: number, rng: EngineRng): BRAction | null {
+  const hand = s.clans[seat]!.hand;
+  if (!s.queue.length && s.battle?.stage === 'cards' && hand.length) return { type: 'play', card: hand[rng.nextInt(hand.length)]! };
+  return defaultAction(s, seat);
 }
 
 /** What a seat does when it times out or has resigned. Always a legal action for that moment (or null). */
@@ -1069,7 +1163,7 @@ export function defaultAction(s: BRState, seat: number): BRAction | null {
 }
 
 // ---------- view ----------
-function project(s: BRState, viewer: Viewer): BRView {
+export function projectCore(s: BRState, viewer: Viewer): BRView {
   const seat = viewer.kind === 'player' ? viewer.seat : null;
   const c = seat === null ? null : s.clans[seat]!;
   const b = s.battle;
@@ -1080,7 +1174,7 @@ function project(s: BRState, viewer: Viewer): BRView {
   const view: BRView = {
     players: s.players, age: s.age, step: s.step, first: s.first, turn: s.step === 'action' ? s.turn : null, spent: s.spent,
     seats: s.clans.map((x, i) => ({
-      seat: i, steps: { ...x.steps }, rage: x.rage, glory: x.glory, passed: x.passed, resigned: x.resigned !== null, hand: x.hand.length, quests: x.quests.length,
+      seat: i, clan: x.clan, steps: { ...x.steps }, rage: x.rage, glory: x.glory, passed: x.passed, resigned: x.resigned !== null, hand: x.hand.length, quests: x.quests.length,
       warrior: x.warrior === null ? null : s.inst[x.warrior]!, leader: x.leader === null ? null : s.inst[x.leader]!, ship: x.ship === null ? null : s.inst[x.ship]!,
       monsters: x.monsters.map((m) => (m === null ? null : s.inst[m]!)), clans: x.clans.map((m) => (m === null ? null : s.inst[m]!))
     })),
@@ -1122,7 +1216,12 @@ function hints(s: BRState, viewer: Viewer): ActionHint[] {
   if (q) { out.push({ type: 'decide', choice: q.k }); return out; }
   if (s.battle) {
     const b = s.battle;
-    if (b.stage === 'call') { out.push({ type: 'call' }); for (const f of callable(s, seat, b.at)) out.push({ type: 'call', figure: f.id }); }
+    if (b.stage === 'call') {
+      const can = callable(s, seat, b.at);
+      out.push({ type: 'call' });
+      if (can.length >= 2) out.push({ type: 'call', all: true });
+      for (const f of can) out.push({ type: 'call', figure: f.id });
+    }
     else if (b.stage === 'cards') for (const i of c.hand.length ? c.hand : [null]) out.push({ type: 'play', card: i });
     return out;
   }
@@ -1150,6 +1249,8 @@ function hints(s: BRState, viewer: Viewer): ActionHint[] {
   return out;
 }
 
+const PHASE_FA: Record<Step, string> = { draft: 'هدایای خدایان', action: 'اقدام', discard: 'دور ریختن', quest: 'مأموریت‌ها', ragnarok: 'راگناروک', release: 'آزادی از والهالا', endage: 'پایان عصر', over: 'پایان بازی' };
+
 export function publicSummary(s: BRState): PublicSummary {
   const scores = s.clans.map((_, i) => s.clans[i]!.glory);
   const top = Math.max(...scores);
@@ -1157,16 +1258,36 @@ export function publicSummary(s: BRState): PublicSummary {
     seats: s.clans.map((c, i) => ({
       seat: i,
       primary: { label: 'افتخار', value: c.glory },
+      // ENGINE §9: rage, cards, map (figures on the map / Horns), quests; the rest goes to the renderer's own boards.
       stats: [
-        { key: 'rage', label: 'خشم', value: s.step === 'action' ? `${c.rage}/${TRACKS.rage[c.steps.rage]}` : `${TRACKS.rage[c.steps.rage]}` },
-        { key: 'axes', label: 'تبر', value: TRACKS.axes[c.steps.axes]! },
-        { key: 'horns', label: 'شاخ', value: `${boardCount(s, i)}/${TRACKS.horns[c.steps.horns]}` },
-        { key: 'cards', label: 'کارت', value: c.hand.length }
+        { key: 'rage', label: 'خشم', value: s.step === 'action' ? c.rage : TRACKS.rage[c.steps.rage]! },
+        { key: 'cards', label: 'کارت', value: c.hand.length },
+        { key: 'map', label: 'روی نقشه', value: `${boardCount(s, i)}/${TRACKS.horns[c.steps.horns]}` },
+        { key: 'quests', label: 'مأموریت', value: c.quests.length }
       ],
+      badges: [
+        ...(i === s.first && !s.outcome ? [{ key: 'first', label: 'بازیکن اول' }] : []),
+        ...(s.step === 'action' && c.resigned === null && c.passed ? [{ key: 'passed', label: 'کنار کشید' }] : []),
+        ...(s.step === 'action' && c.resigned === null && !c.passed && c.rage === 0 ? [{ key: 'noRage', label: 'خشم تمام شد', tone: 'warning' as const }] : [])
+      ],
+      strikes: s.timeouts?.[i] ?? 0,
+      // BGA player board for the shell rail (bloodRageSeatCard in renderer.tsx); public information only
+      detail: {
+        seat: i, clan: c.clan, glory: c.glory, rage: s.step === 'action' ? c.rage : TRACKS.rage[c.steps.rage]!, hand: c.hand.length, first: i === s.first,
+        onMap: boardCount(s, i), steps: { rage: c.steps.rage, axe: c.steps.axes, horn: c.steps.horns },
+        values: { rage: TRACKS.rage[c.steps.rage]!, axe: TRACKS.axes[c.steps.axes]!, horn: TRACKS.horns[c.steps.horns]! },
+        passed: s.step === 'action' && c.passed && c.resigned === null, noRage: s.step === 'action' && !c.passed && c.rage === 0 && c.resigned === null, out: c.resigned !== null,
+        reserve: s.figs.filter((f) => f.seat === i && f.at === 'reserve').length, valhalla: s.figs.filter((f) => f.seat === i && f.at === 'valhalla').length, quests: c.quests.length
+      },
       status: c.resigned !== null ? 'out' : s.outcome ? (s.outcome.placements.find((p) => p.seat === i)?.place === 1 ? 'winner' : 'done') : c.passed && s.step === 'action' ? 'passed' : 'playing',
       ...(s.step === 'action' ? { turnOrder: ((i - s.first + s.players) % s.players) + 1 } : {})
     })),
-    shared: [{ key: 'age', label: 'عصر', value: s.age, max: 3 }],
+    shared: [
+      { key: 'age', label: 'عصر', value: s.age, max: 3 },
+      { key: 'phase', label: 'مرحله', value: PHASE_FA[s.step] },
+      ...(s.step !== 'over' && s.ragnarok[s.age - 1] ? [{ key: 'doom', label: 'راگناروک', value: PROVINCES[s.ragnarok[s.age - 1]!].nameFa }] : [])
+    ],
+    strikesMax: MAX_TIMEOUTS,
     ...(top > 0 ? { leaderSeat: scores.indexOf(top) } : {}),
     moves: s.log.filter((x) => x.seat >= 0 && ['invade', 'march', 'pillage', 'upgrade', 'commit', 'pass', 'win'].includes(x.e)).slice(-20).map((x) => ({ seat: x.seat, text: logText(x) }))
   };
@@ -1184,7 +1305,9 @@ const logText = (x: LogEntry): string => {
 };
 
 // ---------- the module ----------
-export const bloodRageModule: GameModule<BRState, BRAction, BRView> = {
+/** The rules engine on its internal action shape (tests drive it directly). The registered module is `bloodRageModule`
+ * in contract.ts: the ENGINE.md action/hint/view contract on top of this core. */
+export const bloodRageCore: GameModule<BRState, BRAction, BRView> = {
   manifest: def.manifest,
   actionSchema: brAction,
   setup,
@@ -1199,14 +1322,25 @@ export const bloodRageModule: GameModule<BRState, BRAction, BRView> = {
     settle(s, ctx.rng);
     return done(s, [{ type: action.type, seat }]);
   },
-  project,
+  project: projectCore,
   legalActions: hints,
   outcome: (s) => s.outcome,
   onTimeout(state, _event, ctx): Transition<BRState> {
     const s = structuredClone(state);
     for (const seat of pending(s)) {
       if (s.outcome || !pending(s).includes(seat)) continue;
-      const a = defaultAction(s, seat);
+      s.timeouts ??= s.clans.map(() => 0);
+      s.timeouts[seat] = (s.timeouts[seat] ?? 0) + 1;
+      if (s.timeouts[seat]! >= MAX_TIMEOUTS) { run(s, seat, { type: 'resign' }, ctx.rng); settle(s, ctx.rng); continue; }
+      if (!s.queue.length && !s.battle && s.step === 'action') {
+        // E16: a timed-out turn is skipped; the clan keeps its Rage (3 strikes are handled by the shared frame).
+        s.seq++;
+        s.spent = true;
+        log(s, { seat, e: 'timeout' });
+        settle(s, ctx.rng);
+        continue;
+      }
+      const a = timeoutAction(s, seat, ctx.rng);
       if (!a) continue;
       run(s, seat, a, ctx.rng);
       settle(s, ctx.rng);
@@ -1215,22 +1349,7 @@ export const bloodRageModule: GameModule<BRState, BRAction, BRView> = {
   },
   pendingSeats: pending,
   publicSummary,
-  tutorial: {
-    seed: 7,
-    options: { tutorial: true },
-    introFa: 'آموزش: عصر سوم را با ۴ خشم و چند نیرو در صفحه شروع می‌کنید (رقیب ۲ خشم دارد). با ارتقا، حمله، تعهد به مأموریت، لشکرکشی و یک غارت واقعی افتخار جمع کنید؛ پایان عصر راگناروک است و بیشترین افتخار برنده می‌شود.',
-    steps: [
-      { instructionFa: 'ارتقا: کارت «سرباز هل» را بازی کنید. هزینه‌اش ۰ خشم است و هیولا را بی‌درنگ رایگان وارد صفحه می‌کنید.', expected: { type: 'upgrade', card: 1 }, reply: null },
-      { instructionFa: 'حمله: سرباز هل را رایگان در استان هورگر بگذارید (روستای خالی آن را انتخاب کنید).', expected: { type: 'decide', yes: true, at: 'hor' }, reply: { type: 'invade', figure: 12, at: 'utg' } },
-      { instructionFa: 'مأموریت: کارت «مانهایم!» را رایگان و پنهان تعهد کنید. اگر پایان عصر بیشترین قدرت را در یک استان مانهایم (میرک‌ولر، الواگر یا آنگربودا) داشته باشید، افتخار می‌گیرید.', expected: { type: 'quest', card: 0 }, reply: { type: 'pass' } },
-      { instructionFa: 'لشکرکشی: با ۱ خشم رهبر و جنگجوی میرک‌ولر را به گیملی ببرید؛ آنجا رقیب شما هست و می‌توانید آن را غارت کنید. (الواگر را نگه می‌دارید تا مأموریتتان بماند.)', expected: { type: 'march', from: 'myr', to: 'gim', figures: [0, 1] }, reply: null },
-      { instructionFa: 'غارت: گیملی را غارت کنید. رایگان است. چون رقیب آنجاست نبرد می‌شود.', expected: { type: 'pillage', at: 'gim' }, reply: null },
-      { instructionFa: 'نبرد: کارت «غرّش تیر» (+۶) را پنهان بازی کنید؛ رقیب هم همزمان کارتش را می‌گذارد. قدرت نیروها به‌علاوهٔ کارت مقایسه می‌شود.', expected: { type: 'play', card: 2 }, reply: { type: 'play', card: 4 } },
-      { instructionFa: 'برنده شدید: افتخار تبرتان و پاداش غارت را گرفتید. حالا «گذشتن» را بزنید تا خشم باقی‌مانده را رها کنید و عصر تمام شود.', expected: { type: 'pass' }, reply: null },
-      { instructionFa: 'مأموریت انجام شد! یکی از ویژگی‌هایتان را یک پله بالا ببرید (مثلاً خشم).', expected: { type: 'decide', stat: 'rage' }, reply: null }
-    ],
-    completedFa: 'آموزش تمام شد: با ارتقا، حمله، لشکرکشی، مأموریت و غارت پیروز شدید. در بازی کامل سه عصر کامل بازی می‌کنید و هر عصر با درفت کارت شروع می‌شود.'
-  }
+  tutorial: { seed: 7, options: { tutorial: true }, introFa: '', steps: [], completedFa: '' }
 };
 
 function done(s: BRState, events: { type: string; [k: string]: unknown }[]): Transition<BRState> {

@@ -391,6 +391,8 @@ describe('brass content-independent rules', () => {
     s.board.tamworth![0] = tile(0, 'coal', 1, 1); // £5 → £2
     snap = act(snap, 0, { type: 'pass', card: loc('cannock') });
     snap = act(snap, 1, { type: 'pass', card: loc('tamworth') });
+    expect(st(snap).shortfall?.seats).toEqual([0]); // RULES E1: the player picks the tiles
+    snap = act(snap, 0, { type: 'shortfall', tiles: [{ loc: 'tamworth', slot: 0 }] });
     const t = st(snap);
     expect(t.board.tamworth![0]).toBeNull();
     expect([t.money[0], t.vp[0]]).toEqual([0, 2]); // 1 − 5 + 2 = −2 → lose 2 VP
@@ -440,15 +442,16 @@ describe('brass content-independent rules', () => {
       let n = 0;
       for (; n < 3000 && !st(snap).outcome; n++) {
         const s = st(snap);
-        const seat = s.order[s.turn]!;
+        const seat = s.shortfall?.seats[0] ?? s.order[s.turn]!;
         if (rng.nextInt(25) === 0) { snap = (applyTimeout(m, snap, 0) as StepResult).snapshot; inputs.push({ kind: 'timeout', logicalTime: 0 }); continue; }
         const hints = projectFor(m, snap, p(seat)).legalActions.filter((h) => h.type !== 'resign');
         const real = hints.filter((h) => h.type !== 'pass' && h.type !== 'scout' && h.type !== 'loan');
         const h = real.length && rng.nextInt(5) ? real[rng.nextInt(real.length)]! : hints[rng.nextInt(hints.length)]!;
         const hand = s.hands[seat]!;
-        const card = hand[rng.nextInt(hand.length)]!;
+        const card = hand.length ? hand[rng.nextInt(hand.length)]! : -1; // empty during a shortfall choice
         let action: unknown;
-        if (h.type === 'build') action = { type: 'build', card: (h.cards as number[])[0], industry: h.industry, loc: h.loc, slot: h.slot };
+        if (hints[0]!.type === 'shortfall') action = { type: 'shortfall', tiles: coverShortfall(hints[0]!) };
+        else if (h.type === 'build') action = { type: 'build', card: (h.cards as number[])[0], industry: h.industry, loc: h.loc, slot: h.slot };
         else if (h.type === 'network') action = { type: 'network', card, links: h.links };
         else if (h.type === 'develop') action = { type: 'develop', card, industries: h.industries };
         else if (h.type === 'sell') action = { type: 'sell', card, sales: [{ loc: h.loc, slot: h.slot, merchant: h.merchant }] };
@@ -459,7 +462,7 @@ describe('brass content-independent rules', () => {
         const t = st(snap);
         expect(t.coal).toBeLessThanOrEqual(14);
         expect(t.iron).toBeLessThanOrEqual(10);
-        t.money.forEach((x) => expect(x).toBeGreaterThanOrEqual(0));
+        if (!t.shortfall) t.money.forEach((x) => expect(x).toBeGreaterThanOrEqual(0));
         const cards = [...t.deck, ...t.hands.flat().filter((c) => c < WILD_LOCATION), ...t.discards.flat(), ...t.facedown.flat()];
         expect(new Set(cards).size).toBe(cards.length);
         expect(cards.length).toBe(deckFor(players).length);
@@ -513,8 +516,156 @@ describe('brass publicSummary', () => {
     const sum = brassModule.publicSummary!(s);
     expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
     expect(sum.seats[1]!.stats![0]!.value).toBe(s.money[1]);
-    expect(sum.seats[1]!.stats![2]!.value).toBe(s.hands[1]!.length);
+    expect(sum.seats[1]!.stats!.map((x) => x.key)).toEqual(['money', 'income', 'spent', 'cards']);
+    expect(sum.seats[1]!.stats![3]!.value).toBe(s.hands[1]!.length);
     expect(sum.shared![2]!.value).toBe(s.deck.length);
+    const d = (sum.seats[1] as unknown as { detail: Record<string, unknown> }).detail;
+    expect(d).toMatchObject({ incomeSpace: 10, linksLeft: 14, tilesOnBoard: 0, discardTop: null, character: 'yellow' });
+    expect((d.nextTiles as Record<string, unknown>).cotton).toEqual({ level: 1, left: STACK.cotton.filter((t) => t.level === 1).length });
     expect(JSON.stringify(sum)).not.toContain('"hands"');
+  });
+});
+
+const tut = () => { const t = brassModule.tutorial; return { t, snap: startGame(m, { playerCount: 2, seed: t.seed, options: t.options ?? {} }).snapshot }; };
+
+describe('brass hint cost (RULES E3: dry run of the same check)', () => {
+  it('tutorial rail link: £5 + market coal £3, source of the coal is the market', () => {
+    const { snap } = tut();
+    const h = legalFor(st(snap), 0).find((x) => x.type === 'network' && JSON.stringify(x.links) === '["birmingham~oxford"]')!;
+    expect(h.cost).toMatchObject({ money: -8, spent: 8, coalMarket: -1, ironMarket: 0, vp: 0, from: [], beerMerchant: [] });
+  });
+  it('sell with merchant beer lists the barrel, the flip and the Oxford income bonus; build lists the built tile', () => {
+    const { t, snap: s0 } = tut();
+    const snap = act(s0, 0, t.steps[0]!.expected);
+    const sell = legalFor(st(snap), 0).find((x) => x.type === 'sell' && x.merchant === 'oxford')!;
+    const c = sell.cost as { beerMerchant: unknown[]; flipped: { loc: string; industry: string }[]; income: number; money: number };
+    expect(c.beerMerchant).toHaveLength(1);
+    expect(c.flipped).toEqual([expect.objectContaining({ loc: 'birmingham', industry: 'cotton' })]);
+    expect(c.income).toBe(2 + STACK.cotton.find((x) => x.level === 3)!.income);
+    expect(c.money).toBe(0);
+    const build = legalFor(st(snap), 0).find((x) => x.type === 'build')!;
+    expect((build.cost as { built: { loc: string; owner: number } }).built).toMatchObject({ loc: build.loc, owner: 0 });
+  });
+  it('the dry run never runs the turn flow (no income / refill in the cost of a last action)', () => {
+    const snap = table([loc('birmingham')]);
+    st(snap).actionsLeft = 1;
+    const pass = legalFor(st(snap), 0).find((x) => x.type === 'pass')!;
+    expect(pass.cost).toMatchObject({ money: 0, spent: 0, income: 0 });
+  });
+});
+
+type ShortHint = { owed: number; options: { loc: string; slot: number; value: number }[] };
+/** Dearest tiles first until the shortfall is covered (any legal choice will do for the random games). */
+function coverShortfall(h: unknown) {
+  const { owed, options } = h as ShortHint;
+  const out: { loc: string; slot: number }[] = [];
+  let got = 0;
+  for (const o of [...options].sort((a, b) => b.value - a.value)) { if (got >= owed) break; out.push({ loc: o.loc, slot: o.slot }); got += o.value; }
+  return out;
+}
+
+describe('brass income shortfall (RULES E1: the player chooses the tiles)', () => {
+  /** End of a Canal round with seat 0 at income -5 and £1: owes £4 after income. */
+  function short() {
+    const snap = table([loc('birmingham')], []);
+    const s = st(snap);
+    s.deck = []; s.actionsLeft = 1; s.order = [1, 0]; s.turn = 1; s.hands = [[loc('birmingham')], []];
+    s.money = [1, 30]; s.income = [5, 10];
+    s.board.birmingham![0] = tile(0, 'cotton', 1); // cost 12 → 6
+    s.board.coventry![0] = tile(0, 'coal', 2, 1); // cost 7 → 3 (level II survives the Canal era end)
+    return snap;
+  }
+  it('pauses for the indebted player, who picks the tiles; stops once covered', () => {
+    let snap = act(short(), 0, { type: 'pass', card: loc('birmingham') });
+    const s = st(snap);
+    expect(s.shortfall?.seats).toEqual([0]);
+    expect(s.money[0]).toBe(-4);
+    const [h] = legalFor(s, 0);
+    expect(h).toMatchObject({ type: 'shortfall', owed: 4 });
+    expect(reject(snap, 0, { type: 'shortfall', tiles: [{ loc: 'coventry', slot: 0 }] })).toBe('SHORTFALL_NOT_COVERED');
+    expect(reject(snap, 0, { type: 'shortfall', tiles: [{ loc: 'birmingham', slot: 0 }, { loc: 'coventry', slot: 0 }] })).toBe('SHORTFALL_COVERED');
+    expect(reject(snap, 1, { type: 'shortfall', tiles: [] })).toBe('NOT_YOUR_TURN');
+    snap = act(snap, 0, { type: 'shortfall', tiles: [{ loc: 'birmingham', slot: 0 }] });
+    const t = st(snap);
+    expect(t.money[0]).toBe(2);
+    expect(t.board.coventry![0]).not.toBeNull();
+    expect(t.shortfall).toBeNull();
+    expect(t.era).toBe('rail'); // the era end that waited for the choice ran
+  });
+  it('timeout falls back to the automatic rule (cheapest first)', () => {
+    const snap = act(short(), 0, { type: 'pass', card: loc('birmingham') });
+    const t = st((applyTimeout(m, snap, 0) as StepResult).snapshot);
+    expect(t.board.coventry![0]).toBeNull();
+    expect(t.shortfall).toBeNull();
+  });
+});
+
+describe('brass player-chosen sources (RULES E2)', () => {
+  it('iron: any iron works may be picked; default stays own first', () => {
+    const base = () => {
+      const snap = table([loc('walsall'), loc('dudley')]);
+      const s = st(snap);
+      s.board.dudley![1] = tile(0, 'iron', 1, 2);
+      s.board.birmingham![2] = tile(1, 'iron', 1, 2);
+      return snap;
+    };
+    const def = st(act(base(), 0, { type: 'build', card: loc('walsall'), industry: 'brewery', loc: 'walsall', slot: 1 }));
+    expect([def.board.dudley![1]!.cubes, def.board.birmingham![2]!.cubes]).toEqual([1, 2]);
+    const picked = st(act(base(), 0, { type: 'build', card: loc('walsall'), industry: 'brewery', loc: 'walsall', slot: 1, iron: [{ loc: 'birmingham', slot: 2 }] }));
+    expect([picked.board.dudley![1]!.cubes, picked.board.birmingham![2]!.cubes]).toEqual([2, 1]);
+  });
+  it('coal: only one of the closest connected mines; a farther or unconnected mine is BAD_SOURCE', () => {
+    const snap = table([loc('birmingham')]);
+    const s = st(snap);
+    s.links = { [L('birmingham', 'dudley')]: 1, [L('birmingham', 'coventry')]: 1 };
+    s.board.dudley![0] = tile(1, 'coal', 1, 2);
+    s.board.coventry![1] = tile(1, 'coal', 1, 2);
+    s.board.wolverhampton![1] = tile(1, 'coal', 1, 2);
+    const build = { type: 'build', card: loc('birmingham'), industry: 'manufacturer', loc: 'birmingham', slot: 1 };
+    const def = st(act(snap, 0, build));
+    const picked = st(act(snap, 0, { ...build, coal: [{ loc: def.board.dudley![0]!.cubes === 1 ? 'coventry' : 'dudley', slot: def.board.dudley![0]!.cubes === 1 ? 1 : 0 }] }));
+    expect(def.board.dudley![0]!.cubes + def.board.coventry![1]!.cubes).toBe(3);
+    expect(picked.board.dudley![0]!.cubes).not.toBe(def.board.dudley![0]!.cubes);
+    expect(reject(snap, 0, { ...build, coal: [{ loc: 'wolverhampton', slot: 1 }] })).toBe('BAD_SOURCE');
+  });
+  it('sell: own brewery instead of the merchant barrel keeps the barrel and gives no bonus', () => {
+    const snap = table([loc('birmingham'), loc('coventry')]);
+    const s = st(snap);
+    s.links = { [L('birmingham', 'oxford')]: 0 };
+    s.board.birmingham![0] = tile(0, 'cotton', 1);
+    s.board.walsall![1] = tile(0, 'brewery', 1, 1);
+    s.merchants.oxford = { tiles: ['m2-all', 'm2-manufacturer'], beer: [true, true] };
+    const sale = { loc: 'birmingham', slot: 0, merchant: 'oxford' };
+    const def = st(act(snap, 0, { type: 'sell', card: loc('coventry'), sales: [sale] }));
+    const own = st(act(snap, 0, { type: 'sell', card: loc('coventry'), sales: [{ ...sale, beer: [{ loc: 'walsall', slot: 1 }] }] }));
+    expect(def.merchants.oxford!.beer).toEqual([false, true]);
+    expect(own.merchants.oxford!.beer).toEqual([true, true]);
+    expect(own.board.walsall![1]!.flipped).toBe(true);
+    expect(def.income[0]! - own.income[0]!).toBe(2 - STACK.brewery[0]!.income); // Oxford bonus vs the brewery flipping
+    expect(reject(snap, 0, { type: 'sell', card: loc('coventry'), sales: [{ ...sale, beer: [{ loc: 'birmingham', slot: 0 }] }] })).toBe('BAD_SOURCE');
+  });
+});
+
+describe('brass hint choices (RULES E2 UI data)', () => {
+  it('a build needing iron lists every iron works when there are two or more', () => {
+    const snap = table([loc('walsall')]);
+    const s = st(snap);
+    s.board.dudley![1] = tile(0, 'iron', 1, 2);
+    s.board.birmingham![2] = tile(1, 'iron', 1, 2);
+    const h = legalFor(s, 0).find((x) => x.type === 'build' && x.loc === 'walsall' && x.industry === 'brewery')!;
+    expect((h.choices as { iron: unknown[] }).iron).toHaveLength(2);
+    expect(legalFor(s, 0).find((x) => x.type === 'pass')!.choices).toBeUndefined();
+  });
+});
+
+describe('brass public move log (summary.moves → shell rail log)', () => {
+  it('each action adds one public line of at most 40 characters; dry runs add none', () => {
+    const snap = table([loc('birmingham'), loc('coventry'), loc('dudley')]);
+    legalFor(st(snap), 0);
+    expect(st(snap).log ?? []).toEqual([]);
+    const next = act(snap, 0, { type: 'pass', card: loc('birmingham') });
+    const sum = brassModule.publicSummary!(st(next));
+    expect(sum.moves).toEqual([{ seat: 0, text: 'رد کردن' }]);
+    sum.moves!.forEach((x) => expect(x.text.length).toBeLessThanOrEqual(40));
   });
 });

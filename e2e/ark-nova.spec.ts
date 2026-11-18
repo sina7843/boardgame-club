@@ -20,7 +20,7 @@ test('interactive tutorial: build by the water, play a turtle, support a project
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۷`))).toBeVisible();
     const next = i + 1 < STEPS.length ? p.getByText(new RegExp(`آموزش: مرحله ${STEPS[i + 1]} از ۷`)) : done;
     for (let k = 0; k < 10 && !(await next.count()); k++) {
-      const hint = p.locator('.an .an-hint:not([disabled])').first();
+      const hint = p.locator('.an[data-seq] .an-hint:not([disabled])').first();
       if (await hint.count()) await hint.click();
       if (i === 1 && k === 0) await p.screenshot({ path: shot(info.project.name, 'tutorial-build'), fullPage: true });
       await p.waitForTimeout(250);
@@ -30,47 +30,44 @@ test('interactive tutorial: build by the water, play a turtle, support a project
   await p.context().close();
 });
 
-test('undo window: the enclosure stands and the turtle flies into the zoo at once; undo takes both back', async ({ browser }, info) => {
+// Ark Nova has no after-send undo window (HANDOFF «انتخاب، بعد تأیید»): a selection is previewed at once and «برگرد»
+// takes it back before «تأیید».
+test('back before confirm: the enclosure stands and the turtle flies into the zoo at once; «برگرد» takes both back', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await recordMotion(p);
   await p.goto('/games/ark-nova');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  const back = p.locator('.an-prompt [data-act="undo"]');
   const step = (n: string) => p.getByText(new RegExp(`آموزش: مرحله ${n} از ۷`));
-  const hint = p.locator('.an .an-hint:not([disabled])').first();
+  const hint = p.locator('.an[data-seq] .an-hint:not([disabled])').first();
   await expect(step('۱')).toBeVisible();
-  await p.evaluate(() => localStorage.setItem('bg.undoMs', '0'));
-  await hint.click();
+  for (let k = 0; k < 10 && !(await step('۲').count()); k++) { if (await hint.count()) await hint.click(); await p.waitForTimeout(250); }
   await expect(step('۲')).toBeVisible();
-  // The 1-space enclosure on 2_9 (preselected by the tutorial) is drawn on my zoo map at once.
-  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  // The 1-space enclosure on 2_9 (preselected by the tutorial) is drawn on my zoo map before «تأیید»; «برگرد» removes it.
   const built = p.locator('.an-player--me .an-board__map polygon.an-hex--b');
+  await expect(p.locator('[data-act="place"]')).toBeEnabled();
   const before = await built.count();
-  await p.locator('[data-act="place"]').click();
-  await expect(undo).toBeVisible();
-  await expect(built).toHaveCount(before + 1);
-  await undo.click();
+  await back.click();
+  await expect(built).toHaveCount(before - 1);
+  await p.locator('[data-act="placements"]').selectOption({ value: 'e1|2_9' });
   await expect(built).toHaveCount(before);
-  await p.evaluate(() => localStorage.setItem('bg.undoMs', '0'));
   for (const n of ['۳', '۴']) {
     for (let k = 0; k < 10 && !(await step(n).count()); k++) { if (await hint.count()) await hint.click(); await p.waitForTimeout(250); }
     await expect(step(n)).toBeVisible();
   }
-  // The turtle leaves the hand and lands in my zoo during the window; undo flies it back.
-  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  // Selecting the turtle moves it from the hand into my zoo at once; «برگرد» flies it back.
   const inHand = p.locator('.an-hand [data-flip="card-484"]');
   const inZoo = p.locator('.an-zoo [data-flip="card-484"]');
   await expect(inHand).toBeVisible();
   await p.waitForTimeout(800);
   await motionLog(p);
   await p.locator('.an-opt.an-hint').click();
-  await expect(undo).toBeVisible();
   await expect(inZoo).toBeVisible();
   await expect(inHand).toHaveCount(0);
   await p.waitForTimeout(800);
   expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
-  await undo.click();
+  await back.click();
   await expect(inHand).toBeVisible();
   await expect(inZoo).toHaveCount(0);
   await p.waitForTimeout(800);
@@ -98,7 +95,9 @@ async function act(p: Page, n: number): Promise<boolean> {
     const real = p.locator('.an-options .an-opt:not([data-x])');
     const k = await real.count();
     if (canSkip && (n % 3 === 0 || !k)) { await skip.click(); return true; }
+    if (!k && (await p.locator('[data-act="x-mode"]').count())) await p.locator('[data-act="x-mode"]').click(); // X-token options sit in a menu
     await (k ? real.nth((7 * n) % k) : opts.first()).click();
+    await p.locator('[data-act="submit"]').click(); // select, then confirm
     return true;
   }
   const pick = p.locator('[data-act="pick"]');
@@ -133,17 +132,17 @@ test('two players build their zoos to the result', async ({ browser }, info) => 
   await pages[1]!.goto(invite);
   await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.an')).toBeVisible();
+  await expect(host.locator('.an[data-seq]')).toBeVisible();
 
   let n = 0;
   for (let round = 0; round < 6000; round++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
     let acted = false;
     for (const p of pages) {
-      const before = await p.locator('.an').getAttribute('data-seq');
+      const before = await p.locator('.an[data-seq]').getAttribute('data-seq');
       if (!(await act(p, n))) continue;
       n += 1;
-      await expect.poll(() => p.locator('.an').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
+      await expect.poll(() => p.locator('.an[data-seq]').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
       if (n === 40) for (const [i, q] of pages.entries()) await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
       acted = true;
     }

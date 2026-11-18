@@ -536,6 +536,9 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   // Game turn controls (renderers wrap them in <DockSlot>) render into the action dock through this portal.
   const [dockNode, setDockNode] = useState<HTMLSpanElement | null>(null);
   const toDock = useCallback((node: ReactNode) => (dockNode ? createPortal(node, dockNode) : node), [dockNode]);
+  // Desktop: a renderer's <RailSlot> content (e.g. its log) goes under the player cards in the rail; on phones it stays in place.
+  const [railNode, setRailNode] = useState<HTMLDivElement | null>(null);
+  const toRail = useCallback((node: ReactNode) => (railNode ? createPortal(node, railNode) : node), [railNode]);
   // Game events for the table chat (DS SystemMessage lines), built from what this table view already receives:
   // public moves (games that publish them), the end of the game. Kept for this visit only.
   const [gameEvents, setGameEvents] = useState<ChatEvent[]>([]);
@@ -555,7 +558,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   // Spectators read the table chat (read-only); only seated players post or use quick chat.
   const hasChat = !t.isTutorial;
   const isPlayer = t.mySeat !== null;
-  const wide = useWide();
+  // BGA-style tables (handoffs: Gaia, TM, Brass, Ark Nova, Blood Rage) have no chat column: chat opens as a sheet from the game bar.
+  const wide = useWide() && !confirmsInRenderer;
   const notPhone = useWide(900);
   const { unread, said, last } = useTableChatAlerts(hasChat ? t.id : null, chat || wide);
   const gameRef = useRef<HTMLDivElement>(null);
@@ -651,7 +655,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       ...(ss.status === 'out' ? { out: true } : ss.status === 'done' ? { done: true } : ss.status === 'passed' ? { done: STATUS_FA.passed } : {}),
       ...(sum?.leaderSeat === x.seat ? { leader: true } : {}),
       ...(ss.badges?.length && !words ? { badge: <span className="bgv-row tbl-badges">{ss.badges.map((b) => <Badge key={b.key} size="sm" tone={b.tone ?? 'neutral'}>{b.label}</Badge>)}</span> } : {}),
-      ...SEAT_CARDS[t.clientBundleRef]?.(ss, active)
+      // The game's own panel body only in the desktop rail; the phone strip keeps compact cards.
+      ...(notPhone ? SEAT_CARDS[t.clientBundleRef]?.(ss, active) : {})
     } : {};
     return {
       name: n, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
@@ -689,7 +694,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
   return (
     <div ref={gameRef} className={full.max ? 'tbl tbl--max' : 'tbl'}>
-      <TableScreen desk className={hasChat ? 'tbl-screen' : 'tbl-screen tbl-screen--nochat'}>
+      <TableScreen desk className={`${hasChat ? 'tbl-screen' : 'tbl-screen tbl-screen--nochat'}${confirmsInRenderer ? ` tbl-screen--bga tbl-screen--${t.gameId}` : ''}`}>
         <div className="tbl-top">
         <GameBar title={t.isTutorial ? `آموزش ${t.gameNameFa}` : t.gameNameFa} latin={t.gameNameOriginal} onBack={() => navigate('/')} backLabel="بازگشت به خانه"
           meta={[...(!s.live && !finished ? [<Connection key="c" state="lost" label="قطع" />] : []),
@@ -701,8 +706,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             {!isPlayer && !finished && <Button variant="leave" size="sm" icon="log-out" iconOnly={!notPhone} onClick={() => navigate('/tables')}>ترک تماشا</Button>}
             {isPlayer && <Button variant="leave" size="sm" icon="log-out" iconOnly={!notPhone}
               onClick={() => (canResign ? setConfirmResign(true) : navigate(t.isTutorial ? `/games/${t.gameId}` : '/tables'))}>ترک میز</Button>}
-            {hasChat && isPlayer && <QuickChatButton post={`/tables/${t.id}/chat`} only={quickFor} />}
-            <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>
+            {hasChat && isPlayer && (notPhone || !confirmsInRenderer) && <QuickChatButton post={`/tables/${t.id}/chat`} only={quickFor} />}
+            {(notPhone || !confirmsInRenderer) && <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>}
             {hasChat && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
               aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}
             <Button variant="ghost" iconOnly icon="more-vertical" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
@@ -713,6 +718,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         </div>
 
         <Hud layout={notPhone ? 'rail' : players.length === 2 && finished ? 'duel' : players.length <= 5 ? 'strip' : 'grid3'} className="tbl-rail" label="بازیکنان" players={players}>
+          {notPhone && <div ref={setRailNode} className="tbl-railslot" />}
           {sum?.moves && sum.moves.length > 0 && <MoveLog className="tbl-moves" label="حرکت‌ها"
             items={sum.moves.map((m, i) => ({ seat: seatNo(m.seat), name: <bdi>{name(m.seat)}</bdi>, text: <bdi>{m.text}</bdi>, isNew: i === sum.moves!.length - 1 }))} />}
           {finished && t.mySeat !== null && !t.isTutorial && <PostGame snap={snap} onReport={() => setReporting(true)} />}
@@ -725,13 +731,13 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
               {...(t.mySeat === null ? { text: statusText } : {})}
               {...(clockProps ? { clock: clockProps } : {})} />
             {g.deadline?.frozen && <FeltPlate icon="lock" label="زمان منجمد (توقف سراسری)" />}
-            {shared.length > 0 && <span className="bgv-row tbl-shared">{shared.map((p) => (
+            {shared.length > 0 && !confirmsInRenderer && <span className="bgv-row tbl-shared">{shared.map((p) => (
               <FeltPlate key={p.key} label={p.label} value={p.max !== undefined ? `${faNum(Number(p.value))}/${faNum(p.max)}` : p.value} />
             ))}</span>}
           </> : undefined}
           stage={<div data-theme="dark" data-game={t.gameId} data-hud={g.summary ? 'on' : undefined} className={myTurn ? 'table-night tbl-stage tbl-stage--mine' : 'table-night tbl-stage'}>
             {Renderer
-              ? <DockSlotHost value={g.tutorial ? null : toDock}><Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={onAction} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} /></DockSlotHost>
+              ? <RailSlotHost value={notPhone ? toRail : null}><DockSlotHost value={g.tutorial ? null : toDock}><Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={onAction} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} /></DockSlotHost></RailSlotHost>
               : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
           </div>}>
           {finished && g.result && !hideResult && <div className="tbl-result-wrap"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
@@ -743,7 +749,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           return !finished && n > 0 && sum?.strikesMax ? <Banner className="tbl-strikes" tone="danger" icon="alarm-clock"
             text={`اخطار زمان ${faNum(n)} از ${faNum(sum.strikesMax)}`} /> : null;
         })()}
-        <ActionDock className="tbl-dock" waiting={(!myTurn && !finished) || !netOnline}
+        <ActionDock className={confirmsInRenderer && !g.tutorial ? 'tbl-dock tbl-dock--bga' : 'tbl-dock'} waiting={(!myTurn && !finished) || !netOnline}
           prompt={<span className="tbl-prompt" role="status" aria-live="polite">
             <Icon name={finished ? 'flag' : !netOnline ? 'wifi-off' : myTurn ? 'play' : 'hourglass'} />
             <strong>{statusText}</strong>

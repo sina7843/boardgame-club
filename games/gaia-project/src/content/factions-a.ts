@@ -4,7 +4,7 @@ import { gain, hasPI, joinFederation, log, pushDecision, qicFor } from '../core.
 import type { ContentBundle, FactionDef, X } from '../types.ts';
 
 // ---------- Terrans PI: gaia-phase power budget spent on the free power conversions ----------
-const TERRANS_SPEND: Record<string, { pw: number; g: { q?: number; k?: number; o?: number; c?: number } }> = {
+export const TERRANS_SPEND: Record<string, { pw: number; g: { q?: number; k?: number; o?: number; c?: number } }> = {
   q: { pw: 4, g: { q: 1 } },
   k: { pw: 4, g: { k: 1 } },
   o: { pw: 3, g: { o: 1 } },
@@ -78,7 +78,8 @@ const ivits: FactionDef = {
   setupPI: true,
   flags: { singleFederation: true, satelliteQic: true },
   effects: {
-    fedThreshold: (x) => 7 * (x.s.pl[x.seat]!.feds.length + 1),
+    // Rulebook p. 20: the terraforming level-5 token is not counted.
+    fedThreshold: (x) => { const p = x.s.pl[x.seat]!; return 7 * (p.feds.length - (p.mark.terraFed ? 1 : 0) + 1); },
     action: {
       labelFa: 'ساخت ایستگاه فضایی روی یک خانهٔ خالی در برد ناوبری',
       // Official board: the station itself is free; QIC is paid only to extend range (as for a mine),

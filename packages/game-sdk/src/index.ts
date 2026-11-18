@@ -173,6 +173,8 @@ export interface PublicSummary {
     income?: Record<string, number>;
     /** Power pools by key (e.g. Gaia bowls `gaia`, `b1`, `b2`, `b3`). */
     power?: Record<string, number>;
+    /** Extra public panel data for a game's own rail card (handoffs: TM, Brass). Never hidden information. */
+    detail?: object;
   }>;
   /** Shared resources: deck size, round, team pool. */
   shared?: Array<{ key: string; label: string; value: number | string; max?: number }>;

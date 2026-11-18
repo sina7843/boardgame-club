@@ -6,8 +6,8 @@ import {
   ACTION_FA, ANIMAL, BONUS_FA, MAX_CP, adjacentTerrain, vacateFor, KIND_FA, PROJECT, REG, UNI_FA, ICON_FA, advanceBreak, animalLabel, animalOptions, animalValue, appealIncome,
   ask, bonusFa, build, canPlaceKind, crossed, ctx, discardFromHand, displayFolders, donationCost, drawDeck, emit, flush, gain, gainBonus,
   handLimit, hireWorker, inRange, isSpecial, isSponsor, isStandard, kindSize, later, log, mapOf, nameOf, P, partnerOptions, placeError, placements,
-  playAnimal, playSponsor, projectLabel, projectOptions, projectValue, qany, qsum, refillDisplay, reveal, runFx, seatsFrom, sponsorError,
-  sponsorLevel, strengthOf, supportProject, takeDisplay, takePartner, takeUni, target, toSlot1, uniOptions, type AnimalOpt, type ProjectOpt
+  playAnimal, playSponsor, projectLabel, projectOptions, projectValue, activeCount, qany, qsum, refillDisplay, reveal, runFx, seatsFrom, sponsorError,
+  sponsorLevel, spendable, animalEffects, strengthOf, supportProject, takeDisplay, takePartner, takeUni, target, toSlot1, uniOptions, venomPending, type AnimalOpt, type ProjectOpt
 } from './core.ts';
 import { around } from './hex.ts';
 import { ACTION_KEYS, CONTINENTS, UNIS, type ActionKey, type Answer, type AssocTask, type Ctx, type Prompt, type State } from './types.ts';
@@ -42,7 +42,6 @@ export function workersNeeded(s: State, seat: number, t: AssocTask): number {
 
 // ---------------- Option builders (also used by canDo) ----------------
 export function buildKinds(c: Ctx, remaining: number, up: boolean, built: string[], first: boolean, extraUsed: boolean): string[] {
-  const p = P(c);
   const extra = !extraUsed && qany(c, 'extraBuild');
   const kinds = ['e1', 'e2', 'e3', 'e4', 'e5', 'kiosk', 'pavilion', 'pz', ...(up ? ['rh', 'ba'] : [])];
   return kinds.filter((k) => {
@@ -50,7 +49,7 @@ export function buildKinds(c: Ctx, remaining: number, up: boolean, built: string
     const again = built.includes(k);
     if (again && !(extra && k !== 'pz' && k !== 'rh' && k !== 'ba')) return false;
     if (!again && (size > remaining || (!up && !first))) return false;
-    return 2 * size <= p.money && canPlaceKind(c, k, up);
+    return 2 * size <= spendable(c) && canPlaceKind(c, k, up);
   });
 }
 interface AssocState { strength: number; up: boolean; tasks: AssocTask[]; levels: number }
@@ -72,7 +71,7 @@ export function sponsorOptions(c: Ctx, budget: number, up: boolean): { value: st
   const srcs: [number, number][] = p.hand.map((id) => [id, 0]);
   if (up) for (const f of inRange(c)) srcs.push([c.s.display[f - 1]!, f]);
   for (const [id, f] of srcs) {
-    if (!isSponsor(id) || sponsorLevel(c, id) > budget || p.money < f || sponsorError(c, id, up)) continue;
+    if (!isSponsor(id) || sponsorLevel(c, id) > budget || spendable(c) < f || sponsorError(c, id, up)) continue;
     out.push(opt(`sp:${id}:${f}`, `${nameOf(id)} (سطح ${sponsorLevel(c, id)})${f ? ` — ویترین ${f}، ${f} پول` : ''}`));
   }
   return out;
@@ -97,19 +96,32 @@ export function turnOptions(c: Ctx, d: TurnData): { value: string; label: string
   const owner = d.from ?? c.seat;
   const o = s.players[owner]!;
   const out: { value: string; label: string }[] = [];
+  // Venom (RULES.md E2): with a Venom token pending and under 2 money, only playing the poisoned card (or Sponsors, which
+  // can earn money) avoids paying; the others are dropped unless nothing else is left (then Venom takes what remains).
+  const venom = venomPending(c);
+  const starved: string[] = [];
   for (const card of o.slots) {
     if (d.cards && !d.cards.includes(card)) continue;
     const base0 = strengthOf(o, card);
+    const cures = venom && owner === c.seat && o.tok[card].venom > 0;
+    const was = s.venomCleared;
+    if (cures) s.venomCleared = true; // playing the poisoned card removes its token first, so the reserve is free
     for (let x = 0; x <= p.x; x++) {
       const str = base0 + x;
       if (str < 1 || !canDo(c, card, str, o.up[card])) continue;
       out.push(opt(`a:${card}:${x}`, `${ACTION_FA[card]}${o.up[card] ? ' II' : ''} با قدرت ${str}${x ? ` (${x} نشان X)` : ''}`));
+      if (venom && !cures && p.money < 2 && card !== 'sponsors') starved.push(`a:${card}:${x}`);
     }
-    if (d.from === undefined && !d.cards && p.x < 5) out.push(opt(`x:${card}`, `کنش نشان X با کارت ${ACTION_FA[card]}`));
+    s.venomCleared = was;
+    if (d.from === undefined && !d.cards && p.x < 5) {
+      out.push(opt(`x:${card}`, `کنش نشان X با کارت ${ACTION_FA[card]}`));
+      if (venom && !cures && p.money < 2) starved.push(`x:${card}`);
+    }
   }
   const t = REG.maps.get(p.map)?.turn;
   if (!d.extra && t && !s.turnUsed.includes(t.key) && t.can(c)) out.push(opt('ability', t.labelFa));
-  return out;
+  const fed = out.filter((x) => !starved.includes(x.value));
+  return fed.length ? fed : out;
 }
 fx['core:turnPrompt'] = (c, d: TurnData) => ask.option(c, { options: turnOptions(c, d), label: d.label, fx: 'core:turn', data: d, ...(d.optional ? { optional: true } : {}) });
 fx['core:turn'] = (c, d: TurnData, ans) => {
@@ -262,7 +274,7 @@ fx['core:associationStep'] = (c) => {
   const a = c.s.act!;
   if (!a.up && a.count) return;
   const options = assocOptions(c, a);
-  if (a.up && a.count && !a.donated && P(c).money >= donationCost(c.s)) options.push(opt('donate', `اهدای ${donationCost(c.s)} پول (+۱ حفاظت)`));
+  if (a.up && a.count && !a.donated && spendable(c) >= donationCost(c.s)) options.push(opt('donate', `اهدای ${donationCost(c.s)} پول (+۱ حفاظت)`));
   ask.option(c, { options, label: a.count ? 'کار انجمن بعدی (اختیاری)' : 'یک کار انجمن', fx: 'core:assoc', optional: a.count > 0 });
 };
 fx['core:assoc'] = (c, _d, ans) => {
@@ -345,7 +357,7 @@ fx['core:multiplier'] = (c, cards: ActionKey[] | null) =>
 fx['core:multiplied'] = (c, _d, ans) => { P(c).tok[ans.value as ActionKey].mult += 1; };
 fx['core:sponsorForMoney'] = (c) => {
   const p = P(c);
-  const ids = p.hand.filter((id) => isSponsor(id) && !sponsorError(c, id, p.up.sponsors) && p.money >= sponsorLevel(c, id));
+  const ids = p.hand.filter((id) => isSponsor(id) && !sponsorError(c, id, p.up.sponsors) && spendable(c) >= sponsorLevel(c, id));
   ask.option(c, { options: ids.map((id) => opt(String(id), `${nameOf(id)} — ${sponsorLevel(c, id)} پول`)), label: 'یک حامی از دست با پرداخت پول بازی کنید', fx: 'core:sponsorPaid', optional: true });
 };
 fx['core:sponsorPaid'] = (c, _d, ans) => {
@@ -354,18 +366,29 @@ fx['core:sponsorPaid'] = (c, _d, ans) => {
   gain(c, 'money', -sponsorLevel(c, id));
   playSponsor(c, id, 0);
 };
-fx['core:leftToken'] = (c) => {
+type LeftData = { defer?: { cp: number; rep: number } } | undefined;
+fx['core:leftToken'] = (c, d: LeftData) => {
   const p = P(c);
   const m = mapOf(p);
-  const options = p.left.map((on, i) => (on ? opt(String(i), `${bonusFa(m.left[i]!.b)}${m.left[i]!.income ? ' (و در هر استراحت)' : ''}`) : null)).filter((x) => x !== null);
-  ask.option(c, { options, label: 'نشان کدام خانهٔ لبهٔ نقشه را برمی‌دارید؟', fx: 'core:leftTaken' });
+  const label = (i: number) => `${bonusFa(m.left[i]!.b)}${m.left[i]!.income ? ' (و در هر استراحت)' : ''}`;
+  const free = p.left.map((on, i) => (on ? i : -1)).filter((i) => i >= 0);
+  // RULES.md E3: with a deferred project reward, each token is offered after («i», the old order) or before («bi») it.
+  const options = d?.defer
+    ? free.flatMap((i) => [opt(String(i), `${label(i)} (بعد از پاداش پروژه)`), opt(`b${i}`, `${label(i)} (پیش از پاداش پروژه)`)])
+    : free.map((i) => opt(String(i), label(i)));
+  ask.option(c, { options, label: 'نشان کدام خانهٔ لبهٔ نقشه را برمی‌دارید؟', fx: 'core:leftTaken', ...(d?.defer ? { data: d } : {}) });
 };
-fx['core:leftTaken'] = (c, _d, ans) => {
+fx['core:leftTaken'] = (c, d: LeftData, ans) => {
   const p = P(c);
-  const i = Number(ans.value);
+  const first = ans.value!.startsWith('b');
+  const i = Number(first ? ans.value!.slice(1) : ans.value);
+  const reward = () => { if (d?.defer) { gain(c, 'cp', d.defer.cp); gain(c, 'rep', d.defer.rep); } };
+  if (!first) reward();
   p.left[i] = false;
   gainBonus(c, mapOf(p).left[i]!.b);
+  if (first) reward();
 };
+fx['core:animalOrder'] = (c, d: { card: number }, ans) => animalEffects({ ...c, card: d.card }, d.card, ans.value === 'ability');
 fx['core:cpMilestone'] = (c, m: number) => {
   const p = P(c);
   const options: { value: string; label: string }[] = [];
@@ -421,20 +444,20 @@ function finishAction(c: Ctx) {
 function endTurn(c: Ctx) {
   const s = c.s;
   const p = P(c);
-  // ponytail: Venom with less than 2 money takes what is left instead of forcing a different action (the rules' undo);
-  // add a pre-check in turnOptions if exact fidelity is ever needed.
+  // Venom (RULES.md E2): spending keeps 2 money reserved (`spendable`) and turnOptions drops actions that cannot end with
+  // 2 money, so this only takes less than 2 when no legal action avoids it.
   if (!s.venomCleared && ACTION_KEYS.some((k) => p.tok[k].venom)) { gain(c, 'money', -2); log(c, 'venom'); }
   refillDisplay(c);
   s.inTurn = false; s.turnsDone += 1; s.turnUsed = []; s.venomCleared = false;
   // Only the active player's counters end the game at the end of a turn; others wait for their own turn or a break (FAQ).
-  if (s.endAt === null && crossed(p)) s.endAt = s.turnsDone + s.n - 1;
+  if (s.endAt === null && crossed(p)) s.endAt = s.turnsDone + activeCount(s) - 1;
   if (s.breakDue !== null) { later(ctx(s, s.breakDue, c.rng), 'core:break'); later(c, 'core:afterBreak'); }
   else nextPlayer(c);
 }
 function nextPlayer(c: Ctx) {
   const s = c.s;
   if (s.endAt !== null && s.turnsDone >= s.endAt) { startFinal(c); return; }
-  s.current = (s.current + 1) % s.n;
+  s.current = seatsFrom(s, (s.current + 1) % s.n)[0]!; // resigned seats are skipped (RULES.md E6)
   beginTurn(ctx(s, s.current, c.rng));
 }
 export function beginTurn(c: Ctx) { later(c, 'core:turnPrompt', { label: 'کنش این نوبت را انتخاب کنید', extra: false } satisfies TurnData); }
@@ -484,7 +507,7 @@ fx['core:refill'] = (c) => refillDisplay(c);
 fx['core:afterBreak'] = (c) => {
   const s = c.s;
   s.brk = 0; s.breakDue = null;
-  if (s.endAt === null && s.players.some(crossed)) s.endAt = s.turnsDone + s.n;
+  if (s.endAt === null && seatsFrom(s, 0).some((k) => crossed(s.players[k]!))) s.endAt = s.turnsDone + activeCount(s);
   nextPlayer(c);
 };
 
@@ -493,6 +516,12 @@ function startFinal(c: Ctx) {
   const s = c.s;
   if (!s.cp10) for (const k of seatsFrom(s, s.first)) later(ctx(s, k, c.rng), 'core:finalDiscard');
   later(c, 'core:final');
+}
+/** Final placements: the players still in, ranked; then resigned seats, the latest resigner first (RULES.md E6). */
+export function standings(s: State) {
+  const out = rank(s, seatsFrom(s, 0));
+  for (const seat of [...(s.out ?? [])].reverse()) out.push({ seat, place: out.length + 1, score: s.players[seat]!.appeal - target(s.players[seat]!.cp) });
+  return out;
 }
 export function rank(s: State, seats: number[]) {
   const r = seats.map((seat) => ({ seat, v: s.players[seat]!.appeal - target(s.players[seat]!.cp), t: s.players[seat]!.supported })).sort((a, b) => b.v - a.v || b.t - a.t);
@@ -512,7 +541,7 @@ fx['core:final'] = (c) => {
     mapOf(p).endgame?.(ck);
   }
   s.final = s.players.map((p, seat) => ({ seat, vp: p.appeal - target(p.cp), appeal: p.appeal, cp: p.cp, target: target(p.cp) }));
-  s.outcome = { placements: rank(s, s.players.map((_, k) => k)), reason: 'score' };
+  s.outcome = { placements: standings(s), reason: 'score' };
   s.stage = 'over';
   s.queue = [];
   log(c, 'end');
@@ -523,11 +552,11 @@ fx['core:final'] = (c) => {
 export function hasAnswer(c: Ctx, q: Prompt): boolean {
   if (q.k === 'option') return q.options.length > 0;
   if (q.k === 'pick') return q.ids.length > 0;
-  return q.kinds.some((k) => canPlaceKind(c, k, q.upgraded ?? P(c).up.build) && (q.free || 2 * kindSize(k) <= P(c).money));
+  return q.kinds.some((k) => canPlaceKind(c, k, q.upgraded ?? P(c).up.build) && (q.free || 2 * kindSize(k) <= spendable(c)));
 }
 /** Every legal placement for a place prompt. */
 export const placeOptions = (c: Ctx, q: Extract<Prompt, { k: 'place' }>) =>
-  q.kinds.filter((k) => q.free || 2 * kindSize(k) <= P(c).money).flatMap((kind) => placements(c, kind, q.upgraded ?? P(c).up.build).map((cells) => ({ kind, cells })));
+  q.kinds.filter((k) => q.free || 2 * kindSize(k) <= spendable(c)).flatMap((kind) => placements(c, kind, q.upgraded ?? P(c).up.build).map((cells) => ({ kind, cells })));
 export function answerError(c: Ctx, q: Prompt, a: Answer): string | null {
   if (a.skip) return q.optional ? null : 'NOT_OPTIONAL';
   if (q.k === 'option') return q.options.some((o) => o.value === a.value) ? null : 'BAD_CHOICE';
@@ -537,7 +566,7 @@ export function answerError(c: Ctx, q: Prompt, a: Answer): string | null {
     return ids.length >= q.min && ids.length <= q.max ? null : 'BAD_COUNT';
   }
   if (!a.kind || !q.kinds.includes(a.kind) || !a.cells) return 'BAD_BUILDING';
-  if (!q.free && 2 * kindSize(a.kind) > P(c).money) return 'CANNOT_AFFORD';
+  if (!q.free && 2 * kindSize(a.kind) > spendable(c)) return 'CANNOT_AFFORD';
   return placeError(c, a.kind, a.cells, q.upgraded ?? P(c).up.build);
 }
 /** Run system steps and the turn machinery until a prompt waits for a player (or the game is over). */

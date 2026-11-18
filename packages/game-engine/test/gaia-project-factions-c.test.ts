@@ -27,7 +27,8 @@ function ready(factions: string[], seed = 1): EngineSnapshot {
   }
   return snap;
 }
-const turnOf = (snap: EngineSnapshot, seat: number) => { st(snap).current = seat; st(snap).pending = []; return snap; };
+// Fresh turn for `seat` (a finished main action holds the turn until `end`, RULES E10).
+const turnOf = (snap: EngineSnapshot, seat: number) => { st(snap).current = seat; st(snap).pending = []; st(snap).turnDone = false; return snap; };
 const seatOf = (s: GaiaState, f: string) => s.pl.findIndex((x) => x.faction === f);
 const own = (s: GaiaState, seat: number) => s.hexes.flatMap((h, i) => (h.owner === seat ? [i] : []));
 const total = (s: GaiaState, seat: number) => { const pw = s.pl[seat]!.power; return pw.b1 + pw.b2 + pw.b3 + pw.gaia; };

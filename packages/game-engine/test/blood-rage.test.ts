@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
-  adjacent, ageDeck, bloodRageModule, boardCount, callable, CARDS, CARD_BY_ID, defaultAction, finalScore, groupStr, has, hornsOf, invadeTargets,
+  adjacent, ageDeck, bloodRageCore, bloodRageModule, boardCount, callable, CARDS, CARD_BY_ID, defaultAction, finalScore, groupStr, has, hornsOf, invadeTargets,
   pending, PROVINCES, PROVINCE_IDS, RING, TRACKS, villagesFree,
   type BRAction, type BRState, type BRView, type Figure, type ProvinceId
 } from '@bg/game-blood-rage';
 import { applyAction, applyTimeout, projectFor, replay, startGame, type EngineSnapshot } from '../src/index.ts';
 
-const m = bloodRageModule as never;
+const m = bloodRageCore as never;
 const p = (seat: number) => ({ kind: 'player' as const, seat });
 const st = (snap: EngineSnapshot) => snap.state as BRState;
 const view = (snap: EngineSnapshot, seat: number | null) => projectFor(m, snap, seat === null ? { kind: 'spectator' } : p(seat)).view as BRView;
@@ -134,7 +134,8 @@ describe('blood rage actions', () => {
     snap = act(snap, 0, { type: 'invade', figure: l, at: 'elv' });
     expect(st(snap).clans[0]!.rage).toBe(5);
     snap = act(snap, 0, { type: 'invade', figure: sh, at: 'f1' });
-    expect(st(snap).clans[0]!.rage).toBe(2);
+    // ship STR 2 (content.json baseStr)
+    expect(st(snap).clans[0]!.rage).toBe(3);
     expect(fig(st(snap), 0, 'ship').at).toBe('f1');
   });
   it('invade stops at the Horns limit and when villages are full', () => {
@@ -241,7 +242,7 @@ describe('blood rage pillage and battle', () => {
     snap = act(snap, 0, { type: 'play', card: c0 });
     const s = st(snap);
     expect(s.battle).toBeNull();
-    // leader 2 + warrior 1 + Bash 2 = 5 against 2 warriors + Trickery 0 = 2: Axes 3 + the pillage reward (5 glory)
+    // leader 3 + warrior 1 + Bash 2 = 6 against 2 warriors + Trickery 0 = 2: Axes 3 + the pillage reward (5 glory)
     expect(s.clans[0]!.glory).toBe(8);
     expect(s.figs.filter((f) => f.seat === 1 && f.at === 'valhalla')).toHaveLength(2);
     expect(s.clans[0]!.hand).toHaveLength(0);
@@ -249,11 +250,11 @@ describe('blood rage pillage and battle', () => {
     expect(s.pillaged).toContain('elv');
   });
   it('a tie: everybody loses, nobody pillages', () => {
-    let snap = standoff((s) => { give(s, 0, 'b1-bash'); give(s, 1, 'b1-smash'); });
+    let snap = standoff((s) => { give(s, 0, 'b1-bash'); give(s, 1, 'b1-crush'); });
     snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     snap = act(snap, 0, { type: 'play', card: st(snap).clans[0]!.hand[0]! });
     snap = act(snap, 1, { type: 'play', card: st(snap).clans[1]!.hand[0]! });
-    // 3 + 2 vs 2 + 3? leader 2 + warrior 1 + Bash 2 = 5; 2 warriors 2 + Smash 3 = 5
+    // leader 3 + warrior 1 + Bash 2 = 6; 2 warriors 2 + Crush 4 = 6
     const s = st(snap);
     expect(s.battle).toBeNull();
     expect(s.pillaged).toEqual([]);
@@ -282,13 +283,13 @@ describe('blood rage pillage and battle', () => {
     snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     snap = act(snap, 0, { type: 'play', card: st(snap).clans[0]!.hand[0]! });
     snap = act(snap, 1, { type: 'play', card: st(snap).clans[1]!.hand[0]! });
-    // seat 1 lost a warrior before comparing: 1 + 2 = 3 against leader 2 + warrior 1 + 1 = 4
+    // seat 1 lost a warrior before comparing: 1 + 2 = 3 against leader 3 + warrior 1 + 1 = 5
     expect(st(snap).figs.filter((f) => f.seat === 1 && f.at === 'valhalla')).toHaveLength(2);
-    let primacy = standoff((s) => { give(s, 0, 'b1-smite'); give(s, 1, 'b3-primacy'); });
+    let primacy = standoff((s) => { put(s, 0, 'leader', 0, 'reserve'); put(s, 0, 'warrior', 1, 'elv'); give(s, 0, 'b1-smite'); give(s, 1, 'b3-primacy'); });
     primacy = act(primacy, 0, { type: 'pillage', at: 'elv' });
     primacy = act(primacy, 0, { type: 'play', card: st(primacy).clans[0]!.hand[0]! });
     primacy = act(primacy, 1, { type: 'play', card: st(primacy).clans[1]!.hand[0]! });
-    // Primacy (+3) with both warriors alive = 5 beats 4; seat 0 loses, seat 1 (not the pillager) gets only Axes glory
+    // Primacy (+3) with both warriors alive = 5 beats 2 warriors + Smite 1 = 3; seat 0 loses, seat 1 (not the pillager) gets only Axes glory
     expect(st(primacy).clans[1]!.glory).toBe(3);
     expect(st(primacy).figs.filter((f) => f.seat === 0 && f.at === 'valhalla')).toHaveLength(2);
   });
@@ -321,9 +322,9 @@ describe('blood rage pillage and battle', () => {
     snap = act(snap, 0, { type: 'play', card: st(snap).clans[0]!.hand[0]! });
     snap = act(snap, 1, { type: 'play', card: st(snap).clans[1]!.hand[0]! });
     expect(st(snap).queue[0]?.k).toBe('late');
-    expect(view(snap, 1).battle!.totals).toEqual({ '0': 3, '1': 4 });
+    expect(view(snap, 1).battle!.totals).toEqual({ '0': 4, '1': 4 });
     snap = act(snap, 0, { type: 'decide', yes: true });
-    // 3 + 2 = 5 against 4
+    // 4 + 2 = 6 against 4
     expect(st(snap).clans[0]!.glory).toBeGreaterThan(0);
     expect(st(snap).clans[0]!.hand).toHaveLength(0);
   });
@@ -396,7 +397,7 @@ describe('blood rage privacy and resignation', () => {
     for (const other of s.packs[1]!) expect(text).not.toContain(`"id":${other},"def"`);
     expect(JSON.stringify(view(snap, null))).not.toContain('"pack":[{');
   });
-  it('resignation removes the clan\'s figures and the last clan standing wins', () => {
+  it('resignation in a two-player game: the last clan standing wins', () => {
     let snap = arrange(2, (s) => { clean(s); put(s, 0, 'warrior', 0, 'myr'); put(s, 1, 'warrior', 0, 'elv'); });
     snap = act(snap, 1, { type: 'resign' });
     expect(st(snap).outcome?.placements.find((x) => x.seat === 0)?.place).toBe(1);
@@ -414,13 +415,19 @@ describe('blood rage privacy and resignation', () => {
 describe('blood rage tutorial', () => {
   it('the scripted lesson is legal step by step and the learner wins', () => {
     const t = bloodRageModule.tutorial;
-    let snap = startGame(m, { playerCount: 2, seed: t.seed, options: t.options }).snapshot;
+    const mc = bloodRageModule as never;
+    const actC = (sn: EngineSnapshot, seat: number, action: unknown) => {
+      const r = applyAction(mc, sn, p(seat), action as never, 0);
+      if ('ok' in r) throw new Error(`${JSON.stringify(action)}: ${r.errorCode}`);
+      return r.snapshot;
+    };
+    let snap = startGame(mc, { playerCount: 2, seed: t.seed, options: t.options }).snapshot;
     expect(t.steps.length).toBeGreaterThanOrEqual(3);
     expect(t.steps.length).toBeLessThanOrEqual(8);
     for (const [i, step] of t.steps.entries()) {
       expect(pending(st(snap)), `step ${i + 1} waits on the learner`).toContain(0);
-      snap = act(snap, 0, step.expected as BRAction);
-      if (step.reply) snap = act(snap, 1, step.reply as BRAction);
+      snap = actC(snap, 0, step.expected);
+      if (step.reply) snap = actC(snap, 1, step.reply);
     }
     const out = st(snap).outcome;
     expect(out).not.toBeNull();
@@ -454,7 +461,7 @@ function randomAction(s: BRState, seat: number, r: () => number): BRAction {
   }
   if (s.step === 'draft') { const pack = s.packs[seat]!; const need = Math.min(s.draft.need, pack.length); const cards = [...pack].sort(() => r() - 0.5).slice(0, need); return { type: 'pick', cards }; }
   if (s.step === 'discard') return { type: 'keep', card: c.hand.length && r() < 0.8 ? pick(c.hand) : null };
-  const hints = bloodRageModule.legalActions(s, { kind: 'player', seat }) as { type: string; [k: string]: unknown }[];
+  const hints = bloodRageCore.legalActions(s, { kind: 'player', seat }) as { type: string; [k: string]: unknown }[];
   const h = pick(hints);
   switch (h.type) {
     case 'invade': return { type: 'invade', figure: h.figure as number, at: h.at as never };

@@ -99,6 +99,8 @@ async function turn(p: Page, n: number): Promise<boolean> {
     await opt.first().click();
     return true;
   }
+  // Main action done earlier (e.g. after a power charge was answered): only free actions remain, «تأیید» ends the turn.
+  if (mode === 'held') { await openSheet(p); await tap(p.locator('.gp-confirm:visible')); return true; }
   if (mode !== 'draft') return false;
   const phase = await root.getAttribute('data-phase');
   if (phase === 'faction') await tap(p.locator('.gp-faction-pick').first());
