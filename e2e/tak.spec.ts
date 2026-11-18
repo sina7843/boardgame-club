@@ -19,7 +19,7 @@ test('interactive tutorial: wall, stack spread, capstone, flattening the wall in
   await p.locator('.tak-sq--hint').click();
   await expect(p.getByText(/آموزش: مرحله ۲ از ۴/)).toBeVisible();
   await sq('b1').click();
-  await p.getByRole('group', { name: 'تعداد سنگ برای برداشتن' }).getByRole('button', { name: '۲' }).click();
+  await p.getByRole('group', { name: 'برداشتن از پشته' }).getByRole('button', { name: '۲' }).click();
   await sq('c1').click();
   await sq('d1').click();
   await expect(p.getByText(/آموزش: مرحله ۳ از ۴/)).toBeVisible();
@@ -101,7 +101,7 @@ test('undo window: a stack spread glides along the line at once, and undo glides
   await expect(p.getByText(/آموزش: مرحله ۲ از ۴/)).toBeVisible({ timeout: 25_000 });
   const before = await Promise.all(['b1', 'c1', 'd1'].map((n) => sq(n).getAttribute('aria-label')));
   await sq('b1').click();
-  await p.getByRole('group', { name: 'تعداد سنگ برای برداشتن' }).getByRole('button', { name: '۲' }).click();
+  await p.getByRole('group', { name: 'برداشتن از پشته' }).getByRole('button', { name: '۲' }).click();
   await sq('c1').click();
   await p.waitForTimeout(800);
   await motionLog(p);

@@ -18,7 +18,7 @@ async function createAndStart(host: Page, guest: Page, gameId: string, pace: 'ز
   await host.getByRole('button', { name: 'آماده‌ام' }).click();
 }
 
-const myTurn = (p: Page) => p.getByText(/نوبت شماست|پیشنهاد پنهان خود را ثبت کنید/).first().isVisible();
+const myTurn = (p: Page) => p.getByText(/نوبت شماست|حرکت با شماست|پیشنهاد پنهان خود را ثبت کنید/).first().isVisible();
 
 async function whoseTurn(a: Page, b: Page): Promise<[Page, Page]> {
   for (let i = 0; i < 40; i++) {

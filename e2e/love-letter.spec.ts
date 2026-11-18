@@ -51,7 +51,7 @@ test('three players play a short game of «نامه عاشقانه»', async ({ 
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.ll__players')).toBeVisible();
+  await expect(host.locator('.gf-seat').first()).toBeVisible(); // the frame shows the players
 
   for (let n = 0; n < 400; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;

@@ -72,7 +72,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
   await cells.nth((n * 7) % k).focus();
   await p.keyboard.press('Enter');
   // The pick can be refused or the turn can move on; a miss only means «try another cell on the next pass».
-  return p.locator('button.cr-confirm').click({ timeout: 5_000 }).then(() => true, () => false);
+  return p.getByRole('button', { name: 'ثبت', exact: true }).click({ timeout: 5_000 }).then(() => true, () => false); // on the table it sits in the dock row
 }
 
 test('three players play «کریپتید» to the result', async ({ browser }, info) => {

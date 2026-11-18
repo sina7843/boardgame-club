@@ -110,7 +110,7 @@ test('undo window: the pawn moves and the played card leaves the hand at once, u
   await p.waitForTimeout(800);
   const hand = p.locator('.ed-hand .ed-slot');
   const n = await hand.count();
-  const pawn = p.locator('.ed-pawn').first();
+  const pawn = p.locator('.ed circle[data-seat="0"]'); // the art is an image; this ring carries the position
   const start = await pawn.getAttribute('data-hex');
   await p.locator('.ed-hand .ed-hint').click();
   const target = p.locator('.ed-hex.ed-hint');

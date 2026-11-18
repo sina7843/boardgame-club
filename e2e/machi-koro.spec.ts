@@ -53,7 +53,7 @@ test('two mayors play «شهر تاس» to the result', async ({ browser }, info
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite); await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.mk__dice')).toBeVisible();
+  await expect(host.locator('.mk[data-seq]')).toBeVisible(); // the dice row is empty (zero height) before the first roll
 
   for (let n = 0; n < 700; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;

@@ -36,7 +36,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
   if (!(await p.locator('.dm__bar, .tbl-dock').getByRole('button', { name: 'پایان نوبت' }).count())) return false;
   const action = game.locator('.dm-hand--can').filter({ hasText: SIMPLE });
   if (await action.count()) { await action.first().click(); return true; }
-  const treasures = bar.getByRole('button', { name: 'رو کردن گنج‌ها' });
+  const treasures = p.locator('.dm__bar, .tbl-dock').getByRole('button', { name: 'رو کردن گنج‌ها' }); // the dock row renders outside .dm
   if (await treasures.count()) { await treasures.click(); return true; }
   for (const name of ['ایالت', 'طلا', n % 3 ? 'نقره' : 'آهنگری', 'سپاه محلی', 'روستا', 'نقره']) {
     const pile = game.locator('.dm-pile--can').filter({ hasText: name });

@@ -366,7 +366,7 @@ html[data-immersive] .app-page { gap: 0; }
 @media (max-width: 899px) {
   /* Phone: the page itself scrolls as one column (bar, seats, board, status, hand); the game bar stays on top and the
      dock area (actions, own bar, dock) stays at the bottom, so nothing is cut by an inner scroller. */
-  .tbl-gf:not(.tbl--max) { position: relative; inset: auto; min-block-size: 100dvh; overflow: visible; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+  .tbl-gf:not(.tbl--max) { position: relative; inset: auto; min-block-size: 100dvh; overflow: visible; grid-template-rows: auto auto 1fr auto; } /* the middle row grows with its content */
   .tbl-gf { background: var(--felt); }
   .tbl-gf:not(.tbl--max) > .bgv-gamebar { position: sticky; inset-block-start: 0; z-index: calc(var(--z-felt) + 2); }
   .tbl-gf:not(.tbl--max) .gf-dockwrap { position: sticky; inset-block-end: 0; z-index: calc(var(--z-felt) + 2); }

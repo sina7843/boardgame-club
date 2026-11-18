@@ -31,7 +31,7 @@ test('interactive tutorial: place, bluff, pass, lose a disc, raise, reveal', asy
 });
 
 async function turn(p: Page, n: number): Promise<boolean> {
-  const flip = p.locator('.sk-pl__flip');
+  const flip = p.locator('.sk-mat__btn'); // the flip button sits on the rival's mat
   if (await flip.count()) { await flip.nth(n % (await flip.count())).click(); return true; }
   const pass = p.getByRole('button', { name: 'کنار می‌کشم' });
   const bid = p.getByRole('button', { name: /^پیشنهاد/ });
@@ -55,7 +55,7 @@ test('three players play «جمجمه» to the result', async ({ browser }, info
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.sk__table')).toBeVisible();
+  await expect(host.locator('.sk-mats')).toBeVisible();
 
   for (let n = 0; n < 600; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
@@ -85,7 +85,7 @@ test('undo window: a placed disc flies onto your stack at once, and undo takes i
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
   await p.waitForTimeout(800);
   await motionLog(p);
-  const stack = p.locator('.sk-pl--me .sk-pl__slot');
+  const stack = p.locator('.sk-slot[data-flip^="st-0-"]'); // the learner's mat (seat 0)
   const hand = p.locator('.sk-handdisc');
   const [inStack, inHand] = [await stack.count(), await hand.count()];
   await p.locator('.sk-handdisc.sk-hint').first().click();

@@ -105,3 +105,4 @@ button.bs-cell:hover, button.bs-cell:focus-visible { background: rgb(255 210 122
 
 /* QA round 6: the placement buttons wrap inside the felt on phones. */
 .bs-tray__bar { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); max-inline-size: 100%; min-inline-size: 0; }
+@media (max-width: 899px) { .bs-tray__ships { flex-wrap: wrap; overflow: visible; justify-content: center; } .bs-tray { padding-block-end: var(--space-3); } } /* all five ships stay reachable on phones */
