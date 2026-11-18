@@ -56,6 +56,7 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
+          {scoring && (['b', 'w'] as Stone[]).map((c) => view.accepted[seatOf(c)] && <p key={c} className="go-side__ok"><bdi>{who(c)}</bdi> شمارش را تأیید کرد</p>)}
           <p>{scoring ? 'سنگ‌های مرده را با زدن روی گروهشان علامت بزنید؛ قلمرو و امتیاز با کومی همین حالا شمرده می‌شود. هر دو باید تأیید کنند.' : 'سنگ یا گروهی که آخرین آزادی‌اش پر شود گرفته می‌شود. نمی‌شود وضعیت قبلی صفحه را تکرار کرد (کو). دو پاس پشت‌سرهم شمارش را شروع می‌کند.'}</p>
         </RailSlot>
       )}

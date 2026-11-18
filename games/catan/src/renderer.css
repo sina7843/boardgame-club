@@ -244,3 +244,6 @@
 .ct--framed .ct-bank { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-md); background: var(--felt-plate); font-size: var(--fs-sm); }
 .ct--framed .ct-bank .ct-mini { justify-content: space-between; gap: var(--space-2); }
 .ct--framed .ct-costcard { margin: 0; }
+
+/* Board aspect for the frame stage height cap; below 1 leaves room for the resource hand under the board. */
+.ct { --zb-aspect: 0.72; }

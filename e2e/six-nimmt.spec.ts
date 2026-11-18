@@ -82,7 +82,8 @@ test('three players play one round at the same time', async ({ browser }, info) 
       const sig = async () => `${await p.locator('.sn').getAttribute('data-seq')}|${await p.locator('.sn').getAttribute('data-phase')}|${await p.locator('.sn').getAttribute('data-chosen')}`;
       const before = await sig();
       await target.click();
-      await expect.poll(sig, { timeout: 10_000 }).not.toBe(before);
+      // A click during the reveal animation can land on a card that is re-rendering; the loop simply tries again.
+      if (!(await expect.poll(sig, { timeout: 10_000 }).not.toBe(before).then(() => true, () => false))) continue;
       if (n === 12) for (const [i, q] of pages.entries()) await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
       acted = true;
     }

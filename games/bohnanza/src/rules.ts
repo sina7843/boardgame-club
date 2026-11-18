@@ -139,7 +139,8 @@ export const beanModule: GameModule<BeanState, BeanAction, BeanView> = {
     const deck = shuffle(rng, BEANS.flatMap((b) => Array<Bean>(BEAN_INFO[b].count).fill(b)));
     const s: BeanState = {
       players: playerCount, deck, discard: 0, hands: Array.from({ length: playerCount }, () => deck.splice(0, 5)),
-      fields: Array.from({ length: playerCount }, () => [{ bean: null, n: 0 }, { bean: null, n: 0 }]), coins: Array(playerCount).fill(0),
+      // RULES.md E2 (BGA): with three players everyone starts with three fields (and none can be bought).
+      fields: Array.from({ length: playerCount }, () => Array.from({ length: playerCount === 3 ? 3 : 2 }, () => ({ bean: null, n: 0 }))), coins: Array(playerCount).fill(0),
       faceUp: [], pending: Array.from({ length: playerCount }, () => []), phase: 'plant', planted: 0, offer: null,
       current: rng.nextInt(playerCount), last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };

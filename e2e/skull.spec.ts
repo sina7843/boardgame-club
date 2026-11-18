@@ -25,7 +25,7 @@ test('interactive tutorial: place, bluff, pass, lose a disc, raise, reveal', asy
   await p.getByRole('button', { name: /^پیشنهاد ۳/ }).click();
   await step('۷');
   await p.screenshot({ path: shot(info.project.name, 'tutorial-reveal'), fullPage: true });
-  await p.locator('.sk-pl__flip').click();
+  await p.locator('.sk-mat__btn.sk-hint, .sk-pl__flip').first().click(); // the flip button sits on the rival's mat
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

@@ -1026,6 +1026,7 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
         meta={[...(!s.live && !finished ? [<Connection key="c" state="lost" label="قطع" />] : []),
           ...(finished ? [<Badge key="end" size="sm" icon="flag">بازی تمام شد</Badge>, COMPETITION_FA[t.competition]] : []),
           ...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []), ...(finished ? [] : tableMeta(t)),
+          `${faNum(t.seats.length)} بازیکن`, // group QA: the bar names the player count
           ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
           ...(s.live && !finished ? [<Connection key="c" state="ok" label="متصل" />] : [])]}
         actions={<>
@@ -1044,7 +1045,7 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
         {notPhone && rail}
         <main className="gf-felt" aria-label={`صفحهٔ بازی ${t.gameNameFa}`}>
           <div className="gf-top">{kind === 'duel' ? bar(duelOpp!) : strip}</div>
-          <div data-theme="dark" data-game={t.gameId} data-frame={kind} className={myTurn ? 'table-night gf-stage gf-stage--mine' : 'table-night gf-stage'}>
+          <div data-theme="dark" data-game={t.gameId} data-frame={kind} data-rev={g.revision} className={myTurn ? 'table-night gf-stage gf-stage--mine' : 'table-night gf-stage'}>
             {Renderer
               ? <FrameKindHost value={kind}><RailSlotHost value={toRail}><DockSlotHost value={toDock}>
                   <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={onAction} expected={null}

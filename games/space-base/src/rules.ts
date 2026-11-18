@@ -179,6 +179,7 @@ export const sbModule: GameModule<SbState, SbAction, SbView> = {
         s.shop = s.shop.map((row) => row.filter((x) => x !== a.ship));
         refill(s);
         b.credits -= ship.cost;
+        b.credits = b.income; // RULES.md E2 (BGA): buying spends everything; credits drop to the income level
         b.deployed[ship.sector - 1]!.push(b.station[ship.sector - 1]!);
         b.station[ship.sector - 1] = a.ship;
         b.income += ship.onBuy?.income ?? 0;

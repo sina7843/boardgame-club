@@ -216,3 +216,6 @@
   .rk-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
 }
 .rk-num { display: inline-block; }
+
+/* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
+.rk { --zb-aspect: 1.6; }

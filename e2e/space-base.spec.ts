@@ -32,7 +32,7 @@ async function turn(p: Page): Promise<boolean> {
   const game = p.locator('.sb');
   const roll = p.locator('.sb, .tbl-dock').getByRole('button', { name: 'ریختن تاس‌ها' });
   if (await roll.count()) { await roll.click(); return true; }
-  const choose = game.locator('.sb-console').getByRole('button', { name: /^بخش/ });
+  const choose = p.locator('.sb-console, .tbl-dock').getByRole('button', { name: /^بخش/ }); // dock buttons render in the frame
   if (await choose.count()) { await choose.last().click(); return true; }
   const pass = p.locator('.sb, .tbl-dock').getByRole('button', { name: 'پایان نوبت بدون خرید' });
   if (!(await pass.count())) return false;

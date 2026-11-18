@@ -213,7 +213,7 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
                   const [cx, cy, sz] = c.structure ? [x + 12.5, y - 1, 9] : [x, y, 12];
                   return (
                     <g className={fresh.has(`c${i}`) ? 'cr-pop' : undefined}>
-                      <image href={CUBE_ART[PIECE[view.cubes[i]!]!.i]} x={cx - sz * 0.6} y={cy - sz * 0.5} width={sz * 1.2} height={sz} style={pieceStyle(view.cubes[i]!)} />
+                      <image href={CUBE_ART[PIECE[view.cubes[i]!]!.i]} x={cx - sz * 0.6} y={cy - sz * 0.5} width={sz * 1.2} height={sz} style={pieceStyle(view.cubes[i]!)} className="cr-cube" />
                     </g>
                   );
                 })()}

@@ -961,3 +961,10 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   design-qa captures of Home-* / Catalog-Desktop / GameDetail-Desktop compared with the v2.4 references;
   tutorial e2e (backgammon, no-thanks) 2/2 at 1440. Open: /t/<code> links (DB migration, needs approval + live DB
   backup), social addresses, game-page content model (reviews, screenshots, designer/publisher).
+
+
+## Group A–D tables on the shared frame (2026-11-17/18, branch feat/chess-table): IN QA — round 1 FAIL, fixes applied
+- 62 games (group A 11, B 7, C 22, D 22) render inside the shared `FrameView` (rail | felt | chat; phone game bar → status → felt → dock) with the handoff art (`design/games/group-*/art`). Commits 14eee050, d7950533, acecf448 and the 2026-11-18 commit.
+- QA round 1 (design/qa/group-*/VERDICT.md): A 4/11 PASS, B 0/7, C 0/22, D 0/22; frame blockers fixed in acecf448; all 62 tables recaptured. QA round 2: A 6/11, B 0/7, C 6/22, D 3/22 (15 PASS / 47 FAIL); its frame-wide blocker (board overflowing the desktop stage height) fixed by a stage size container + `--zb-aspect` cap; round 3 pending.
+- 2026-11-18: azul/hive click blockers, patchwork quilt 0×0, go scoring acceptance in the rail, player count in the game bar, `data-rev` hook; rule fixes cockroach-poker E1, bohnanza E2, space-base E2 (+ unit tests); skull E1 deferred (tutorial conflict).
+- Checks run 2026-11-18: pnpm typecheck PASS, pnpm lint PASS, ds-check --changed PASS, game-engine vitest 1,380/1,380, desktop e2e: full group run 125 passed / 22 failed before the fixes; re-run results in docs/reports/2026-11-18-groups-a-d.md. Phone (360) e2e not run. Real devices UNVERIFIED.

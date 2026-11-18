@@ -159,3 +159,6 @@
 .ht-card--face.ht-card--sm { inline-size: 2rem; block-size: auto; }
 .ht-card--face img { inline-size: 100%; block-size: auto; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }
 @media (max-width: 480px) { .ht-card--face.ht-card--md, .ht-card--face.ht-card--md.ht-card--garage { inline-size: 3.2rem; } }
+
+/* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
+.ht { --zb-aspect: 1.58; }

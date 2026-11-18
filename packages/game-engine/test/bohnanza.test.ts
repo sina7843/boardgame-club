@@ -18,6 +18,15 @@ const reject = (snap: EngineSnapshot, seat: number, action: unknown) => {
 const edit = (snap: EngineSnapshot, f: (s: BeanState) => void): EngineSnapshot => { const s = structuredClone(st(snap)); f(s); return { ...snap, state: s }; };
 const total = (s: BeanState) => s.deck.length + s.discard + s.coins.reduce((a, b) => a + b, 0) + s.hands.flat().length + s.faceUp.length + s.pending.flat().length + s.fields.flat().reduce((a, f) => a + f.n, 0);
 
+describe('bohnanza fields (RULES E2)', () => {
+  it('three players start with three fields and cannot buy one; two players start with two', () => {
+    expect(st(game(3)).fields.every((f) => f.length === 3)).toBe(true);
+    expect(st(game(2)).fields.every((f) => f.length === 2)).toBe(true);
+    const rich = edit(game(3), (s) => { s.coins = s.coins.map(() => 9); });
+    expect(reject(rich, st(rich).current, { type: 'buyField' })).not.toBe('ACCEPTED');
+  });
+});
+
 describe('bohnanza rules', () => {
   it('150 cards of ten beans; five cards each; beanometer payouts', () => {
     expect(BEANS.reduce((n, b) => n + BEAN_INFO[b].count, 0)).toBe(150);

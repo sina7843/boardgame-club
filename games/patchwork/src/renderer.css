@@ -48,7 +48,7 @@
 .pw-board__quilt { display: grid; justify-items: center; min-inline-size: 0; max-inline-size: 100%; }
 
 .pw-quilt { box-sizing: border-box; display: grid; grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(9, 1fr); gap: 0; inline-size: 11.5rem; aspect-ratio: 1; padding: 9.09%; background: center / 100% 100% no-repeat; direction: ltr; }
-.pw-quilt--big { inline-size: min(100%, 17.5rem); }
+.pw-quilt--big { inline-size: 17.5rem; max-inline-size: 100%; } /* a min(100%,…) width collapses to 0 inside the shrink-wrapped board */
 .pw-cell { display: block; padding: 0; border: 0; border-radius: 2px; }
 .pw-cell:not(.fabric, .fabric-leather, .fabric-plain) { background: rgb(246 236 214 / 0.82); box-shadow: inset 0 0 0 1px rgb(139 101 56 / 0.35); }
 button.pw-cell { cursor: pointer; }

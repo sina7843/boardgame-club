@@ -160,7 +160,7 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
           {bidHint && (
             <div className="sk-bid" role="group" aria-label="پیشنهاد">
               {Array.from({ length: bidHint.max - bidHint.min + 1 }, (_, k) => bidHint.min + k).map((n) => (
-                <button key={n} type="button" aria-pressed={chosenBid === n} className={['sk-n', chosenBid === n ? 'is-sel' : '', hint?.type === 'bid' && hint.n === n ? 'sk-hint' : ''].join(' ')} onClick={() => setBid(n)}>{fa(n)}</button>
+                <button key={n} type="button" aria-pressed={chosenBid === n} className={['sk-n sk-num', chosenBid === n ? 'is-sel' : '', hint?.type === 'bid' && hint.n === n ? 'sk-hint' : ''].join(' ')} onClick={() => setBid(n)}>{fa(n)}</button>
               ))}
               <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'bid', n: chosenBid })}>پیشنهاد {fa(chosenBid)}</Button>
             </div>

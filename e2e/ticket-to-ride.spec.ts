@@ -72,7 +72,7 @@ for (const [map, cfg] of Object.entries(MAPS)) {
     expect(keeps).toBe(3);
     expect(claims).toBe(CLAIMS);
     // Hidden information: other hands and tickets are counts only.
-    for (const p of pages) await expect(p.locator('.ttr-players')).toBeVisible();
+    for (const p of pages) await expect(p.locator('.gf-seat').first()).toBeVisible(); // frame rail replaces the player panel
     await expect(a.locator('.ttr-route--owned')).toHaveCount(CLAIMS);
     for (const [k, p] of pages.entries()) await p.screenshot({ path: shot(info.project.name, map, `play-${k}`), fullPage: true });
     for (const p of pages) await p.context().close();

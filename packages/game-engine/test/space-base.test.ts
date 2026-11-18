@@ -45,6 +45,16 @@ describe('space base rules', () => {
     expect(t.current).toBe(1);
   });
 
+  it('RULES E2: buying spends everything, credits drop to the (new) income level', () => {
+    let snap = edit(game(3, 2), (s) => { s.current = 0; s.phase = 'buy'; s.boards[0]!.credits = 20; s.boards[0]!.income = 2; });
+    const s = st(snap);
+    const ship = s.shop[0]!.find((id) => SHIPS[id]!.cost <= 20)!;
+    snap = act(snap, 0, { type: 'buy', ship });
+    const b = st(snap).boards[0]!;
+    expect(b.income).toBe(2 + (SHIPS[ship]!.onBuy?.income ?? 0));
+    expect(b.credits).toBe(b.income);
+  });
+
   it('credits rise to income at end of turn; the goal ends the game', () => {
     let snap = edit(game(2, 3), (s) => { s.current = 0; s.fixedDice = [[1, 1]]; s.boards[0]!.income = 6; s.boards[0]!.credits = 0; });
     snap = act(snap, 0, { type: 'roll' });

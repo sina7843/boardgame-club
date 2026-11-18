@@ -45,7 +45,8 @@ async function turn(p: Page, n: number): Promise<boolean> {
   };
   if (await click(n % 2 ? 'پذیرفتن' : 'رد کردن') || await click('رد کردن')) return true;
   if (await click('کاشتن اینجا')) return true;
-  if (await game.getByText('اول یک مزرعه را برداشت کنید').count()) { const h = game.locator('.bn-fields--mine .bn-link'); if (await h.count()) { await h.first().click(); return true; } }
+  // The status sits in the frame rail, outside .bn.
+  if (await p.getByText('اول یک مزرعه را برداشت کنید').count()) { const h = game.locator('.bn-fields--mine .bn-link'); if (await h.count()) { await h.first().click(); return true; } }
   if (await click('رو کردن دو کارت')) return true;
   if (n % 4 === 0 && await game.locator('.bn__faceup button.bn-pick').count()) {
     await game.locator('.bn__faceup button.bn-pick').first().click();
@@ -69,7 +70,8 @@ test('three players play «لوبیاکاری» to the result', async ({ browser
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   await expect(host.locator('.bn__market')).toBeVisible();
 
-  for (let n = 0; n < 900; n++) {
+  const t0 = Date.now(); // a full three-player game runs well past 900 moves; bound it by time instead
+  for (let n = 0; Date.now() - t0 < 13 * 60_000; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
     let acted = false;
     for (const p of pages) {

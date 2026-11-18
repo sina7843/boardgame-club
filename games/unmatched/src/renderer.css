@@ -297,3 +297,6 @@ button.um-card--playable:hover, button.um-card--playable:focus-visible { --ty: -
 .um-hero > :not(.um-hero__art) { grid-column: 2; min-inline-size: 0; }
 .um-hero__art { grid-column: 1; grid-row: 1 / span 5; inline-size: 88px; block-size: auto; aspect-ratio: 440 / 513; object-fit: cover; border-radius: var(--radius-sm); box-shadow: var(--shadow-piece); }
 .um-heroes { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+
+/* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
+.um { --zb-aspect: 1.54; }

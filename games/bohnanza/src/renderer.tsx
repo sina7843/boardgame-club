@@ -183,6 +183,7 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
     <div className="bn" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {framed && (
         <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
           <p>کارت اول دست را باید بکارید و دوم اختیاری است. هر مزرعه یک نوع لوبیا می‌گیرد؛ ترتیب دست عوض نمی‌شود.{blocked ? ' جایی برای کاشتن نیست: اول یک مزرعه را برداشت کنید.' : ''}</p>
         </RailSlot>
       )}

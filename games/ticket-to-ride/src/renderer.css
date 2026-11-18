@@ -259,3 +259,7 @@
 .ttr-board-wrap { inline-size: 100%; min-block-size: 12rem; }
 .ttr-map { min-inline-size: 16rem; }
 .ttr-help { min-inline-size: 0; overflow-wrap: break-word; }
+
+/* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
+.ttr { --zb-aspect: 1.5; }
+.ttr-route:not([role="button"]) .ttr-route__hit { pointer-events: none; } /* a non-buildable twin route must not steal the click */

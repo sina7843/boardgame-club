@@ -79,10 +79,10 @@ export const cockroachModule: GameModule<CockroachState, CockroachAction, Cockro
     if (options.deal === 'tutorial') {
       // Two-player endgame. All eight flies are visible to the learner (five in hand, three in front of the rival), so
       // the rival's opening «fly» claim — already handed over as the toad — is provably a bluff. The rival also has
-      // three stink bugs in front of them and the learner holds the fourth.
+      // four stink bugs in front of them and the learner holds the fifth (two players lose on five of a kind).
       s.current = 1;
       s.hands = [['fly', 'fly', 'fly', 'fly', 'fly', 'rat', 'stinkbug'], ['cockroach', 'bat', 'toad', 'scorpion', 'spider']];
-      s.table = [[], ['fly', 'fly', 'fly', 'stinkbug', 'stinkbug', 'stinkbug']];
+      s.table = [[], ['fly', 'fly', 'fly', 'stinkbug', 'stinkbug', 'stinkbug', 'stinkbug']];
       s.chain = { card: 'toad', from: 1, to: 0, claim: 'fly', seen: [1], peeked: false };
       s.last = { kind: 'give', seat: 1, to: 0, claim: 'fly' };
     }
@@ -130,7 +130,8 @@ export const cockroachModule: GameModule<CockroachState, CockroachAction, Cockro
       s.last = { kind: 'call', seat, truth: a.truth, card: c.card, claim: c.claim, taker };
       s.chain = null;
       s.current = taker;
-      if (s.table[taker]!.filter((x) => x === c.card).length >= 4) s.outcome = lose(s, taker);
+      // RULES.md E1 (rulebook p. 14): five of a kind loses in a two-player game, four otherwise.
+      if (s.table[taker]!.filter((x) => x === c.card).length >= (s.table.length === 2 ? 5 : 4)) s.outcome = lose(s, taker);
       else if (!s.hands[taker]!.length) s.outcome = lose(s, taker);
     }
     const L = s.last;
@@ -203,13 +204,13 @@ export const cockroachModule: GameModule<CockroachState, CockroachAction, Cockro
   tutorial: {
     seed: 43,
     options: { deal: 'tutorial' },
-    introFa: 'بازی دونفره به آخرش نزدیک است. حریف سه مگس و سه سن جلویش دارد؛ چهارمین کارت از هر جانور یعنی باخت. حریف همین الان یک کارت رو به پایین به شما داده و می‌گوید «مگس». در هر نوبت گیرنده حدس می‌زند ادعا راست است یا دروغ؛ با حدس درست کارت جلوی دهنده می‌ماند و با حدس غلط جلوی خود گیرنده.',
+    introFa: 'بازی دونفره به آخرش نزدیک است. حریف سه مگس و چهار سن جلویش دارد؛ در بازی دونفره پنجمین کارت از یک جانور یعنی باخت (با بیش از دو نفر چهارمین). حریف همین الان یک کارت رو به پایین به شما داده و می‌گوید «مگس». در هر نوبت گیرنده حدس می‌زند ادعا راست است یا دروغ؛ با حدس درست کارت جلوی دهنده می‌ماند و با حدس غلط جلوی خود گیرنده.',
     steps: [
       { instructionFa: 'کارت‌ها را بشمارید: از هر جانور ۸ کارت هست، پنج مگس در دست شماست و سه مگس جلوی حریف. پس این کارت نمی‌تواند مگس باشد: «دروغ می‌گوید» را بزنید.', expected: { type: 'call', truth: false }, reply: { type: 'give', card: 'scorpion', to: 0, claim: 'toad' } },
       { instructionFa: 'درست حدس زدید: کارت وزغ بود و جلوی خود حریف ماند. حالا حریف کارتی داده و می‌گوید «وزغ». این بار مطمئن نیستید؛ حدس بزنید «راست می‌گوید».', expected: { type: 'call', truth: true }, reply: null },
       { instructionFa: 'عقرب بود! حدس غلط یعنی کارت جلوی خودتان می‌ماند و حالا شما کارت می‌دهید. یک بلوف امتحان کنید: «موش» را انتخاب کنید، ادعای «خفاش» را بزنید و کارت را بدهید.', expected: { type: 'give', card: 'rat', to: 1, claim: 'bat' }, reply: { type: 'call', truth: false } },
-      { instructionFa: 'حریف بلوف را گرفت و موش جلوی شما ماند؛ دهنده‌ای که بلوفش رو شود خودش کارت را می‌گیرد. حالا راستش را بگویید: «سن» را با ادعای «سن» بدهید. حریف سه سن دارد و اگر حرفتان را باور نکند، چهارمی جلوی خودش می‌افتد.', expected: { type: 'give', card: 'stinkbug', to: 1, claim: 'stinkbug' }, reply: { type: 'call', truth: false } }
+      { instructionFa: 'حریف بلوف را گرفت و موش جلوی شما ماند؛ دهنده‌ای که بلوفش رو شود خودش کارت را می‌گیرد. حالا راستش را بگویید: «سن» را با ادعای «سن» بدهید. حریف چهار سن دارد و اگر حرفتان را باور نکند، پنجمی جلوی خودش می‌افتد.', expected: { type: 'give', card: 'stinkbug', to: 1, claim: 'stinkbug' }, reply: { type: 'call', truth: false } }
     ],
-    completedFa: 'بردید! حریف فکر کرد دروغ می‌گویید، ولی کارت واقعاً سن بود: حدس غلط یعنی کارت جلوی گیرنده می‌ماند و چهارمین سن جلوی حریف افتاد. جلوی شما فقط یک عقرب و یک موش است. در بازی بیش از دو نفر، گیرنده می‌تواند کارت را نگاه کند و به کسی که آن را ندیده رد کند.'
+    completedFa: 'بردید! حریف فکر کرد دروغ می‌گویید، ولی کارت واقعاً سن بود: حدس غلط یعنی کارت جلوی گیرنده می‌ماند و پنجمین سن جلوی حریف افتاد. جلوی شما فقط یک عقرب و یک موش است. در بازی بیش از دو نفر، گیرنده می‌تواند کارت را نگاه کند و به کسی که آن را ندیده رد کند.'
   }
 };

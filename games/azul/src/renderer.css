@@ -149,12 +149,13 @@ button.az-floor:hover, button.az-floor:focus-visible { box-shadow: 0 0 0 3px #ff
 
 /* Factories on a ring around the centre pool (as in the reference); the bag sits under the ring. */
 .az__mkt { display: grid; justify-items: center; gap: var(--space-2); inline-size: min(100%, 30rem); justify-self: center; min-inline-size: 0; }
-.az__market { position: relative; display: block; inline-size: 100%; aspect-ratio: 1; padding: 0; }
-.az-factory { position: absolute; inline-size: 23%; block-size: auto; aspect-ratio: 1; transform: translate(-50%, -50%); gap: 0; }
+.az__market { position: relative; display: block; inline-size: 100%; aspect-ratio: 1; padding: 0; direction: ltr; } /* factories use physical left/top; keep the centre pool on the same axis */
+.az-factory { position: absolute; z-index: calc(var(--z-felt) + 1); inline-size: 23%; block-size: auto; aspect-ratio: 1; transform: translate(-50%, -50%); gap: 0; }
+.az-factory { pointer-events: none; } .az-factory > * { pointer-events: auto; } /* empty factory boxes must not cover the centre */
 .az-factory .az-ftile { min-inline-size: 0; min-block-size: 0; padding: 0; }
 .az__market { container-type: inline-size; }
 .az-factory .az-tile--md { inline-size: clamp(1rem, 6.2cqi, 1.9rem); block-size: clamp(1rem, 6.2cqi, 1.9rem); }
-.az-center { position: absolute; inset-inline-start: 50%; inset-block-start: 50%; transform: translate(-50%, -50%); inline-size: 44%; min-inline-size: 0; max-block-size: 44%; overflow: auto; padding: var(--space-1); gap: 2px; }
+.az-center { position: absolute; inset-inline-start: 50%; inset-block-start: 50%; transform: translate(-50%, -50%); inline-size: 36%; min-inline-size: 0; max-block-size: 36%; overflow: auto; padding: var(--space-1); gap: 2px; }
 .az-center .az-tile--md { inline-size: clamp(0.9rem, 4.6cqi, 1.5rem); block-size: clamp(0.9rem, 4.6cqi, 1.5rem); }
 .az__bag { margin: 0; display: flex; align-items: center; gap: var(--space-2); font-size: 0.8rem; color: var(--felt-ink); }
 .az__bag img { inline-size: 2.4rem; block-size: auto; filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.45)); }

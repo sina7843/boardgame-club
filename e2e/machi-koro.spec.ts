@@ -29,11 +29,11 @@ async function turn(p: Page, n: number): Promise<boolean> {
   const keep = p.getByRole('button', { name: 'همین را نگه دار' });
   if (await keep.count()) { await keep.click(); return true; }
   if (await rollBtns.count()) { await rollBtns.last().click(); return true; }
-  const tv = p.locator('.mk__bar button').filter({ hasText: /^از/ });
+  const tv = p.locator('.mk__bar button, .tbl-dock button').filter({ hasText: /^از/ });
   if (phase === 'tv' && await tv.count()) { await tv.first().click(); return true; }
   const no = p.getByRole('button', { name: 'نه', exact: true });
   if (await no.count()) { await no.click(); return true; }
-  const lm = p.locator('.mk__bar button:not([disabled])').filter({ hasText: /ایستگاه|مرکز خرید|شهربازی|برج رادیو/ });
+  const lm = p.locator('.mk__bar button:not([disabled]), .tbl-dock button:not([disabled])').filter({ hasText: /ایستگاه|مرکز خرید|شهربازی|برج رادیو/ });
   if (await lm.count()) { await lm.first().click(); return true; }
   const buy = p.locator('.mk-buy:not([disabled])');
   if (n % 2 && await buy.count()) { await buy.nth(n % (await buy.count())).click(); return true; }
@@ -59,7 +59,7 @@ test('two mayors play «شهر تاس» to the result', async ({ browser }, info
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
     let acted = false;
     for (const p of pages) {
-      if (!(await p.locator('.mk-pl--me.mk-pl--turn').count())) continue;
+      if (!(await p.locator('.gf-stage--mine').count())) continue; // the frame marks my turn (player panels live in the rail)
       const before = await p.locator('.mk').getAttribute('data-seq');
       if (!(await turn(p, n))) continue;
       await expect.poll(() => p.locator('.mk').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);

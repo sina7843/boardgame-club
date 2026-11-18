@@ -99,7 +99,7 @@ test('three players play «سیرک» to the result', async ({ browser }, info) 
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.sc__players')).toBeVisible();
+  await expect(host.locator('.gf-seat').first()).toBeVisible(); // the frame rail replaces the renderer's player panel
 
   for (let n = 0; n < 500; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;

@@ -76,3 +76,6 @@ button.cr-hint, .cr-confirm.cr-hint { animation: cr-pulse 1s ease-in-out infinit
 .cr--framed { padding: 0; background: none; box-shadow: none; border-radius: 0; color: var(--felt-ink); gap: var(--space-2); }
 .cr--framed .cr-zoom { max-inline-size: 100%; }
 @media (min-width: 900px) { .cr--framed .cr-zoom { max-inline-size: min(52rem, max(300px, calc((var(--gf-b, 600px) - 150px) * 1.117))); } }
+
+/* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
+.cr { --zb-aspect: 1.12; }

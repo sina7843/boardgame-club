@@ -16,6 +16,7 @@ test('interactive tutorial: question, forced cube, refuted search, yes answer, s
   await expect(p.getByText('در فاصلهٔ ۱ خانه از جنگل', { exact: true })).toBeVisible();
   for (const step of ['۱', '۲', '۳', '۴', '۵', '۶']) {
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۶`))).toBeVisible();
+    await p.locator('button.cr-mode.cr-hint, button.cr-target.cr-hint, .cr-cell.cr-hint').first().waitFor(); // hints arrive after the opponent's reply
     const mode = p.locator('button.cr-mode.cr-hint');
     if (await mode.count()) await mode.click();
     const target = p.locator('button.cr-target.cr-hint');

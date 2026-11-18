@@ -1567,3 +1567,11 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Local: Windows reserved port 5434 (WinNAT range 5433–5532); the dev DB runs as boardgame-dev-postgres-alt on 127.0.0.1:55434 until `net stop winnat && net start winnat` is run as admin.
 - 2026-11-13 owner: short table links approved without a backup (no live tables yet). Migration 0026: game_tables.code by trigger (4 chars, no look-alikes); GET /api/t/:code (private tables only for their players); /t/:code route and «کد میز داری؟» forms. Invite links of private tables stay /tables/<id>?invite=… (a code alone never opens a private table).
 - 2026-11-13 owner: game page content wanted. Migration 0027: game_contents (validated JSON per game, admin editor on the admin game page, audited) and game_reviews (one per player per game after a finished non-tutorial table; author edits/deletes; moderators hide, audited). Screenshots are site paths (/games/<id>/… or /covers/…), no external images.
+
+
+## Group A–D frame and QA round 1 (2026-11-17/18)
+- Tests follow the frame: renderer player panels are hidden in the frame, so e2e reads `.gf-seat`, `.gf-stage--mine` and `.gf-stage[data-rev]` instead; dock buttons (`DockSlot`) render outside the renderer root, so tests look them up page-wide or in `.tbl-dock`.
+- RULES fixes applied (BGA/rulebook beats engine): cockroach-poker two-player limit 5 of a kind (tutorial deal now gives the rival four stink bugs and copy says «پنجمین»); bohnanza three players start with three fields and cannot buy; space-base buying drops credits to income.
+- Skull E1 (challenger starts the next round) NOT applied: the tutorial runtime plays one bot reply per step and the new rule makes the rival start round 2, so the approved tutorial would stall. Owner question: new tutorial copy, or keep the old starter rule for the tutorial only.
+- Game bar meta adds «N بازیکن» (group QA: every group asked for the player count).
+- Unmapped or missing art is listed in docs/reports/2026-11-18-groups-a-d.md §8; nothing was drawn.

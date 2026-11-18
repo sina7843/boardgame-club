@@ -14,7 +14,8 @@ test('interactive tutorial: place, rotate, pick the next domino, confirm', async
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   for (const step of ['۱', '۲', '۳', '۴']) {
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
-    while (await p.locator('.kd-rot.kd-hint').count()) await p.locator('.kd-rot').click();
+    await p.locator('.kd-rot.kd-hint, .kd-slot.kd-hint').first().waitFor(); // hints arrive after the tutorial opponent's move
+    while (await p.locator('.kd-rot.kd-hint').count()) { await p.locator('.kd-rot').click(); await p.waitForTimeout(200); } // let the rotation render before re-checking
     await p.locator('.kd-slot.kd-hint').click();
     // The first two steps also pick the next round's domino (highlighted in the next line).
     if (await p.locator('button.kd-pick.kd-hint').count()) await p.locator('button.kd-pick.kd-hint').click();

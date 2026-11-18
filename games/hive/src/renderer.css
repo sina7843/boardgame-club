@@ -8,7 +8,7 @@
 .hv-cell--hint .hv-tile { animation: hv-hint 1s ease-in-out infinite; }
 .hv-cell:focus-visible .hv-tile { filter: drop-shadow(0 0 6px var(--focus, currentColor)); }
 .hv-cell--trapped .hv-tile { filter: drop-shadow(0 0 7px var(--danger, currentColor)); animation: hv-hint 0.8s ease-in-out infinite; }
-.hv-under { opacity: 0.85; }
+.hv-under { opacity: 0.85; pointer-events: none; }
 .hv-height { font: 900 20px/1 var(--font-fa); fill: #ffd27a; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 4px; }
 .hv-target { cursor: pointer; outline: none; }
 .hv-target:hover image, .hv-target:focus-visible image { filter: brightness(1.4); }
