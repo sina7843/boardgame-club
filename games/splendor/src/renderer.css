@@ -189,3 +189,9 @@
 .sp-col__bonus { inline-size: 1.35rem; block-size: 1.35rem; font-size: 0.72rem; }
 .sp-col__tok { inline-size: 1.45rem; block-size: 1.45rem; font-size: 0.72rem; }
 .sp-col--lbl small { line-height: 1.4rem; }
+
+/* Round 5: the rival ledger fits its 12rem column, gold token included. */
+.sp__players--side .sp-pl { padding: var(--space-2); min-inline-size: 0; }
+.sp__players--side .sp-pl__grid { gap: 2px; }
+.sp__players--side .sp-col__bonus, .sp__players--side .sp-col__tok { inline-size: 1.15rem; block-size: 1.15rem; font-size: 0.62rem; }
+.sp__players--side .sp-col--lbl small { font-size: 10px; line-height: 1.15rem; }

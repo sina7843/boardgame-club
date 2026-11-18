@@ -381,7 +381,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
   // Framed side column (reference §1): the bank as a 2 × 3 grid of cards (five resources + the development deck),
   // the dice, and the two award cards with their holder.
   const side = (
-    <div className="ct-side">
+    <div className="ct-rack">
       <ul className="ct-bankgrid" aria-label={`بانک: ${handText(view.bank)}، کارت توسعه: ${fa(view.devDeckCount)}`}>
         {RESOURCES.map((r) => <li key={r} className={`ct-bankcard ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span><b>{fa(view.bank[r])}</b></li>)}
         <li className="ct-bankcard" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" draggable={false} /><b>{fa(view.devDeckCount)}</b></li>

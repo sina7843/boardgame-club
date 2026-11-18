@@ -431,7 +431,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
           {keepHint && view.myOffer && (
             framed ? (
               // Reference: the ticket choice is a centred dialog over the (dimmed) map.
-              <Dialog modal className="ttr-ticketdlg" title={view.phase === 'tickets' ? 'بلیت‌های مقصد آغازین' : 'بلیت‌های مقصد تازه'} footer={<>
+              <Dialog modal data-theme={document.documentElement.dataset.theme} className="ttr-ticketdlg" title={view.phase === 'tickets' ? 'بلیت‌های مقصد آغازین' : 'بلیت‌های مقصد تازه'} footer={<>
                 <Button className={exp?.type === 'keep' ? 'ttr-hintbtn' : ''} disabled={busy || !pickedOk}
                   onClick={() => { act({ type: 'keep', keep: view.myOffer!.filter((t) => kept.includes(t)) }); setFocusTicket(null); }}>
                   نگه داشتن {fa(kept.length)} بلیت

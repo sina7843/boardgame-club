@@ -4,7 +4,7 @@
 // per camel, the secret overall bets and the spectators' purses follow.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, MOTION, RailSlot, TurnIndicator, useInFrame, motionOff, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, Icon, MOTION, RailSlot, TurnIndicator, useInFrame, motionOff, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import camelBlue from './art/camel-up-camel-blue.png';
 import camelGreen from './art/camel-up-camel-green.png';
 import camelOrange from './art/camel-up-camel-orange.png';
@@ -130,7 +130,12 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
   const overall = legalActions.find((a) => a.type === 'overall') as { cards: Camel[] } | undefined;
   const [placing, setPlacing] = useState<null | 'oasis' | 'mirage'>(null);
   const [ovWhich, setOvWhich] = useState<null | 'win' | 'lose'>(null);
-  useEffect(() => { setPlacing(null); setOvWhich(null); }, [view.seq]);
+  // Phone: the bar shows three buttons; «کاشی» and «شرط نهایی» open their choices in a row under them.
+  const [phoneOpen, setPhoneOpen] = useState<null | 'desert' | 'final'>(null);
+  useEffect(() => { setPlacing(null); setOvWhich(null); setPhoneOpen(null); }, [view.seq]);
+  const togglePhone = (g: 'desert' | 'final') => { setPhoneOpen(phoneOpen === g ? null : g); setPlacing(null); setOvWhich(null); };
+  // Race order, leader first: furthest space, and on a stack the top camel (last in the list) leads.
+  const order = Object.entries(view.spaces).sort(([a], [b]) => Number(b) - Number(a)).flatMap(([, st]) => st.slice().reverse());
   const hint = expected as unknown as { type: string; camel?: Camel; which?: string } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const status = view.outcome ? null
@@ -149,9 +154,17 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
     <div className="cu" data-seq={view.seq} ref={root}>
       {framed && (
         <RailSlot>
-          {placing ? <p><b>واحه یک خانه جلو می‌برد و سراب یک خانه عقب؛ نه روی خانهٔ ۱، نه کنار کاشی دیگر.</b></p>
-            : <p><b>در هر نوبت فقط یکی از چهار کار: شرط مرحله، کاشی بیابان، تاس از هرم یا شرط نهایی.</b></p>}
-          <p>شرط مرحله برای شتر اول ۵، ۳ یا ۲ سکه است، برای دوم ۱ و برای بقیه ۱− سکه. شرط نهایی تا پایان بازی مخفی می‌ماند.</p>
+          <section className="cu-rail" aria-label="این مرحله">
+            <h3>این مرحله<span className="cu-rail__note">{fa(view.diceLeft)} تاس در هرم</span></h3>
+            <div className="cu-rail__rank"><span>ترتیب:</span>{order.map((c) => <CamelIcon key={c} c={c} size={1.8} />)}</div>
+            <div className="cu-rail__pills">
+              <span className="bgv-chip">شرط نهایی برنده: {fa(view.winnerCount)}</span>
+              <span className="bgv-chip">بازنده: {fa(view.loserCount)}</span>
+            </div>
+          </section>
+          <p className="cu-rail__tip"><Icon name="book" size={18} />
+            <span>{placing ? 'واحه یک خانه جلو می‌برد و سراب یک خانه عقب؛ کاشی فقط روی خانه‌های خط‌چین می‌نشیند.' : 'هر تاس هرم شتر همان رنگ را ۱ تا ۳ خانه جلو می‌برد و شترهای روی پشتش را هم می‌برد. آخر مرحله کارت شتر اول عددش را می‌دهد، شتر دوم ۱ سکه و بقیه ۱ سکه جریمه دارند.'}</span>
+          </p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -162,7 +175,8 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
           const tile = view.desert.findIndex((d) => d?.space === sp);
           const can = !!placing && !!desert?.spaces.includes(sp) && !busy;
           const [col, row] = cell(sp);
-          const cls = ['cu-sp', can ? 'cu-sp--can' : '', sp === TRACK ? 'cu-sp--last' : '', sp === 1 ? 'cu-sp--first' : ''].join(' ');
+          const legal = myTurn && !queued && !placing && !!desert?.spaces.includes(sp);
+          const cls = ['cu-sp', can ? 'cu-sp--can' : '', legal ? 'cu-sp--legal' : '', sp === TRACK ? 'cu-sp--last' : '', sp === 1 ? 'cu-sp--first' : ''].join(' ');
           const inner = (
             <>
               <small className="cu-sp__n">{fa(sp)}</small>
@@ -186,6 +200,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
             </p>
           )}
           {!framed && <small className="cu-centre__leg">مرحلهٔ {fa(view.leg)}</small>}
+          {myTurn && <span className="cu-centre__left">تاس در هرم {fa(view.diceLeft)}</span>}
         </div>
       </section>
 
@@ -194,7 +209,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
         // The final bet picks «برنده»/«بازنده» first, then one of your camel cards (§4).
         const ovOpen = myTurn && overall ? (ovWhich ?? (hint?.type === 'overall' ? (hint.which as 'win' | 'lose') : null)) : null;
         const bar = (
-          <div className="cu__bar" role="group" aria-label="کارهای نوبت">
+          <div className={framed ? 'cu__bar cu__bar--framed' : 'cu__bar'} data-open={phoneOpen ?? undefined} role="group" aria-label="کارهای نوبت">
             {!view.outcome && (
               <section className="cu__bets cu__grp" aria-label="شرط مرحله">
                 <h3 className="cu__cap">شرط مرحله</h3>
@@ -215,6 +230,13 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
                 </div>
               </section>
             )}
+            {myTurn && framed && (
+              <div className="cu__phonebtns">
+                <Button size="sm" variant="secondary" aria-expanded={phoneOpen === 'desert'} disabled={!desert} className={phoneOpen === 'desert' ? 'cu-on' : ''} onClick={() => togglePhone('desert')}><img src={oasisArt} alt="" className="cu-pyramid" draggable={false} />کاشی</Button>
+                <Button size="sm" variant="secondary" disabled={busy} aria-label="تاس از هرم (+۱ سکه)" onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم</Button>
+                <Button size="sm" variant="secondary" aria-expanded={phoneOpen === 'final'} disabled={!overall} className={phoneOpen === 'final' ? 'cu-on' : ''} onClick={() => togglePhone('final')}><CamelIcon c={order[0] ?? 'green'} size={1.3} />شرط نهایی</Button>
+              </div>
+            )}
             {myTurn && (
               <>
                 <section className="cu__actions cu__grp" aria-label="کاشی بیابان">
@@ -225,7 +247,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
                     {!desert && <small>کاشی شما روی مسیر است</small>}
                   </div>
                 </section>
-                <section className="cu__grp" aria-label="تاس از هرم">
+                <section className="cu__grp cu__rollgrp" aria-label="تاس از هرم">
                   <h3 className="cu__cap">تاس از هرم <small>{fa(view.diceLeft)} مانده</small></h3>
                   <div className="cu__grpbody">
                     <Button size="sm" variant="secondary" disabled={busy} aria-label="تاس از هرم (+۱ سکه)" className={['cu-tilebtn', 'cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />+۱ سکه</Button>

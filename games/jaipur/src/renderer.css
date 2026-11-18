@@ -113,3 +113,10 @@ img.jp-coin { object-fit: contain; border-radius: 50%; }
   .jp__deck { flex-direction: row; }
   .jp__deck img { inline-size: 2.4rem; }
 }
+
+/* QA round 5: in the overlapping hand each card keeps its reading-start side visible, so the name sits on that side of the
+   band. Mode tokens use the fixed card stock: --surface is dark on the felt. */
+.jp__hand .jp-card__n { box-sizing: border-box; padding-inline: 0.25rem 0; text-align: start; white-space: nowrap; overflow: hidden; }
+@media (max-width: 600px) { .jp__hand .jp-card__n { font-size: 0.62rem; } }
+.jp-mode { background: var(--felt-ink); color: var(--brand-ink); }
+.jp-mode:disabled { background: var(--felt-muted); color: var(--brand-ink); }

@@ -178,7 +178,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
                 <div className="sl-turn">
                   {rollPending ? <Die key="pending" value={null} pending /> : view.lastDie ? <Die key={lastRoll?.seq ?? 0} value={view.lastDie} rolling={rolling} /> : null}
                   {lastRoll && !rollPending && <p className="sl-turn__t">{describe(lastRoll, (x) => (x === mySeat ? 'شما' : seatName(x)))}</p>}
-                  {canRoll && <Button icon="turn" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}>ریختن تاس</Button>}
+                  {canRoll && <Button icon="dice" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}>ریختن تاس</Button>}
                 </div>
               </DockSlot>
             )

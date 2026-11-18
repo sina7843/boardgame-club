@@ -98,3 +98,7 @@ button.bs-cell:hover, button.bs-cell:focus-visible { background: rgb(255 210 122
 .bs-tray__ship { flex: none; min-block-size: 44px; padding: 0.3rem 0.45rem; }
 .bs-tray__bar { align-items: center; }
 .bs[data-phase="place"] .bs-chart { --bs-w: max(15rem, calc(100cqb - 8.5rem)); }
+/* The phone page scrolls: charts take the full width, no height-derived cap. */
+@media (max-width: 899px) {
+  .bs[data-phase="place"] .bs-chart, .bs[data-phase="fire"] .bs-chart--enemy, .bs[data-phase="fire"] .bs-chart--mine { --bs-w: none; }
+}

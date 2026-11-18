@@ -13,6 +13,8 @@
   /* Phone (reference §3): opponent hand, the board at full width, then one row of three equal cards: my two and the side card.
      The phone frame sets --gf-b to 100 %, so card widths here are fractions of their own row, not of --gf-b. */
   .oni { --cw: 30%; inline-size: 100%; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); column-gap: var(--space-2); }
+  /* The page scrolls on phones: the game keeps its full height (the frame's `.gf-stage > *` cap must not apply), so the card names and the status below flow. */
+  .gf-stage > .oni { max-block-size: none; block-size: auto; align-content: start; padding-block-end: var(--space-2); }
   .oni > * { grid-column: 1 / -1; }
   .oni__middle { display: contents; }
   .oni__middle > .zb { grid-column: 1 / -1; grid-row: auto; }

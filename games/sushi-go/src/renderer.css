@@ -76,13 +76,15 @@
 /* Phones: the hand fan overlaps, so the per-card captions would run into each other; the card names stay in aria-labels. */
 @media (max-width: 600px) { .sg-belt .sg-plate__note { display: none; } }
 
-/* QA round 4: hand cards never overlap — a small gap in one row on desktop, two balanced rows on phones; a missing-art tile
-   is a framed card (white stock, ink frame) with its label, distinct from the picture cards around it. */
-.sg-belt { flex-wrap: wrap; row-gap: var(--space-2); }
-.sg-belt > .sg-pick + .sg-pick { margin-inline-start: var(--space-1); }
+/* QA rounds 4 and 5: hand cards never overlap. Desktop is one row whose cards shrink to fit ten; phones are two balanced rows.
+   A missing-art tile is white card stock with an ink frame (--surface is dark on the felt). */
+.sg-belt { flex-wrap: nowrap; gap: var(--space-1); padding-inline: 0; }
+.sg-belt > .sg-pick { flex: 0 1 calc(72px + 0.3rem); min-inline-size: 0; }
+.sg-belt > .sg-pick + .sg-pick { margin-inline-start: 0; }
 .sg-belt > .sg-pick--on { transform: translateY(-0.5rem); }
+.sg-belt .sg-plate { display: grid; inline-size: 100%; }
+.sg-belt .sg-plate--md .sg-plate__img { box-sizing: border-box; inline-size: 100%; block-size: auto; aspect-ratio: 72 / 104; }
 @media (max-width: 600px) {
-  .sg-belt { display: grid; grid-template-columns: repeat(var(--cols), auto); gap: var(--space-2) var(--space-1); justify-content: center; }
-  .sg-belt > .sg-pick + .sg-pick { margin-inline-start: 0; }
+  .sg-belt { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 72px)); gap: var(--space-2) var(--space-1); justify-content: center; }
 }
-.sg-ph { background: var(--surface); color: var(--text); border: 1.5px solid var(--ink-btn); box-shadow: none; font-weight: 700; }
+.sg-ph, .sg-plate--md .sg-ph { background: var(--felt-ink); color: var(--brand-ink); border: 1.5px solid var(--brand-ink); box-shadow: none; font-weight: 700; }

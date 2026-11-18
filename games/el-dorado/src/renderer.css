@@ -86,3 +86,16 @@
   .ed--framed > * { grid-column: 1; grid-row: auto; }
   .ed--framed .ed-hand .ed-card { inline-size: 64px; }
 }
+
+/* Round 5: readable market at 1440: four rows of four 72px cards beside the map (two rows of eight were 40px wide);
+   phones read map, then hand, then market, and the page scrolls. */
+.ed--framed .ed-market__row { grid-template-columns: repeat(4, minmax(0, 72px)); justify-content: center; gap: var(--space-2); }
+.ed--framed .ed-market .ed-card, .ed--framed .ed-market .ed-card--sm { inline-size: 100%; max-inline-size: 72px; }
+.ed--framed .ed-hand .ed-card { inline-size: 72px; }
+@media (max-width: 899px) {
+  .ed--framed .ed-market__row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ed--framed .ed-market .ed-card, .ed--framed .ed-market .ed-card--sm { max-inline-size: 84px; }
+  .ed--framed > * { order: 2; }
+  .ed--framed > .ed-board { order: 1; }
+  .ed--framed > .ed-market { order: 3; }
+}

@@ -3,7 +3,7 @@
 // attack with dice tray, occupation, fortification, players and log. Shows only the projection: other hands are counts.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, Icon, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import {
   CARD_FA, CONTINENTS, CONTINENT_OF, T, TERRITORY_FA, TERRITORY_IDS, cardKind, cardTerritory, isSet, setValue,
   type TerritoryId
@@ -145,6 +145,7 @@ function Pop({ v, className = '' }: { v: number; className?: string }) {
 }
 
 function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: (t: number) => void }) {
+  const framed = useInFrame() !== null;
   // Every army count shown on the map; a token bumps when its own count changed (placement, fortify, occupation).
   const shown = view.armies.map((a, t) => a + (ms.draft[t] ?? 0));
   // (A token remounts when its count changes, so the class may stay on afterwards without replaying.)
@@ -196,8 +197,11 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
             <rect {...ANCHORS[t]!} fill="none" pointerEvents="none" />
             <clipPath id={`rkm-clip-${t}`}><path d={r.d} /></clipPath>
             <path d={r.d} className="rk-terr__fill" fill="transparent" />
-            <path d={r.d} className="rk-terr__wash" fill={SEAT_COLOR[owner]} fillOpacity={SEAT_WASH[owner]} pointerEvents="none" />
-            <path d={r.d} clipPath={`url(#rkm-clip-${t})`} className="rk-terr__owner" stroke={SEAT_COLOR[owner]} pointerEvents="none" />
+            {/* Frame (design): land in its continent colour; the owner is the seat-coloured army token on it. */}
+            {framed ? <path d={r.d} className="rk-terr__wash" fill={`url(#rkm-c-${CONTINENT_OF[t]})`} fillOpacity={0.78} pointerEvents="none" /> : <>
+              <path d={r.d} className="rk-terr__wash" fill={SEAT_COLOR[owner]} fillOpacity={SEAT_WASH[owner]} pointerEvents="none" />
+              <path d={r.d} clipPath={`url(#rkm-clip-${t})`} className="rk-terr__owner" stroke={SEAT_COLOR[owner]} pointerEvents="none" />
+            </>}
             <path d={r.edge} className="rk-terr__edge" pointerEvents="none" />
             <path d={r.edge} className="rk-ring" pointerEvents="none" />
           </g>
@@ -206,7 +210,7 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
 
       <g aria-hidden="true" pointerEvents="none">
 
-        {CONTINENTS.map((c) => {
+        {!framed && CONTINENTS.map((c) => {
           const [x, y] = CONTINENT_LABEL[c.id];
           const owner = view.owner.find((_, t) => CONTINENT_OF[t] === c.id)!;
           const held = ownsContinent(view, owner, c.id);
@@ -460,7 +464,22 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}. دستهٔ بعدی {fa(view.nextSetValue)} ارتش، جابه‌جایی {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}.</p>
+          {/* The map has no continent ribbons in the frame: bonuses and who holds each continent are listed here. */}
+          <section className="rk-rail" aria-label="قاره‌ها">
+            <h3>قاره‌ها{mySeat !== null && <span className="rk-rail__note">{SEAT_FA[mySeat]}</span>}</h3>
+            <div className="rk-rail__pills">
+              {CONTINENTS.map((c) => {
+                const all = view.owner.filter((_, t) => CONTINENT_OF[t] === c.id);
+                const holder = all.every((o) => o === all[0]) ? all[0]! : null;
+                const mine = mySeat === null ? 0 : all.filter((o) => o === mySeat).length;
+                return <span key={c.id} className="bgv-chip">{c.nameFa} +{fa(c.bonus)}: {holder !== null && holder === mySeat ? 'مال شما' : holder !== null ? SEAT_FA[holder] : mySeat !== null ? `${fa(mine)} از ${fa(all.length)}` : 'آزاد'}</span>;
+              })}
+              <span className="bgv-chip">دسته: {fa(view.deckCount)} کارت</span>
+            </div>
+          </section>
+          <p className="rk-rail__tip"><Icon name="book" size={18} />
+            <span>هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}. دستهٔ بعدی {fa(view.nextSetValue)} ارتش، جابه‌جایی {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}.</span>
+          </p>
         </RailSlot>
       )}
       {!framed && <div className="rk__meta">

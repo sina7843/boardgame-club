@@ -55,7 +55,7 @@
 .cc__drawn-tile { display: block; inline-size: 3.8rem; block-size: 3.8rem; border-radius: 3px;
   box-shadow: 0 0 0 1px rgb(35 22 6 / 0.7), 3px 3px 0 -1px #cdbb8f, 3px 3px 0 0 rgb(35 22 6 / 0.6), 6px 6px 0 -1px #b3a176, 6px 6px 0 0 rgb(35 22 6 / 0.6), 8px 10px 12px rgb(0 0 0 / 0.5); }
 .cc__drawn-tile .cc-tile g { transition: transform 0.25s ease-out; }
-.cc__follow { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; animation: cc-rise 0.3s ease-out both; }
+.cc__follow { position: relative; z-index: calc(var(--z-felt) + 1); /* the zoomed map must not cover the meeple choice */ display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; animation: cc-rise 0.3s ease-out both; }
 .cc-chip { padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.14); color: inherit; font: inherit; font-size: 0.78rem; cursor: pointer; }
 .cc-chip--on { background: linear-gradient(180deg, #ffe5a8, #f0c566); color: var(--ink); font-weight: 800; border-color: #fff1c9; }
 .cc-chip:disabled { opacity: 0.4; cursor: default; }

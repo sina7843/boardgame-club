@@ -102,3 +102,9 @@ b.cp-tag { padding: 0 0.4rem; border-radius: 6px; background: var(--role); color
 .cp-treasury__coin { inline-size: 1.6rem; block-size: 1.6rem; border-radius: 50%; background: url('./art/coins.webp') center / cover; }
 .cp-deck { display: grid; justify-items: center; gap: 0.3rem; font-size: 0.8rem; }
 .cp-deck__img { inline-size: 4.6rem; block-size: 6.3rem; object-fit: contain; filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.5)); }
+
+/* --surface is dark on the felt: action tiles use the fixed white card stock, grey when unavailable, seven in one row on desktop. */
+.cp-act { background: var(--felt-ink); color: var(--brand-ink); }
+.cp-act:disabled { background: var(--felt-muted); color: var(--brand-ink); }
+.cp-act--on { background: var(--primary); color: var(--on-primary); }
+@media (min-width: 900px) { .cp-acts { grid-template-columns: repeat(7, minmax(0, 1fr)); } }

@@ -33,9 +33,12 @@ async function turn(p: Page, n: number): Promise<boolean> {
   if (!k) return false;
   await spots.nth(n % k).dispatchEvent('click'); // the zoomed board can hold spots outside the visible window
   const chips = p.locator('.cc__follow .cc-chip:not([disabled])');
-  if (n % 3 === 0 && (await chips.count()) > 1) await chips.nth(1).click();
-  await p.getByRole('button', { name: /^(گذاشتن کاشی|تأیید جا)$/ }).click();
-  return true;
+  if (n % 3 === 0 && (await chips.count()) > 1) await chips.nth(1).click({ timeout: 5_000 }).catch(() => undefined);
+  const confirm = p.getByRole('button', { name: /^(گذاشتن کاشی|تأیید جا)$/ });
+  // A chosen spot/meeple can leave the confirm disabled; fall back to no meeple, then let the loop pick another spot.
+  if (await confirm.click({ timeout: 5_000 }).then(() => true, () => false)) return true;
+  if ((await chips.count()) > 0) await chips.first().click().catch(() => undefined);
+  return confirm.click({ timeout: 5_000 }).then(() => true, () => false);
 }
 
 test('two players play «قلعه‌سازان» to the result', async ({ browser }, info) => {

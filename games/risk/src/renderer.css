@@ -249,3 +249,16 @@
   .rk--framed .rk-hand { color: var(--felt-ink); background: var(--felt-plate); border: 0; box-shadow: var(--shadow-ring-felt); }
   .rk--framed .rk-hand .rk-help { color: var(--felt-muted); }
 }
+
+/* Round 5: rail card «قاره‌ها» (bonuses and holders; the map itself shows continent colours and army tokens only). */
+.rk-rail { display: grid; gap: var(--space-2); }
+.rk-rail h3 { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); font-size: 15px; font-weight: 800; color: var(--heading); }
+.rk-rail__note { margin-inline-start: auto; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.rk-rail__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.rk-rail__tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.rk-rail__tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+/* The phone page scrolls: no height caps inside the frame. */
+@media (max-width: 899px) {
+  .rk-dock .rk-draftlist { max-block-size: none; overflow-y: visible; }
+  .rk--framed .rk-side { max-block-size: none; overflow-y: visible; }
+}

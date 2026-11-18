@@ -100,3 +100,8 @@
 .sc__orient .sc__hand { flex-wrap: nowrap; }
 .sc__orient .sc__hand > * + * { margin-inline-start: min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
 .sc--framed { padding-inline: var(--space-3); box-sizing: border-box; }
+
+/* QA round 5: the flex gap was added on top of the fitted overlap, so 14 cards ran past both ends. No gap, one row, and the
+   overlap alone fits the row inside the padded felt. */
+.sc__hand:not(.sc__hand--gaps), .sc--framed .sc__hand:not(.sc__hand--gaps) { flex-wrap: nowrap; gap: 0; justify-content: safe center; }
+.sc__hand:not(.sc__hand--gaps) > * + *, .sc__orient .sc__hand:not(.sc__hand--gaps) > * + * { margin-inline-start: min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }

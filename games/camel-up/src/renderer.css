@@ -162,3 +162,31 @@
   .cu__bets { flex: 1 1 100%; }
   .cu__track { inline-size: 100%; }
 }
+
+/* Round 5: «این مرحله» rail card, the dice pill and dashed legal desert cells on the board. */
+.cu-rail { display: grid; gap: var(--space-2); }
+.cu-rail h3 { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); font-size: 15px; font-weight: 800; color: var(--heading); }
+.cu-rail__note { margin-inline-start: auto; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.cu-rail__rank { display: flex; align-items: center; gap: var(--space-2); font-size: 13px; color: var(--text-muted); }
+.cu-rail__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.cu-rail__tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.cu-rail__tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+.cu-sp--legal { outline: 2px dashed var(--ink); outline-offset: -3px; }
+.cu-centre__left { grid-column: 1; margin-block-start: 0.3rem; padding: 0.15rem 0.7rem; border-radius: var(--radius-pill); background: rgb(29 18 8 / 0.78); color: #fff3d6; font-size: 0.78rem; font-weight: 800; white-space: nowrap; }
+
+/* Phone bar: one row of leg tiles, one row of three buttons; «کاشی» / «شرط نهایی» open their choices under them. */
+.cu__phonebtns { display: none; }
+@media (max-width: 480px) { .cu-centre__left { font-size: 0.62rem; padding: 0.05rem 0.4rem; margin-block-start: 0.1rem; } }
+@media (max-width: 899px) {
+  .cu__track { max-inline-size: none; }
+  .cu__bar--framed { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); padding: var(--space-2); }
+  .cu__bar--framed .cu__grp { padding-inline: 0; border-inline-start: 0; }
+  .cu__bar--framed .cu__cap { display: none; }
+  .cu__bar--framed .cu__grpbody { justify-content: center; }
+  .cu__bar--framed .cu__rollgrp, .cu__bar--framed .cu__actions, .cu__bar--framed .cu__overall { display: none; }
+  .cu__bar--framed[data-open="desert"] .cu__actions, .cu__bar--framed[data-open="final"] .cu__overall { display: grid; order: 2; }
+  .cu__phonebtns { display: grid; order: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+  .cu__phonebtns .btn { block-size: auto; min-block-size: 44px; padding-inline: var(--space-1); gap: 4px; border-radius: var(--radius-sm); font-size: 0.78rem; }
+  .cu__phonebtns .cu-pyramid { margin: 0; inline-size: 1.2rem; block-size: 1.2rem; }
+  .cu__bar--framed .cu-legtile__face { inline-size: 2.6rem; }
+}

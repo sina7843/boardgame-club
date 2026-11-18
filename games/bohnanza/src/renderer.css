@@ -147,7 +147,10 @@ button.bn-plot--buy:focus-visible { outline: 3px solid #ffe1a0; outline-offset: 
 .bn__me { border-block-start: 0; padding-block: 0.2rem 0.4rem; }
 @media (min-width: 900px) { .bn-fields--mine .bn-plot--md { block-size: 5.2rem; } .bn-fields--mine .bn-field { padding-block-start: 0.5rem; } }
 @media (max-width: 600px) {
-  .bn-fields--mine .bn-plot--md { inline-size: 3.4rem; block-size: 4.6rem; }
   .bn__hand { --w: 3.6rem; }
-  .bn__hand .bn-card--md.bn-card--art { inline-size: 3.6rem; block-size: 5.05rem; }
 }
+
+/* QA round 5: every hand card has one box, printed or not (a bean without a printed face was larger); phones show the hand
+   above the fields, since the page scrolls and the fields are tall. */
+.bn__hand .bn-card--md, .bn__hand .bn-card--md.bn-card--art { box-sizing: border-box; inline-size: var(--w); block-size: calc(var(--w) * 1.405); overflow: hidden; }
+@media (max-width: 899px) { .bn__hand { order: -1; } }

@@ -99,5 +99,5 @@ button.sn-card { min-inline-size: 44px; }
    height and stuck out below the row); the hand is an overlapping fan on a felt panel. */
 .sn-card--img { display: block; }
 .sn-card--img > .sn-card__img { inline-size: 100%; block-size: 100%; }
-.sn__hand { box-sizing: border-box; padding: 1.1rem var(--space-3) var(--space-3); border-radius: var(--radius-lg); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.sn__hand { box-sizing: border-box; padding: 1.1rem 0 var(--space-2); } /* round 5: directly on the felt, no panel */
 .sn__hand > .sn-card + .sn-card { margin-inline-start: min(-1rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }

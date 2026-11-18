@@ -32,8 +32,12 @@ async function turn(p: Page, n: number): Promise<boolean> {
   if (!(await roll.count())) return false;
   const legs = p.locator('.cu-legtile:not([disabled])');
   if (n % 4 === 1 && await legs.count()) { await legs.nth(n % (await legs.count())).click(); return true; }
+  // Phone bar: «کاشی» and «شرط نهایی» open their choices first.
+  const open = async (name: string) => { const b = p.getByRole('button', { name, exact: true }); if (await b.count() && await b.isEnabled()) await b.click(); };
+  if (n % 7 === 3) await open('شرط نهایی');
   if (n % 7 === 3 && await p.getByRole('button', { name: 'برنده', exact: true }).count()) { await p.getByRole('button', { name: 'برنده', exact: true }).click(); const ov = p.locator('.cu-ov button:not([disabled])'); if (await ov.count()) { await ov.nth(n % (await ov.count())).click(); return true; } }
   if (n % 9 === 5) {
+    await open('کاشی');
     await p.getByRole('button', { name: 'واحه +۱' }).click();
     const sp = p.locator('.cu-sp--can');
     if (await sp.count()) { await sp.last().click(); return true; }

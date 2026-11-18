@@ -74,7 +74,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
     : myTurn ? { tone: 'mine' as const, text: view.rolls === 0 ? 'نوبت شماست: تاس بریزید' : view.rolls < 3 ? `تاس‌هایی را که می‌خواهید نگه دارید و دوباره بریزید (${fa(3 - view.rolls)} بار مانده) یا یک خانه را پر کنید` : 'یک خانه از جدول را پر کنید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)} (${fa(view.rolls)} از ۳ ریختن)` };
   const head = view.sheets.map((_, k) => (
-    <th scope="col" key={k} className={[view.current === k && !view.outcome ? 'yz-col--turn' : '', k === me ? 'yz-col--me' : ''].join(' ')}><bdi title={who(k)}>{who(k)}</bdi></th>
+    <th scope="col" key={k} className={[view.current === k && !view.outcome ? 'yz-col--turn' : '', k === me ? 'yz-col--me' : ''].join(' ')}><i className="yz-seatdot" style={{ background: `var(--seat-${k + 1})` }} aria-hidden="true" /><bdi title={who(k)}>{who(k)}</bdi></th>
   ));
   const round = Math.min(13, Object.keys(view.sheets[view.current] ?? {}).length + 1);
   const last = view.last;
@@ -112,7 +112,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
           <table className="yz__sheet">
             <caption className="visually-hidden">بخش بالا</caption>
             <colgroup><col />{view.sheets.map((_, k) => <col key={k} className={k === me ? 'yz-colbg--me' : undefined} />)}</colgroup>
-            <thead><tr className="yz-row--names"><th scope="col"><span className="visually-hidden">خانه</span></th>{head}</tr></thead>
+            <thead><tr className="yz-row--names"><th scope="col"><span className="yz-homelabel">خانه</span></th>{head}</tr></thead>
             <tbody>
               <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}>بخش بالا</th></tr>
               {UPPER.map((cat) => (
@@ -142,7 +142,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
             </tbody>
             <tfoot>
               <tr><th scope="row">جمع بالا</th>{view.totals.map((t, k) => <td key={k}>{fa(t.upper)}<small> / {fa(UPPER_TARGET)}</small></td>)}</tr>
-              <tr><th scope="row">پاداش (۳۵)</th>{view.totals.map((t, k) => <td key={k}>{t.upperBonus ? <b className="yz-ok">✓ {fa(t.upperBonus)}</b> : UPPER.every((c) => view.sheets[k]![c] !== undefined) ? '۰' : '…'}</td>)}</tr>
+              <tr className="yz-row--bonus"><th scope="row">پاداش (۳۵)</th>{view.totals.map((t, k) => <td key={k}>{t.upperBonus ? <b className="yz-ok">✓ {fa(t.upperBonus)}</b> : UPPER.every((c) => view.sheets[k]![c] !== undefined) ? '۰' : '…'}</td>)}</tr>
             </tfoot>
           </table>
         </div>
@@ -150,7 +150,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
           <table className="yz__sheet">
             <caption className="visually-hidden">بخش پایین</caption>
             <colgroup><col />{view.sheets.map((_, k) => <col key={k} className={k === me ? 'yz-colbg--me' : undefined} />)}</colgroup>
-            <thead><tr className="yz-row--names"><th scope="col"><span className="visually-hidden">خانه</span></th>{head}</tr></thead>
+            <thead><tr className="yz-row--names"><th scope="col"><span className="yz-homelabel">خانه</span></th>{head}</tr></thead>
             <tbody>
               <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}>بخش پایین</th></tr>
               {LOWER.map((cat) => (
@@ -179,8 +179,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
               ))}
             </tbody>
             <tfoot>
-              <tr><th scope="row">جمع پایین</th>{view.totals.map((t, k) => <td key={k}>{fa(t.lower)}</td>)}</tr>
-              <tr><th scope="row">پاداش یاتزی</th>{view.totals.map((t, k) => <td key={k}>{t.yahtzeeBonus ? <b className="yz-ok" key={t.yahtzeeBonus}>+{fa(t.yahtzeeBonus)}</b> : '۰'}</td>)}</tr>
+              <tr className="yz-row--bonus"><th scope="row">پاداش یاتزی</th>{view.totals.map((t, k) => <td key={k}>{t.yahtzeeBonus ? <b className="yz-ok" key={t.yahtzeeBonus}>+{fa(t.yahtzeeBonus)}</b> : '۰'}</td>)}</tr>
               <tr className="yz-row--total"><th scope="row">امتیاز کل</th>{view.totals.map((t, k) => <td key={k}><b key={t.total} className="bg-pop">{fa(t.total)}</b></td>)}</tr>
             </tfoot>
           </table>

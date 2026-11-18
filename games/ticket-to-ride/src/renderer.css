@@ -236,7 +236,6 @@
   .ttr__meta { display: none; }
   .ttr-main { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; }
   .ttr-board-wrap { margin-inline: 0; }
-  .ttr-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
 }
 
 /* ---------- illustrated finish: atlas-room panels ---------- */
@@ -285,7 +284,7 @@
   .gf-stage .ttr .ttr-side { gap: var(--space-2); }
   .gf-stage .ttr .ttr-panel .ttr-help { font-size: 12.5px; }
   .gf-stage .ttr .ttr-tickets { grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); gap: var(--space-2); }
-  .gf-stage .ttr .ttr-ticket { min-block-size: 48px; padding-block: 4px; }
+  .gf-stage .ttr .ttr-ticket { min-block-size: 58px; padding-block: 7px; }
 }
 
 /* Round 4: the ticket choice is a dialog, so the map can take ~85% of the felt width; it still leaves the face-up row
@@ -295,3 +294,9 @@
 }
 .ttr-ticketdlg { inline-size: min(560px, calc(100vw - 32px)); }
 .ttr-ticketdlg .ttr-tickets { grid-template-columns: 1fr; }
+
+/* Round 5: the dialog follows the page theme (data-theme on the dialog, the stage itself is forced dark); one ticket
+   per row; the points seal is tall enough for both of its lines. */
+.ttr-ticketdlg { color: var(--text); }
+.gf-stage .ttr .ttr-ticketdlg .ttr-tickets { grid-template-columns: minmax(0, 1fr); }
+.ttr-ticket__pts { inline-size: 46px; block-size: 46px; align-content: center; gap: 1px; flex: none; }

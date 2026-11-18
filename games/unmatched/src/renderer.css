@@ -266,7 +266,6 @@ button.um-card--playable:hover, button.um-card--playable:focus-visible { --ty: -
 @media (orientation: landscape) and (max-height: 560px) {
   .um { gap: var(--space-2); }
   .um-main { grid-template-columns: minmax(0, 1.5fr) minmax(250px, 1fr); align-items: start; gap: var(--space-2); }
-  .um-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; position: sticky; inset-block-start: 8px; }
   .um-players { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
   .um-hc__art, .um-player:not(.um-player--me) .um-hc__art { block-size: 3.6rem; }
   .um-zones { display: none; }
@@ -311,5 +310,15 @@ button.um-card--playable:hover, button.um-card--playable:focus-visible { --ty: -
 .um-gallery__hero--taken .um-gallery__art { filter: grayscale(1); opacity: 0.55; }
 
 /* Round 4: hero pick dialog — wide enough for two hero columns, scrolls inside itself, never past the screen. */
-.um-pickdlg { inline-size: min(760px, calc(100vw - 32px)); max-block-size: calc(100dvh - 48px); overflow: auto; }
+.um-pickdlg { max-block-size: calc(100dvh - 32px); overflow: hidden; }
 .um-pickdlg .um-panel--decide { border: 0; box-shadow: none; background: none; }
+
+/* Round 5: the dialog follows the page theme; four compact heroes per row at desktop, and the list scrolls inside the
+   dialog so its last row is always reachable. */
+.um-pickdlg { inline-size: min(1160px, calc(100vw - 32px)); color: var(--text); grid-template-rows: minmax(0, 1fr); }
+.um-pickdlg .bgv-dialog__body { padding: var(--space-4); min-block-size: 0; overflow-y: auto; }
+@media (min-width: 900px) {
+  .um-pickdlg .um-heroes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .um-pickdlg .um-hero { grid-template-columns: 56px minmax(0, 1fr); padding: var(--space-2); }
+  .um-pickdlg .um-hero__art { inline-size: 56px; }
+}

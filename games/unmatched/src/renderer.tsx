@@ -794,7 +794,7 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
 function DecisionPanel({ title, children, modal }: { title: string; children: ReactNode; modal?: boolean }) {
   const panel = <section className="um-panel um-panel--decide" aria-label={title}><h3>{title}</h3>{children}</section>;
   // The hero pick is a centred dialog over the dimmed table (reference §4), so nothing overflows the felt.
-  return modal ? <Dialog modal className="um-pickdlg">{panel}</Dialog> : panel;
+  return modal ? <Dialog modal data-theme={document.documentElement.dataset.theme} className="um-pickdlg">{panel}</Dialog> : panel;
 }
 
 function ChoiceList({ label, items, onPick, busy, selected, hint, compact }: {

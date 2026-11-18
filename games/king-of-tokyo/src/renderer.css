@@ -162,3 +162,12 @@
 @media (max-width: 899px) {
   .kt--framed .kt__market { grid-template-columns: repeat(3, minmax(0, 1fr)) 2.6rem; inline-size: 100%; padding-block-end: var(--space-3); }
 }
+
+/* Round 5: the board has a fixed 300px at desktop (a percentage of the auto column collapsed it to 135px); the market
+   is an even 2 x 2 with the draw pile as the fourth card. */
+@media (min-width: 900px) {
+  .kt--framed .kt__arena { inline-size: 19rem; }
+  .kt--framed > .kt__market { justify-items: stretch; }
+  .kt--framed .kt-buy { inline-size: 100%; }
+  .kt--framed .kt__pile { inline-size: 4.9rem; justify-self: center; }
+}

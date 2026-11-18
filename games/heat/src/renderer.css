@@ -184,5 +184,30 @@
   .ht .ht-card--face.ht-card--md, .ht .ht-card--speed.ht-card--md:not(.ht-card--face) { inline-size: 3.3rem; }
   .gf-stage .ht .ht__board { max-inline-size: max(18rem, calc((100cqb - 3.5rem - 24rem) * var(--zb-aspect, 1))); }
 }
-/* Phones: your car mat (gear, engine, hand) comes right under the chips, before the circuit, so it is on screen. */
-@media (max-width: 899px) { .ht > .ht__cockpit { order: -1; } .ht > .ht__bar { order: -2; } }
+
+/* Round 5, desktop frame: a compact car mat (one low row + the hand) so the circuit can take ~90% of the felt width and
+   the hand stays inside the stage. The race-order strip returns once cards are revealed. */
+@media (min-width: 900px) {
+  .gf-stage .ht { position: relative; padding: var(--space-2); gap: var(--space-2); }
+  .gf-stage .ht > .ht__bar { position: absolute; inset-block-start: var(--space-2); inset-inline-start: var(--space-2); z-index: calc(var(--z-felt) + 1); }
+  .gf-stage .ht .ht__board { max-inline-size: max(18rem, calc((100cqb - 16rem) * var(--zb-aspect, 1))); }
+  .gf-stage .ht[data-phase="plan"] > .ht__racers { display: none; }
+  .gf-stage .ht .ht__cockpit.ht-mat { display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-3); }
+  .gf-stage .ht .ht-mat__top { gap: var(--space-2); }
+  .gf-stage .ht .ht-mat__car img { inline-size: 2.8rem; }
+  .gf-stage .ht .ht-shifter { gap: 2px var(--space-2); padding: 2px var(--space-2); }
+  .gf-stage .ht .ht-shifter::before, .gf-stage .ht .ht-shifter::after, .gf-stage .ht .ht-shifter .ht__gearart { display: none; }
+  .gf-stage .ht .ht-gearbtn, .gf-stage .ht .ht-gearpos { display: flex; align-items: center; gap: var(--space-1); min-inline-size: 4rem; min-block-size: 1.8rem; padding: 0 var(--space-1); border-radius: var(--radius-sm); }
+  .gf-stage .ht .ht-gearbtn small, .gf-stage .ht .ht-gearpos small { font-size: 10px; }
+  .gf-stage .ht .ht-engine { padding: var(--space-1) var(--space-2); gap: 0; }
+  .gf-stage .ht .ht-engine__flames { min-block-size: 0; }
+  .gf-stage .ht .ht-engine__flames img { inline-size: 1rem; block-size: 1rem; }
+  .gf-stage .ht .ht-engine__n { font-size: 1rem; line-height: 1.1; }
+  .gf-stage .ht .ht-pile { grid-template-columns: auto auto; column-gap: var(--space-1); align-items: center; min-inline-size: 0; padding: var(--space-1); }
+  .gf-stage .ht .ht-pile > :first-child { grid-row: 1 / span 3; }
+  .gf-stage .ht .ht-pile__back, .gf-stage .ht .ht-pile__empty { inline-size: 1.3rem; block-size: 1.8rem; }
+  .gf-stage .ht .ht-pile .ht-card--sm { inline-size: 1.3rem; }
+  .gf-stage .ht .ht-pile b { font-size: 0.85rem; line-height: 1.1; }
+  .gf-stage .ht .ht-pile small { font-size: 10px; line-height: 1.2; }
+  .gf-stage .ht .ht__hand { flex-wrap: nowrap; }
+}
