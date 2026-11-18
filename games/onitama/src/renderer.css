@@ -16,6 +16,8 @@
   /* The page scrolls on phones: the game keeps its full height (the frame's `.gf-stage > *` cap must not apply), so the card names and the status below flow. */
   .gf-stage > .oni { max-block-size: none; block-size: auto; align-content: start; padding-block-end: var(--space-2); }
   .oni > * { grid-column: 1 / -1; }
+  /* The opponent's hand is the first child: centred it shrinks to its content and the cards' 30 % width collapses, so it takes the full row. */
+  .oni > .oni__hand--them { justify-self: stretch; }
   .oni__middle { display: contents; }
   .oni__middle > .zb { grid-column: 1 / -1; grid-row: auto; }
   .oni-board { max-inline-size: 100%; }

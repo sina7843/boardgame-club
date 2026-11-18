@@ -278,7 +278,7 @@ html[data-immersive] .app-page { gap: 0; }
 .gf-turnrow { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 .gf-turnrow:not(:has(.gf-turn > *, .gf-peek)) { display: none; }
 .gf-turn { display: contents; }
-.gf-turn > * { flex: none; }
+.gf-turn > * { flex: none; max-inline-size: 100%; }
 .gf-actions { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--space-2); }
 .gf-actions .bgv-btn { white-space: nowrap; min-inline-size: 0; }
 .gf-sheet { max-block-size: 85dvh; overflow: auto; }
@@ -377,6 +377,12 @@ html[data-immersive] .app-page { gap: 0; }
   .gf-felt > * { --gf-b: 100%; }
   .gf-bar { inline-size: 100%; }
   .gf-opps { padding-inline: var(--space-3); max-inline-size: none; }
+  /* Phone seat card: the name keeps its own row beside the avatar; the clock moves under the avatar next to the stats. */
+  .gf-seat { grid-template-columns: auto minmax(0, 1fr); }
+  .gf-seat > .bgv-avatar, .gf-seat > :first-child { grid-column: 1; grid-row: 1; }
+  .gf-seat > .gf-seat__name { grid-column: 2; grid-row: 1; min-inline-size: 0; }
+  .gf-seat > .gf-clock { grid-column: 1; grid-row: 2; justify-self: start; }
+  .gf-seat > .gf-seat__meta { grid-column: 2; grid-row: 2; min-inline-size: 0; }
   .gf-opps > li { flex: 1 1 0; min-inline-size: 140px; } /* two opponents fit a 360–390 screen; more scroll */
   .gf-over { position: fixed; z-index: var(--z-sheet); }
   .gf-turnrow { justify-content: center; }

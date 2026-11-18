@@ -71,8 +71,8 @@ async function turn(p: Page, n: number): Promise<boolean> {
   // Keyboard pick (the cells are focusable buttons): robust against the zoom controls overlaying the map corner.
   await cells.nth((n * 7) % k).focus();
   await p.keyboard.press('Enter');
-  await p.locator('button.cr-confirm').click();
-  return true;
+  // The pick can be refused or the turn can move on; a miss only means «try another cell on the next pass».
+  return p.locator('button.cr-confirm').click({ timeout: 5_000 }).then(() => true, () => false);
 }
 
 test('three players play «کریپتید» to the result', async ({ browser }, info) => {

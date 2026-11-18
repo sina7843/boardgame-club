@@ -102,3 +102,6 @@ button.bs-cell:hover, button.bs-cell:focus-visible { background: rgb(255 210 122
 @media (max-width: 899px) {
   .bs[data-phase="place"] .bs-chart, .bs[data-phase="fire"] .bs-chart--enemy, .bs[data-phase="fire"] .bs-chart--mine { --bs-w: none; }
 }
+
+/* QA round 6: the placement buttons wrap inside the felt on phones. */
+.bs-tray__bar { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); max-inline-size: 100%; min-inline-size: 0; }

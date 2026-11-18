@@ -44,9 +44,11 @@ async function turn(p: Page, n: number): Promise<boolean> {
   const challenge = p.locator('.cp-resp__btn--challenge:not([disabled])');
   const block = p.locator('.cp-resp__btn--block:not([disabled])');
   const pass = p.locator('.cp-resp__btn--pass:not([disabled])');
-  if (await challenge.count() && n % 3 === 0) { await challenge.click(); return true; }
-  if (await block.count() && n % 4 === 1) { await block.first().click(); return true; }
-  if (await pass.count()) { await pass.click(); return true; }
+  // Another player's answer can close the window while this click is on its way, so a miss only means «try again».
+  const tap = (l: typeof pass) => l.click({ timeout: 3_000 }).then(() => true, () => false);
+  if (await challenge.count() && n % 3 === 0) return tap(challenge);
+  if (await block.count() && n % 4 === 1) return tap(block.first());
+  if (await pass.count()) return tap(pass);
   const acts = p.locator('.cp-act:not([disabled])');
   const k = await acts.count();
   if (!k) return false;

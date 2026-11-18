@@ -201,3 +201,6 @@ button.uno-card:focus-visible { outline: 3px solid var(--focus); outline-offset:
 .uno-ring { display: none; }
 .uno-pile__label { display: inline-flex; align-items: center; gap: 6px; position: relative; z-index: 1; white-space: nowrap; }
 .uno--framed .uno-hand { position: static; }
+
+/* QA round 6: the reference has no stack of blank cards behind the discard pile. */
+.uno-under { display: none; }
