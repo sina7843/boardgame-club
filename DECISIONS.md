@@ -1580,3 +1580,9 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Skull E1 applied (BGA: a challenger who is still in starts the next round; the skull's owner only when the challenger is out). The tutorial was re-scripted: the rival, still in after hitting the learner's skull, opens round 2; the learner then wins by raising to 3 after the rival passes. To support it, `TutorialStep.then?: Action[]` (game-sdk) lists further scripted seat-1 actions; `packages/play` applies them in order after `reply` while seat 1 is still to act.
 - The Crew keeps the long name «کرو: در جستجوی سیارهٔ نهم» (overrides the «کرو» line at the top of design/GAME_NAMES.md).
 - Missing art: placeholders for now (owner). A placeholder always names the piece (text on the piece's shape) so it is never mistaken for final art; replaced 1:1 when the file arrives.
+
+## BGA-style tables in the shell (2026-11-19)
+- The five handoff tables (Gaia, TM, Brass, Ark Nova, Blood Rage) are the `CONFIRMS_IN_RENDERER` set; the shell gives them: no chat column (chat sheet from the game bar), a 360px rail (300px for Gaia/Ark Nova/Blood Rage per their references), a frame-less felt, no shared chips or shell dock (except tutorials), no shell phone strip (renderers draw compact chips), and the turn pill portaled into the renderer's `[data-shell-clock]`.
+- Player panels: the renderer's own panels are hidden inside the shell; the shell rail shows seat cards built by each game's `*SeatCard(seat, turn)` from the new optional public `summary.seats[].detail` (SDK `object`, contracts `z.custom<object>`). Never hidden information.
+- `<RailSlot>` now works in the table view too (desktop rail); `.rail-top` content goes above the player cards.
+

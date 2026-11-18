@@ -7,7 +7,7 @@
 // placement comes from the engine prompt; flow = select → «تأیید», «برگرد» before it (no after-send undo window).
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react';
-import { Icon, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Icon, RailSlot, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
 import IDS from './data/content-id-map.json' with { type: 'json' };
 import BCELLS from './data/building-cells.json' with { type: 'json' };
 import {
@@ -265,7 +265,7 @@ function EyeButton({ seat, name }: { seat: number; name: string }) {
   const shown = useSyncExternalStore(zooSubscribe, () => zooView.shown, () => null);
   return (
     <button className="an-eye" type="button" aria-pressed={shown === seat} aria-label={`دیدن باغ‌وحش ${name}`} title="دیدن باغ‌وحش"
-      onClick={() => { zooView.want = seat; zooNotify(); }}><Icon name="search" size={18} /></button>
+      onClick={() => { zooView.want = seat; zooNotify(); }}><Icon name="eye" size={18} /></button>
   );
 }
 /** Rail panel in the table shell (apps/web SEAT_CARDS): score + BGA panel body from publicSummary `detail`. */
@@ -292,7 +292,7 @@ function Panel({ p, name, me, turn, viewing, onEye, place }: { p: PlayerView; na
             <span>{place ? `رتبهٔ ${fa(place)}` : turn ? 'در نوبت' : ''}</span>
           </small>
         </div>
-        <button className="an-eye" type="button" aria-pressed={viewing} aria-label={`دیدن باغ‌وحش ${name}`} title="دیدن باغ‌وحش" onClick={onEye}><Icon name="search" size={18} /></button>
+        <button className="an-eye" type="button" aria-pressed={viewing} aria-label={`دیدن باغ‌وحش ${name}`} title="دیدن باغ‌وحش" onClick={onEye}><Icon name="eye" size={18} /></button>
       </div>
       <PanelBody p={{ ...p, income: appealIncome(p.appeal) }} />
     </div>
@@ -583,7 +583,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
     }
     bar = (
       <section className="an-bar an-prompt" aria-live="polite" aria-label="نوار کنش" data-an-actbar="">
-        <div className="an-bar__row"><span className="an-bar__text"><b>نوبت شماست</b>: {faDigits(prompt.label)}</span></div>
+        <div className="an-bar__row"><span className="an-bar__text"><b>نوبت شماست</b>: {faDigits(prompt.label)}</span>{!phone && <span data-shell-clock="" className="an-clockslot" />}</div>
         {body}
         {phone && view.me && <div className="an-bar__row an-dock">{isTurn && me && me.slots.map((k, i) => { const o = turnOpt(k); const on = !!o && sel === o.value; return (
           <button key={k} type="button" className={`an-dockact${on ? ' is-picked' : ''}`} disabled={!o} aria-pressed={o ? on : undefined} aria-label={`${ACTION_FA[k]}، قدرت ${fa(me.strengths[i]! + xSpend)}`} onClick={() => o && setSel(on ? null : o.value)}>
@@ -595,7 +595,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
     const text = view.outcome ? 'بازی تمام شد.' : queued || busy ? 'حرکت شما در حال ثبت است…'
       : view.stage === 'draft' ? (draft ? '۴ کارت از ۸ کارت آغازین را نگه دارید.' : 'منتظر انتخاب کارت‌های آغازین دیگران…')
       : prompt ? <>نوبت <bdi>{who(prompt.seat)}</bdi>: {faDigits(prompt.label)}</> : '';
-    bar = <section className="an-bar is-waiting" aria-live="polite" aria-label="نوار کنش"><div className="an-bar__row"><span className="an-bar__text">{text}</span></div>{phone && view.me && view.stage !== 'draft' && <div className="an-bar__row an-dock"><button type="button" className="bgv-btn bgv-btn--secondary bgv-btn--sm" data-act="hand" aria-pressed={drawer} aria-expanded={drawer} onClick={() => setDrawer(!drawer)}><img src={BACK} className="an-ic" alt="" />دست ({fa(view.me?.hand.length ?? 0)})</button></div>}</section>;
+    bar = <section className="an-bar is-waiting" aria-live="polite" aria-label="نوار کنش"><div className="an-bar__row"><span className="an-bar__text">{text}</span>{!phone && <span data-shell-clock="" className="an-clockslot" />}</div>{phone && view.me && view.stage !== 'draft' && <div className="an-bar__row an-dock"><button type="button" className="bgv-btn bgv-btn--secondary bgv-btn--sm" data-act="hand" aria-pressed={drawer} aria-expanded={drawer} onClick={() => setDrawer(!drawer)}><img src={BACK} className="an-ic" alt="" />دست ({fa(view.me?.hand.length ?? 0)})</button></div>}</section>;
   }
 
   // ---- hand (§3) ----
@@ -776,6 +776,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
   const draftZone = draft && !busy && (
     <section className="bgv-felt an-zone an-prompt an-draft" aria-label="انتخاب کارت‌های آغازین">
       <div className="an-draft__box">
+        {!phone && <span data-shell-clock="" className="an-clockslot" />}
         <p className="an-draft__text"><b>انتخاب آغازین</b>: ۴ کارت از ۸ کارت را نگه دارید{draft.maps.length ? ' و یکی از ۲ نقشه را انتخاب کنید' : ''} ({fa(picked.length)} از ۴ انتخاب شده).
           {view.players.filter((p) => p.drafting).length > 1 ? ` ${fa(view.players.filter((p) => p.drafting).length - 1)} بازیکن دیگر هنوز انتخاب می‌کنند.` : ''}</p>
         <button type="button" className="bgv-btn bgv-btn--primary" data-act="draft" disabled={picked.length !== 4 || (draft.maps.length > 0 && !mapPick)}
@@ -835,6 +836,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
   // ---- rail (§2) ----
   const rail = (
     <aside className="an-rail an-t-players" aria-label="بازیکنان">
+      <RailSlot><div className="rail-top an-sc">
       <section className="bgv-card an-cfg" data-an-cfg="" aria-label="وضعیت میز">
         <div className="an-cfg__row">
           <span className="an-brkbox" title="مسیر استراحت"><img src={art('art/wooden-pieces/break-token.webp')} alt="" /><span className="an-num">{fa(view.brk)}/{fa(view.brkMax)}</span><small>استراحت</small></span>
@@ -846,6 +848,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
           <button className="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" aria-haspopup="dialog" onClick={() => setScoreOpen(true)}><Icon name="grid" size={16} />بورد امتیاز</button>
         </div>
       </section>
+      </div></RailSlot>
       {order.map((s) => <Panel key={s} p={view.players[s]!} name={who(s)} me={s === mySeat} turn={view.pending.includes(s)} viewing={s === shownSeat} onEye={() => setViewSeat(s)} place={placeOf(s)} />)}
       {log.length > 0 && (
         <section className="bgv-card an-log" aria-label="گزارش بازی">
@@ -859,7 +862,14 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
     <div className="an" dir="rtl" ref={root} data-seq={view.seq} data-tab={tab} data-phone={phone ? '' : undefined} data-stage={view.stage}>
       <div className="an-desk">
         <div className="an-main">
-          {bar}
+          {!(draft && !busy) && bar}
+          <div className="an-phonestat" aria-label="وضعیت میز">
+            {phone && <span data-shell-clock="" className="an-clockslot" />}
+            {order.map((k) => { const pl = view.players[k]!; return (
+              <span key={k} className={`an-chip${view.pending.includes(k) ? ' is-turn' : ''}`} style={seatStyle(k)}><i /><bdi>{who(k)}</bdi><b className="an-num">{fa(pl.vp)}</b><Icon name="star" size={12} className="an-star" /></span>
+            ); })}
+            <span className="an-chip"><img src={art('art/wooden-pieces/break-token.webp')} alt="" /><span className="an-num">{fa(view.brk)}/{fa(view.brkMax)}</span></span>
+          </div>
           {phone && view.stage !== 'draft' && (
             <div className="an-tabs" role="tablist" aria-label="بخش‌های میز">
               {([['zoo', isMe0 ? 'باغ‌وحش من' : 'باغ‌وحش'], ['boards', 'بوردها'], ['players', 'بازیکنان']] as const).map(([k, l]) => (

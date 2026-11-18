@@ -6,7 +6,7 @@
 // resource choices come from the server hints; flow = action → target → card → «ثبت», «برگرد» before it.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { RailSlot, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import { Icon } from '@bg/ui/bgv';
 import LAYOUT from './data/layout.json' with { type: 'json' };
 import IDS from './data/content-id-map.json' with { type: 'json' };
@@ -28,6 +28,8 @@ const LINKS_AT = B.links as Record<string, { x: number; y: number; angle: number
 const fa = (n: number) => n.toLocaleString('fa-IR', { useGrouping: Math.abs(n) >= 1000 }).replace(/٬/g, ',');
 const gbp = (n: number) => `£${fa(n)}`;
 const signed = (n: number) => (n > 0 ? `+${fa(n)}` : n < 0 ? `−${fa(-n)}` : fa(0));
+/** No-break space (keeps «دست ۸» together). */
+const NBSP = String.fromCharCode(160);
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 export const IND_FA: Record<Industry, string> = { cotton: 'کارخانهٔ پنبه', manufacturer: 'تولیدی', pottery: 'سفال‌گری', coal: 'معدن زغال', iron: 'ذوب‌آهن', brewery: 'آبجوسازی' };
 const IND_EN: Record<Industry, string> = { cotton: 'Cotton Mill', manufacturer: 'Manufacturer', pottery: 'Pottery', coal: 'Coal Mine', iron: 'Iron Works', brewery: 'Brewery' };
@@ -78,6 +80,18 @@ export function cardLabel(id: number, L: Lx = FA): string {
   const c = CARDS[id];
   if (!c) return L.t('کارت', 'Card');
   return c.kind === 'location' ? L.t(`کارت ${L.loc(c.loc)}`, `${L.loc(c.loc)} card`) : L.t(`کارت ${c.industries.map(L.ind).join(' / ')}`, `${c.industries.map(L.ind).join(' / ')} card`);
+}
+
+/** The page theme (root `data-theme`): the action bar is a page card, not the dark felt stage (as Gaia / TM). */
+function usePageTheme(): 'light' | 'dark' {
+  const read = (): 'light' | 'dark' => (typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+  const [theme, setTheme] = useState(read);
+  useEffect(() => {
+    const o = new MutationObserver(() => setTheme(read()));
+    o.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => o.disconnect();
+  }, []);
+  return theme;
 }
 
 function useMedia(query: string) {
@@ -317,6 +331,7 @@ function PanelBody({ d, status, me, head = true }: { d: PanelData; status?: stri
     <div className={['br-sc br-pl', me ? 'br-pl--me' : ''].join(' ')} style={seatStyle(s)} data-seat={s} data-flip-anchor={`seat-${s}`}>
       {head && <div className="br-panel__head">{status && <small className="br-panel__status">{status}</small>}<Discard d={d} /></div>}
       <div className="br-panel__row">
+        <span className="br-box br-box--vp"><span className="br-vp"><b>{fa(d.vp)}</b></span><small>امتیاز</small></span>
         <span className="br-box"><span className={`br-box__v ${moneyPop}`} key={`m${d.money}`}><img src={art(IDS.coins['1'])} alt="" /><span className="br-gbp">{gbp(d.money)}</span></span><small>پول</small></span>
         <span className={['br-box', lvl < 0 ? 'is-neg' : ''].join(' ')}><span className="br-box__v"><img src={art(`art/markers/income-${color(s)}.webp`)} alt="" /><span className="br-num">{signed(lvl)}</span></span><small>درآمد</small></span>
         <span className="br-box"><span className="br-box__v"><span className="br-gbp">{gbp(d.spent)}</span></span><small>خرج دور</small></span>
@@ -347,7 +362,7 @@ function PanelBody({ d, status, me, head = true }: { d: PanelData; status?: stri
 }
 
 /** Shell rail panel (SEAT_CARDS): the BGA body of COMPONENTS §11 from the public summary (`stats` + `detail`). */
-export function brassSeatCard(seat: { seat: number; primary?: { value: number }; stats?: { key: string; value: number | string }[]; detail?: object }, turn?: boolean) {
+export function brassSeatCard(seat: { seat: number; primary?: { value: number }; stats?: { key: string; value: number | string }[]; detail?: object }) {
   const st = (k: string) => Number(seat.stats?.find((x) => x.key === k)?.value ?? 0);
   const det = (seat.detail ?? {}) as { linksLeft?: number; tilesOnBoard?: number; discardTop?: number | null; nextTiles?: PanelData['nextTiles']; era?: 'canal' | 'rail' };
   const d: PanelData = {
@@ -356,10 +371,9 @@ export function brassSeatCard(seat: { seat: number; primary?: { value: number };
   };
   return {
     stats: undefined,
-    // one VP coin (the shell keeps its «امتیاز» label), the character portrait as the avatar, the top discard in the header
-    score: <span className="br-sc br-vp" data-turn={turn || undefined}><b>{fa(d.vp)}</b></span>,
+    // VP lives in the body's first tile; the turn pill is the only clock; portrait as the avatar; top discard in the header
+    score: <span className="br-sc br-hdisc"><Discard d={d} /></span>, scoreLabel: undefined, clock: undefined, badge: undefined,
     avatar: { src: charArt(seat.seat), name: `شخصیت ${['قرمز', 'زرد', 'بنفش', 'خاکستری'][seat.seat] ?? ''}`, className: 'br-sc br-avatar', style: seatStyle(seat.seat) },
-    badge: <span className="br-sc br-badge"><Discard d={d} /></span>,
     detail: <PanelBody d={d} head={false} />
   };
 }
@@ -455,6 +469,8 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
   const phone = useMedia('(max-width: 899px)');
   const [en, setEn] = useState(false);
   const L = useMemo(() => lx(en), [en]);
+  const pageTheme = usePageTheme();
+  const zoneRef = useRef<HTMLElement>(null);
   const pvCards = !queued ? [] : queued.type === 'scout' ? (queued.cards as number[]) : typeof queued.card === 'number' ? [queued.card] : [];
   useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const who = (s: number) => (s === mySeat ? L.t('شما', 'You') : seatName(s));
@@ -613,7 +629,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
     if (k === 'sell') return L.t(`${L.n(new Set(hs.map((h) => `${h.loc}${h.slot}`)).size)} کاشی`, `${new Set(hs.map((h) => `${h.loc}${h.slot}`)).size} tiles`);
     if (k === 'loan') return L.t(`+${L.gbp(30)}، درآمد −۳`, `+${L.gbp(30)}, income −3`);
     if (k === 'scout') return L.t('۳ → ۲ آزاد', '3 → 2 wild');
-    return L.t('فقط یک کارت دور', 'discard one card');
+    return phone ? L.t('فقط یک کارت دور', 'discard one card') : '';
   };
   const reason = (k: string): string => {
     if (k === 'build') return 'NO_BUILD';
@@ -646,8 +662,8 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
         const ok = types.has(k);
         const why = ok ? '' : reason(k);
         const p = pill(k);
-        return <button key={k} type="button" className={['bgv-btn bgv-btn--sm', k === 'pass' ? 'bgv-btn--ghost' : '', exp?.type === k && kind !== k ? 'br-hint' : ''].join(' ')} data-act={k}
-          aria-label={L.act(k)} aria-pressed={kind === k} disabled={busy || !ok} {...(why ? { 'data-reason': why, title: REASON[why]![en ? 1 : 0] } : {})}
+        return <button key={k} type="button" className={['bgv-btn bgv-btn--sm', exp?.type === k && kind !== k ? 'br-hint' : ''].join(' ')} data-act={k}
+          aria-label={L.act(k)} {...(ok ? { 'aria-pressed': kind === k } : {})} disabled={busy || !ok} {...(why ? { 'data-reason': why, title: REASON[why]![en ? 1 : 0] } : {})}
           onClick={() => pickKind(k)}>{L.act(k)}{p ? <span className="br-pill">{p}</span> : why ? <span className="br-pill br-pill--why">{REASON_SHORT[why]![en ? 1 : 0]}</span> : null}</button>;
       })}
     </div>
@@ -724,7 +740,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
   const shortGot = short ? shortPick.reduce((n, i) => n + (short.options[i]?.value ?? 0), 0) : 0;
   const shortDone = !!short && (shortGot >= short.owed || shortPick.length === short.options.length);
   const shortBar = short && mySeat !== null ? (
-    <section className={phone ? 'bgv-actiondock br-dock br__actions' : 'br-bar br__actions'} aria-label={L.t('کسری پول', 'Shortfall')}>
+    <section className={phone ? 'bgv-actiondock br-dock br__actions' : 'bgv-card br-bar br__actions'} data-theme={pageTheme} aria-label={L.t('کسری پول', 'Shortfall')}>
       <p className="br-bar__text"><b>{L.t('کسری پول:', 'Shortfall:')}</b> {L.t(`بعد از درآمد ${L.gbp(short.owed)} کم دارید. کاشی‌های صنعتتان را به ترتیب بردارید؛ هر کاشی نصف هزینه‌اش را برمی‌گرداند و با جبران کسری باید بایستید.`, `After income you are ${L.gbp(short.owed)} short. Remove industry tiles in order; each returns half its cost; stop once covered.`)}</p>
       <div className="br-targets" role="listbox" aria-multiselectable="true" aria-label={L.t('کاشی‌های قابل برداشتن', 'Tiles to remove')}>
         {short.options.map((o, i) => {
@@ -750,29 +766,35 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
     : view.current !== null ? <>{L.t('نوبت ', 'Turn: ')}<bdi>{who(view.current)}</bdi>{L.t(` است: اقدام ${L.n(firstAction(view))} از ${L.n(actionsOfTurn(view))}، دور ${L.n(view.round)} ${eraFa}.`, `, action ${firstAction(view)} of ${actionsOfTurn(view)}, round ${view.round}, ${eraFa}.`)}</> : '';
 
   // Desktop action bar (§13).
+  const langToggle = (
+    <span className="br-lang" role="group" aria-label={L.t('زبان بازی', 'Game language')}>
+      <button type="button" aria-pressed={!en} onClick={() => setEn(false)}>فا</button>
+      <button type="button" aria-pressed={en} onClick={() => setEn(true)} lang="en">EN</button>
+    </span>
+  );
   const bar = shortBar ?? (myTurn ? (
-    <section className="br-bar br__actions" aria-label={L.t('اقدام', 'Action')}>
-      <div className="br-bar__row"><p className="br-bar__text">{turnText} {L.t('هر اقدام یک کارت از دستتان را دور می‌اندازد.', 'Each action discards one card.')}</p></div>
+    <section className="bgv-card br-bar br__actions" data-theme={pageTheme} aria-label={L.t('اقدام', 'Action')}>
+      <div className="br-bar__row"><p className="br-bar__text">{turnText} {L.t('هر اقدام یک کارت از دستتان را دور می‌اندازد.', 'Each action discards one card.')}</p>{langToggle}<span className="br-clock" data-shell-clock /></div>
       {kindButtons}{stepsRow}{targetList}{srcRows}{gloucesterRow}{sumRow}
       <div className="br-bar__row"><p className="br-bar__hint">{helpText}</p>{btns}</div>
     </section>
-  ) : <section className="br-bar is-waiting" aria-live="polite"><p className="br-bar__text">{waitText}</p></section>);
+  ) : <section className="bgv-card br-bar is-waiting" data-theme={pageTheme} aria-live="polite"><div className="br-bar__row"><p className="br-bar__text">{waitText}</p>{langToggle}<span className="br-clock" data-shell-clock /></div></section>);
 
   // Phone: actions sheet at the start of the turn, then the dock (§15).
   const sheet = phone && myTurn && !kind && !short ? (
-    <section className="bgv-actiondock br-dock br-sheet br__actions" aria-label={L.t('اقدام‌ها', 'Actions')}>
+    <section className="bgv-actiondock br-dock br-sheet br__actions" data-theme={pageTheme} aria-label={L.t('اقدام‌ها', 'Actions')}>
       <p className="br-sheet__head">{turnText}</p>
       {kindButtons}
       <p className="br-bar__hint">{helpText}</p>
     </section>
   ) : null;
   const dock = phone && !short ? (myTurn && kind ? (
-    <section className="bgv-actiondock br-dock br__actions" aria-label={L.t('اقدام شما', 'Your action')}>
+    <section className="bgv-actiondock br-dock br__actions" data-theme={pageTheme} aria-label={L.t('اقدام شما', 'Your action')}>
       {stepsRow}{targetList}{srcRows}{gloucesterRow}{sumRow}
       <p className="br-bar__hint">{helpText}</p>
       <div className="br-bar__row br-dock__btns">{btns}<button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm bgv-btn--ghost" aria-label={L.t('لغو اقدام', 'Cancel action')} disabled={busy} onClick={() => { setKind(null); reset(); }}>×</button></div>
     </section>
-  ) : !myTurn ? <section className="br-bar is-waiting" aria-live="polite"><p className="br-bar__text">{waitText}</p></section> : null) : null;
+  ) : null) : null; // off-turn on phones: the status row and the shell turn pill say whose turn it is
 
   const handZone = view.hand && (
     <section className="bgv-felt br-zone br__hand" aria-label={L.t('دست شما', 'Your hand')}>
@@ -798,9 +820,12 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
   const stage = eraSeq?.stages[eraSeq.i];
   const seqBoard = eraSeq ? (stage === 'beer' || stage === 'hand' ? { ...eraSeq.prev, links: {}, merchants: view.merchants, board: view.board } : stage === 'level1' ? { ...eraSeq.prev, links: {} } : stage === 'tiles' ? { ...eraSeq.prev, links: {} } : eraSeq.prev) : null;
   const seqMarks: Marks = { links: stage === 'links', tiles: stage === 'tiles', leaving: stage === 'level1' };
+  const toggleFull = () => { if (document.fullscreenElement) void document.exitFullscreen(); else void zoneRef.current?.requestFullscreen?.(); };
+  const fullBtn = <button type="button" className={phone ? 'bgv-btn bgv-btn--icon' : 'bgv-btn bgv-btn--icon bgv-btn--sm'} aria-label={L.t('تمام‌صفحه', 'Full screen')} onClick={toggleFull}><Icon name="maximize" size="sm" /></button>;
+  const aidBtn = <button type="button" className={phone ? 'bgv-btn bgv-btn--icon' : 'bgv-btn bgv-btn--icon bgv-btn--sm'} aria-haspopup="dialog" aria-label={L.t('راهنمای بازیکن', 'Player aid')} onClick={() => setAid(true)}><Icon name="book-open" size="sm" /></button>;
   const mapZone = (
-    <section className="bgv-felt br-zone br-mapzone" aria-label={L.t('نقشه', 'Board')}>
-      <div className="br-maptools">
+    <section ref={zoneRef} className="bgv-felt br-zone br-mapzone" aria-label={L.t('نقشه', 'Board')}>
+      {!phone && <div className="br-maptools">
         <span className="br-maptools__zoom" role="group" aria-label={L.t('بزرگ‌نمایی', 'Zoom')}>
           <button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label={L.t('کوچک‌تر', 'Zoom out')} disabled={zoom.v.s <= 1} onClick={zoom.zoomOut}>−</button>
           <span className="br-zoomv" aria-live="polite">{L.n(Math.round(zoom.v.s * 100))}٪</span>
@@ -810,23 +835,26 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
         <span className="br-eraplate">
           <img src={art(`art/links/link-grey-${view.era}.webp`)} alt="" />
           <b>{eraFa}</b><span>{L.t(`دور ${L.n(view.round)} از ${L.n(roundsOf)}`, `Round ${view.round} of ${roundsOf}`)}</span>
-          <span><img src={BACK} alt={L.t('دسته', 'Deck')} />{L.n(view.deckCount)}</span>
-          <span><img src={RES_ART.coal} alt={L.t('زغال', 'Coal')} /><span className="br-gbp">{L.gbp(coalBuy)}</span></span>
-          <span><img src={RES_ART.iron} alt={L.t('آهن', 'Iron')} /><span className="br-gbp">{L.gbp(ironBuy)}</span></span>
+          <span className="br-eraplate__more"><img src={BACK} alt={L.t('دسته', 'Deck')} />{L.n(view.deckCount)}</span>
+          <span className="br-eraplate__more"><img src={RES_ART.coal} alt={L.t('زغال', 'Coal')} /><span className="br-gbp">{L.gbp(coalBuy)}</span></span>
+          <span className="br-eraplate__more"><img src={RES_ART.iron} alt={L.t('آهن', 'Iron')} /><span className="br-gbp">{L.gbp(ironBuy)}</span></span>
         </span>
         <span className="br-maptools__end">
-          <span className="br-lang" role="group" aria-label={L.t('زبان بازی', 'Game language')}>
-            <button type="button" aria-pressed={!en} onClick={() => setEn(false)}>فا</button>
-            <button type="button" aria-pressed={en} onClick={() => setEn(true)} lang="en">EN</button>
-          </span>
-          <button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-haspopup="dialog" aria-label={L.t('راهنمای بازیکن', 'Player aid')} onClick={() => setAid(true)}>؟</button>
+          {fullBtn}{aidBtn}
         </span>
-      </div>
+      </div>}
       {focus && <span className="br-mapinfo" aria-live="polite">{L.t(`بزرگ‌نمایی خودکار: ${L.n(targets.slots.length)} جای مجاز`, `Auto-zoom: ${targets.slots.length} legal spots`)}</span>}
+      <div className="br-mapwrap">
+      {phone && <span className="br-zoomfloat" data-theme={pageTheme} role="group" aria-label={L.t('بزرگ‌نمایی', 'Zoom')}>
+        <button type="button" className="bgv-btn bgv-btn--icon" aria-label={L.t('بزرگ‌تر', 'Zoom in')} disabled={zoom.v.s >= ZMAX} onClick={zoom.zoomIn}>+</button>
+        <button type="button" className="bgv-btn bgv-btn--icon" aria-label={L.t('کوچک‌تر', 'Zoom out')} onClick={zoom.zoomOut}>−</button>
+        {fullBtn}
+      </span>}
       <div ref={zoom.box} className={['br-mapbox', zoom.v.s > 1 ? 'is-zoomed' : ''].join(' ')} role="group" aria-label={L.t('نقشهٔ بیرمنگام', 'Birmingham board')} {...zoom.handlers}>
         <div className="br-mapbox__in" style={{ transform: `translate(${zoom.v.x}px, ${zoom.v.y}px) scale(${zoom.v.s})` }}>
           {eraSeq ? <Board view={seqBoard!} who={who} t={NO_TARGETS} L={L} marks={seqMarks} /> : <Board view={view} who={who} t={targets} L={L} />}
         </div>
+      </div>
       </div>
     </section>
   );
@@ -871,10 +899,22 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
   const status = (s: number) => (view.outcome ? (placeOf(s) ? L.t(`رتبهٔ ${L.n(placeOf(s)!)}`, `Place ${placeOf(s)}`) : '') : view.current === s ? L.t(`در نوبت، اقدام ${L.n(firstAction(view))} از ${L.n(actionsOfTurn(view))}`, `To play, action ${firstAction(view)} of ${actionsOfTurn(view)}`) : L.t(`نفر ${L.n(view.order.indexOf(s) + 1)} این دور`, `Turn ${view.order.indexOf(s) + 1} this round`));
 
   if (phone) {
-    const tabs: [Tab, string][] = [['map', L.t('نقشه', 'Board')], ['hand', L.t(`دست ${L.n(hand.length)}`, `Hand ${hand.length}`)], ['mat', L.t('صفحهٔ من', 'My mat')], ['players', L.t('بازیکنان', 'Players')]];
+    const tabs: [Tab, string][] = [['map', L.t('نقشه', 'Board')], ['hand', L.t(`دست${NBSP}${L.n(hand.length)}`, `Hand${NBSP}${hand.length}`)], ['mat', L.t('صفحهٔ من', 'My mat')], ['players', L.t('بازیکنان', 'Players')]];
     return (
       <div className="br br--phone" ref={root} data-seq={view.seq} data-era={view.era} data-round={view.round} lang={en ? 'en' : 'fa'}>
+        <ul className="br-strip" aria-label={L.t('بازیکنان', 'Players')}>
+          {seats.map((s) => <li key={s} className={['br-chipp', view.current === s ? 'is-turn' : '', s === mySeat ? 'is-you' : ''].join(' ')} style={seatStyle(s)}>
+            <img src={charArt(s)} alt="" />
+            <span className="br-chipp__id"><bdi>{who(s)}</bdi><small><span className="br-gbp">{L.gbp(view.money[s]!)}</span><span className="bgv-sep" />{L.t('درآمد', 'income')} <span className="bgv-num--signed">{L.sg(view.incomeLevels[s]!)}</span></small></span>
+            <b className="br-chipp__vp">{L.n(view.vp[s]!)}<small>{L.t('امتیاز', 'VP')}</small></b>
+          </li>)}
+        </ul>
         {seqCard}{scoreCard}
+        <div className="br-status" data-theme={pageTheme}>
+          <span className="br-status__info"><b>{eraFa}</b><span className="bgv-sep" />{L.t(`دور ${L.n(view.round)}`, `Round ${view.round}`)}<span className="bgv-sep" />{L.t(`اقدام ${L.n(firstAction(view))}/${L.n(actionsOfTurn(view))}`, `Action ${firstAction(view)}/${actionsOfTurn(view)}`)}</span>
+          <span className="br-clock" data-shell-clock />
+          {aidBtn}
+        </div>
         <div className="br-tabs" role="tablist" aria-label={L.t('بخش‌ها', 'Sections')}>
           {tabs.map(([k, label]) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{label}</button>)}
         </div>
@@ -887,7 +927,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
             <div className="br-mview">
               <ul className="br__players" aria-label={L.t('بازیکنان', 'Players')}>
                 {seats.map((s) => <li key={s} className={['bgv-pcard br-panel', view.current === s ? 'is-turn' : '', s === mySeat ? 'is-you' : ''].join(' ')}>
-                  <span className="br-panel__id" style={seatStyle(s)}><img className="br-panel__char" src={charArt(s)} alt="" /><b><bdi>{who(s)}</bdi></b><span className="br-vp"><b>{L.n(view.vp[s]!)}</b><small>{L.t('امتیاز', 'VP')}</small></span></span>
+                  <span className="br-panel__id" style={seatStyle(s)}><img className="br-panel__char" src={charArt(s)} alt="" /><b><bdi>{who(s)}</bdi></b></span>
                   <PanelBody d={panelFromView(view, s, s === mySeat && pvCards.length ? pvCards.at(-1) : view.discardTop[s])} status={status(s)} me={s === mySeat} />
                 </li>)}
               </ul>
@@ -896,7 +936,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
         </div>
         {shortBar}{sheet}{dock}
         {matSeat !== null && <MatDialog view={view} s={matSeat} who={who(matSeat)} me={matSeat === mySeat} L={L} onClose={() => setMatSeat(null)} onStep={(d) => setMatSeat(seats[(seats.indexOf(matSeat) + d + seats.length) % seats.length]!)} />}
-        {aid && <AidDialog L={L} onClose={() => setAid(false)} />}
+        {aid && <AidDialog L={L} onClose={() => setAid(false)} extra={phone ? langToggle : null} />}
       </div>
     );
   }
@@ -910,19 +950,20 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
         {handZone}
         {mapZone}
       </div>
+      {!view.log?.length && <RailSlot><section className="bgv-card br-sc br-log" aria-label={L.t('گزارش بازی', 'Game log')}><h3>{eraFa}، {L.t(`دور ${L.n(view.round)}`, `round ${view.round}`)}</h3><p>{L.t('هنوز حرکتی ثبت نشده است.', 'No moves yet.')}</p></section></RailSlot>}
       {matSeat !== null && <MatDialog view={view} s={matSeat} who={who(matSeat)} me={matSeat === mySeat} L={L} onClose={() => setMatSeat(null)} onStep={(d) => setMatSeat(seats[(seats.indexOf(matSeat) + d + seats.length) % seats.length]!)} />}
-      {aid && <AidDialog L={L} onClose={() => setAid(false)} />}
+      {aid && <AidDialog L={L} onClose={() => setAid(false)} extra={phone ? langToggle : null} />}
     </div>
   );
 }
 
-function AidDialog({ L, onClose }: { L: Lx; onClose: () => void }) {
+function AidDialog({ L, onClose, extra }: { L: Lx; onClose: () => void; extra?: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
   useEffect(() => { ref.current?.focus(); }, []);
   return (
     <div className="br-scrim" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <section ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={L.t('راهنمای بازیکن', 'Player aid')} className="bgv-dialog br-aiddialog" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
-        <header className="br-aiddialog__head"><b>{L.t('راهنمای بازیکن', 'Player aid')}</b><button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label={L.t('بستن', 'Close')} onClick={onClose}>×</button></header>
+        <header className="br-aiddialog__head"><b>{L.t('راهنمای بازیکن', 'Player aid')}</b>{extra}<button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label={L.t('بستن', 'Close')} onClick={onClose}>×</button></header>
         <img src={art('art/player-aids/player-aid-back.webp')} alt={L.t('راهنمای بازیکن: جدول کارت‌ها', 'Player aid: card table')} />
       </section>
     </div>

@@ -10,8 +10,18 @@
 // same way. Buttons, costs, default payments, disabled reasons and legal spaces all come from the engine (legal hints,
 // `me.blocked`, `me.values`, `respond.options`).
 import './renderer.css';
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, ZoomBoard, useFlip, useFresh, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import { RailSlot, ZoomBoard, useFlip, useFresh, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Avatar, Button as DsButton } from '@bg/ui/bgv';
+
+/** The DS Button as-is (icons, disabled tile, `pressed` only for real toggles). */
+type BtnProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'style'> & {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'; size?: 'sm' | 'md'; icon?: string; iconOnly?: boolean; pressed?: boolean; className?: string;
+  'data-act'?: string; 'data-reason'?: string; 'data-tm-confirm'?: string;
+};
+function Button({ variant = 'primary', size = 'md', icon, ...rest }: BtnProps) {
+  return <DsButton variant={variant} {...(size === 'sm' ? { size: 'sm' as const } : {})} {...(icon ? { icon: icon as never } : {})} {...rest} />;
+}
 import {
   AWARD_COSTS, AWARDS, CARD, MILESTONE_COST, MILESTONES, PROJECTS, PROJECT_FA, RES, RES_FA, CARDRES_FA, SPACE, NAME_FA, OCEANS_MAX, OXY_MAX, TEMP_MAX,
   type CardDef, type Project, type Res, type Tag, type TmDetail, type TmView
@@ -243,15 +253,22 @@ function Dashboard({ view, en, zoom, setZoom, help, setHelp, settings }: { view:
     <section className="tm-dash" aria-label="پارامترهای جهانی">
       <div className="tm-dash__tools">
         <span className="bgv-row">
-          <Button size="sm" variant="secondary" className="tm-zoombtn" aria-label="کوچک‌تر" disabled={zoom <= 0.8} onClick={() => setZoom(Math.round((zoom - 0.1) * 10) / 10)}>−</Button>
-          <Button size="sm" variant="secondary" className="tm-zoombtn" aria-label="بزرگ‌تر" disabled={zoom >= 1.4} onClick={() => setZoom(Math.round((zoom + 0.1) * 10) / 10)}>+</Button>
+          {/* the DS icon set has no minus/zoom-out: a text «−» in the same square ghost token (noted for the owner) */}
+          <Button size="sm" variant="ghost" className="bgv-btn--icon tm-textbtn" aria-label="کوچک‌تر" disabled={zoom <= 0.8} onClick={() => setZoom(Math.round((zoom - 0.1) * 10) / 10)}>−</Button>
+          <Button size="sm" variant="ghost" iconOnly icon="plus" disabled={zoom >= 1.4} onClick={() => setZoom(Math.round((zoom + 0.1) * 10) / 10)}>بزرگ‌تر</Button>
         </span>
         <span className="bgv-row">
-          <Button size="sm" variant="ghost" icon="book" aria-pressed={help} onClick={() => setHelp(!help)}>راهنما</Button>
-          <Button size="sm" variant="ghost" icon="settings" aria-expanded={open} onClick={() => setOpen(!open)}>تنظیمات</Button>
+          <Button size="sm" variant="ghost" iconOnly icon="book-open" {...(help ? { pressed: true } : {})} onClick={() => setHelp(!help)}>راهنما</Button>
+          <Button size="sm" variant="ghost" iconOnly icon="settings" aria-expanded={open} onClick={() => setOpen(!open)}>تنظیمات</Button>
         </span>
       </div>
       {open && <div className="tm-dash__settings">{settings}</div>}
+      {help && <ul className="tm-dash__help">
+        {(Object.keys(PROJECTS) as Project[]).map((pr) => <li key={pr}><b>{en ? PROJECT_EN[pr] : PROJECT_FA[pr]}</b> {pr === 'sellPatents' ? (en ? '1 M€ per card' : 'هر کارت ۱ مگاکردیت') : `${num(PROJECTS[pr], en)} ${en ? 'M€' : 'مگاکردیت'}: ${en ? PROJECT_FX_EN[pr] : PROJECT_FX[pr]}`}</li>)}
+        <li><b>{en ? 'Milestone' : 'نقطهٔ عطف'}</b> {en ? `${MILESTONE_COST} M€, 5 VP, 3 at most` : `${fa(MILESTONE_COST)} مگاکردیت، ۵ امتیاز، حداکثر ۳`}</li>
+        <li><b>{en ? 'Award' : 'جایزه'}</b> {en ? `${AWARD_COSTS.join(' / ')} M€; 5 and 2 VP` : `${AWARD_COSTS.map(fa).join(' / ')} مگاکردیت؛ ۵ و ۲ امتیاز`}</li>
+        <li><b>{en ? 'Conversions' : 'تبدیل‌ها'}</b> {en ? '8 plants → greenery; 8 heat → +1 temperature' : '۸ گیاه به فضای سبز؛ ۸ گرما به ۱ پلهٔ دما'}</li>
+      </ul>}
       <div className="tm-dash__params">
         <span className="tm-param" role="meter" aria-label="اکسیژن" aria-valuemin={0} aria-valuemax={OXY_MAX} aria-valuenow={view.oxygen}><img className="tm-ic" src={icon('oxygen')} alt="" /><b key={view.oxygen} className={`tm-num ${pO}`}>{num(view.oxygen, en)}٪</b></span>
         <span className="tm-param" role="meter" aria-label="دما" aria-valuemin={-30} aria-valuemax={TEMP_MAX} aria-valuenow={view.temperature}><img className="tm-ic" src={icon('temperature')} alt="" /><b key={view.temperature} className={`tm-num ${pT}`}>{signed(view.temperature, en)}°C</b></span>
@@ -301,15 +318,16 @@ export function tmSeatCard(seat: { primary?: { value: number }; status?: string;
   // Simultaneous phases (generation 1, draft, research): compact panel, name + TR plate + «در حال انتخاب» / «آماده ✓».
   if (d.phase === 'corp' || d.phase === 'draft' || d.phase === 'research') {
     return {
-      stats: undefined, badge: undefined, scoreLabel: undefined, clock: undefined, detail: undefined,
-      score: <span className="tm tm-side">{fp}{tr}</span>,
-      ...(d.ready ? { done: 'آماده ✓', waiting: undefined } : { done: undefined, waiting: 'در حال انتخاب' })
+      stats: undefined, badge: undefined, scoreLabel: undefined, clock: undefined, detail: undefined, turn: false,
+      score: <span className="tm tm-side">{tr}</span>,
+      ...(fp ? { sub: <span className="tm tm-sub">{fp}</span> } : { sub: undefined }),
+      ...(d.ready ? { done: 'آماده', waiting: undefined } : { done: undefined, waiting: 'در حال انتخاب' })
     };
   }
   return {
     stats: undefined, badge: undefined, scoreLabel: undefined,
-    score: <span className="tm tm-side" data-score={d.score}>{fp}<span className="tm-score" title="امتیاز فعلی"><b>{fa(d.score)}</b><small>امتیاز</small></span></span>,
-    ...(d.actionsTaken !== null ? { sub: `کنش ${fa(d.actionsTaken + 1)} از ۲` } : seat.status === 'passed' ? { sub: 'پاس داده' } : {}),
+    score: <span className="tm tm-side" data-score={d.score}><span className="tm-score" title="امتیاز فعلی"><b>{fa(d.score)}</b><small>امتیاز</small></span></span>,
+    sub: <span className="tm tm-sub">{fp}{d.actionsTaken !== null ? `کنش ${fa(d.actionsTaken + 1)} از ۲` : seat.status === 'passed' ? 'پاس داده' : ''}</span>,
     detail: <div className="tm tm-pdetail"><PanelBody d={d} en={false} rail /></div>
   };
 }
@@ -354,7 +372,7 @@ function PlayerArea({ view, k, me, en, seatName, cardPick, convert }: {
     <article className={`tm-player tm-seat-${k}${me ? ' is-you' : ''}`} data-seat={k} data-flip-anchor={`seat-${k}`} style={{ '--pc': `var(--tm-${colorOf(k)})`, '--seat-c': `var(--tm-${colorOf(k)})` } as CSSProperties}
       aria-label={en ? `Area of ${seatName(k)}` : `محوطهٔ ${seatName(k)}`}>
       <header className="tm-ahead">
-        <span className="tm-ahead__name" style={{ color: `var(--tm-${colorOf(k)}-ink)` }}><bdi>{seatName(k)}</bdi>{me && <small>{en ? 'you' : 'شما'}</small>}{p.passed && view.phase === 'action' && <small>{en ? 'passed' : 'پاس داده'}</small>}</span>
+        <span className="tm-ahead__name" style={{ color: `var(--tm-${colorOf(k)}-ink)` }}><bdi>{seatName(k)}</bdi>{me && <span className="tm-you">{en ? 'you' : 'شما'}</span>}{p.passed && view.phase === 'action' && <small>{en ? 'passed' : 'پاس داده'}</small>}</span>
         {p.corp && <span className="tm-logo">{art(MAP.corpLogos![p.corp]) ? <img src={art(MAP.corpLogos![p.corp])} alt={cardName(p.corp, en)} /> : <span className="tm-ph">{cardName(p.corp, en)}</span>}</span>}
         <span className="tm-score" title={`رتبه ${fa(p.score.tr)} + نقطهٔ عطف ${fa(p.score.milestones)} + جایزه ${fa(p.score.awards)} + فضای سبز ${fa(p.score.greenery)} + شهر ${fa(p.score.city)} + کارت ${fa(p.score.cards)}`}><b>{num(p.score.total, en)}</b><small>{en ? 'VP' : 'امتیاز'}</small></span>
         <span key={p.tr} className={`tm-tr ${popTr}`} style={{ backgroundImage: `url(${icon('tr')})` }} title={en ? 'Terraform rating' : 'رتبهٔ زمین‌سازی'}><b>{num(p.tr, en)}</b></span>
@@ -421,7 +439,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
   const reasonText = (c: string | undefined) => reasonOf(c, en);
   const [floating, setFloating] = useLocal('floatingHand', false);
   const [zoom, setZoom] = useLocal('zoom', 1);
-  const [help, setHelp] = useLocal('help', true);
+  const [help, setHelp] = useLocal('help2', false);
   const [tab, setTab] = useState<'mars' | 'hand' | 'players'>(() => (served.phase === 'corp' || served.phase === 'draft' || served.phase === 'research' ? 'hand' : 'mars'));
   const [sheet, setSheet] = useState(false);
   const [menu, setMenu] = useState<null | 'projects' | 'milestones' | 'awards'>(null);
@@ -680,11 +698,11 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
           {payOk ? <b>✓</b> : <small className="tm-warn">{mcPay > meP.res.mc ? t('مگاکردیت کافی نیست', 'Not enough M€') : t('این ترکیب پرداخت ممکن نیست', 'This payment is not possible')}</small>}</div>
       </>}
       <div className="tm-bar__row">
-        <Button data-tm-confirm="" data-act={payRows.length || (cost > 0 && flow.t !== 'sell') ? 'pay' : 'confirm'} variant={over > 0 ? 'danger' : 'primary'} disabled={!canConfirm}
+        <Button icon="check" data-tm-confirm="" data-act={payRows.length || (cost > 0 && flow.t !== 'sell') ? 'pay' : 'confirm'} variant={over > 0 ? 'danger' : 'primary'} disabled={!canConfirm}
           className={action && isHint(action as Record<string, unknown>) ? 'tm-hint' : ''} onClick={() => action && send(action)}>
           {flow.t === 'sell' ? (en ? `Sell ${flow.cards.length} cards` : `فروش ${fa(flow.cards.length)} کارت`) : over > 0 ? (en ? `Confirm (overpay ${over})` : `تأیید (اضافه‌پرداخت ${fa(over)})`) : t('تأیید', 'Confirm')}
         </Button>
-        <Button variant="secondary" onClick={() => setFlow(null)}>{t('برگرد', 'Back')}</Button>
+        <Button variant="secondary" icon="rotate-ccw" onClick={() => setFlow(null)}>{t('برگرد', 'Back')}</Button>
         <Button variant="ghost" onClick={() => { setFlow(null); setMenu(null); }}>{t('لغو کنش', 'Cancel action')}</Button>
       </div>
     </div>
@@ -719,7 +737,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
           <Button size="sm" variant="secondary" aria-label="بیشتر" disabled={amount >= prompt.max} onClick={() => setAmount(amount + 1)}>+</Button>
         </div>}
         <div className="tm-bar__row">
-          <Button data-tm-confirm="" data-act={actName} disabled={!ok} className={answerAction && isHint(answerAction as Record<string, unknown>) ? 'tm-hint' : ''} onClick={() => answerAction && send(answerAction)}>
+          <Button icon="check" data-tm-confirm="" data-act={actName} disabled={!ok} className={answerAction && isHint(answerAction as Record<string, unknown>) ? 'tm-hint' : ''} onClick={() => answerAction && send(answerAction)}>
             {prompt.kind === 'space' ? t('تأیید جا', 'Confirm space') : prompt.kind === 'cards' ? `${t('تأیید', 'Confirm')} (${num(sel.length, en)})` : t('تأیید', 'Confirm')}
           </Button>
           {prompt.optional && <Button variant="secondary" data-act="skip" className={isHint({ type: 'respond', skip: true }) ? 'tm-hint' : ''} onClick={() => send({ type: 'respond', skip: true })}>{prompt.kind === 'player' ? t('هیچ‌کس', 'Nobody') : t('رد کردن', 'Skip')}</Button>}
@@ -733,27 +751,28 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
     if (corpHint && me) {
       const startMc = CARD[corp ?? '']?.startMc ?? 0;
       return <div className="tm-flow">
-        <div className="tm-dockprompt"><span className="tm-bar__long"><b>{t('نسل ۱:', 'Generation 1:')}</b> {t('یک شرکت و هر تعداد از ۱۰ کارت را انتخاب کنید؛ هر کارت ۳ مگاکردیت از پول شرکت. انتخاب همه هم‌زمان و پنهان است.', 'choose a corporation and any of the 10 cards; each card costs 3 M€ of its money. Everyone chooses at the same time, in secret.')}</span>
+        <div className="tm-dockprompt tm-dockprompt--clock">{!phone && <span className="tm-clock" data-shell-clock="" />}<span className="tm-bar__long"><b>{t('نسل ۱:', 'Generation 1:')}</b> {t('یک شرکت و هر تعداد از ۱۰ کارت را انتخاب کنید؛ هر کارت ۳ مگاکردیت از پول شرکت. انتخاب همه هم‌زمان و پنهان است.', 'choose a corporation and any of the 10 cards; each card costs 3 M€ of its money. Everyone chooses at the same time, in secret.')}</span>
           <span className="tm-total"><img className="tm-ic" src={RES_ICON.mc} alt="" />{corp
             ? (en ? `${cardName(corp, en)} + ${sel.length} cards = ${3 * sel.length} of ${startMc}` : `${cardName(corp, en)} + ${fa(sel.length)} کارت = ${fa(3 * sel.length)} از ${fa(startMc)}`)
-            : (en ? `${sel.length} cards = ${3 * sel.length}` : `${fa(sel.length)} کارت = ${fa(3 * sel.length)} مگاکردیت`)}</span></div>
+            : (en ? `Corporation + ${sel.length} cards = ${3 * sel.length}` : `شرکت + ${fa(sel.length)} کارت = ${fa(3 * sel.length)}`)}
+            {corp && <span className="tm-total__left">{en ? `; ${startMc - 3 * sel.length} left` : `؛ می‌ماند ${fa(startMc - 3 * sel.length)}`}</span>}</span></div>
         <div className="tm-bar__row">
-          <Button data-tm-confirm="" data-act="corp" disabled={busy || !corp || 3 * sel.length > startMc} onClick={() => send({ type: 'corp', corp, cards: sel })}>{t('تأیید انتخاب', 'Confirm choice')}</Button>
-          <Button variant="secondary" disabled={!sel.length && !corp} onClick={() => (sel.length ? setSel(sel.slice(0, -1)) : setCorp(null))}>{t('برگرد', 'Back')}</Button>
+          <Button icon="check" data-tm-confirm="" data-act="corp" disabled={busy || !corp || 3 * sel.length > startMc} onClick={() => send({ type: 'corp', corp, cards: sel })}>{t('تأیید انتخاب', 'Confirm choice')}</Button>
+          <Button variant="secondary" icon="rotate-ccw" disabled={!sel.length && !corp} onClick={() => (sel.length ? setSel(sel.slice(0, -1)) : setCorp(null))}>{t('برگرد', 'Back')}</Button>
           {!corp ? <small className="tm-why">{t('یک شرکت انتخاب کنید', 'Choose a corporation')}</small>
             : 3 * sel.length > startMc ? <small className="tm-why">{t('پول شرکت برای این کارت‌ها کافی نیست', 'Not enough corporation money for these cards')}</small> : null}
         </div>
       </div>;
     }
-    if (draft) return <div className="tm-flow"><div className="tm-dockprompt"><span className="tm-bar__long"><b>{t('درفت:', 'Draft:')}</b> {en ? `keep one card; the rest go to the ${view.generation % 2 === 0 ? 'next' : 'previous'} player.` : `یک کارت نگه دارید؛ بقیه به نفر ${view.generation % 2 === 0 ? 'بعدی' : 'قبلی'} می‌رسد.`}</span>
+    if (draft) return <div className="tm-flow"><div className="tm-dockprompt tm-dockprompt--clock">{!phone && <span className="tm-clock" data-shell-clock="" />}<span className="tm-bar__long"><b>{t('درفت:', 'Draft:')}</b> {en ? `keep one card; the rest go to the ${view.generation % 2 === 0 ? 'next' : 'previous'} player.` : `یک کارت نگه دارید؛ بقیه به نفر ${view.generation % 2 === 0 ? 'بعدی' : 'قبلی'} می‌رسد.`}</span>
       {me && me.drafted.length > 0 && <small className="tm-dockhint">{t('درفت‌شده:', 'Drafted:')} {me.drafted.map((x) => cardName(x, en)).join(en ? ', ' : '، ')}</small>}</div>
-      <div className="tm-bar__row"><Button data-tm-confirm="" data-act="draft" disabled={busy || answer === null} onClick={() => answer !== null && send({ type: 'draft', card: String(answer) })}>{t('نگه دار', 'Keep')}</Button>
+      <div className="tm-bar__row"><Button icon="check" data-tm-confirm="" data-act="draft" disabled={busy || answer === null} onClick={() => answer !== null && send({ type: 'draft', card: String(answer) })}>{t('نگه دار', 'Keep')}</Button>
         {answer === null && <small className="tm-why">{t('یک کارت انتخاب کنید', 'Choose a card')}</small>}</div></div>;
-    if (research) return <div className="tm-flow"><div className="tm-dockprompt"><span className="tm-bar__long"><b>{t('پژوهش:', 'Research:')}</b> {en ? `pick the cards you buy (3 M€ each, at most ${research.max}).` : `کارت‌هایی را که می‌خرید انتخاب کنید (هر کدام ۳ مگاکردیت، حداکثر ${fa(research.max)}).`}</span>
+    if (research) return <div className="tm-flow"><div className="tm-dockprompt tm-dockprompt--clock">{!phone && <span className="tm-clock" data-shell-clock="" />}<span className="tm-bar__long"><b>{t('پژوهش:', 'Research:')}</b> {en ? `pick the cards you buy (3 M€ each, at most ${research.max}).` : `کارت‌هایی را که می‌خرید انتخاب کنید (هر کدام ۳ مگاکردیت، حداکثر ${fa(research.max)}).`}</span>
       <span className="tm-total"><img className="tm-ic" src={RES_ICON.mc} alt="" />{en ? `${sel.length} cards = ${3 * sel.length} of ${meP?.res.mc ?? 0}` : `${fa(sel.length)} کارت = ${fa(3 * sel.length)} از ${fa(meP?.res.mc ?? 0)}`}</span></div>
       <div className="tm-bar__row">
-        <Button data-tm-confirm="" data-act="research" disabled={busy} onClick={() => send({ type: 'research', cards: sel })}>{en ? `Buy ${sel.length} cards` : `تأیید خرید ${fa(sel.length)} کارت`}</Button>
-        <Button variant="secondary" disabled={!sel.length} onClick={() => setSel(sel.slice(0, -1))}>{t('برگرد', 'Back')}</Button>
+        <Button icon="check" data-tm-confirm="" data-act="research" disabled={busy} onClick={() => send({ type: 'research', cards: sel })}>{en ? `Buy ${sel.length} cards` : `تأیید خرید ${fa(sel.length)} کارت`}</Button>
+        <Button variant="secondary" icon="rotate-ccw" disabled={!sel.length} onClick={() => setSel(sel.slice(0, -1))}>{t('برگرد', 'Back')}</Button>
       </div></div>;
     return null;
   })();
@@ -771,13 +790,14 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
               : <>{t('نوبت', 'Turn:')} <bdi>{who(view.current)}</bdi></>;
   const waiting = !actionTurn && !prompt && !corpHint && !draft && !research;
   const bar = (
-    <section className={`tm-bar${waiting ? ' is-waiting' : ''}`} data-tm-actbar="" aria-label={t('نوار کنش', 'Action bar')}>
-      {statusText && <div className="tm-bar__row"><span className="tm-bar__text" role="status" aria-live="polite">{statusText}</span></div>}
+    <section className={`tm-bar bgv-card${waiting ? ' is-waiting' : ''}`} data-tm-actbar="" aria-label={t('نوار کنش', 'Action bar')}>
+      {statusText ? <div className="tm-bar__row"><span className="tm-bar__text" role="status" aria-live="polite">{statusText}</span>{!phone && <span className="tm-clock" data-shell-clock="" />}</div>
+        : null}
       {flowDock ?? promptDock ?? pickBar ?? (actionTurn && (phone && !hint
         ? <div className="tm-bar__row"><Button onClick={() => setSheet(true)}>{t('کنش‌ها', 'Actions')}</Button>{has('pass') && <Button variant="ghost" data-act="pass" className={isHint({ type: 'pass' }) ? 'tm-hint' : ''} onClick={() => start({ t: 'pass' })}>{t('پاس', 'Pass')}</Button>}
           {has('endTurn') && <Button variant="secondary" data-act="endTurn" className={isHint({ type: 'endTurn' }) ? 'tm-hint' : ''} onClick={() => send({ type: 'endTurn' })}>پایان نوبت</Button>}</div>
         : actionButtons(phone)))}
-      {help && actionTurn && !flow && !phone && view.phase === 'action' && <p className="tm-bar__hint">{t('پروژه‌های استاندارد، نقطه‌های عطف و جایزه‌ها روی خود صفحهٔ مریخ هم زدنی‌اند؛ کنش کارت‌های آبی روی همان کارت. بعد از کنش اول، «پایان نوبت» یا کنش دوم.', 'Standard projects, milestones and awards can also be clicked on the Mars board; blue-card actions on the card itself. After the first action: «End turn» or a second action.')}</p>}
+      {actionTurn && !flow && !phone && view.phase === 'action' && <p className="tm-bar__hint">{t('پروژه‌های استاندارد، نقطه‌های عطف و جایزه‌ها روی خود صفحهٔ مریخ هم زدنی‌اند؛ کنش کارت‌های آبی روی همان کارت. بعد از کنش اول، «پایان نوبت» یا کنش دوم.', 'Standard projects, milestones and awards can also be clicked on the Mars board; blue-card actions on the card itself. After the first action: «End turn» or a second action.')}</p>}
     </section>
   );
 
@@ -789,16 +809,22 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
   })();
   const pickCards = corpHint ? corpHint.cards : draft ? draft.cards : research ? research.cards : null;
   const handZone = (
-    <section className={`tm-zone tm-zone--hand tm-handzone${floating && !pickCards ? ' is-floating' : ''}`} data-zone="hand" aria-label={pickCards ? t('ناحیهٔ انتخاب', 'Pick area') : t('دست شما', 'Your hand')}>
+    <section className={`tm-zone tm-zone--hand tm-handzone${pickCards ? ' is-pick' : ''}${floating && !pickCards ? ' is-floating' : ''}`} data-zone="hand" aria-label={pickCards ? t('ناحیهٔ انتخاب', 'Pick area') : t('دست شما', 'Your hand')}>
       <div className="tm-zone__head">
         <h2>{corpHint ? t('انتخاب آغازین', 'Starting choice') : draft ? t('درفت', 'Draft') : research ? t('پژوهش', 'Research') : t('دست شما', 'Your hand')}</h2>
         <small>{en ? (corpHint ? `corporation ${corp ? 1 : 0} of 2, cards ${sel.length} of 10` : pickCards ? `${sel.length} picked` : `${me?.hand.length ?? 0} cards; playable ones are ringed. Hover a card to enlarge it.`)
           : corpHint ? `شرکت ${corp ? '۱' : '۰'} از ۲، کارت ${fa(sel.length)} از ۱۰` : pickCards ? `${fa(sel.length)} انتخاب‌شده` : `${fa(me?.hand.length ?? 0)} کارت؛ کارت‌های قابل بازی حلقه دارند، نشانگر را روی کارت نگه دارید تا بزرگ شود.`}</small>
-        {!pickCards && !phone && <Button size="sm" variant="ghost" aria-pressed={floating} onClick={() => setFloating(!floating)}>{t('شناور', 'Float')}</Button>}
+        {!pickCards && !phone && <Button size="sm" variant="ghost" {...(floating ? { pressed: true } : {})} onClick={() => setFloating(!floating)}>{t('شناور', 'Float')}</Button>}
       </div>
       {corpHint && <div className="tm-pickzone">
-        <div className="tm-corps">{corpHint.corps.map((id) => <TmCard key={id} id={id} w={phone ? 160 : 250} en={en} pick={corp === id ? 'picked' : 'selectable'} onPick={() => setCorp(id)} />)}</div>
-        <div className="tm-hand">{corpHint.cards.map((id) => <TmCard key={id} id={id} w={phone ? 104 : 128} en={en} pick={sel.includes(id) ? 'picked' : 'selectable'} onPick={() => toggle(id, 10)} />)}</div>
+        <div className="tm-pickstep">
+          <p className="tm-steph"><b>{t('۱. شرکت', '1. Corporation')}</b><small>{t('یکی از دو شرکت', 'one of two')}</small></p>
+          <div className="tm-corps">{corpHint.corps.map((id) => <TmCard key={id} id={id} w={phone ? 160 : 250} en={en} pick={corp === id ? 'picked' : 'selectable'} onPick={() => setCorp(id)} />)}</div>
+        </div>
+        <div className="tm-pickstep">
+          <p className="tm-steph"><b>{t('۲. کارت‌های آغازین', '2. Starting cards')}</b><small>{t('هر کارت ۳ مگاکردیت از پول شرکت', '3 M€ each from the corporation money')}</small></p>
+          <div className="tm-hand tm-pickgrid">{corpHint.cards.map((id) => <TmCard key={id} id={id} w={phone ? 104 : 128} en={en} pick={sel.includes(id) ? 'picked' : 'selectable'} onPick={() => toggle(id, 10)} />)}</div>
+        </div>
       </div>}
       {draft && <div className="tm-hand tm-hand--desk">{draft.cards.map((id) => <TmCard key={id} id={id} w={150} en={en} pick={answer === id ? 'picked' : 'selectable'} onPick={() => setAnswer(id)} />)}</div>}
       {research && <div className="tm-hand tm-hand--desk">{research.cards.map((id) => <TmCard key={id} id={id} w={150} en={en} flip={{ exit: 'discard' }} pick={sel.includes(id) ? 'picked' : 'selectable'} onPick={() => toggle(id, research.max)} />)}</div>}
@@ -814,8 +840,14 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
   );
   const boardEl = <Board view={view} en={en} seatName={seatName} picks={spacePick} picked={prompt?.kind === 'space' ? (answer as string | null) : null}
     onSpace={(id) => setAnswer(id)} hint={hint?.type === 'respond' && typeof hint.space === 'string' && answer !== hint.space ? hint.space : null} boardAct={boardAct} />;
+  const settings = <div className="tm-settings">
+    <span className="tm-lang" role="group" aria-label="زبان لایهٔ بازی"><button type="button" aria-pressed={!en} onClick={() => setLang('fa')}>فا</button><button type="button" aria-pressed={en} onClick={() => setLang('en')}>EN</button></span>
+    <label className="tm-check-row"><input type="checkbox" checked={floating} onChange={(e) => setFloating(e.target.checked)} /> {t('دست شناور (پایین صفحه)', 'Floating hand (bottom of the page)')}</label>
+  </div>;
+  const dashboard = <Dashboard view={view} en={en} zoom={zoom} setZoom={setZoom} help={help} setHelp={setHelp} settings={settings} />;
   const marsZone = (
     <section className="tm-zone tm-zone--mars tm-boardzone" data-zone="mars" aria-label={t('صفحهٔ مریخ', 'Mars board')}>
+      {phone && dashboard}
       {phone ? <ZoomBoard label="صفحهٔ تارسیس" className="tm-mview">{(() => {
         const z = !whole ? autoZoom(spacePick) : null;
         return <div className="tm-azoom">
@@ -832,14 +864,21 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
       {shownPlayers.map((k) => <PlayerArea key={k} view={view} k={k} me={k === mySeat} en={en} seatName={seatName} cardPick={k === mySeat ? tableauPick : () => ({ pick: 'none' })} convert={convert} />)}
     </section>
   );
-  const settings = <div className="tm-settings">
-    <span className="tm-lang" role="group" aria-label="زبان لایهٔ بازی"><button type="button" aria-pressed={!en} onClick={() => setLang('fa')}>فا</button><button type="button" aria-pressed={en} onClick={() => setLang('en')}>EN</button></span>
-    <label className="tm-check-row"><input type="checkbox" checked={floating} onChange={(e) => setFloating(e.target.checked)} /> {t('دست شناور (پایین صفحه)', 'Floating hand (bottom of the page)')}</label>
-  </div>;
 
   return (
     <div className="tm" ref={root} data-seq={view.seq} data-phase={view.phase} data-tab={tab} lang={lang} dir={en ? 'ltr' : 'rtl'} data-theme={pageTheme()} style={{ '--tm-z': zoom } as CSSProperties}>
-      <Dashboard view={view} en={en} zoom={zoom} setZoom={setZoom} help={help} setHelp={setHelp} settings={settings} />
+      {!phone && <RailSlot><div className="tm rail-top" lang={lang} dir={en ? 'ltr' : 'rtl'} data-theme={pageTheme()}>{dashboard}</div></RailSlot>}
+      {phone && <div className="tm-mstrip" role="list" aria-label={t('بازیکنان', 'Players')}>{order.map((k) => {
+        const p = view.players[k]!;
+        return <button key={k} type="button" role="listitem" className={`tm-mchip${k === mySeat ? ' is-you' : ''}${!simultaneous && view.current === k && !view.outcome ? ' is-turn' : ''}`}
+          onClick={() => { setPlayersTab(k); setTab('players'); }}>
+          <Avatar size="sm" initials={seatName(k).slice(0, 1)} name={seatName(k)} seat={(k + 1) as never} you={k === mySeat} />
+          <span className="tm-mchip__id"><bdi style={{ color: `var(--tm-${colorOf(k)}-ink)` }}>{seatName(k)}</bdi>{k === mySeat && <span className="tm-you">{t('شما', 'you')}</span>}
+            {view.firstPlayer === k && <img className="tm-fp" src={art(MAP.firstPlayer)} alt={t('نفر اول', 'First player')} title={t('نفر اول', 'First player')} />}</span>
+          <b className="tm-mchip__vp">{en ? `${p.score.total} VP` : `${fa(p.score.total)} امتیاز`}</b>
+          <small>{simultaneous ? (p.ready ? t('آماده ✓', 'ready ✓') : t('در حال انتخاب', 'choosing')) : p.passed && view.phase === 'action' ? t('پاس داده', 'passed') : '\u00a0'}</small>
+        </button>;
+      })}</div>}
       {/* Own rail outside the table shell (the shell draws these from publicSummary; hidden there by renderer.css). */}
       <aside className="tm-own" aria-label="بازیکنان">
         {order.map((k) => <div key={k} className={`tm-ownpanel${k === mySeat ? ' is-you' : ''}${view.current === k && view.phase === 'action' ? ' is-turn' : ''}`}>
@@ -851,6 +890,8 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
           <PanelBody d={detailOf(view, k)} en={en} /></div>)}
         {view.log.length > 0 && <ol className="tm-log" aria-live="polite">{view.log.slice(-8).reverse().map((l, i) => <li key={`${view.seq}-${i}`}><bdi>{seatName(l.seat)}</bdi>: {LOG_TXT[l.kind]?.[en ? 1 : 0] ?? l.kind}{l.card ? ` «${cardName(l.card, en)}»` : ''}{l.detail ? ` «${en ? PROJECT_EN[l.detail as Project] ?? MILESTONES.find((m) => m.id === l.detail)?.name ?? AWARDS.find((m) => m.id === l.detail)?.name ?? l.detail : PROJECT_FA[l.detail as Project] ?? MILESTONES.find((m) => m.id === l.detail)?.nameFa ?? AWARDS.find((m) => m.id === l.detail)?.nameFa ?? l.detail}»` : ''}</li>)}</ol>}
       </aside>
+      {phone && <div className="tm-mturn"><span className="tm-clock" data-shell-clock="" />
+        <span className="tm-genchip">{en ? `Generation ${view.generation}` : `نسل ${fa(view.generation)}`}{view.phase === 'action' && !view.outcome ? <><span className="bgv-sep" />{en ? `action ${view.actionsTaken + 1} of 2` : `کنش ${fa(view.actionsTaken + 1)} از ۲`}</> : null}</span></div>}
       {phone && <div className="tm-tabs" role="tablist">
         <button type="button" role="tab" aria-selected={tab === 'mars'} onClick={() => setTab('mars')}>{t('مریخ', 'Mars')}</button>
         <button type="button" role="tab" aria-selected={tab === 'hand'} onClick={() => setTab('hand')}>{corpHint ? t('انتخاب آغازین', 'Start') : draft ? t('درفت', 'Draft') : research ? t('پژوهش', 'Research') : `${t('دست', 'Hand')} ${num(me?.hand.length ?? 0, en)}`}</button>

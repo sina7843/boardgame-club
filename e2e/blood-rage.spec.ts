@@ -148,7 +148,7 @@ test('two players play «بلاد ریج» through three ages to the result', as
   await expect(host.locator(ROOT)).toBeVisible();
   await expect(pages[1].locator(ROOT)).toBeVisible();
   // the draft is secret: each client sees only its own pack
-  await expect(host.getByRole('heading', { name: 'یک کارت نگه دارید' })).toBeVisible();
+  await expect(host.getByRole('heading', { name: /کارت نگه دارید/ })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'draft'), fullPage: true });
 
   let shots = 0;

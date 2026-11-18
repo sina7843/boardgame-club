@@ -8,8 +8,9 @@
 // from the rules, and «برگرد» removes the last step. Confirm sends the steps one by one; after that there is no undo.
 // Out-of-turn power charges (leech) and the auto-charge setting are sent at once.
 import './renderer.css';
-import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 import { Button, fa, type GameAction, type GameRendererProps } from '@bg/ui';
+import { FeltPlate, PlayerCard } from '@bg/ui/bgv';
 import {
   BUILDING_FA, BUILD_COST, CONTENT, POWER_ACTIONS, RESEARCH_COST, RES_FA, BASE_CONVERSIONS, TRACKS, TRACK_FA, WHEEL, buildMap, conversions, qicFor, fedCandidates, fedCheck, fedPlan, fedTokensAvailable, gaiaformPlan, gaiaProjectModule, incomeResults, leechAmount, minePlan, upgradeCost,
   type Bowls, type Building, type Gain, type GaiaAction, type GaiaState, type GaiaView, type Track
@@ -239,17 +240,17 @@ export function gaiaSeatCard(seat: SummarySeat, turn: boolean) {
     stats: undefined,
     badge: undefined,
     done: undefined,
-    // The VP plaque and turn order sit in the body row so the head keeps room for the name and the «شما» badge.
-    score: undefined,
+    // VP plaque + turn-order circle in the head (no unit label under them).
     scoreLabel: undefined,
+    // Head end (reference gp-panel__head): VP plaque, then the neutral turn-order circle at the outer edge.
+    score: <span className="gp-side">
+      <span className="gp-vp" title="امتیاز" aria-label={`${fa(seat.primary?.value ?? 0)} امتیاز`} data-vp={seat.primary?.value ?? 0}><b>{fa(seat.primary?.value ?? 0)}</b></span>
+      {seat.turnOrder !== undefined && <span className="gp-order" data-turn={turn || undefined} title="ترتیب نوبت در این دور" aria-label={`نوبت ${fa(seat.turnOrder)} در این دور`}>{fa(seat.turnOrder)}</span>}
+    </span>,
     ...(seat.status === 'passed' ? { foot: <span className="gp-panel__foot">پاس داده{seat.badges?.some((b) => b.key === 'firstNext') ? '؛ نفر اول دور بعد' : ''}</span> } : {}),
     ...(faction ? { sub: <span className="gp-panel__faction" data-faction={fid}><img className="gp-planet" src={art(`art/planet-art/planet-${COLORS[faction.home]}.webp`)} alt="" />{faction.nameFa}</span> } : {}),
     detail: <div className="gp-panel">
       <div className="gp-panel__res">
-        <span className="gp-side">
-          <span className="gp-vp" title="امتیاز" aria-label={`${fa(seat.primary?.value ?? 0)} امتیاز`} data-vp={seat.primary?.value ?? 0}><b>{fa(seat.primary?.value ?? 0)}</b></span>
-          {seat.turnOrder !== undefined && <span className={turn ? 'gp-order is-turn' : 'gp-order'} title="ترتیب نوبت در این دور" aria-label={`نوبت ${fa(seat.turnOrder)} در این دور`}>{fa(seat.turnOrder)}</span>}
-        </span>
         {PANEL_RES.map(([k, label]) => <span key={k} className="gp-r" title={label} data-res={k}>
           <span><img className="gp-ic" src={RES_ICON[k]} alt={label} />{fa(stat(k))}</span>
           <small>{plus(inc?.[k])}</small>
@@ -258,7 +259,7 @@ export function gaiaSeatCard(seat: SummarySeat, turn: boolean) {
       {pow && <div className="gp-panel__pow" title="چرخهٔ قدرت: ناحیهٔ گایا و کاسه‌های I، II، III">
         {PANEL_BOWLS.map(([k, label]) => <span key={k} data-bowl={k} className={`gp-bowl${k === 'gaia' ? ' gp-bowl--g' : ''}${k === 'b3' && (pow[k] ?? 0) >= POWER_READY ? ' is-ready' : ''}`}><i>{label}</i><b>{fa(pow[k] ?? 0)}</b></span>)}
       </div>}
-      <div className="gp-panel__inc"><img className="gp-ic" src={RES_ICON.pw} alt="" />شارژ قدرت <b>{plus(inc?.pwCharge)}</b><span className="bgv-sep" />ژتون قدرت <b>{plus(inc?.pwTokens)}</b></div>
+      <div className="gp-panel__inc"><img className="gp-ic" src={RES_ICON.pw} alt="" /><span>شارژ قدرت <b>{plus(inc?.pwCharge)}</b>، ژتون قدرت <b>{plus(inc?.pwTokens)}</b></span></div>
     </div>
   };
 }
@@ -470,6 +471,8 @@ const ResearchBoard = memo(function ResearchBoard({ c }: { c: Ctx }) {
 const FedSupply = memo(function FedSupply({ c }: { c: Ctx }) {
   const { view } = c;
   return (
+    <div className="gp-fedbox">
+    <h4 className="gp-fedbox__title">توکن‌های فدراسیون</h4>
     <ul className="gp-fedsupply" data-gp-board="fedsupply" aria-label="ذخیرهٔ توکن‌های فدراسیون">
         {Object.entries(view.fedSupply).map(([id, n]) => {
           const a = c.fedActs.get(id);
@@ -483,6 +486,7 @@ const FedSupply = memo(function FedSupply({ c }: { c: Ctx }) {
           );
         })}
     </ul>
+    </div>
   );
 });
 
@@ -866,7 +870,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
 
   // Auto-charge setting (server, per player and table). Hidden in tutorials (scripted moves only).
   const auto = me?.auto ?? { mode: 'free' as const };
-  const autoLabel = auto.mode === 'ask' ? 'همیشه بپرس' : auto.mode === 'free' ? 'رایگان (۱) خودکار' : auto.mode === 'upto' ? `تا ${fa(auto.n ?? 1)} امتیاز خودکار` : 'همه را رد کن';
+  const autoLabel = auto.mode === 'ask' ? 'همیشه بپرس' : auto.mode === 'free' ? 'رایگان (۱)' : auto.mode === 'upto' ? `تا ${fa(auto.n ?? 1)} امتیاز` : 'همه را رد کن';
   const setAuto = (m: { mode: 'ask' | 'free' | 'upto' | 'decline'; n?: number; lastRound?: boolean }) => { if (!busy) onAction({ type: 'autoCharge', mode: m.mode, ...(m.mode === 'upto' ? { n: m.n ?? 1 } : {}), ...(m.lastRound ? { lastRound: true } : {}) }); };
   const autoPanel = autoOpen && me && !expected && (
     <fieldset className="gp-auto" aria-label={t('auto')}>
@@ -964,19 +968,17 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const spent: Gain = {};
   if (drafting && mySeat !== null && me) for (const r of ['c', 'o', 'k', 'q'] as const) { const d = (served.pl[mySeat]?.[r] ?? 0) - me[r]; if (d > 0) spent[r] = d; }
 
-  // The shell already shows the round; row 1 keeps a slot for the turn clock (filled by the shell when it portals one).
-  const clock = <span className="gp-clockslot" data-gp-clock />;
   const bar = (
     <div className={`gp-actbar${drafting || leech ? '' : ' is-waiting'}${sheet ? ' is-open' : ''}`} data-gp-actbar data-gp-pending={view.decision?.kind} data-theme={pageTheme}>
       <div className="gp-actbar__row1">
         <p className="gp-actbar__say">{view.outcome ? 'بازی تمام شد'
           : sending ? t('sending')
-            : drafting || myDecision ? <><b>{myDecision ? t('decide') : t('yourTurn')}</b>: {prompt}</>
+            : drafting || myDecision ? prompt
               : mySeat === null ? <>{t('spectating')}: {t('turnOf')} <bdi>{who(waitingFor)}</bdi></> : <>{t('turnOf')} <bdi>{who(waitingFor)}</bdi></>}</p>
-        {clock}
         {me && !expected && <Button size="sm" variant="ghost" className="gp-autobtn" aria-expanded={autoOpen} onClick={() => setAutoOpen(!autoOpen)}>{t('auto')}: {autoLabel}</Button>}
         <button type="button" className="gp-lang" aria-label="زبان لایهٔ بازی" onClick={() => { const n = lang === 'fa' ? 'en' : 'fa'; setLang(n); try { localStorage.setItem('gp.lang', n); } catch { /* storage blocked */ } }}>{lang === 'fa' ? 'EN' : 'فا'}</button>
         {(drafting || myDecision) && <Button size="sm" className="gp-sheetbtn" onClick={() => setSheet(!sheet)}>{sheet ? t('close') : t('actions')}</Button>}
+        {!phone && <span className="gp-shellclock" data-shell-clock />}
       </div>
       {autoPanel}
       {leech && (
@@ -1078,7 +1080,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
           const picked = facDraft?.faction === f.id;
           const status = picked ? 'انتخاب شما' : owner >= 0 ? who(owner) : a ? 'آزاد' : 'هم‌رنگش گرفته شد';
           const body = <>
-            <img className="gp-faccard__art" src={art(FACTIONS[f.id]?.board ?? '')} srcSet={srcSet(FACTIONS[f.id]?.board ?? '', FB.w)} sizes="(max-width: 760px) 45vw, 14vw" width={FB.w} height={FB.h} alt="" loading="lazy" decoding="async" />
+            <img className="gp-faccard__art" src={art(FACTIONS[f.id]?.board ?? '')} srcSet={srcSet(FACTIONS[f.id]?.board ?? '', FB.w)} sizes="(max-width: 760px) 45vw, 20vw" width={FB.w} height={FB.h} alt="" loading="eager" decoding="async" />
             <strong>{lang === 'en' ? FACTIONS[f.id]?.nameEn : f.nameFa}</strong><small>{status}</small>
             <Tip title={f.nameFa} text={<>{f.abilityFa}<br />مؤسسه: {f.piFa}</>} />
           </>;
@@ -1097,6 +1099,11 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   );
 
   const seats = view.pl.flatMap((p, s) => (p.faction ? [s] : []));
+  // Map aspect (same box as SpaceMap) so research board and map get the same height side by side.
+  const mapAspect = (() => {
+    const xs = view.hexes.map((h) => HX * h.q), ys = view.hexes.map((h) => HY * (h.r + h.q / 2));
+    return (Math.max(...xs) - Math.min(...xs) + HW) / (Math.max(...ys) - Math.min(...ys) + HY);
+  })();
   const shown = boardSeat !== null && seats.includes(boardSeat) ? boardSeat : mySeat !== null && seats.includes(mySeat) ? mySeat : seats[0];
   const tabOrder = mySeat !== null && seats.includes(mySeat) ? [mySeat, ...seats.filter((s) => s !== mySeat)] : seats;
 
@@ -1105,16 +1112,25 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
       {mySeat !== null && bar}
       {phone && <div className="gp-zoomdock" ref={dock} role="dialog" aria-label="بزرگ‌نمایی"><div className="gp-zoomdock__body" style={{ display: 'contents' }} />
         <button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label="بستن" onClick={() => dock.current?.firstElementChild?.replaceChildren()}>✕</button></div>}
+      {phone && <div className="gp-phonestatus"><span className="gp-shellclock" data-shell-clock />
+        {view.phase === 'actions' && <FeltPlate label={t('round')} value={`${fa(view.round)} ${t('of6')}`} />}</div>}
+      {phone && <div className="gp-pchips bgv-hscroll" aria-label="بازیکن‌ها" data-gp-pchips data-theme={pageTheme}>
+        {view.pl.map((pl, s) => (view.active[s] || pl.faction) && <PlayerCard key={s} variant="mini" name={<bdi>{seatName(s)}</bdi>} initials={seatName(s).charAt(0)} seat={(s + 1) as ComponentProps<typeof PlayerCard>['seat']}
+          you={s === mySeat} turn={s === turnSeat && !view.outcome} score={pl.vp} scoreLabel="امتیاز"
+          foot={<span className="gp-pchip__lines"><span>{pl.faction ? (lang === 'en' ? FACTIONS[pl.faction]?.nameEn : factionFa(pl.faction)) : 'بدون جناح'}</span>
+            <span>{!view.active[s] ? 'خارج شد' : s === turnSeat && !view.outcome ? 'نوبت' : pl.passed && view.phase === 'actions' ? 'پاس داده' : 'منتظر'}</span></span>}
+          onClick={() => { if (pl.faction) { setBoardSeat(s); setTab('board'); } }} />)}
+      </div>}
       {view.outcome && <Breakdown view={view} who={who} />}
-      <nav className="gp-tabs" role="tablist" aria-label="صفحه‌ها">
+      <nav className="gp-tabs" hidden={phone && !!facPick} role="tablist" aria-label="صفحه‌ها">
         {(['map', 'research', 'scoring', 'board'] as const).map((k) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(k === 'map' ? 'map' : k === 'research' ? 'tracks' : k === 'scoring' ? 'scoring' : 'mine2')}</button>)}
       </nav>
       {facPick}
-      {(!phone || tab === 'research' || tab === 'map') && <section className="gp-zone gp-top">
+      {!(phone && facPick) && (!phone || tab === 'research' || tab === 'map') && <section className="gp-zone gp-top" style={phone ? undefined : { gridTemplateColumns: `minmax(0, ${RB.w / RB.h}fr) minmax(0, ${mapAspect}fr)` }}>
         {(!phone || tab === 'research') && <div data-zone="research"><ResearchBoard c={c} /></div>}
         {(!phone || tab === 'map') && <div data-zone="map"><SpaceMap c={c} /></div>}
       </section>}
-      {shown !== undefined && (!phone || tab === 'board') && (
+      {!(phone && facPick) && shown !== undefined && (!phone || tab === 'board') && (
         <section className="gp-zone" data-zone="board">
           {phone ? <>
             <div className="gp-ptabs" role="tablist" aria-label="صفحهٔ بازیکن‌ها">
@@ -1130,7 +1146,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
           </div>}
         </section>
       )}
-      {(!phone || tab === 'scoring') && <section className="gp-zone gp-split--even" data-zone="scoring">
+      {!(phone && facPick) && (!phone || tab === 'scoring') && <section className="gp-zone gp-split--even" data-zone="scoring">
         <ScoringBoard c={c} />
         <FedSupply c={c} />
       </section>}

@@ -94,11 +94,11 @@ button.bdr-tok{cursor:pointer}
 
 /* §15 clan sheets */
 .bdr-sheets{display:grid;gap:10px}
-.bdr-sheet{display:grid;justify-items:center;gap:10px;padding:12px 10px 16px;border-radius:var(--radius-md);background:rgba(255,255,255,.12)}
-.bdr-sheet.is-me{box-shadow:inset 0 0 0 2px var(--cc)}
+.bdr-sheetszone{display:block}
+.bdr-sheet{display:grid;justify-items:center;gap:10px;padding:12px 10px 16px;border-radius:var(--radius-lg)}
 .bdr-sheet__name{margin:0;font-size:18px;font-weight:900;color:var(--felt-ink)}
 .bdr-sheet__btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.bdr-slots{display:grid;grid-template-columns:repeat(var(--cols,5),minmax(0,var(--sw,150px)));gap:10px;justify-content:center;inline-size:100%}
+.bdr-slots{--cols:5;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,var(--sw,150px)));gap:10px;justify-content:center;inline-size:100%}
 .bdr-slot{position:relative;inline-size:100%;aspect-ratio:150/230;padding:0;border:0;background:none}
 .bdr-slot>img{position:absolute;inset:0;inline-size:100%;block-size:100%;border-radius:var(--radius-xs);box-shadow:var(--shadow-tile-sm)}
 .bdr-slot.is-void{visibility:hidden}
@@ -172,11 +172,31 @@ button.bdr-slot{cursor:pointer}
 .bdr-table th{font-size:12.5px;color:var(--text-muted);font-weight:700}
 .bdr-table tr.is-win td{background:var(--invite-soft)}
 .bdr-tabs{display:none}
+.bdr-tab{min-block-size:44px;min-inline-size:0;padding-inline:4px;border:0;border-radius:var(--radius-sm);background:none;color:var(--text);font:inherit;font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.bdr-tab[aria-selected="true"]{background:var(--selected);color:var(--on-selected)}
+.bdr-tab:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.bdr-chips{display:none}
+.bdr-chip{display:flex;align-items:center;gap:6px;min-inline-size:0;padding:6px 8px;border-radius:var(--radius-md);background:var(--surface);color:var(--text);box-shadow:var(--shadow-card),inset 0 3px 0 var(--cc)}
+.bdr-chip.is-turn{box-shadow:var(--shadow-card),inset 0 0 0 2px var(--pick),inset 0 3px 0 var(--cc)}
+.bdr-chip img{inline-size:30px;block-size:30px;border-radius:var(--radius-pill);flex:none}
+.bdr-chip__id{display:grid;min-inline-size:0;line-height:1.3}
+.bdr-chip__id b,.bdr-chip__id small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bdr-chip__id b{font-size:12.5px;font-weight:900}
+.bdr-chip__id small{font-size:11px;color:var(--text-muted)}
+.bdr-chip__glory{margin-inline-start:auto;font-size:12.5px;font-weight:900;color:var(--heading);white-space:nowrap}
+.bdr-turnrow{display:flex;align-items:center;justify-content:center;gap:8px}
+.bdr-agechip{display:inline-flex;align-items:center;block-size:32px;padding-inline:12px;border-radius:var(--radius-pill);background:var(--surface);color:var(--heading);font-size:13px;font-weight:900;box-shadow:var(--shadow-ring)}
+.bdr-bar__clock:empty{display:none}
+.bdr-avatar{box-shadow:0 0 0 2px var(--cc);border-radius:var(--radius-pill)}
 .bdr-bar__note.is-nudge{color:var(--danger);font-weight:700}
 
 /* inside the table shell the BGA player boards come from publicSummary (bloodRageSeatCard): hide, do not delete, our own copies */
 [data-hud="on"] .bdr-rail>.bdr-panel{display:none}
-.bdr-panel--shell{display:grid;gap:6px;min-inline-size:0}
+.bdr-panel--shell{display:grid;gap:6px;min-inline-size:0;grid-column:1/-1;inline-size:100%}
+.bdr-panel--shell .bdr-panel__line1{flex-wrap:wrap}
+.bdr-panel--shell .bdr-cardbox{flex:none}
+.bdr-panel--shell .bdr-stat{font-size:12px;gap:2px;padding-inline:4px}
+.bdr-panel--shell .bdr-stat img{inline-size:18px;block-size:18px}
 .bdr-panel--shell .bdr-panel__clan{inline-size:48px;block-size:48px}
 .bdr-panel--shell .bdr-ragebox{inline-size:44px;block-size:44px}
 .bdr-panel--shell .bdr-ragebox b{font-size:22px}
@@ -209,7 +229,7 @@ button.bdr-slot{cursor:pointer}
 
 /* responsive: rail on top <=1100, sheets 9 / 5 / 3 columns, square map <=760 (layout.json breakpoints) */
 @container (min-width:1360px){.bdr-sheetszone .bdr-slots{--cols:9}.bdr-sheetszone .bdr-slot.is-void{display:none}}
-@container (max-width:1100px){
+@container (max-width:860px){
  .bdr-table{grid-template-columns:minmax(0,1fr)}
  .bdr-rail{order:-1;position:static;max-block-size:none;display:flex;gap:8px;overflow-x:auto;padding-block-end:4px}
  .bdr-rail>.bdr-panel{flex:0 0 248px}
@@ -217,11 +237,13 @@ button.bdr-slot{cursor:pointer}
  .bdr-sheetszone .bdr-slots{--cols:3}
  .bdr-sheetszone .bdr-slot.is-void{display:none}
 }
-@container (max-width:760px){
+@container (max-width:700px){
+ .bdr-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
  .bdr-mapbox{block-size:auto;aspect-ratio:1}
  .bdr-map{inline-size:calc((100% - 12px) * var(--zoom,1));inset-block-start:6px}
- .bdr-mapbox__logo{inline-size:110px}
- .bdr-mapbox__tools{display:none}
+ .bdr-mapbox__logo{display:none}
+ .bdr-mapbox__tools{top:10px;transform:none;display:flex;gap:6px}
+ .bdr-mapbox__tools .bdr-mapbtn:first-child{display:none}
  /* §27: three columns of ~104px cards */
  .bdr-hand{display:grid;grid-template-columns:repeat(3,minmax(0,104px));gap:10px 8px;justify-content:center}
  .bdr-hand .bdr-card{--cw:100%}
@@ -230,15 +252,19 @@ button.bdr-slot{cursor:pointer}
  .bdr-bline__figs{grid-column:1/-1}
  /* phone (§25–§30): tabs map / hand / my clan / players */
  .bdr-top{flex-wrap:wrap}
- .bdr-tabs{display:grid;grid-template-columns:repeat(var(--tabs,4),minmax(0,1fr));gap:4px;flex:1 1 100%;min-inline-size:0;padding:4px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card)}
- .bdr-tabs button{min-inline-size:0;min-block-size:44px;padding-inline:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .bdr-table[data-tab="map"] .bdr-handzone,.bdr-table[data-tab="map"] .bdr-sheetszone,.bdr-table[data-tab="map"] .bdr-rail{display:none}
+ .bdr-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;flex:1 1 100%;min-inline-size:0;padding:4px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card)}
+ .bdr-table.is-shell[data-tab="players"]>.bdr-rail{display:grid}
+ [data-hud="on"] .bdr-table[data-tab="players"] .bdr-rail>.bdr-panel{display:grid}
+ .bdr-table[data-tab="map"] .bdr-handzone,.bdr-table[data-tab="map"] .bdr-draftzone,.bdr-table[data-tab="map"] .bdr-sheetszone,.bdr-table[data-tab="map"] .bdr-rail{display:none}
  .bdr-table[data-tab="hand"] .bdr-mapbox,.bdr-table[data-tab="hand"] .bdr-sheetszone,.bdr-table[data-tab="hand"] .bdr-rail{display:none}
- .bdr-table[data-tab="clan"] .bdr-mapbox,.bdr-table[data-tab="clan"] .bdr-handzone,.bdr-table[data-tab="clan"] .bdr-rail{display:none}
- .bdr-table[data-tab="players"] .bdr-mapbox,.bdr-table[data-tab="players"] .bdr-handzone,.bdr-table[data-tab="players"] .bdr-sheetszone{display:none}
+ .bdr-table[data-tab="clan"] .bdr-mapbox,.bdr-table[data-tab="clan"] .bdr-handzone,.bdr-table[data-tab="clan"] .bdr-draftzone,.bdr-table[data-tab="clan"] .bdr-rail{display:none}
+ .bdr-table[data-tab="players"] .bdr-mapbox,.bdr-table[data-tab="players"] .bdr-handzone,.bdr-table[data-tab="players"] .bdr-draftzone,.bdr-table[data-tab="players"] .bdr-sheetszone{display:none}
  .bdr-table[data-tab="players"] .bdr-rail{display:grid;overflow:visible}
  .bdr-bar .bgv-btn,.bdr-spot{min-block-size:44px}
- .bdr-bar{padding:8px 10px;font-size:14px}
+ /* §25/§27: the main action is a bottom sheet (sticky at the bottom of the screen), full-width amber button */
+ .bdr-bar{position:fixed;inset-inline:0;inset-block-start:auto;inset-block-end:0;inline-size:auto;padding:10px 12px calc(14px + env(safe-area-inset-bottom));font-size:14px;border-radius:var(--radius-xl) var(--radius-xl) 0 0;box-shadow:var(--shadow-float)}
+ .bdr-main{padding-block-end:150px}
+ .bdr-bar__row .bgv-btn--primary{flex:1 1 100%;order:5}
  .bdr-dlg{align-self:end;inline-size:100%;border-end-start-radius:0;border-end-end-radius:0}
 }
 @media (prefers-reduced-motion:reduce){.bdr-card[data-pick="picked"]{transform:none}}

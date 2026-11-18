@@ -38,7 +38,8 @@
   border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-card), inset 0 0 0 1px var(--line); font-size: 15px; line-height: 1.6; }
 .gp-actbar { color: var(--text); }
 .gp-actbar.is-waiting { background: var(--surface-sunken); color: var(--text-muted); }
-.gp-clockslot:empty { display: none; }
+.gp-fedbox { display: grid; gap: 6px; }
+.gp-fedbox__title { margin: 0; font-size: 13.5px; font-weight: 700; color: var(--heading); }
 .gp-actbar__row1 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .gp-actbar__say { flex: 1 1 320px; min-inline-size: 0; margin: 0; }
 .gp-actbar__say b { color: var(--heading); font-weight: 900; }
@@ -187,7 +188,7 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
 /* Faction pick (Gaia-Prompts 9): all 14 boards, one template; taken ones dimmed. */
 .gp-factions { display: grid; gap: var(--space-3); }
 .gp-factions__say { margin: 0; font-size: 14px; }
-.gp-facgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-3); }
+.gp-facgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-3); }
 .gp-faccard { position: relative; display: grid; gap: 4px; justify-items: center; align-content: start; padding: var(--space-3); border: 0; border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-ring); color: var(--text); font: inherit; font-size: 13px; text-align: center; }
 .gp-faccard strong { color: var(--heading); }
 .gp-faccard small { color: var(--text-muted); font-size: 11.5px; }
@@ -215,7 +216,15 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
   .gp { gap: 10px; }
   .gp-tabs { display: flex; }
   .gp-tabs button { block-size: 44px; }
-  .gp-zone.gp-top, .gp-split--even { display: flex; flex-direction: column; }
+  .gp-zone.gp-top, .gp-split--even { display: flex; flex-direction: column; align-items: stretch; }
+  .gp-top > [data-zone], .gp-mapbox { inline-size: 100%; }
+  /* own chips (the shell strip is hidden on BGA phones): page material, not felt. The felt tokens the DS card reads
+     inside .bgv-felt are pointed at the page tokens of this strip's theme. */
+  .gp-pchips { --felt-plate: var(--surface); --felt-line: var(--line); --felt-ink: var(--text); --felt-muted: var(--text-muted);
+    display: flex; gap: 8px; color: var(--text); }
+  .gp-pchips > * { flex: 0 0 auto; inline-size: 128px; max-inline-size: 128px; }
+  .gp-phonestatus { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .gp-actbar__row1 { flex-wrap: nowrap; }
   .gp-zone { padding: 8px; }
   /* zoom controls sit above the map, never on a hex; 44px targets */
   .gp-zoom { position: static; display: flex; justify-content: flex-end; gap: 8px; padding: 6px; }
@@ -224,7 +233,7 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
   .gp-sheetbtn { display: inline-flex; }
   /* collapsed bar = one short line + «کنش‌ها»; the rest opens with the sheet */
   .gp-actbar:not(.is-open) :is(.gp-autobtn, .gp-lang, .gp-auto) { display: none; }
-  .gp-actbar__say { flex-basis: 0; flex-grow: 1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .gp-actbar__say { flex-basis: 0; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .gp-actbar:not(.is-open) .gp-actbar__rows > :not(.gp-flow) { display: none; }
   .gp-actbar.is-open .gp-actbar__rows { max-block-size: 60dvh; overflow: auto; }
   .gp-main, .gp-flow .gp-btnrow:has(.gp-mainbtn) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
@@ -259,9 +268,13 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
 .gp-vp { inline-size: 50px; block-size: 50px; flex: none; border-radius: 8px; background: url('./art/reference-only/source-symbols/VP.webp') center / cover;
   display: grid; place-items: center; box-shadow: 0 0 0 1.5px var(--ink-felt); }
 .gp-vp b { min-inline-size: 32px; padding: 1px 4px; border-radius: 6px; background: rgb(13 26 35 / 0.78); color: #FFFFFF; font-size: 18px; font-weight: 900; text-align: center; line-height: 1.35; }
-.gp-order { inline-size: 28px; block-size: 28px; border-radius: 50%; background: var(--success); color: #FFFFFF; font-size: 15px; font-weight: 900; display: grid; place-items: center; }
-.gp-order.is-turn { background: var(--primary); color: var(--on-primary); }
-.gp-panel__res { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); align-items: center; gap: 4px 6px; padding-block: 8px; border-block: 1px solid var(--line); }
+/* turn order: neutral numbered circle (amber stays for «نوبت شما» only) */
+.gp-order { inline-size: 24px; block-size: 24px; border-radius: var(--radius-pill); background: var(--surface); box-shadow: var(--shadow-ring); color: var(--text); font-size: 13px; font-weight: 900; display: grid; place-items: center; }
+.gp-order[data-turn] { box-shadow: var(--shadow-ring-strong); }
+/* The shell's detail slot is an auto-fill grid: the panel spans all of it. Four equal resource columns; the slot's own
+   top hairline is the only separator above them. */
+.gp-panel { grid-column: 1 / -1; inline-size: 100%; }
+.gp-panel__res { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding-block-end: 8px; border-block-end: 1px solid var(--line); }
 .gp-r { display: grid; justify-items: center; gap: 0; }
 .gp-r > span { display: flex; align-items: center; gap: 4px; font-size: 17px; font-weight: 900; color: var(--heading); }
 .gp-r .gp-ic { block-size: 22px; }
@@ -272,7 +285,12 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
 .gp-bowl--g i { background: var(--gp-bowl-g); }
 .gp-bowl b { font-size: 16px; font-weight: 900; color: var(--heading); }
 .gp-bowl.is-ready i { box-shadow: 0 0 0 2px var(--primary); }
-.gp-panel__inc { display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-muted); }
+.gp-panel__inc { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-muted); white-space: nowrap; }
 .gp-panel__inc b { color: var(--success); font-weight: 900; }
 .gp-panel__inc .gp-ic { block-size: 16px; }
 .gp-r small, .gp-panel__inc b { unicode-bidi: isolate; direction: ltr; }
+.bgv-pcard__score .gp-vp { inline-size: 36px; block-size: 36px; }
+.bgv-pcard__score .gp-vp b { min-inline-size: 26px; font-size: 15px; }
+.gp-shellclock:empty { display: none; }
+.gp-shellclock { flex: none; }
+.gp-pchip__lines { display: grid; justify-items: center; font-size: 11.5px; line-height: 1.4; color: var(--text-muted); }

@@ -968,3 +968,8 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
 - QA round 1 (design/qa/group-*/VERDICT.md): A 4/11 PASS, B 0/7, C 0/22, D 0/22; frame blockers fixed in acecf448; all 62 tables recaptured. QA round 2: A 6/11, B 0/7, C 6/22, D 3/22 (15 PASS / 47 FAIL); its frame-wide blocker (board overflowing the desktop stage height) fixed by a stage size container + `--zb-aspect` cap; round 3 pending.
 - 2026-11-18: azul/hive click blockers, patchwork quilt 0×0, go scoring acceptance in the rail, player count in the game bar, `data-rev` hook; rule fixes cockroach-poker E1, bohnanza E2, space-base E2 (+ unit tests); skull E1 deferred (tutorial conflict).
 - Checks run 2026-11-18: pnpm typecheck PASS, pnpm lint PASS, ds-check --changed PASS, game-engine vitest 1,380/1,380, desktop e2e: full group run 125 passed / 22 failed before the fixes; re-run results in docs/reports/2026-11-18-groups-a-d.md. Phone (360) e2e not run. Real devices UNVERIFIED.
+
+## Handoff phase 7: Gaia v1.7, Terraforming Mars, Brass, Ark Nova, Blood Rage (2026-11-18/19): DONE locally — visual QA PASS at start state
+- Built by five parallel implementer agents (one per game folder), shell changes by hand; details and per-game RULES items in docs/reports/2026-11-18-groups-a-d.md («List item 1 done»).
+- Checks: pnpm typecheck PASS, pnpm lint PASS, ds-check --changed PASS, game-engine vitest 1,443/1,443 (one Blood Rage render test needed a longer timeout), e2e gaia-project/terraforming-mars/brass/ark-nova/blood-rage 14/14 at desktop-1440, QA verdicts design/qa/{gaia-project,terraforming-mars,brass,ark-nova,blood-rage}/VERDICT.md all PASS (start state). Live-turn/dialog captures, phone e2e and real devices UNVERIFIED.
+

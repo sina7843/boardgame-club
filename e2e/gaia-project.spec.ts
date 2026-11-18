@@ -55,17 +55,17 @@ test('undo before confirm: the drafted mine stands on its hex, «برگرد» ta
   await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
   const mines = p.locator('.gp-map [data-gp-piece="MI"]');
   const before = await mines.count();
-  const seq = await p.locator('.gp').getAttribute('data-seq');
+  const seq = await p.locator('.gp[data-seq]').getAttribute('data-seq');
   await p.locator('button.gp-hex--hint').first().click();
   await expect(mines).toHaveCount(before + 1);
   // only the new mine animates (fade in); the pieces already on the map keep still
   await expect(p.locator('.gp-map .gp-new')).toHaveCount(1);
-  expect(await p.locator('.gp').getAttribute('data-seq')).toBe(seq); // nothing sent yet
+  expect(await p.locator('.gp[data-seq]').getAttribute('data-seq')).toBe(seq); // nothing sent yet
   await p.locator('.gp-undo:visible').click();
   await expect(mines).toHaveCount(before);
   await p.locator('button.gp-hex--hint').first().click();
   await p.locator('.gp-confirm:visible').click();
-  await expect.poll(() => p.locator('.gp').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(seq);
+  await expect.poll(() => p.locator('.gp[data-seq]').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(seq);
   await expect(p.locator('.gp-undo:visible')).toHaveCount(0); // no undo after confirm
   await p.context().close();
 });
@@ -88,7 +88,7 @@ async function openSheet(p: Page) {
 /** One move for this page if it has one: answer a power charge or open decision; on its own turn draft a faction, a
  *  set-up structure, a booster, a mine in the first rounds or a pass, answer follow-up decisions, then «تأیید». */
 async function turn(p: Page, n: number): Promise<boolean> {
-  const root = p.locator('.gp');
+  const root = p.locator('.gp[data-seq]');
   const mode = await root.getAttribute('data-turn');
   if (mode === 'decide') {
     const leech = p.locator('.gp-leech button');
@@ -149,9 +149,9 @@ test('two players play Gaia Project to the result', async ({ browser }, info) =>
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
     let acted = false;
     for (const p of pages) {
-      const before = await p.locator('.gp').getAttribute('data-seq');
+      const before = await p.locator('.gp[data-seq]').getAttribute('data-seq');
       if (!(await turn(p, n))) continue;
-      await expect.poll(() => p.locator('.gp').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
+      await expect.poll(() => p.locator('.gp[data-seq]').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
       if (n === 12) for (const [i, q] of pages.entries()) {
         await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: info.project.name.startsWith('desktop'), timeout: 20_000 }).catch(() => undefined);
         await q.locator('[data-gp-board="faction"]').screenshot({ path: shot(info.project.name, `boards-${i}`), timeout: 5000 }).catch(() => undefined);

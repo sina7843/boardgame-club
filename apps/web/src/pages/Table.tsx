@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { type TournamentDetail, BOT_LEVEL_FA, BOT_STYLE_FA, clockClass, clockThresholds, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvatar, RATING_MODE_FA, type MessageItem, type PublicSummaryView, type TableSnapshot, type UserCard } from '@bg/contracts';
@@ -539,6 +539,10 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   // Desktop: a renderer's <RailSlot> content (e.g. its log) goes under the player cards in the rail; on phones it stays in place.
   const [railNode, setRailNode] = useState<HTMLDivElement | null>(null);
   const toRail = useCallback((node: ReactNode) => (railNode ? createPortal(node, railNode) : node), [railNode]);
+  // BGA tables put the shell's turn pill (with the clock) into their action bar: the renderer exposes `[data-shell-clock]`.
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const [clockNode, setClockNode] = useState<Element | null>(null);
+  useLayoutEffect(() => { const n = confirmsInRenderer ? stageRef.current?.querySelector('[data-shell-clock]') ?? null : null; if (n !== clockNode) setClockNode(n); });
   // Game events for the table chat (DS SystemMessage lines), built from what this table view already receives:
   // public moves (games that publish them), the end of the game. Kept for this visit only.
   const [gameEvents, setGameEvents] = useState<ChatEvent[]>([]);
@@ -677,7 +681,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       })() } : {}),
       ...(place ? { score: place.score ?? place.place, scoreLabel: place.score !== undefined ? 'امتیاز' : 'رتبه', leader: place.place === 1 } : {}),
       ...(!place && !active && !finished && !ss?.status ? { waiting: queueText(x.seat) } : {}),
-      ...(active ? { waiting: 'در حال بازی' } : {})
+      ...(active && !confirmsInRenderer ? { waiting: 'در حال بازی' } : {}) // BGA seat cards carry their own status line
     };
   });
   const shared = sum?.shared ?? [];
@@ -719,13 +723,13 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
         <Hud layout={notPhone ? 'rail' : players.length === 2 && finished ? 'duel' : players.length <= 5 ? 'strip' : 'grid3'} className="tbl-rail" label="بازیکنان" players={players}>
           {notPhone && <div ref={setRailNode} className="tbl-railslot" />}
-          {sum?.moves && sum.moves.length > 0 && <MoveLog className="tbl-moves" label="حرکت‌ها"
+          {sum?.moves && (sum.moves.length > 0 || confirmsInRenderer) && <MoveLog className="tbl-moves" label="حرکت‌ها"
             items={sum.moves.map((m, i) => ({ seat: seatNo(m.seat), name: <bdi>{name(m.seat)}</bdi>, text: <bdi>{m.text}</bdi>, isNew: i === sum.moves!.length - 1 }))} />}
           {finished && t.mySeat !== null && !t.isTutorial && <PostGame snap={snap} onReport={() => setReporting(true)} />}
         </Hud>
 
         <Felt as="main" className="tbl-felt" label={`صفحهٔ بازی ${t.gameNameFa}`}
-          top={!finished ? <>
+          top={!finished && !clockNode ? <>
             <TurnPill mine={myTurn} {...(turnSeat ? { seat: seatNo(turnSeat.seat), who: name(turnSeat.seat), avatar: seatAvatar(turnSeat, name(turnSeat.seat)) }
               : { simul: g.pendingSeats.length > 1 ? `${faNum(t.seats.length - g.pendingSeats.length)} از ${faNum(t.seats.length)} آماده` : statusText })}
               {...(t.mySeat === null ? { text: statusText } : {})}
@@ -735,13 +739,17 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
               <FeltPlate key={p.key} label={p.label} value={p.max !== undefined ? `${faNum(Number(p.value))}/${faNum(p.max)}` : p.value} />
             ))}</span>}
           </> : undefined}
-          stage={<div data-theme="dark" data-game={t.gameId} data-hud={g.summary ? 'on' : undefined} className={myTurn ? 'table-night tbl-stage tbl-stage--mine' : 'table-night tbl-stage'}>
+          stage={<div ref={stageRef} data-theme="dark" data-game={t.gameId} data-hud={g.summary ? 'on' : undefined} className={myTurn ? 'table-night tbl-stage tbl-stage--mine' : 'table-night tbl-stage'}>
             {Renderer
               ? <RailSlotHost value={notPhone ? toRail : null}><DockSlotHost value={g.tutorial ? null : toDock}><Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={onAction} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} /></DockSlotHost></RailSlotHost>
               : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
           </div>}>
           {finished && g.result && !hideResult && <div className="tbl-result-wrap"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
         </Felt>
+        {clockNode && !finished && createPortal(<TurnPill mine={myTurn} {...(turnSeat ? { seat: seatNo(turnSeat.seat), who: name(turnSeat.seat), avatar: seatAvatar(turnSeat, name(turnSeat.seat)) }
+              : { simul: g.pendingSeats.length > 1 ? `${faNum(t.seats.length - g.pendingSeats.length)} از ${faNum(t.seats.length)} آماده` : statusText })}
+              {...(t.mySeat === null ? { text: statusText } : {})}
+              {...(clockProps ? { clock: clockProps } : {})} />, clockNode)}
 
         {myTurn && t.pace === 'live' && clock?.state === 'critical' && <CritBar seconds={clock.time} total={10} />}
         {(() => {

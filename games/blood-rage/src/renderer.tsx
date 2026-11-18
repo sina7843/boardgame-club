@@ -276,9 +276,10 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
           const on = chosen.includes(c);
           handPick.set(c, { on, onClick: () => setMode({ k: 'decide', cards: on ? chosen.filter((x) => x !== c) : need === 1 ? [c] : [...chosen, c].slice(-need) }) });
         }
-        text = <>هدایای خدایان: {need === 2 ? 'دو کارت' : 'یک کارت'} نگه دارید</>;
+        text = <>{t('هدایای خدایان', "Gods' Gifts")}: {need === 2 ? t('دو کارت نگه دارید', 'keep two cards') : t('یک کارت نگه دارید', 'keep one card')}</>;
+        note = t(`انتخاب ${fa(chosen.length)} از ${fa(need)}`, `Picked ${chosen.length} of ${need}`);
         const a = chosen.length === need ? { type: 'draftPick', cards: chosen } : null;
-        buttons = [btn(chosen.length ? <>نگه دار: {chosen.map((c) => cardTitle(c).en).join('، ')}</> : 'نگه دار', 'keep', () => (a ? send(a) : setNudge(need === 2 ? t('دو کارت از دستهٔ رسیده انتخاب کنید.', 'Pick two cards from the pack.') : t('یک کارت از دستهٔ رسیده انتخاب کنید.', 'Pick a card from the pack.'))), { variant: 'primary' })];
+        buttons = [btn(chosen.length ? `${t('نگه دار', 'Keep')}: ${chosen.map((c) => cardTitle(c).en).join('، ')}` : t('نگه دار', 'Keep'), 'keep', () => (a ? send(a) : setNudge(need === 2 ? t('دو کارت از دستهٔ رسیده انتخاب کنید.', 'Pick two cards from the pack.') : t('یک کارت از دستهٔ رسیده انتخاب کنید.', 'Pick a card from the pack.'))), { variant: 'primary' })];
         break;
       }
       case 'battleCard': {
@@ -454,11 +455,11 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
       style={{ backgroundImage: `url(${art('backgrounds/sea-background.webp')})`, '--zoom': zoom } as CSSProperties}>
       <img src={art('branding/blood-rage-logo.webp')} className="bdr-mapbox__logo" alt="Blood Rage" />
       <div className="bdr-pager" dir="rtl">
-        <button className="bdr-agebadge" type="button" data-open="ages" aria-label="مسیر عصرها" onClick={() => setOpen('ages')}>{t('عصر', 'Age')} {fa(v.age)}</button>
+        <button className="bdr-agebadge" type="button" data-open="ages" aria-label="مسیر عصرها" onClick={() => setOpen('ages')}>{`${t('عصر', 'Age')} ${fa(v.age)}`}</button>
         <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بخش قبلی" onClick={() => document.getElementById('bdr-map')?.scrollIntoView({ behavior: 'smooth' })}><img src={art('ui-icons/button-page-up.webp')} alt="" /></button>
         <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بخش بعدی" onClick={() => document.getElementById('bdr-sheets')?.scrollIntoView({ behavior: 'smooth' })}><img src={art('ui-icons/button-page-down.webp')} alt="" /></button>
       </div>
-      {lastBattle && <button className="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-mapbox__battle" type="button" data-open="battle" dir="rtl" onClick={() => { setShownBattle(v.battles.length - 1); setOpen('battle'); }}>{t('آخرین نبرد', 'Last battle')}: {provFa(lastBattle.province)}</button>}
+      {lastBattle && <button className="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-mapbox__battle" type="button" data-open="battle" dir="rtl" onClick={() => { setShownBattle(v.battles.length - 1); setOpen('battle'); }}>{`${t('آخرین نبرد', 'Last battle')}: ${provFa(lastBattle.province)}`}</button>}
       <div className="bdr-mapbox__tools">
         <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بزرگ‌تر" onClick={() => setZoom((z) => Math.min(2, z + 0.25))}><img src={art('ui-icons/button-zoom-plus.webp')} alt="" /></button>
         <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="کل نقشه" onClick={() => setZoom(1)}><img src={art('ui-icons/button-zoom-center.webp')} alt="" /></button>
@@ -467,7 +468,7 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
       <div className="bdr-mapbox__bottom" dir="rtl">
         <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" data-open="archive" aria-label="بایگانی نبردها" onClick={() => setOpen('archive')}><img src={art('ui-icons/button-archive.webp')} alt="" /></button>
         <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" data-open="discard" aria-label={`کارت‌های نبرد دورریخته: ${fa(v.discardPublic.length)}`} onClick={() => setOpen('discard')}><img src={art('ui-icons/button-discard.webp')} alt="" /></button>
-        <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open="valhalla" onClick={() => setOpen('valhalla')}>{t('والهالا', 'Valhalla')} ({fa(v.figures.filter((f) => f.where === 'valhalla').length)})</button>
+        <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open="valhalla" onClick={() => setOpen('valhalla')}>{`${t('والهالا', 'Valhalla')} (${fa(v.figures.filter((f) => f.where === 'valhalla').length)})`}</button>
       </div>
       {spotKey && zoom > 1 && <span className="bdr-mapinfo" dir="rtl">{t(`بزرگ‌نمایی خودکار: ${fa(spots.length)} روستا`, `Auto zoom: ${spots.length} villages`)}</span>}
       <div className="bdr-map" data-age={v.age}>
@@ -525,6 +526,7 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
     );
   };
   const draftPack = kind === 'draftPick' ? ((hints.find((x) => x.type === 'draftPick')?.cards as number[]) ?? []) : [];
+  const draftNeed = (hints.find((x) => x.type === 'draftPick')?.need as number | undefined) ?? v.draft?.need ?? 1;
   const discarding = kind === 'discardKeep';
 
   // ---------- clan sheets ----------
@@ -552,13 +554,13 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
         : <div key={key} className="bdr-slot" data-slot-kind={kindAttr} data-card={num ?? undefined}>{content}</div>;
     };
     return (
-      <article key={s.seat} className={`bdr-sheet${mine ? ' is-me' : ''}`} style={cc(s.clan)} data-seat={s.seat} data-flip-anchor={`sheet-${s.seat}`}>
+      <article key={s.seat} className={`bgv-felt bdr-sheet${mine ? ' is-me' : ''}`} style={cc(s.clan)} data-seat={s.seat} data-flip-anchor={`sheet-${s.seat}`}>
         <h3 className="bdr-sheet__name" style={ink(s.clan)}><bdi>{name(s.seat)}</bdi></h3>
         <div className="bdr-sheet__btns">
-          <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open={`reserve-${s.seat}`} onClick={() => setOpen(`reserve-${s.seat}`)}>{t('ذخیره', 'Reserve')}: {fa(s.reserve)}</button>
-          <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open={`quests-${s.seat}`} onClick={() => setOpen(`quests-${s.seat}`)}>{t('مأموریت‌ها', 'Quests')}: {fa(s.questCount)}</button>
+          <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open={`reserve-${s.seat}`} onClick={() => setOpen(`reserve-${s.seat}`)}>{`${t('ذخیره', 'Reserve')}:\u00A0${fa(s.reserve)}`}</button>
+          <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open={`quests-${s.seat}`} onClick={() => setOpen(`quests-${s.seat}`)}>{`${t('مأموریت‌ها', 'Quests')}:\u00A0${fa(s.questCount)}`}</button>
         </div>
-        <div className="bdr-slots" dir="ltr" style={{ '--cols': 5 } as CSSProperties}>
+        <div className="bdr-slots" dir="ltr">
           {cell('clanCard', 'clan-card', null, sh.clanCard)}
           {cell('leader', 'leader', s.upgrades.leader, sh.leader, 'leader')}
           {cell('warrior', 'warrior', s.upgrades.warrior, sh.warrior, 'warrior')}
@@ -602,10 +604,24 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
     <div className="bdr-wrap" ref={wrapRef}>
     <div className={`bdr bdr-table${inShell ? ' is-shell' : ''}`} dir={lang === 'en' ? 'ltr' : 'rtl'} lang={lang} data-age={v.age} data-phase={v.phase} data-tab={tab} data-seq={v.seq}>
       <div className="bdr-main">
+        <div className="bdr-chips" role="list" aria-label={t('بازیکنان به ترتیب نوبت', 'Players in turn order')}>
+          {v.seats.map((s) => {
+            const turn = v.turn === s.seat || (v.pending?.seats.includes(s.seat) ?? false);
+            return (
+              <div key={s.seat} role="listitem" className={`bdr-chip${turn ? ' is-turn' : ''}${s.seat === mySeat ? ' is-you' : ''}`} style={cc(s.clan)} data-seat={s.seat}>
+                <img src={art(IDS.clanIcon[String(s.clan) as keyof typeof IDS.clanIcon])} alt="" />
+                <span className="bdr-chip__id"><b><bdi>{s.seat === mySeat ? t('شما', 'You') : name(s.seat)}</bdi></b>
+                  <small>{t(`${fa(v.phase === 'action' ? s.rage : s.values.rage)} خشم، ${fa(s.handCount)} کارت`, `${v.phase === 'action' ? s.rage : s.values.rage} rage, ${s.handCount} cards`)}</small></span>
+                <span className="bdr-chip__glory">{`${fa(s.glory)} ${t('افتخار', 'Glory')}`}</span>
+              </div>
+            );
+          })}
+        </div>
+        {phone && <div className="bdr-turnrow"><span className="bdr-bar__clock" data-shell-clock="" /><span className="bdr-agechip">{`${t('عصر', 'Age')} ${fa(v.age)}`}</span></div>}
         <div className="bdr-top">
-          <nav className="bdr-tabs" role="tablist" aria-label={t('بخش‌های میز', 'Table sections')} style={{ '--tabs': inShell ? 3 : 4 } as CSSProperties}>
-            {([['map', t('نقشه', 'Map')], ['hand', `${t('دست', 'Hand')} ${v.me ? fa(v.me.hand.length) : ''}`], ['clan', t('قبیلهٔ من', 'My clan')], ...(inShell ? [] : [['players', t('بازیکنان', 'Players')]])] as [typeof tab, string][]).map(([k, l]) =>
-              <button key={k} type="button" role="tab" className={`bgv-btn bgv-btn--sm bgv-btn--${tab === k ? 'primary' : 'secondary'}`} aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>)}
+          <nav className="bdr-tabs" role="tablist" aria-label={t('بخش‌های میز', 'Table sections')}>
+            {([['map', t('نقشه', 'Map')], ['hand', `${t('دست', 'Hand')} ${v.me ? fa(v.me.hand.length) : ''}`], ['clan', t('قبیلهٔ من', 'My clan')], ['players', t('بازیکنان', 'Players')]] as [typeof tab, string][]).map(([k, l]) =>
+              <button key={k} type="button" role="tab" className="bdr-tab" aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>)}
           </nav>
           <div className="bdr-lang" data-theme={theme} role="group" aria-label={t('زبان بازی', 'Game language')}>
             <button type="button" aria-pressed={lang === 'fa'} onClick={() => switchLang('fa')}>فا</button>
@@ -613,14 +629,14 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
           </div>
         </div>
         <section className={`bdr-bar${waiting ? ' is-waiting' : ''}`} data-theme={theme} aria-label={t('نوار وضعیت', 'Status bar')} aria-live="polite">
-          <div className="bdr-bar__row"><p className="bdr-bar__text">{text}</p>{buttons}</div>
+          <div className="bdr-bar__row"><p className="bdr-bar__text">{text}</p>{buttons}{!phone && <span className="bdr-bar__clock" data-shell-clock="" />}</div>
           {nudge ? <p className="bdr-bar__note is-nudge" role="alert">{nudge}</p> : note && <p className="bdr-bar__note">{note}</p>}
         </section>
         {v.final && <FinalTable v={v} name={name} />}
         {mapBox}
         {draftPack.length > 0 && (
-          <section className="bgv-felt bdr-zone" aria-label="یک کارت نگه دارید">
-            <h2 className="bdr-ztitle">{t('یک کارت نگه دارید', 'Keep a card')}</h2>
+          <section className="bgv-felt bdr-zone bdr-draftzone" aria-label={t('یک کارت نگه دارید', 'Keep a card')}>
+            <h2 className="bdr-ztitle">{draftNeed === 2 ? t('دو کارت نگه دارید', 'Keep two cards') : t('یک کارت نگه دارید', 'Keep a card')}</h2>
             <p className="bdr-zsub">{t('دستهٔ رسیده؛ بقیه به نفر چپ می‌رود', 'The rest goes to the next player clockwise')}</p>
             <div className="bdr-hand">{draftPack.map((c) => cardBtn(c, handPick.get(c)))}</div>
           </section>
@@ -633,16 +649,15 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
             {v.me.quests.length > 0 && <><p className="bdr-zsub">مأموریت‌های متعهدشده</p><div className="bdr-hand">{v.me.quests.map((c) => cardBtn(c, undefined))}</div></>}
           </section>
         )}
-        <section className="bgv-felt bdr-zone bdr-sheetszone" aria-label="صفحه‌های قبیله" id="bdr-sheets">
+        <section className="bdr-sheetszone" aria-label={t('صفحه‌های قبیله', 'Clan sheets')} id="bdr-sheets">
           <div className="bdr-sheets">{order.map((s) => sheet(v.seats[s]!))}</div>
         </section>
       </div>
-      {inShell ? <RailSlot>{logBox}</RailSlot> : (
-        <aside className="bdr-rail" aria-label={t('بازیکن‌ها', 'Players')}>
-          {v.seats.map(panel)}
-          {logBox}
-        </aside>
-      )}
+      {inShell && !phone && <RailSlot>{logBox}</RailSlot>}
+      <aside className="bdr-rail" aria-label={t('بازیکن‌ها', 'Players')}>
+        {v.seats.map(panel)}
+        {(!inShell || phone) && logBox}
+      </aside>
       {dialog}
       {sheetOpen && phone && actionList.length > 0 && (
         <div className="bdr-scrim bdr-scrim--sheet" data-theme={theme} onClick={(e) => { if (e.target === e.currentTarget) setSheetOpen(false); }}>
@@ -668,11 +683,11 @@ export interface SeatDetail {
   steps: Record<StatKey, number>; values: Record<StatKey, number>; passed: boolean; noRage: boolean; out: boolean; reserve: number; valhalla: number; quests: number;
 }
 /** BGA player board body (§18), shared by the shell rail and the renderer's own rail outside the shell. */
-function PanelBody({ d }: { d: SeatDetail }) {
+function PanelBody({ d, clan = true }: { d: SeatDetail; clan?: boolean }) {
   return (
     <>
       <div className="bdr-panel__line1">
-        <img src={art(IDS.clanIcon[String(d.clan) as keyof typeof IDS.clanIcon])} className="bdr-panel__clan" alt={`${t('قبیلهٔ', 'Clan')} ${CLAN_FA(d.clan)}`} title={`${t('قبیلهٔ', 'Clan')} ${CLAN_FA(d.clan)}`} />
+        {clan && <img src={art(IDS.clanIcon[String(d.clan) as keyof typeof IDS.clanIcon])} className="bdr-panel__clan" alt={`${t('قبیلهٔ', 'Clan')} ${CLAN_FA(d.clan)}`} title={`${t('قبیلهٔ', 'Clan')} ${CLAN_FA(d.clan)}`} />}
         <span className="bdr-ragebox" title={t(`خشم فعلی؛ شروع هر عصر ${fa(d.values.rage)}`, `Current rage; ${d.values.rage} each Age`)}><img src={art('tokens/icon-rage.webp')} alt="" /><b className="bdr-num">{fa(d.rage)}</b></span>
         <span className="bdr-cardbox" title={t('کارت در دست', 'Cards in hand')}><img src={art('ui-icons/board-card.webp')} alt="" /><b className="bdr-num">{fa(d.hand)}</b></span>
         {d.first && <img src={art('tokens/firstplayer.webp')} className="bdr-fp" title={t('بازیکن اول این عصر', 'First player this Age')} alt={t('بازیکن اول', 'First player')} />}
@@ -698,12 +713,12 @@ export function bloodRageSeatCard(seat: { seat: number; primary?: { value: numbe
   if (!d) return {};
   return {
     stats: undefined,
-    score: <span className="bdr bdr-side" style={cc(d.clan)}><span className="bdr-panel__score"><b className="bdr-num">{fa(d.glory)}</b> ★</span></span>,
-    scoreLabel: t('افتخار', 'Glory'),
-    ...(d.out ? { sub: t('انصراف داده', 'Resigned') } : turn ? { sub: t('در نوبت', 'To act') } : {}),
+    score: undefined, scoreLabel: undefined, clock: undefined, badge: undefined, strikes: undefined, strikesOf: undefined,
+    avatar: { src: art(IDS.clanIcon[String(d.clan) as keyof typeof IDS.clanIcon]), name: `${t('قبیلهٔ', 'Clan')} ${CLAN_FA(d.clan)}`, className: 'bdr-avatar', style: cc(d.clan) },
+    sub: `${fa(d.glory)} ★ ${t('افتخار', 'Glory')}${d.out ? `، ${t('انصراف داده', 'Resigned')}` : turn ? `، ${t('در نوبت', 'To act')}` : ''}`,
     detail: (
       <div className="bdr bdr-panel--shell" style={cc(d.clan)}>
-        <PanelBody d={d} />
+        <PanelBody d={d} clan={false} />
         <button className="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-panel__more" type="button" data-open={`stats-${d.seat}`}
           onClick={() => window.dispatchEvent(new CustomEvent('bdr-open', { detail: `stats-${d.seat}` }))}>{t('جزئیات آمار', 'Stats details')}</button>
       </div>

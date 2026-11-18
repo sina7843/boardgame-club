@@ -109,12 +109,12 @@
 .an-hot.is-picked{outline:4px solid var(--pick);background:rgba(232,166,66,.25)}
 .an-hot:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
 .an-projband{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.an-pbot{position:relative;inline-size:var(--pw,230px);max-inline-size:44vw;aspect-ratio:400/176;border-radius:6px;overflow:hidden;background:#FFFFFF}
+.an-pbot{position:relative;inline-size:var(--pw,230px);max-inline-size:44vw;aspect-ratio:400/160;border-radius:6px;overflow:hidden;background:#FFFFFF}
 .an-pimg{position:absolute;inset-inline:0;inset-block-end:0;inline-size:100%;block-size:auto}
 .an-lvl{position:absolute;inline-size:9%;transform:translate(-50%,-50%);filter:var(--an-piece)}
 .an-lvl-x{position:absolute;transform:translate(-50%,-50%);inline-size:11%;aspect-ratio:1;border-radius:50%;background:var(--an-plate);color:#FFFFFF;display:grid;place-items:center;font-weight:900}
 .an-lvlhot{inline-size:13%;aspect-ratio:1;border-radius:50%}
-.an-pslot{inline-size:var(--pw,230px);max-inline-size:44vw;aspect-ratio:400/176;border-radius:6px;border:1.5px dashed var(--felt-line);display:grid;place-items:center;color:var(--felt-muted);font-size:12px;text-align:center;padding:var(--space-2)}
+.an-pslot{inline-size:var(--pw,230px);max-inline-size:44vw;aspect-ratio:400/160;border-radius:6px;border:1.5px dashed var(--felt-line);display:grid;place-items:center;color:var(--felt-muted);font-size:12px;text-align:center;padding:var(--space-2)}
 .an-pname{display:block;margin-block-start:3px;font-size:12px;font-weight:700;text-align:center;color:var(--felt-ink)}
 
 /* one zoo at a time (§6) */
@@ -190,7 +190,19 @@
 .an-draftgrid{display:grid;grid-template-columns:repeat(4,minmax(0,150px));gap:14px 12px;justify-content:center}
 .an-draftcard{display:grid;justify-items:center;min-inline-size:0}
 .an-draftcard .an-card{inline-size:100%}
-.an-draft__finals{justify-content:center}
+.an-draft__finals{justify-content:center;flex-wrap:wrap}
+.an-draft__finals>small{flex-basis:100%;text-align:center;color:var(--felt-ink)}
+.an-draftgrid{padding:8px}
+.an-clockslot{flex:none;display:inline-flex}
+.an-clockslot:empty{display:none}
+/* the pick ring sits inside the card edge, so no grid cell or felt edge can clip it */
+.an-draftcard .an-card[data-pick]>img{outline-offset:-3px}
+.an-draftcard .an-card[data-pick="picked"]>img{outline-offset:-4px}
+.an-draftcard .an-card__fa{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-block-size:2.7em}
+/* desktop: the zoo's «امتیاز پایانی» column already shows them */
+@media (min-width:900px){.an-draft__finals{display:none}}
+.an-bp--shell .an-bpi{border-block-start:0}
+.an-side,.an-side .an-eye{flex:none}
 .an-maps{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 .an-mapopt{display:grid;gap:4px;inline-size:min(320px,100%);padding:8px;border:0;border-radius:var(--radius-md);background:var(--surface);color:var(--text);font:inherit;text-align:start;cursor:pointer}
 .an-mapopt img{inline-size:100%;border-radius:var(--radius-sm)}
@@ -266,6 +278,7 @@
 .an-log{padding:var(--space-3);max-block-size:300px;overflow:auto}
 .an-log .bgv-log__item{font-size:13.5px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .an .an-bc--x>img,:root:not([data-theme="light"]) .an .an-bc--rep>img,:root:not([data-theme="light"]) .an-sc .an-bc--x>img,:root:not([data-theme="light"]) .an-sc .an-bc--rep>img{filter:drop-shadow(0 0 1px #FFFFFF) drop-shadow(0 0 1px #FFFFFF)}}
+[data-theme="dark"] .an .an-bc--x>img,[data-theme="dark"] .an-sc .an-bc--x>img{border-radius:50%;background:#E8EEF2;padding:2px}
 [data-theme="dark"] .an .an-bc--x>img,[data-theme="dark"] .an .an-bc--rep>img,[data-theme="dark"] .an-sc .an-bc--x>img,[data-theme="dark"] .an-sc .an-bc--rep>img{filter:drop-shadow(0 0 1px #FFFFFF) drop-shadow(0 0 1px #FFFFFF)}
 
 /* tutorial hint = the same amber ring as --pick */
@@ -279,9 +292,7 @@
 [data-hud="on"] .an-rail>.an-bp,[data-hud="on"] .an-rail>.an-log{display:none}
 /* inside the shell the status box (§2.1) is a compact strip above the game column; the game column gets the full width */
 [data-hud="on"] .an-desk{grid-template-columns:minmax(0,1fr)}
-[data-hud="on"] .an-rail{position:static;max-block-size:none;order:-1;overflow:visible}
-[data-hud="on"] .an-cfg{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px}
-[data-hud="on"] .an-cfg__row{flex-wrap:nowrap}
+[data-hud="on"] .an-rail{display:none}
 /* the shell's PlayerCard detail is an auto-fill grid: our panel body spans every column */
 .an-bp--shell{display:grid;grid-column:1/-1;inline-size:100%;background:none}
 .an-bp--shell .an-bpi,.an-bp--shell .an-bpa,.an-bp--shell .an-bpicons{padding-inline:0}
@@ -290,7 +301,13 @@
 .an-star svg,svg.an-star{fill:#F2B400;stroke:#9A6812}
 .an-side{display:inline-flex;align-items:center;inline-size:auto}
 .an-zoom .t-game-latin{display:block;margin-block-end:6px;font-family:var(--font-latin);color:var(--text-muted);font-size:13px}
-.an-tabs,.an-dock{display:none}
+.an-tabs,.an-dock,.an-phonestat{display:none}
+.rail-top.an-sc{inline-size:100%}
+.an-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--radius-pill);background:var(--surface);color:var(--text);font-size:12.5px;font-weight:700;white-space:nowrap}
+.an-chip.is-turn{box-shadow:0 0 0 2px var(--pick)}
+.an-chip i{inline-size:9px;block-size:9px;border-radius:50%;background:var(--pc)}
+.an-chip bdi{color:var(--sc)}
+.an-chip img{block-size:16px}
 .an-zoomwrap{position:relative;overflow:auto;border-radius:var(--radius-sm);overscroll-behavior:contain}
 .an-zoomwrap>.an-map{inline-size:calc(100% * var(--an-z,1))}
 .an-zoomwrap[data-zoom="1"]{overflow:hidden}
@@ -322,7 +339,10 @@
   .an-bar .bgv-btn{min-block-size:44px}
   .an-bar .an-options{flex-wrap:nowrap;overflow-x:auto;padding-block-end:2px}
   .an-bar__hint{display:none}
-  .an-draftgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 6px}
+  .an-phonestat{display:flex;gap:6px;overflow-x:auto;padding:2px var(--space-2)}
+  .an[data-stage="draft"] .an-bar{position:static}
+  .an-draftgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 10px;padding:6px}
+  .an-draft__finals .an-card{--cw:84px}
   .an-draftcard .an-card__fa{font-size:11px}
   .an-draft__box{order:2}
   .an-draftgrid{order:1}
