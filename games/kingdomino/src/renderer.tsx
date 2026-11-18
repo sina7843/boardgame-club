@@ -46,7 +46,7 @@ import d46 from './art/kingdomino-d46.png';
 import d48 from './art/kingdomino-d48.png';
 import castlePink from './art/kingdomino-castle-pink.png'; import castleBlue from './art/kingdomino-castle-blue.png'; import castleOrange from './art/kingdomino-castle-orange.png'; import castleGreen from './art/kingdomino-castle-green.png';
 import kingPink from './art/kingdomino-king-pink.png'; import kingBlue from './art/kingdomino-king-blue.png'; import kingOrange from './art/kingdomino-king-orange.png'; import kingGreen from './art/kingdomino-king-green.png';
-// Art: design/games/group-d/art/kingdomino. Only 42 of the 48 domino faces are delivered (missing numbers fall back to two terrain squares); terrain squares inside kingdoms stay the older terrain textures.
+// Art: design/games/group-d/art/kingdomino. Only 38 of the 48 domino faces are delivered (missing numbers fall back to two terrain squares); terrain squares inside kingdoms stay the older terrain textures.
 const DOM_ART: Record<number, string> = { 1: d01, 2: d02, 3: d03, 4: d04, 7: d07, 8: d08, 9: d09, 10: d10, 11: d11, 12: d12, 13: d13, 14: d14, 16: d16, 19: d19, 20: d20, 21: d21, 23: d23, 24: d24, 25: d25, 26: d26, 27: d27, 28: d28, 29: d29, 30: d30, 31: d31, 33: d33, 34: d34, 35: d35, 36: d36, 37: d37, 38: d38, 39: d39, 40: d40, 41: d41, 42: d42, 43: d43, 46: d46, 48: d48 };
 const CASTLE = [castlePink, castleBlue, castleOrange, castleGreen];
 const KING = [kingPink, kingBlue, kingOrange, kingGreen];

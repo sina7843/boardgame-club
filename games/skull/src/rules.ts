@@ -131,8 +131,8 @@ function failChallenge(s: SkullState, skullOwner: number, rng: EngineRng) {
   log(s, { t: 'lose-disc', seat: c, eliminated: s.owned[c] === 0 });
   const left = alive(s);
   if (left.length === 1) { endGame(s, left[0]!, 'win'); return; }
-  // The skull's owner starts the next round (the challenger, if it was their own skull).
-  startRound(s, skullOwner);
+  // RULES.md E1 (BGA): a challenger who is still in starts the next round; only when they are out does the skull's owner start.
+  startRound(s, s.owned[c]! > 0 ? c : skullOwner);
 }
 
 function afterFirst(s: SkullState) {
@@ -313,10 +313,10 @@ export const skullModule: GameModule<SkullState, SkullAction, SkullView> = {
     steps: [
       { instructionFa: 'شروع هر دور همه باید یک دیسک بگذارند. یک «گل» بگذارید. حریف هم دیسک اولش را می‌گذارد.', expected: { type: 'place', disc: 'rose' }, reply: { type: 'place', disc: 'rose' } },
       { instructionFa: 'حالا در نوبتتان یا دیسک دیگری می‌گذارید یا پیشنهاد می‌دهید. بلوف بزنید: «جمجمه» را روی گلتان بگذارید. حریف پیشنهاد ۲ می‌دهد، یعنی قول می‌دهد ۲ دیسک را بدون جمجمه رو کند.', expected: { type: 'place', disc: 'skull' }, reply: { type: 'bid', n: 2 } },
-      { instructionFa: 'یا باید عدد بالاتری بگویید یا کنار بکشید. «کنار می‌کشم» را بزنید. حریف تنها مانده و باید اول گل خودش و بعد دیسک بالایی شما را رو کند، که همان جمجمه است.', expected: { type: 'pass' }, reply: { type: 'flip', seat: 0 } },
-      { instructionFa: 'حریف به جمجمهٔ شما رسید و یکی از دیسک‌هایش به‌تصادف و مخفیانه حذف شد (حالا ۳ دیسک دارد). صاحب جمجمه، یعنی شما، دور بعد را شروع می‌کند و همه دیسک‌هایشان را پس گرفته‌اند. اولین دیسک این دور را بگذارید: یک «گل».', expected: { type: 'place', disc: 'rose' }, reply: { type: 'place', disc: 'rose' } },
-      { instructionFa: 'یک «گل» دیگر بگذارید. حالا ۳ دیسک روی میز است. حریف پیشنهاد ۲ می‌دهد.', expected: { type: 'place', disc: 'rose' }, reply: { type: 'bid', n: 2 } },
-      { instructionFa: 'عدد را بالا ببرید: ۳ را انتخاب کنید و «پیشنهاد ۳» را بزنید. پیشنهاد به تعداد کل دیسک‌های میز رسیده، پس رقابت فوراً تمام می‌شود و شما باید رو کنید. قانون مهم: اول همهٔ دیسک‌های خودتان رو می‌شود؛ دو گل شما خودکار رو می‌شوند.', expected: { type: 'bid', n: 3 }, reply: null },
+      { instructionFa: 'یا باید عدد بالاتری بگویید یا کنار بکشید. «کنار می‌کشم» را بزنید. حریف تنها مانده و باید اول گل خودش و بعد دیسک بالایی شما را رو کند، که همان جمجمه است.', expected: { type: 'pass' }, reply: { type: 'flip', seat: 0 }, then: [{ type: 'place', disc: 'rose' }] },
+      { instructionFa: 'حریف به جمجمهٔ شما رسید و یکی از دیسک‌هایش به‌تصادف و مخفیانه حذف شد (حالا ۳ دیسک دارد). چالش‌کننده اگر هنوز در بازی باشد دور بعد را شروع می‌کند؛ پس حریف شروع کرد و دیسک اولش را گذاشت. همه دیسک‌هایشان را پس گرفته‌اند. دیسک اول خودتان را بگذارید: یک «گل».', expected: { type: 'place', disc: 'rose' }, reply: { type: 'place', disc: 'rose' } },
+      { instructionFa: 'حریف یک دیسک دیگر گذاشت. شما هم یک «گل» دیگر بگذارید. حالا ۴ دیسک روی میز است و حریف پیشنهاد ۲ می‌دهد.', expected: { type: 'place', disc: 'rose' }, reply: { type: 'bid', n: 2 } },
+      { instructionFa: 'عدد را بالا ببرید: ۳ را انتخاب کنید و «پیشنهاد ۳» را بزنید. حریف کنار می‌کشد و شما باید ۳ دیسک رو کنید. قانون مهم: اول همهٔ دیسک‌های خودتان رو می‌شود؛ دو گل شما خودکار رو می‌شوند.', expected: { type: 'bid', n: 3 }, reply: { type: 'pass' } },
       { instructionFa: 'یک دیسک دیگر لازم است و باید از دستهٔ حریف باشد. دیسک بالایی حریف را رو کنید.', expected: { type: 'flip', seat: 1 }, reply: null }
     ],
     completedFa: 'بردید! هر سه دیسکی که رو کردید گل بود، پس دومین امتیازتان را گرفتید و دو امتیاز یعنی پیروزی (۲ در برابر ۱). دور اول هم نشان داد چرا بلوف کار می‌کند: حریف به جمجمهٔ شما خورد و یک دیسک از دست داد. کسی که همهٔ دیسک‌هایش را از دست بدهد بیرون می‌رود و آخرین بازیکن باقی‌مانده هم برنده است.'

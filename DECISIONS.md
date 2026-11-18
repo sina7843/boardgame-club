@@ -1575,3 +1575,8 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Skull E1 (challenger starts the next round) NOT applied: the tutorial runtime plays one bot reply per step and the new rule makes the rival start round 2, so the approved tutorial would stall. Owner question: new tutorial copy, or keep the old starter rule for the tutorial only.
 - Game bar meta adds «N بازیکن» (group QA: every group asked for the player count).
 - Unmapped or missing art is listed in docs/reports/2026-11-18-groups-a-d.md §8; nothing was drawn.
+
+## Owner decisions 2026-11-18
+- Skull E1 applied (BGA: a challenger who is still in starts the next round; the skull's owner only when the challenger is out). The tutorial was re-scripted: the rival, still in after hitting the learner's skull, opens round 2; the learner then wins by raising to 3 after the rival passes. To support it, `TutorialStep.then?: Action[]` (game-sdk) lists further scripted seat-1 actions; `packages/play` applies them in order after `reply` while seat 1 is still to act.
+- The Crew keeps the long name «کرو: در جستجوی سیارهٔ نهم» (overrides the «کرو» line at the top of design/GAME_NAMES.md).
+- Missing art: placeholders for now (owner). A placeholder always names the piece (text on the piece's shape) so it is never mistaken for final art; replaced 1:1 when the file arrives.

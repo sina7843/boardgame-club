@@ -205,6 +205,8 @@ export interface TutorialStep<Action> {
   expected: Action | null;
   /** Scripted reply for the tutorial seat 1 after the learner's action, if the game waits on it. */
   reply: Action | null;
+  /** Further scripted seat-1 actions applied in order after `reply`, while seat 1 is still to act (e.g. it also opens the next round). */
+  then?: Action[];
 }
 
 export interface TutorialScript<Action> {

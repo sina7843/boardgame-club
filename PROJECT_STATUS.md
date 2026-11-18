@@ -26,4 +26,4 @@ Owner-requested extension: chat upgrades «گفت‌وگو» (quick chat, bubble
 
 Next eligible phase: none (five prompts complete). Remaining work is owner/provider/infrastructure decisions.
 
-Owner-requested extension: complete design handoff 2026-11 — design system phase 1 done; chess table done (QA rounds 1–3); group A–D tables (62 games) on the shared frame, QA round 2 15/62 PASS, frame-wide fixes applied, round 3 pending (report: docs/reports/2026-11-18-groups-a-d.md). Gaia, Terraforming Mars, Brass, Ark Nova, Blood Rage not started in this handoff.
+Owner-requested extension: complete design handoff 2026-11 — design system phase 1 done; chess table done (QA rounds 1–3); group A–D tables (62 games) on the shared frame, QA round 2 15/62 PASS, frame-wide fixes applied, round 3 pending (report: docs/reports/2026-11-18-groups-a-d.md). Gaia (built from handoff v1.4; v1.7 not yet), Terraforming Mars, Brass, Ark Nova, Blood Rage: handoff phases not started (older playable tables remain).

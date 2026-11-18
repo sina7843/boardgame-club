@@ -325,10 +325,13 @@ export async function executeCommand(db: Db, registry: GameRegistry, input: Comm
     if (table.isTutorial && !isResign) {
       await tx.update(gameTables).set({ tutorialStep: table.tutorialStep + 1 }).where(eq(gameTables.id, table.id));
       // The tutorial opponent is a fixed script applied through the same engine path.
-      if (tutorialStep?.reply && !step.outcome && step.pendingSeats.includes(1)) {
-        const reply = applyAction(module, step.snapshot, { kind: 'player', seat: 1 }, tutorialStep.reply, logicalTime);
+      let last = step;
+      for (const action of tutorialStep?.reply ? [tutorialStep.reply, ...(tutorialStep.then ?? [])] : []) {
+        if (last.outcome || !last.pendingSeats.includes(1)) break;
+        const reply = applyAction(module, last.snapshot, { kind: 'player', seat: 1 }, action, logicalTime);
         if ('ok' in reply) throw new Error(`tutorial script rejected: ${reply.errorCode}`);
-        await persistStep(tx, locked, reply, { kind: 'action', seat: 1, action: tutorialStep.reply, logicalTime });
+        await persistStep(tx, locked, reply, { kind: 'action', seat: 1, action, logicalTime });
+        last = reply;
       }
     }
     return receipt('accepted', revision, null);
