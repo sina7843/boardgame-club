@@ -44,6 +44,7 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   // Settings only links to the profile; identity and customization live on «پروفایل من».
   await p.goto('/settings?tab=profile');
   await p.getByRole('link', { name: 'ویرایش پروفایل' }).click();
+  await expect(p).toHaveURL(/\/me\/profile/); // settings has a link of the same name: wait until it has been left
   // Profile-Own: the head carries the primary «ویرایش پروفایل», which opens the Studio (the editor lives there).
   await p.locator('#main').getByRole('link', { name: 'ویرایش پروفایل' }).first().click();
   await expect(p).toHaveURL(/\/me\/studio/);

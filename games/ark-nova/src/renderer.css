@@ -338,6 +338,7 @@
   .an-bar{order:99;max-block-size:60dvh;overflow:auto;border-end-start-radius:0;border-end-end-radius:0}
   .an-bar .bgv-btn{min-block-size:44px}
   .an-bar .an-options{flex-wrap:nowrap;overflow-x:auto;padding-block-end:2px}
+  .an-bar .an-options>*{flex:none} /* the row scrolls: a squeezed button would spill its icon over its neighbour */
   .an-bar__hint{display:none}
   .an-phonestat{display:flex;gap:6px;overflow-x:auto;padding:2px var(--space-2)}
   .an[data-stage="draft"] .an-bar{position:static}

@@ -9,6 +9,9 @@
 .hv-cell:focus-visible .hv-tile { filter: drop-shadow(0 0 6px var(--focus, currentColor)); }
 .hv-cell--trapped .hv-tile { filter: drop-shadow(0 0 7px var(--danger, currentColor)); animation: hv-hint 0.8s ease-in-out infinite; }
 .hv-under { opacity: 0.85; pointer-events: none; }
+/* Tile art is larger than its hexagon, so only the hexagon takes taps; a neighbour's transparent margin never steals one. */
+.hv-tile image { pointer-events: none; }
+.hv-hit { fill: transparent; }
 .hv-height { font: 900 20px/1 var(--font-fa); fill: #ffd27a; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 4px; }
 .hv-target { cursor: pointer; outline: none; }
 .hv-target:hover image, .hv-target:focus-visible image { filter: brightness(1.4); }

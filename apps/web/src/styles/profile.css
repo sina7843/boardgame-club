@@ -204,7 +204,7 @@
   .pf-tasktop > h1 { margin: 0; flex: 1; color: var(--heading); }
   .app-immersive > main { padding-inline: var(--space-4); padding-block-end: var(--space-4); }
   .pf-tasktop { margin-inline: calc(-1 * var(--space-4)); margin-block-end: var(--space-4); }
-  .pf-savebar { inset-block-end: var(--space-3); }
+  .pf-savebar { inset-block-end: calc(var(--space-3) + var(--tour-room, 0px)); } /* an open guide card never covers «ذخیره» */
 }
 .pf-mhead__actions > .bgv-btn--icon { flex: none; }
 

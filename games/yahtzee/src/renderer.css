@@ -161,3 +161,9 @@
   .yz-homelabel { position: static; inline-size: auto; block-size: auto; overflow: visible; clip-path: none; }
   .yz--framed .yz-opt::after { content: ''; position: absolute; inset: -9px -2px; }
 }
+/* Phones outside the frame (tutorial): the roll and record buttons wrap, so their long labels cannot widen the page. */
+@media (max-width: 520px) {
+  .yz, .yz__tray { grid-template-columns: minmax(0, 1fr); }
+  .yz__tray:not(.yz__tray--dock) .yz__roll { flex-wrap: wrap; }
+  .yz__tray:not(.yz__tray--dock) :is(.yz-rollbtn, .yz-submit) { white-space: normal; block-size: auto; min-block-size: 44px; max-inline-size: 100%; }
+}

@@ -73,16 +73,19 @@ test('undo before confirm: the drafted mine stands on its hex, «برگرد» ta
 /** Taps a map hex; on the phone the sticky action bar may cover it after scrolling, then the tap goes to the hex itself. */
 async function tapHex(p: Page) {
   const hex = p.locator('.gp-hex[data-pick="selectable"]').first();
-  await hex.click({ timeout: 4000 }).catch(() => hex.dispatchEvent('click'));
+  await hex.click({ timeout: 4000 }).catch(() => hex.dispatchEvent('click', undefined, { timeout: 4000 }).catch(() => undefined));
 }
 
 /** Click that never blocks the turn clock: falls back to the element's own click when something covers it. */
-const tap = (l: ReturnType<Page['locator']>) => l.click({ timeout: 4000 }).catch(() => l.dispatchEvent('click'));
+const tap = (l: ReturnType<Page['locator']>) => l.click({ timeout: 4000 }).catch(() => l.dispatchEvent('click', undefined, { timeout: 4000 }).catch(() => undefined));
+
+/** A real tap with a time limit: a control that went away (the turn moved on) means «look again», not a hang. */
+const press = (l: ReturnType<Page['locator']>) => l.click({ timeout: 4000 }).catch(() => undefined);
 
 /** Opens the phone actions sheet when it is closed. */
 async function openSheet(p: Page) {
   const sheet = p.locator('.gp-sheetbtn:visible', { hasText: 'کنش‌ها' });
-  if (await sheet.count()) await sheet.click();
+  if (await sheet.count()) await press(sheet);
 }
 
 /** One move for this page if it has one: answer a power charge or open decision; on its own turn draft a faction, a
@@ -92,11 +95,11 @@ async function turn(p: Page, n: number): Promise<boolean> {
   const mode = await root.getAttribute('data-turn');
   if (mode === 'decide') {
     const leech = p.locator('.gp-leech button');
-    if (await leech.count()) { const no = leech.filter({ hasText: /^رد$/ }); await ((await no.count()) ? no.first() : leech.first()).click(); return true; }
+    if (await leech.count()) { const no = leech.filter({ hasText: /^رد$/ }); await press((await no.count()) ? no.first() : leech.first()); return true; }
     await openSheet(p);
     const opt = p.locator('[data-option]:visible');
     if (!(await opt.count())) return false;
-    await opt.first().click();
+    await press(opt.first());
     return true;
   }
   // Main action done earlier (e.g. after a power charge was answered): only free actions remain, «تأیید» ends the turn.
@@ -120,7 +123,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
     }
   }
   const confirm = p.locator('.gp-confirm:visible');
-  for (let k = 0; k < 6 && !(await confirm.isEnabled().catch(() => false)); k++) {
+  for (let k = 0; k < 6 && !(await confirm.isEnabled({ timeout: 4000 }).catch(() => false)); k++) {
     await openSheet(p);
     const opt = p.locator('[data-option]:visible');
     if (!(await opt.count())) break;
@@ -143,7 +146,8 @@ test('two players play Gaia Project to the result', async ({ browser }, info) =>
   await pages[1]!.goto(invite);
   await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.gp-map')).toBeVisible();
+  // The seat that picks first gets the faction screen on phones (no map behind it); everyone else sees the map.
+  await expect(host.locator('.gp-map, .gp-faction-pick').first()).toBeVisible();
 
   for (let n = 0; n < 400; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;

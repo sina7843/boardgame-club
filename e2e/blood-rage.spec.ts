@@ -26,8 +26,8 @@ async function choose(p: Page, a: string) {
 }
 /** On phones the map, hand and clan sheets are tabs (§25–§30). */
 async function tab(p: Page, name: 'نقشه' | 'دست' | 'قبیلهٔ من') {
-  const t = p.locator('.bdr-tabs').getByRole('button', { name, exact: true });
-  if (await t.isVisible()) await t.click();
+  const t = p.locator('.bdr-tabs').getByRole('tab', { name: new RegExp(`^${name}`) }); // «دست ۴» carries the card count
+  if (await t.isVisible()) { await closeDialogs(p); await t.click(); }
 }
 
 test('interactive tutorial: upgrade, free invasion, quest, march, pillage with a battle card, pass, quest reward', async ({ browser }, info) => {

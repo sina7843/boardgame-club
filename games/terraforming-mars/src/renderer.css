@@ -277,7 +277,6 @@ button.tm-rs{cursor:pointer;min-block-size:44px}
   .tm-ahead .tm-tagc{inline-size:34px;block-size:34px}
   .tm-secs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .tm-sec{inline-size:auto;--cw:130px}
-  .tm-hexbtn{min-inline-size:44px;min-block-size:44px}
 }
 
 /* shell integration (TM tables only): seat colours = the cube palette (COMPONENTS §0) everywhere; the felt frame steps back so

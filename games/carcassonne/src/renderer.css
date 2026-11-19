@@ -97,3 +97,8 @@
 @media (max-width: 899px) { .cc--framed .cc__drawn { flex-direction: row; } .cc--framed .cc__drawn-tile { inline-size: 4rem; block-size: 4rem; } }
 /* Round 3: zoom buttons under the preview, not over it. */
 .cc--framed .cc__zoom { order: 3; }
+/* Phones: the centred map took the full board width, so a growing board widened the page. It stays screen-wide and scrolls inside. */
+@media (max-width: 899px) {
+  .cc--framed { grid-template-columns: minmax(0, 1fr); }
+  .cc--framed > .cc__map { justify-self: stretch; min-inline-size: 0; }
+}

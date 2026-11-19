@@ -83,7 +83,14 @@ async function turn(p: Page, n: number): Promise<boolean> {
   const [from, count] = opts[0]!;
   await p.locator('.sc-pick').nth(from).click();
   if (count > 1) await p.locator('.sc-pick').nth(from + count - 1).click();
-  await p.getByRole('button', { name: /^نمایش/ }).click();
+  const showBtn = p.getByRole('button', { name: /^نمایش/ });
+  // The options read above can be out of date by the time both cards are tapped: clear the selection and read them again.
+  if (!(await expect(showBtn).toBeEnabled({ timeout: 3_000 }).then(() => true, () => false))) {
+    const on = p.locator('.sc-pick--on');
+    for (let i = 0; i < 4 && (await on.count()); i++) await (i % 2 ? on.last() : on.first()).click();
+    return false;
+  }
+  await showBtn.click();
   return true;
 }
 

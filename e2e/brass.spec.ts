@@ -19,10 +19,13 @@ test('interactive tutorial: rail link, sell with merchant beer, build, sell, era
     if (step === '۲') {
       await p.screenshot({ path: shot(info.project.name, 'tutorial-sell'), fullPage: true });
       // Player panels live in the shell rail (brassSeatCard); on phones the full panels are in the «بازیکنان» tab.
+      const playersTab = p.locator('.br-tabs').getByRole('tab', { name: 'بازیکنان' });
+      if (await playersTab.count()) await playersTab.click();
       const own = p.locator('.bgv-pcard.is-you .br-pl, .br-pl--me').first();
       if (await own.count()) await own.screenshot({ path: shot(info.project.name, 'board-own') });
       const other = p.locator('.bgv-pcard:not(.is-you) .br-pl').first();
       if (await other.count()) await other.screenshot({ path: shot(info.project.name, 'board-opponent') });
+      if (await playersTab.count()) await p.locator('.br-tabs').getByRole('tab', { name: 'نقشه' }).click();
     }
     // Kind → target → card → «ثبت»: each click reveals the next highlighted control.
     for (let i = 0; i < 6 && (await label.count()); i++) {
@@ -46,7 +49,8 @@ test('«برگرد» before «ثبت»: the picked link and card are previewed, 
   const links = p.locator('.br__map [data-flip^="link-"]');
   const linksBefore = await links.count();
   const submit = p.locator('.br__actions').getByRole('button', { name: 'ثبت', exact: true });
-  for (let i = 0; i < 6 && !(await submit.isEnabled()); i++) { await p.locator('.br[data-seq] .br-hint:not([disabled]):visible').first().click(); await p.waitForTimeout(150); }
+  // On phones «ثبت» only exists once the action kind is picked (the actions sheet comes first).
+  for (let i = 0; i < 6 && !((await submit.count()) && (await submit.isEnabled())); i++) { await p.locator('.br[data-seq] .br-hint:not([disabled]):visible').first().click(); await p.waitForTimeout(150); }
   const played = await p.locator('.br__hand .br-card--on').getAttribute('data-flip');
   await expect(p.locator(`.br__hand [data-flip="${played}"][data-pick="picked"]`)).toBeVisible();
   await expect(links).toHaveCount(linksBefore + 1); // the picked link is previewed on the map

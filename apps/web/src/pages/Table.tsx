@@ -882,6 +882,17 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
   const clock = useTurnClock(s);
   useTurnAlerts(t.id, t.mySeat);
   useTournamentFocus(t);
+  // Phone: controls scrolled into view stop clear of the sticky game bar and dock area (their height changes with the turn).
+  useEffect(() => {
+    const top = gameRef.current?.querySelector<HTMLElement>('.bgv-gamebar');
+    const dock = gameRef.current?.querySelector<HTMLElement>('.gf-dockwrap');
+    if (notPhone || full.max || !top || !dock) return;
+    const html = document.documentElement;
+    const sync = () => { html.style.setProperty('--gf-scroll-top', `${top.offsetHeight}px`); html.style.setProperty('--gf-scroll-bottom', `${dock.offsetHeight}px`); };
+    const seen = new ResizeObserver(sync);
+    seen.observe(top); seen.observe(dock); sync();
+    return () => { seen.disconnect(); html.style.removeProperty('--gf-scroll-top'); html.style.removeProperty('--gf-scroll-bottom'); };
+  }, [notPhone, full.max]);
   const online = usePresence(finished ? [] : t.seats.map((x) => (x.seat === t.mySeat ? null : x.user?.id)));
   const sum = g.summary;
   const kind = wanted === 'duel' && t.seats.length === 2 ? 'duel' : 'seats';
@@ -981,6 +992,7 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
               {c && <FrameClock sec={c.sec} state={c.state} sm />}
               <span className="gf-seat__meta">
                 {offlineOf(x) && <span className="gf-pill"><Icon name="wifi-off" size="sm" />آفلاین</span>}
+                {!notPhone && x.bot && <Badge size="sm" icon="bot">ربات</Badge>}
                 {metaOf(x)}{bubble(x)}
               </span>
             </button>

@@ -111,6 +111,15 @@ async function act(p: Page): Promise<boolean> {
   return false;
 }
 
+/** The player areas are in the «بازیکنان» tab on phones: open it for the capture, then return to the tab in use. */
+async function shotPlayers(q: Page, path: string) {
+  const tabs = q.locator('.tm-tabs [role="tab"]');
+  const open = await tabs.evaluateAll((els) => els.findIndex((e) => e.getAttribute('aria-selected') === 'true'));
+  if (open >= 0) await q.locator('.tm-tabs').getByRole('tab', { name: 'بازیکنان' }).click();
+  await q.locator('.tm-players').screenshot({ path, timeout: 10_000 }).catch(() => undefined); // a new decision may switch the tab
+  if (open >= 0) await tabs.nth(open).click();
+}
+
 test('two players terraform Mars to the result', async ({ browser }, info) => {
   only(info.project.name);
   const vp = info.project.use.viewport ?? null;
@@ -123,7 +132,8 @@ test('two players terraform Mars to the result', async ({ browser }, info) => {
   await pages[1]!.goto(invite);
   await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.tm-board')).toBeVisible();
+  // Phones open on the setup tab (corporations and starting cards); the board is one tab away.
+  await expect(host.locator('.tm-board:visible, .tm-corps .tm-card').first()).toBeVisible();
 
   for (let n = 0; n < 3000; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
@@ -134,7 +144,7 @@ test('two players terraform Mars to the result', async ({ browser }, info) => {
       await expect.poll(() => p.locator('.tm[data-seq]').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
       if (n === 30) for (const [i, q] of pages.entries()) {
         await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
-        await q.locator('.tm-players').screenshot({ path: shot(info.project.name, `boards-${i}`) }); // own board + opponents
+        await shotPlayers(q, shot(info.project.name, `boards-${i}`)); // own board + opponents
       }
       acted = true;
     }

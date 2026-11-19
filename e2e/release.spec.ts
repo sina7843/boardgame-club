@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { newPage, player, signIn, pickPlayers } from './helpers.ts';
+import { newPage, openTableStatus, player, signIn, pickPlayers } from './helpers.ts';
 
 // Release-candidate checks (phase 04). Runs in every project (360 / 768 / 1440 / 1920).
 // Real iOS Safari / Android Chrome are NOT covered here — viewport emulation is not a device test.
@@ -94,6 +94,7 @@ test('three-player sealed bids: each client sees only its own sealed value', asy
         return v.myBid !== null || v.round > round + 1 || v.outcome !== null;
       };
       for (let attempt = 0; ; attempt++) {
+        await openTableStatus(p);
         await expect(p.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible();
         await p.getByRole('button', { name: `ژتون ${tokens[i]!.toLocaleString('fa-IR')}`, exact: true }).click();
         if (await expect.poll(sealed, { timeout: 5000 }).toBe(true).then(() => true, () => false)) break;
@@ -134,7 +135,7 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   await a.getByRole('button', { name: 'آماده‌ام' }).click();
   await expect(a.locator('.lt__board')).toBeVisible();
   // Whoever must wait leaves the table; after the other moves, the dashboard lists the table under «نوبت من».
-  const turnOf = async () => (await a.getByText('نوبت شماست').first().isVisible()) ? 'a' : (await b.getByText('نوبت شماست').first().isVisible()) ? 'b' : null;
+  const turnOf = async () => (await a.getByText('حرکت با شماست').first().isVisible()) ? 'a' : (await b.getByText('حرکت با شماست').first().isVisible()) ? 'b' : null;
   await expect.poll(turnOf).not.toBeNull();
   const [mover, waiter] = (await turnOf()) === 'a' ? [a, b] : [b, a];
   await waiter.goto('/');
@@ -144,7 +145,7 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   await expect(panel.getByRole('link').first()).toBeVisible({ timeout: 15_000 });
   await waiter.screenshot({ path: shot(info.project.name, 'my-turn-dashboard'), fullPage: true });
   await panel.getByRole('link').first().click();
-  await expect(waiter.getByText('نوبت شماست').first()).toBeVisible();
+  await expect(waiter.getByText('حرکت با شماست').first()).toBeVisible();
   await expect(waiter.locator('.lt__cell').nth(0)).not.toHaveAttribute('aria-disabled', 'true');
   await waiter.locator('.lt__cell').nth(0).click();
   await expect(mover.locator('.lt__cell').nth(0)).not.toHaveText('');

@@ -37,7 +37,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
   const confirm = p.getByRole('button', { name: /^(گذاشتن کاشی|تأیید جا)$/ });
   // A chosen spot/meeple can leave the confirm disabled; fall back to no meeple, then let the loop pick another spot.
   if (await confirm.click({ timeout: 5_000 }).then(() => true, () => false)) return true;
-  if ((await chips.count()) > 0) await chips.first().click().catch(() => undefined);
+  if ((await chips.count()) > 0) await chips.first().click({ timeout: 5_000 }).catch(() => undefined);
   return confirm.click({ timeout: 5_000 }).then(() => true, () => false);
 }
 

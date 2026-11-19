@@ -181,9 +181,11 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
     if (!matchMedia('(min-width: 640px)').matches) {
       // Phone sheet covers the bottom of the screen: add that much scroll room so nothing stays hidden under it.
       el.style.top = ''; el.style.left = '';
-      const room = `${el.offsetHeight + 16}px`;
+      // Measured from the card's top edge: it floats above the dock, so its height alone leaves the end of the page covered.
+      const room = `${Math.ceil(innerHeight - el.getBoundingClientRect().top) + 16}px`;
       document.body.style.paddingBottom = room;
       document.documentElement.style.scrollPaddingBottom = room;
+      document.documentElement.style.setProperty('--tour-room', room); // pinned save bars stay above the card
       arrow();
       return;
     }
@@ -204,7 +206,7 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
     arrow();
   }, [rect, index]);
 
-  useEffect(() => () => { document.body.style.paddingBottom = ''; document.documentElement.style.scrollPaddingBottom = ''; }, []);
+  useEffect(() => () => { document.body.style.paddingBottom = ''; document.documentElement.style.scrollPaddingBottom = ''; document.documentElement.style.removeProperty('--tour-room'); }, []);
   useEffect(() => { if (isTour) card.current?.querySelector<HTMLButtonElement>('.tour-card__actions button')?.focus({ preventScroll: true }); }, [isTour, index]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };

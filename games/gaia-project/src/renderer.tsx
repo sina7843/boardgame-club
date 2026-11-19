@@ -722,6 +722,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   // Refs, not render-local sets: StrictMode renders twice and the memoized boards keep the first render's closure.
   const seen = useRef<{ seq: number | null; keys: Set<string>; drawn: Set<string> }>({ seq: null, keys: new Set(), drawn: new Set() });
   useEffect(() => { const s = seen.current; for (const k of s.drawn) s.keys.add(k); s.drawn.clear(); s.seq = view.seq; });
+  useEffect(() => { dock.current?.firstElementChild?.replaceChildren(); }, [served.seq]); // a played move retires the zoomed piece
   const phone = useMedia('(max-width: 760px)');
   const pageTheme = usePageTheme();
 
@@ -1109,9 +1110,11 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
 
   return (
     <div className="gp" onFocus={showTip} onKeyDown={(e) => { if (e.key === 'Escape') { (document.activeElement as HTMLElement | null)?.blur?.(); dock.current?.firstElementChild?.replaceChildren(); } }} data-seq={served.seq} data-round={view.round} data-phase={view.phase} data-turn={sending ? 'sending' : onlyFree && !draft.length ? 'held' : drafting ? 'draft' : myDecision ? 'decide' : 'wait'} data-tab={tab} lang={lang} dir={lang === 'en' ? 'ltr' : 'rtl'}>
-      {mySeat !== null && bar}
-      {phone && <div className="gp-zoomdock" ref={dock} role="dialog" aria-label="بزرگ‌نمایی"><div className="gp-zoomdock__body" style={{ display: 'contents' }} />
-        <button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label="بستن" onClick={() => dock.current?.firstElementChild?.replaceChildren()}>✕</button></div>}
+      <div className="gp-bottom">
+        {phone && <div className="gp-zoomdock" ref={dock} role="dialog" aria-label="بزرگ‌نمایی"><div className="gp-zoomdock__body" style={{ display: 'contents' }} />
+          <button type="button" className="bgv-btn bgv-btn--icon bgv-btn--sm" aria-label="بستن" onClick={() => dock.current?.firstElementChild?.replaceChildren()}>✕</button></div>}
+        {mySeat !== null && bar}
+      </div>
       {phone && <div className="gp-phonestatus"><span className="gp-shellclock" data-shell-clock />
         {view.phase === 'actions' && <FeltPlate label={t('round')} value={`${fa(view.round)} ${t('of6')}`} />}</div>}
       {phone && <div className="gp-pchips bgv-hscroll" aria-label="بازیکن‌ها" data-gp-pchips data-theme={pageTheme}>

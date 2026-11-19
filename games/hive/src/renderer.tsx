@@ -35,6 +35,8 @@ const ICON: Record<Color, Record<Bug, string>> = { w: { Q: iconWQ, S: iconWS, B:
 // Tile art is 130 px with the hexagon ≈ 0.585 of it wide; neighbours are √3·R apart, so the image is √3·R / 0.585 across.
 const TILE_PX = (R * Math.sqrt(3)) / 0.585;
 const px = ([q, r]: Hex) => ({ x: R * Math.sqrt(3) * (q + r / 2), y: R * 1.5 * r });
+/** Corners of the pointy-top hexagon centred on (x, y): the tap area of a piece. */
+const hexPoints = (x: number, y: number) => [0, 1, 2, 3, 4, 5].map((k) => { const a = Math.PI / 3 * k - Math.PI / 2; return `${x + R * Math.cos(a)},${y + R * Math.sin(a)}`; }).join(' ');
 
 type Queued = { type: string; bug?: Bug; from?: Hex; to?: Hex };
 
@@ -160,7 +162,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
             const { x, y } = px(hx);
             const isHint = hint && key(hint.to) === key(hx);
             return (
-              <g key={`t${key(hx)}`} role="button" tabIndex={0} aria-label={`خانه ${key(hx)}، ${bug ? 'جای گذاشتن' : 'مقصد'}`}
+              <g key={`t${key(hx)}`} data-hex={key(hx)} role="button" tabIndex={0} aria-label={`خانه ${key(hx)}، ${bug ? 'جای گذاشتن' : 'مقصد'}`}
                 className={isHint ? 'hv-target hv-target--hint' : 'hv-target'} onClick={() => tapCell(hx)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
                 <image href={isHint ? selectedArt : possibleArt} x={x - R * 0.86} y={y - R * 0.86} width={R * 1.72} height={R * 1.72} transform={`rotate(30 ${x} ${y})`} />
@@ -175,11 +177,12 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
             const isSel = from && key(from) === k;
             const isHint = hint?.type === 'move' && !from && key(hint.from) === k;
             return (
-              <g key={k} role="gridcell" tabIndex={mine ? 0 : -1}
+              <g key={k} data-hex={k} role="gridcell" tabIndex={mine ? 0 : -1}
                 aria-label={`${BUG_FA[topPiece.t]} ${topPiece.c === myColor ? 'شما' : 'حریف'}${stack.length > 1 ? `، ${fa(stack.length)} مهره روی هم` : ''}${isSel ? '، انتخاب‌شده' : ''}`}
                 className={['hv-cell', mine ? 'hv-cell--mine' : '', isSel ? 'hv-cell--sel' : '', isHint ? 'hv-cell--hint' : '',
                   topPiece.t === 'Q' && surrounded.has(topPiece.c) ? 'hv-cell--trapped' : ''].join(' ')}
                 onClick={() => tapCell(hx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
+                <polygon className="hv-hit" points={hexPoints(x, y)} />
                 {stack.length > 1 && <image href={TILE[stack.at(-2)!.c][stack.at(-2)!.t]} x={x + 5 - TILE_PX / 2} y={y + 7 - TILE_PX / 2} width={TILE_PX} height={TILE_PX} className="hv-under" />}
                 <g data-flip={idAt(k, stack.length - 1)} data-flip-from={placed.has(idAt(k, stack.length - 1) ?? '') ? `res-${topPiece.c}-${topPiece.t}` : undefined}>
                   <Tile x={x} y={y} p={topPiece} />

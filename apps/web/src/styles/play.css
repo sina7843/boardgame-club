@@ -212,6 +212,7 @@
 .pg-extra[open] .pg-extra__chev { transform: rotate(180deg); }
 @media (max-width: 899px) {
   .pg-modes, .pg-players { grid-template-columns: minmax(0, 1fr); }
+  .pg-players > .pg-stack { grid-template-columns: minmax(0, 1fr); } /* a wide player-count control scrolls inside its row, never widens the page */
 }
 
 /* GameDetail-Desktop: four facts with icons, rules summary in two columns, timing table. */

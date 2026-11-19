@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { expect, test, type Page } from '@playwright/test';
-import { dismissCelebrations, newPage, signIn } from './helpers.ts';
+import { dismissCelebrations, newPage, openTableStatus, signIn } from './helpers.ts';
 
 // DRAGON-02 acceptance flows with independent browser contexts. Runs in mobile-360 and desktop-1440.
 test.describe.configure({ mode: 'serial', timeout: 120_000 });
@@ -23,7 +23,7 @@ async function acceptMatch(p: Page) {
   await p.getByRole('button', { name: 'آماده‌ام' }).click();
 }
 
-const myTurn = (p: Page) => p.getByText('نوبت شماست', { exact: true }).first().isVisible();
+const myTurn = (p: Page) => p.getByText('حرکت با شماست', { exact: true }).first().isVisible();
 async function mover(a: Page, b: Page) {
   for (let i = 0; i < 60; i++) { if (await myTurn(a)) return a; if (await myTurn(b)) return b; await a.waitForTimeout(150); }
   throw new Error('no turn');
@@ -65,7 +65,7 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
     await m.locator('.lt__cell').nth(cell).click();
     await expect(m.locator('.lt__cell').nth(cell)).not.toHaveText('');
     // the move is committed after its undo window; the turn pill stays "mine" until then
-    await expect(m.getByText('نوبت شماست', { exact: true })).toHaveCount(0, { timeout: 10_000 });
+    await expect(m.getByText('حرکت با شماست', { exact: true })).toHaveCount(0, { timeout: 10_000 });
   }
   await expect(a.getByRole('heading', { name: /شما بردید|این دست را باختید/ })).toBeVisible();
   await a.screenshot({ path: shot('03-match-result', p), fullPage: true });
@@ -79,6 +79,7 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   for (const [ta, tb] of [[5, 1], [1, 5], [2, 3], [3, 2], [4, 4]]) {
     round++;
     for (const [pg, t] of [[a, ta], [b, tb]] as const) {
+      await openTableStatus(pg);
       await expect(pg.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible({ timeout: 15_000 });
       await pg.getByRole('button', { name: `ژتون ${t!.toLocaleString('fa-IR')}`, exact: true }).click();
     }
@@ -125,7 +126,8 @@ test('friends: request/accept, invite to a private table via notification, table
   await b.getByRole('button', { name: 'پیوستن به میز' }).click();
   await expect(b.getByText('بازیکنان (۲ از ۲)')).toBeVisible();
 
-  // Lobby chat, delivered live to the other participant
+  // Lobby chat, delivered live to the other participant (docked on wide screens, a sheet behind the lobby bar button on phones)
+  if ((vp?.width ?? 1440) < 900) for (const pg of [a, b]) await pg.getByRole('button', { name: /^گفت‌وگوی میز/ }).click();
   await b.getByLabel('متن پیام').fill('سلام! آماده‌ام');
   await b.getByRole('button', { name: 'ارسال' }).click();
   await expect(a.getByText('سلام! آماده‌ام')).toBeVisible({ timeout: 10_000 });
@@ -134,7 +136,7 @@ test('friends: request/accept, invite to a private table via notification, table
   // Direct message, then block: contact stops
   const bId = (await (await b.request.get('/api/me')).json()).id;
   await a.goto(`/users/${bId}`);
-  await a.getByRole('button', { name: 'پیام خصوصی' }).click();
+  await a.getByRole('button', { name: 'پیام', exact: true }).click();
   await a.getByLabel('متن پیام').fill('بازی بعدی کی؟');
   await a.getByRole('button', { name: 'ارسال' }).click();
   await expect(a.getByText('بازی بعدی کی؟')).toBeVisible();

@@ -473,6 +473,14 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
     else if (h.type === 'project' || h.type === 'milestone' || h.type === 'award' || h.type === 'respond') setTab('mars');
     else if (h.type === 'cardAction') setTab('players');
   }, [phone, JSON.stringify(expected)]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Phones: the page keeps room for the fixed action bar at its real height, so the last hexes and cards can scroll clear of it.
+  useEffect(() => {
+    const el = root.current, bar = el?.querySelector<HTMLElement>('[data-tm-actbar]');
+    if (!phone || !el || !bar) return;
+    const ro = new ResizeObserver(() => el.style.setProperty('--tm-dock-h', `${bar.offsetHeight + 12}px`));
+    ro.observe(bar);
+    return () => ro.disconnect();
+  }, [phone]);
 
   const me = view.me;
   const meP = mySeat !== null ? view.players[mySeat] : undefined;
@@ -793,8 +801,12 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
     <section className={`tm-bar bgv-card${waiting ? ' is-waiting' : ''}`} data-tm-actbar="" aria-label={t('نوار کنش', 'Action bar')}>
       {statusText ? <div className="tm-bar__row"><span className="tm-bar__text" role="status" aria-live="polite">{statusText}</span>{!phone && <span className="tm-clock" data-shell-clock="" />}</div>
         : null}
-      {flowDock ?? promptDock ?? pickBar ?? (actionTurn && (phone && !hint
-        ? <div className="tm-bar__row"><Button onClick={() => setSheet(true)}>{t('کنش‌ها', 'Actions')}</Button>{has('pass') && <Button variant="ghost" data-act="pass" className={isHint({ type: 'pass' }) ? 'tm-hint' : ''} onClick={() => start({ t: 'pass' })}>{t('پاس', 'Pass')}</Button>}
+      {flowDock ?? promptDock ?? pickBar ?? (actionTurn && (phone && !(hint && (has('firstAction') || view.phase === 'final'))
+        ? <div className="tm-bar__row"><Button onClick={() => setSheet(true)}>{t('کنش‌ها', 'Actions')}</Button>
+          {/* the tutorial's conversion lives only in the sheet: bring just that button out, the full list would cover the table */}
+          {isHint({ type: 'convertHeat' }) && <Button variant="secondary" data-act="convertHeat" className="tm-hint" onClick={() => start({ t: 'convertHeat' })}>{t('تبدیل گرما به دما', 'Heat to temperature')}</Button>}
+          {isHint({ type: 'convertPlants' }) && <Button variant="secondary" data-act="convertPlants" className="tm-hint" onClick={() => start({ t: 'convertPlants' })}>{t('تبدیل گیاه به فضای سبز', 'Plants to greenery')}</Button>}
+          {has('pass') && <Button variant="ghost" data-act="pass" className={isHint({ type: 'pass' }) ? 'tm-hint' : ''} onClick={() => start({ t: 'pass' })}>{t('پاس', 'Pass')}</Button>}
           {has('endTurn') && <Button variant="secondary" data-act="endTurn" className={isHint({ type: 'endTurn' }) ? 'tm-hint' : ''} onClick={() => send({ type: 'endTurn' })}>پایان نوبت</Button>}</div>
         : actionButtons(phone)))}
       {actionTurn && !flow && !phone && view.phase === 'action' && <p className="tm-bar__hint">{t('پروژه‌های استاندارد، نقطه‌های عطف و جایزه‌ها روی خود صفحهٔ مریخ هم زدنی‌اند؛ کنش کارت‌های آبی روی همان کارت. بعد از کنش اول، «پایان نوبت» یا کنش دوم.', 'Standard projects, milestones and awards can also be clicked on the Mars board; blue-card actions on the card itself. After the first action: «End turn» or a second action.')}</p>}

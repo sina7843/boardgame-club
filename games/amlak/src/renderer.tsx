@@ -206,6 +206,8 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
               )}
           </div>
         </div>
+        {/* Phones: in the page, not the sticky dock; an open trade form is taller than the screen and its top could never be reached there. */}
+        {!wide && mine && <div className="am-extras">{extras}</div>}
         <DockSlot>
           {mine && (
             <section className="am-panel--decide am-turn" aria-label="تصمیم">
@@ -247,7 +249,6 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
               {view.trade && !has('acceptTrade') && <p className="am-help">با وضعیت فعلی این معامله ممکن نیست (پول یا ملک کافی نیست).</p>}
             </section>
           )}
-          {!wide && mine && <div className="am-extras">{extras}</div>}
           {myProps.length > 0 && (
             <section className="am-fan" aria-label="سندهای شما">
               {myProps.map((i) => (

@@ -114,5 +114,8 @@
 @media (max-width: 600px) {
   .sc__orient .sc__hand:not(.sc__hand--gaps), .sc--framed .sc__orient .sc__hand:not(.sc__hand--gaps) { flex-wrap: wrap; justify-content: center; gap: 0.15rem; --w: 2.75rem; }
   .sc__orient .sc__hand:not(.sc__hand--gaps) > * + * { margin-inline-start: 0; }
+  /* The playing hand wraps the same way: overlapped cards left too little of each one to tap. */
+  .sc__hand.sc__hand--play:not(.sc__hand--gaps) { flex-wrap: wrap; justify-content: center; gap: 0.15rem; }
+  .sc__hand.sc__hand--play:not(.sc__hand--gaps) > * + * { margin-inline-start: 0; }
 }
 

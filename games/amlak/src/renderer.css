@@ -168,6 +168,8 @@
 .am-tradeside legend { font-weight: 800; padding: 0 4px; }
 .am-check { display: flex; align-items: center; gap: var(--sp-2); min-block-size: 36px; font-size: var(--fs-sm); }
 .am-check input { inline-size: 18px; block-size: 18px; }
+@media (pointer: coarse) { .am-check { min-block-size: 44px; } }
+.am--framed > .am-extras { margin-block-start: var(--space-3); }
 .am-rents { margin: 0; padding-inline-start: var(--sp-4); display: grid; gap: 2px; font-size: var(--fs-sm); }
 .am-log summary { cursor: pointer; font-weight: 700; min-block-size: var(--touch, 44px); display: flex; align-items: center; }
 .am-log ol { margin: 0; padding-inline-start: var(--sp-5); color: var(--text-2); display: grid; gap: 2px; font-size: var(--fs-sm); list-style-type: persian; }
@@ -228,3 +230,7 @@
 .am-fan__card .am-deed__name { font-size: 0.95rem; }
 @media (prefers-reduced-motion: reduce) { .am-fan__card { transition: none; } }
 .am-assets h3 { font-weight: 800; }
+/* Phones: the deed fan's full width used to stretch the whole table past the screen. It now takes the row's width and scrolls. */
+@media (max-width: 899px) {
+  .am-fan { inline-size: 0; min-inline-size: 100%; justify-content: safe center; overflow-x: auto; overflow-y: hidden; }
+}

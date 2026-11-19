@@ -445,6 +445,10 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
     });
   }, [spotKey]);
 
+  // Phone: the tab follows the step (where the next tap is); the player can still switch.
+  const stepTab = sheetPick.size ? 'clan' : handPick.size ? 'hand' : spots.length || provRings.length || selFigs.size ? 'map' : null;
+  useEffect(() => { if (phone && stepTab) setTab(stepTab); }, [phone, stepTab, kind, mode?.k]);
+
   // ---------- pieces ----------
   const doomed = new Set(effects);
   const battleProv = v.battle?.province ?? null;

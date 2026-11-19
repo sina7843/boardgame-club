@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion, shot } from './helpers.ts';
+import { motionLog, openTableStatus, player, recordMotion, shot } from './helpers.ts';
 
 // Full games between two independent clients (separate browser contexts and sessions), live and turn-based.
 test.describe.configure({ mode: 'serial' });
@@ -51,6 +51,7 @@ async function playSealedBids(a: Page, b: Page, project: string, label: string) 
   const bids = [[5, 1], [1, 5], [2, 3], [3, 2], [4, 4]]; // a, b per round
   for (const [round, [ta, tb]] of bids.entries()) {
     for (const [p, token] of [[a, ta], [b, tb]] as const) {
+      await openTableStatus(p);
       await expect(p.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible();
       await p.getByRole('button', { name: `ژتون ${token!.toLocaleString('fa-IR')}`, exact: true }).click();
       if (p === a) {
