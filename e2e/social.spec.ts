@@ -30,6 +30,7 @@ async function mover(a: Page, b: Page) {
 }
 
 test('guest discovers a game, signs in, finishes the tutorial, queues, accepts and plays both games to the result', async ({ browser }, info) => {
+  test.setTimeout(300_000); // a tutorial, two queues and two full games; 120 s is too tight on the phone project
   const vp = info.project.use.viewport ?? null;
   const p = info.project.name;
   const a = await newPage(browser, vp);
