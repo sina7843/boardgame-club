@@ -6,11 +6,10 @@
 .fabric-plain { background: repeating-linear-gradient(90deg, #8a7f6e 0 3px, #7d7262 3px 6px); box-shadow: inset 0 0 0 1px #4a4236; }
 .pw-btn { display: inline-block; inline-size: 0.55rem; block-size: 0.55rem; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #f3d9a6, #b7863f); box-shadow: inset 0 0 0 1px #6e4a1a; vertical-align: middle; }
 
-.pw-track { display: grid; grid-template-columns: repeat(18, minmax(0, 1fr)); gap: 2px; padding: 0.4rem; border-radius: 12px; background: var(--linen); inline-size: min(100%, 34rem); justify-self: center; }
-.pw-track__sq { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-block-size: 1rem; border-radius: 3px; background: #ddd0b6; }
-.pw-track__sq--inc { background: #c79a4a; box-shadow: inset 0 0 0 2px #8a5f1a; }
-.pw-track__sq--lea { background: #8a5a2b; }
-.pw-pawn-slot { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.pw-track { position: relative; direction: ltr; inline-size: min(100%, 26rem); justify-self: center; aspect-ratio: 1; border-radius: var(--radius-md); background: center / 100% 100% no-repeat; }
+.pw-track__sq { position: absolute; inline-size: 10.5%; block-size: 10.5%; translate: -50% -50%; display: grid; place-items: center; }
+.pw-leather { inline-size: 70%; block-size: 70%; object-fit: contain; }
+.pw-pawn-slot { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; pointer-events: none; }
 .pw-pawn { display: block; inline-size: 70%; block-size: 70%; border-radius: 50%; box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); }
 .pw-pawn--me { background: #2f7fc1; border: 2px solid #fff; }
 .pw-pawn--opp { background: #d2452f; border: 2px solid #fff; translate: 25% 25%; }
@@ -48,9 +47,8 @@
 .pw-board__body { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; }
 .pw-board__quilt { display: grid; justify-items: center; min-inline-size: 0; max-inline-size: 100%; }
 
-.pw-quilt { display: grid; grid-template-columns: repeat(9, 1rem); grid-template-rows: repeat(9, 1rem); gap: 1px; padding: 4px; border-radius: 6px; background: rgb(92 64 34 / 0.55); box-shadow: inset 0 0 0 2px #8b6538, 0 4px 10px -6px #000; direction: ltr; }
-.pw-quilt--big { grid-template-columns: repeat(9, minmax(0, 2.2rem)); grid-template-rows: repeat(9, auto); inline-size: min(100%, 20rem); }
-.pw-quilt--big .pw-cell { aspect-ratio: 1; }
+.pw-quilt { box-sizing: border-box; display: grid; grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(9, 1fr); gap: 0; inline-size: 11.5rem; aspect-ratio: 1; padding: 9.09%; background: center / 100% 100% no-repeat; direction: ltr; }
+.pw-quilt--big { inline-size: 17.5rem; max-inline-size: 100%; } /* a min(100%,…) width collapses to 0 inside the shrink-wrapped board */
 .pw-cell { display: block; padding: 0; border: 0; border-radius: 2px; }
 .pw-cell:not(.fabric, .fabric-leather, .fabric-plain) { background: rgb(246 236 214 / 0.82); box-shadow: inset 0 0 0 1px rgb(139 101 56 / 0.35); }
 button.pw-cell { cursor: pointer; }
@@ -81,3 +79,62 @@ button.pw-cell:focus-visible { outline: 2px solid #2f7fc1; outline-offset: -2px;
 @keyframes pw-drop { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes pw-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .pw * { animation: none !important; transition: none !important; } }
+
+.pw-marker { display: block; inline-size: 85%; block-size: 85%; object-fit: contain; filter: drop-shadow(0 2px 3px var(--felt-rim)); }
+.pw-marker--opp { translate: 25% 25%; }
+
+.pw-patch__art { display: block; max-inline-size: 6rem; block-size: auto; }
+
+/* Round 2 (reference §1), desktop frame: patches in a row on top, then the time board (~15rem, it was ~23rem) beside
+   your rival's quilt with its name, then your quilt beside the patch tools — all inside the stage height. */
+@media (min-width: 900px) {
+  .pw--framed { grid-template-columns: auto auto; grid-template-areas: "market market" "track opp" "tools me"; justify-content: center; align-items: center; column-gap: var(--space-5); }
+  .pw--framed > .pw__market { grid-area: market; }
+  .pw--framed > .pw-track { grid-area: track; inline-size: 15rem; }
+  .pw--framed > .pw__quilts { display: contents; }
+  .pw--framed .pw-board--opp { grid-area: opp; }
+  .pw--framed .pw-board--me { grid-area: me; }
+  .pw--framed > .pw__tools { grid-area: tools; flex-direction: column; }
+  .pw--framed > .pw__actions:empty { display: none; }
+  .pw--framed .pw-board--opp .pw-quilt { inline-size: 9.5rem; }
+  .pw--framed .pw-quilt--big { inline-size: 15rem; }
+  .pw--framed .pw-patch__art { max-inline-size: 4.5rem; }
+}
+.pw--framed .pw-board--opp::before { content: attr(aria-label); color: var(--felt-ink); font-size: 12.5px; font-weight: 700; }
+.pw--framed .pw-board { background: none; box-shadow: none; outline: 0; padding: 0; color: var(--felt-ink); }
+.pw--framed .pw-board--turn .pw-quilt { outline: 2px solid var(--felt-gold); }
+
+/* Round 3 (reference §1): patches ~60px tall in the row after the neutral pawn, the 7×7 bonus tile beside the time
+   board, and «لحاف شما» over your quilt too. */
+.pw-neutral { inline-size: 1.6rem; block-size: auto; align-self: center; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.45)); }
+.pw--framed .pw-patch { padding: var(--space-1); background: none; border: 0; }
+.pw--framed .pw-patch__art { block-size: 3.75rem; inline-size: auto; max-inline-size: 7rem; }
+.pw-bonus { display: grid; justify-items: center; gap: 2px; color: var(--felt-muted); font-size: 12px; }
+.pw-bonus img { inline-size: 3.2rem; block-size: auto; filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.45)); }
+.pw-bonus--gone img { opacity: 0.4; }
+.pw--framed .pw-board--me::before { content: attr(aria-label); color: var(--felt-ink); font-size: 12.5px; font-weight: 700; }
+@media (min-width: 900px) {
+  .pw--framed { grid-template-areas: "market market" "track opp" "tools me" "bonus me"; }
+  .pw--framed > .pw-bonus { grid-area: bonus; align-self: start; }
+}
+.pw--framed .pw-patch .pw-shape { zoom: 1.5; }
+
+/* Round 4: everything inside the stage height — time board 13rem, rival quilt 8.5rem, own quilt 13rem; the 7×7 tile
+   sits beside the rival's quilt instead of on an extra row; patch pictures 60px tall without distortion. */
+@media (min-width: 900px) {
+  .pw--framed { grid-template-columns: auto auto auto; grid-template-areas: "market market market" "track opp bonus" "tools me me"; row-gap: var(--space-2); }
+  .pw--framed > .pw-track { inline-size: 13rem; }
+  .pw--framed .pw-board--opp .pw-quilt { inline-size: 8.5rem; }
+  .pw--framed .pw-quilt--big { inline-size: 13rem; }
+  .pw--framed > .pw-bonus { align-self: center; }
+}
+.pw--framed .pw-patch__art { object-fit: contain; }
+
+/* Round 5: phones scroll the page; a smaller time board brings the patches and both quilts into reach; readable label
+   on the 7x7 tile. */
+.pw-bonus small { font-size: 13px; font-weight: 700; color: var(--felt-ink); white-space: nowrap; }
+@media (max-width: 899px) {
+  .pw--framed > .pw-track { inline-size: min(100%, 15rem); }
+  .pw--framed .pw__quilts { flex-direction: column; align-items: center; }
+  .pw--framed .pw-quilt--big { inline-size: 20rem; max-inline-size: 100%; }
+}

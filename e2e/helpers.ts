@@ -98,6 +98,13 @@ export async function recordMotion(page: Page) {
 export const motionLog = (page: Page): Promise<MotionEntry[]> =>
   page.evaluate(() => (window as unknown as { __motion: MotionEntry[] }).__motion.splice(0));
 
+/** Phone table: the game's guide text sits in the collapsed status line; open it (desktop shows it in the rail). */
+export async function openTableStatus(page: Page): Promise<void> {
+  await page.locator('.gf-mstatus, .gf-rail').first().waitFor();
+  const status = page.locator('details.gf-mstatus');
+  if (await status.count() && !(await status.evaluate((el) => (el as HTMLDetailsElement).open))) await status.locator('summary').click();
+}
+
 /** Create-table player count: segmented «۳ نفر» buttons (up to 6 choices) or a select for wider ranges. */
 export async function pickPlayers(page: Page, n: number): Promise<void> {
   const seg = page.getByRole('radiogroup', { name: 'تعداد بازیکن' });

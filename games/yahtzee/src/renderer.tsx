@@ -3,9 +3,16 @@
 // the points the current dice would score; a box is chosen and then confirmed with «ثبت».
 import './renderer.css';
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
-import { CATS, UPPER, UPPER_TARGET, isYahtzee, type Cat, type YahtzeeView } from './rules.ts';
+import { Button, DockSlot, Icon, RailSlot, TurnIndicator, useInFrame, useFlip, type GameRendererProps } from '@bg/ui';
+import { LOWER, UPPER, UPPER_TARGET, isYahtzee, type Cat, type YahtzeeView } from './rules.ts';
 import cup from './art/cup.webp';
+import die1 from './art/yahtzee-die-1.png';
+import die3 from './art/yahtzee-die-3.png';
+import die4 from './art/yahtzee-die-4.png';
+import die5 from './art/yahtzee-die-5.png';
+import die6 from './art/yahtzee-die-6.png';
+// The handoff art has no face 2: that face keeps the SVG die below.
+const DIE_ART: Record<number, string> = { 1: die1, 3: die3, 4: die4, 5: die5, 6: die6 };
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CAT_FA: Record<Cat, string> = {
@@ -20,6 +27,7 @@ const CAT_HINT: Record<Cat, string> = {
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 
 export function Die({ v }: { v: number }) {
+  if (DIE_ART[v]) return <img src={DIE_ART[v]} className="yz-die yz-die--art" role="img" aria-label={`تاس ${fa(v)}`} draggable={false} />;
   return (
     <svg viewBox="0 0 60 60" className="yz-die" role="img" aria-label={`تاس ${fa(v)}`}>
       <rect x="2" y="2" width="56" height="56" rx="11" className="yz-die__body" />
@@ -65,62 +73,51 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: view.rolls === 0 ? 'نوبت شماست: تاس بریزید' : view.rolls < 3 ? `تاس‌هایی را که می‌خواهید نگه دارید و دوباره بریزید (${fa(3 - view.rolls)} بار مانده) یا یک خانه را پر کنید` : 'یک خانه از جدول را پر کنید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)} (${fa(view.rolls)} از ۳ ریختن)` };
+  const head = view.sheets.map((_, k) => (
+    <th scope="col" key={k} className={[view.current === k && !view.outcome ? 'yz-col--turn' : '', k === me ? 'yz-col--me' : ''].join(' ')}><i className="yz-seatdot" style={{ background: `var(--seat-${k + 1})` }} aria-hidden="true" /><bdi title={who(k)}>{who(k)}</bdi></th>
+  ));
   const round = Math.min(13, Object.keys(view.sheets[view.current] ?? {}).length + 1);
   const last = view.last;
+  const framed = useInFrame() !== null;
 
   return (
-    <div className="yz" data-seq={view.seq} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+    <div className={framed ? 'yz yz--framed' : 'yz'} data-seq={view.seq} ref={root}>
+      {framed && (
+        <RailSlot>
+          {mySeat !== null && view.totals[mySeat] && (
+            <section className="yz-rail" aria-label="پاداش بخش بالا">
+              <h3>پاداش بخش بالا</h3>
+              <div className="yz-rail__pills">
+                <span className="bgv-chip">جمع بالا: {fa(view.totals[mySeat]!.upper)} از {fa(UPPER_TARGET)}</span>
+                <span className="bgv-chip">{view.totals[mySeat]!.upperBonus ? 'پاداش گرفتید' : `${fa(Math.max(0, UPPER_TARGET - view.totals[mySeat]!.upper))} تا پاداش`}</span>
+              </div>
+            </section>
+          )}
+          <p className="yz-rail__tip"><Icon name="book" size={18} />
+            <span>{myTurn && view.rolls > 0 && view.rolls < 3 ? 'تاس‌هایی را که می‌خواهید نگه دارید و بقیه را دوباره بریزید، یا همین حالا یک خانه را پر کنید.' : 'هر نوبت تا ۳ بار می‌ریزید و با پر کردن یک خانه نوبت تمام می‌شود.'} جمع بالای ۶۳ یعنی ۳۵ امتیاز پاداش.</span>
+          </p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && (
       <p className="yz__live" aria-live="polite">
         {!view.outcome && <span>دور {fa(round)} از ۱۳</span>}
         {last && <span key={view.seq}><bdi>{who(last.seat)}</bdi> در «{CAT_FA[last.cat]}» {fa(last.points)} امتیاز نوشت{last.bonus ? ' و ۱۰۰ امتیاز پاداش یاتزی گرفت' : ''}.</span>}
       </p>
+      )}
 
-      <section className="yz__tray" aria-label="تاس‌ها">
-        <div className="yz__felt">
-          {view.dice.length === 0 && !rollingKeep
-            ? <span className="yz__empty">هنوز تاسی ریخته نشده</span>
-            : (rollingKeep ? Array.from({ length: 5 }, (_, i) => view.dice[i] ?? 1) : view.dice).map((v, i) => (tumbling(i)
-              ? <span key={`t${i}`} className="yz-keep" style={{ ['--i' as string]: i }} role="img" aria-label="در حال چرخیدن"><span className="bg-tumble yz-keep__die" aria-hidden="true"><Die v={v} /></span></span>
-              : canKeep
-              ? <button key={`${i}-${at[i]}`} type="button" style={{ ['--i' as string]: i }} disabled={busy || !!rollingKeep}
-                  className={['yz-keep', keep[i] ? 'yz-keep--on' : '', keepHint && keepHint[i] !== keep[i] ? 'yz-hint' : ''].join(' ')}
-                  aria-pressed={keep[i]} aria-label={`تاس ${fa(v)}${keep[i] ? '، نگه داشته شده' : ''}`}
-                  onClick={() => setKeep(keep.map((x, j) => (j === i ? !x : x)))}>
-                  <span className="bg-roll yz-keep__die"><Die v={v} /></span>
-                  {keep[i] && <small aria-hidden="true">نگه‌دار</small>}
-                </button>
-              : <span key={`${i}-${at[i]}`} className="yz-keep" style={{ ['--i' as string]: i }}><span className="bg-roll yz-keep__die"><Die v={v} /></span></span>))}
-        </div>
-        {canRoll && (
-          <div className="yz__roll">
-            <img src={cup} alt="" aria-hidden="true" className="yz__cup" draggable={false} />
-            <Button size="sm" disabled={busy || !!queued} className={hint?.type === 'roll' && keepDone ? 'yz-hint' : ''}
-              onClick={() => roll(view.rolls ? keep : [false, false, false, false, false])}>
-              {view.rolls ? 'دوباره بریز' : 'بریز'} ({fa(view.rolls + 1)} از ۳)
-            </Button>
-          </div>
-        )}
-      </section>
 
-      <div className="yz__sheetwrap">
-        <table className="yz__sheet">
-          <caption><span className="yz__padtitle">یاتزی</span> جدول امتیاز</caption>
-          <thead>
-            <tr>
-              <th scope="col">خانه</th>
-              {view.sheets.map((_, k) => (
-                <th scope="col" key={k} className={[view.current === k && !view.outcome ? 'yz-col--turn' : '', k === me ? 'yz-col--me' : ''].join(' ')}><bdi title={who(k)}>{who(k)}</bdi></th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {CATS.map((cat) => (
-              <Fragment key={cat}>
-              {(cat === 'ones' || cat === 'threeKind') && (
-                <tr className="yz-row--section"><th scope="rowgroup" colSpan={view.sheets.length + 1}>{cat === 'ones' ? 'بخش بالا' : 'بخش پایین'}</th></tr>
-              )}
-              <tr className={cat === 'threeKind' ? 'yz-row--split' : ''}>
+      <div className="yz__sheets">
+        <div className="yz__sheetwrap">
+          <table className="yz__sheet">
+            <caption className="visually-hidden">بخش بالا</caption>
+            <colgroup><col />{view.sheets.map((_, k) => <col key={k} className={k === me ? 'yz-colbg--me' : undefined} />)}</colgroup>
+            <thead><tr className="yz-row--names"><th scope="col"><span className="yz-homelabel">خانه</span></th>{head}</tr></thead>
+            <tbody>
+              <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}>بخش بالا</th></tr>
+              {UPPER.map((cat) => (
+                <Fragment key={cat}>
+              <tr >
                 <th scope="row"><span>{CAT_FA[cat]}</span><small>{CAT_HINT[cat]}</small></th>
                 {view.sheets.map((sheet, k) => {
                   const v = sheet[cat];
@@ -140,31 +137,95 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
                   return <td key={k} className="yz-cell--open" aria-label="خالی">–</td>;
                 })}
               </tr>
-              </Fragment>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr><th scope="row">جمع بالا</th>{view.totals.map((t, k) => <td key={k}>{fa(t.upper)}<small> / {fa(UPPER_TARGET)}</small></td>)}</tr>
-            <tr><th scope="row">پاداش بالا (۳۵)</th>{view.totals.map((t, k) => <td key={k}>{t.upperBonus ? <b className="yz-ok">✓ {fa(t.upperBonus)}</b> : UPPER.every((c) => view.sheets[k]![c] !== undefined) ? '۰' : '…'}</td>)}</tr>
-            <tr><th scope="row">جمع پایین</th>{view.totals.map((t, k) => <td key={k}>{fa(t.lower)}</td>)}</tr>
-            <tr><th scope="row">پاداش یاتزی</th>{view.totals.map((t, k) => <td key={k}>{t.yahtzeeBonus ? <b className="yz-ok" key={t.yahtzeeBonus}>+{fa(t.yahtzeeBonus)}</b> : '۰'}</td>)}</tr>
-            <tr className="yz-row--total"><th scope="row">امتیاز کل</th>{view.totals.map((t, k) => <td key={k}><b key={t.total} className="bg-pop">{fa(t.total)}</b></td>)}</tr>
-          </tfoot>
-        </table>
+                </Fragment>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr><th scope="row">جمع بالا</th>{view.totals.map((t, k) => <td key={k}>{fa(t.upper)}<small> / {fa(UPPER_TARGET)}</small></td>)}</tr>
+              <tr className="yz-row--bonus"><th scope="row">پاداش (۳۵)</th>{view.totals.map((t, k) => <td key={k}>{t.upperBonus ? <b className="yz-ok">✓ {fa(t.upperBonus)}</b> : UPPER.every((c) => view.sheets[k]![c] !== undefined) ? '۰' : '…'}</td>)}</tr>
+            </tfoot>
+          </table>
+        </div>
+        <div className="yz__sheetwrap">
+          <table className="yz__sheet">
+            <caption className="visually-hidden">بخش پایین</caption>
+            <colgroup><col />{view.sheets.map((_, k) => <col key={k} className={k === me ? 'yz-colbg--me' : undefined} />)}</colgroup>
+            <thead><tr className="yz-row--names"><th scope="col"><span className="yz-homelabel">خانه</span></th>{head}</tr></thead>
+            <tbody>
+              <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}>بخش پایین</th></tr>
+              {LOWER.map((cat) => (
+                <Fragment key={cat}>
+              <tr >
+                <th scope="row"><span>{CAT_FA[cat]}</span><small>{CAT_HINT[cat]}</small></th>
+                {view.sheets.map((sheet, k) => {
+                  const v = sheet[cat];
+                  const fresh = last && last.seat === k && last.cat === cat;
+                  if (k === me && pendingCat === cat && v === undefined) return <td key={k} className="yz-cell--fresh"><b className="bg-pop">{fa(options.get(cat) ?? 0)}</b></td>;
+                  if (v !== undefined) return <td key={k} className={fresh ? 'yz-cell--fresh' : ''}><b key={fresh ? view.seq : 0} className={fresh ? 'bg-pop' : ''}>{fa(v)}</b></td>;
+                  if (k === me && options.has(cat)) {
+                    const pts = options.get(cat)!;
+                    return (
+                      <td key={k}>
+                        <button type="button" disabled={busy || !!queued} aria-pressed={pick === cat} aria-label={`${CAT_FA[cat]}: ${fa(pts)} امتیاز`}
+                          className={['yz-opt', pick === cat ? 'yz-opt--on' : '', pts === 0 ? 'yz-opt--zero' : '', hint?.type === 'score' && hint.cat === cat && pick !== cat ? 'yz-hint' : ''].join(' ')}
+                          onClick={() => setPick(pick === cat ? null : cat)}>{fa(pts)}</button>
+                      </td>
+                    );
+                  }
+                  return <td key={k} className="yz-cell--open" aria-label="خالی">–</td>;
+                })}
+              </tr>
+                </Fragment>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="yz-row--bonus"><th scope="row">پاداش یاتزی</th>{view.totals.map((t, k) => <td key={k}>{t.yahtzeeBonus ? <b className="yz-ok" key={t.yahtzeeBonus}>+{fa(t.yahtzeeBonus)}</b> : '۰'}</td>)}</tr>
+              <tr className="yz-row--total"><th scope="row">امتیاز کل</th>{view.totals.map((t, k) => <td key={k}><b key={t.total} className="bg-pop">{fa(t.total)}</b></td>)}</tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
+
+      {/* Frame: the dice tray with the roll / record buttons is the dock row under the score sheets (design §1/§3). */}
+      {(() => { const trayEl = (
+      <section className={framed ? 'yz__tray yz__tray--dock' : 'yz__tray'} aria-label="تاس‌ها">
+        <div className="yz__felt">
+          {view.dice.length === 0 && !rollingKeep
+            ? <span className="yz__empty">هنوز تاسی ریخته نشده</span>
+            : (rollingKeep ? Array.from({ length: 5 }, (_, i) => view.dice[i] ?? 1) : view.dice).map((v, i) => (tumbling(i)
+              ? <span key={`t${i}`} className="yz-keep" style={{ ['--i' as string]: i }} role="img" aria-label="در حال چرخیدن"><span className="bg-tumble yz-keep__die" aria-hidden="true"><Die v={v} /></span></span>
+              : canKeep
+              ? <button key={`${i}-${at[i]}`} type="button" style={{ ['--i' as string]: i }} disabled={busy || !!rollingKeep}
+                  className={['yz-keep', keep[i] ? 'yz-keep--on' : '', keepHint && keepHint[i] !== keep[i] ? 'yz-hint' : ''].join(' ')}
+                  aria-pressed={keep[i]} aria-label={`تاس ${fa(v)}${keep[i] ? '، نگه داشته شده' : ''}`}
+                  onClick={() => setKeep(keep.map((x, j) => (j === i ? !x : x)))}>
+                  <span className="bg-roll yz-keep__die"><Die v={v} /></span>
+                  {keep[i] && <small aria-hidden="true">نگه‌دار</small>}
+                </button>
+              : <span key={`${i}-${at[i]}`} className="yz-keep" style={{ ['--i' as string]: i }}><span className="bg-roll yz-keep__die"><Die v={v} /></span></span>))}
+        </div>
+        <div className="yz__roll">
+          {canRoll && (<>
+            <img src={cup} alt="" aria-hidden="true" className="yz__cup" draggable={false} />
+            <Button icon="turn" disabled={busy || !!queued} className={hint?.type === 'roll' && keepDone ? 'yz-hint yz-rollbtn' : 'yz-rollbtn'}
+              onClick={() => roll(view.rolls ? keep : [false, false, false, false, false])}>
+              {view.rolls ? 'دوباره بریز' : 'بریز'} ({fa(view.rolls + 1)} از ۳)
+            </Button></>)}
+          {myTurn && (
+            <Button size="sm" variant={canRoll ? 'secondary' : 'primary'} disabled={busy || !pick || !!queued || options.size === 0} className={pick && hint?.type === 'score' && hint.cat === pick ? 'yz-hint yz-submit' : 'yz-submit'}
+              onClick={() => pick && onAction({ type: 'score', cat: pick })}>
+              {pick ? `ثبت در جدول: ${fa(options.get(pick) ?? 0)} در «${CAT_FA[pick]}»` : options.size ? 'ثبت در جدول (یک خانه را انتخاب کنید)' : 'ثبت در جدول'}
+            </Button>
+          )}
+        </div>
+      </section>
+      ); return framed ? <DockSlot>{trayEl}</DockSlot> : trayEl; })()}
+
 
       {myTurn && view.rolls > 0 && isYahtzee(view.dice) && view.sheets[me]?.yahtzee !== undefined && (
         <p className="yz__joker" role="note">
           یاتزی اضافه{view.sheets[me]!.yahtzee === 50 ? ' (+۱۰۰ پاداش)' : ''}؛ قانون جوکر: فقط خانه‌هایی که امتیازشان نمایش داده شده مجازند.
         </p>
-      )}
-      {myTurn && options.size > 0 && (
-        <div className="yz__bar">
-          <Button size="sm" disabled={busy || !pick || !!queued} className={pick && hint?.type === 'score' && hint.cat === pick ? 'yz-hint yz-submit' : 'yz-submit'}
-            onClick={() => pick && onAction({ type: 'score', cat: pick })}>
-            {pick ? `ثبت ${fa(options.get(pick) ?? 0)} در «${CAT_FA[pick]}»` : 'یک خانه را انتخاب کنید'}
-          </Button>
-        </div>
       )}
     </div>
   );

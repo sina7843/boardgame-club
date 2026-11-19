@@ -1,11 +1,11 @@
 // Icons come from lucide (VibeFarsi rule: no hand-drawn SVG). Names stay stable for existing call sites.
 import {
   BookOpen, ChevronRight, Club, Castle, Clock, Crown, Dices, House, LayoutGrid, Lock, LogOut, Package, PersonStanding, Play,
-  RefreshCw, Search, Settings, Shield, Star, Sun, TriangleAlert, User, Users, WifiOff, X, type LucideIcon
+  RefreshCw, Search, Eye, Settings, Shield, Star, Sun, TriangleAlert, User, Users, WifiOff, X, type LucideIcon
 } from 'lucide-react';
 
 const ICONS = {
-  home: House, grid: LayoutGrid, settings: Settings, user: User, search: Search, clock: Clock, players: Users, close: X,
+  home: House, grid: LayoutGrid, settings: Settings, user: User, search: Search, eye: Eye, clock: Clock, players: Users, close: X,
   chevron: ChevronRight /* "back": points right in RTL */, alert: TriangleAlert, lock: Lock, offline: WifiOff, box: Package, logout: LogOut, play: Play,
   turn: RefreshCw, shield: Shield, meeple: PersonStanding, dice: Dices, crown: Crown, pawn: Castle, card: Club, star: Star,
   sun: Sun, book: BookOpen

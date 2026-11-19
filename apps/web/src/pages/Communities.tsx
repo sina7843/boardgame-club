@@ -16,7 +16,8 @@ const ROLE_FA = { owner: 'مالک', manager: 'مدیر', member: 'عضو' } as 
 const STATUS_FA = { active: 'عضو', requested: 'درخواست عضویت', invited: 'دعوت‌شده' } as const;
 const POLICY_FA = { open: 'عضویت آزاد', request: 'عضویت با درخواست', invite: 'فقط با دعوت' } as const;
 const POLICY_ICON = { open: 'door-open', request: 'hourglass', invite: 'lock' } as const;
-const POLICIES = (Object.keys(POLICY_FA) as (keyof typeof POLICY_FA)[]).map((k) => ({ value: k, label: POLICY_FA[k] }));
+const POLICY_SHORT = { open: 'آزاد', request: 'با درخواست', invite: 'فقط با دعوت' } as const;
+const POLICIES = (Object.keys(POLICY_FA) as (keyof typeof POLICY_FA)[]).map((k) => ({ value: k, label: POLICY_SHORT[k] }));
 const BANNERS: NonNullable<BannerArtProps['variant']>[] = ['felt', 'night', 'coral', 'gold', 'cream'];
 /** Decorative banner colour, stable per club. */
 const bannerOf = (slug: string) => BANNERS[[...slug].reduce((n, ch) => n + ch.charCodeAt(0), 0) % BANNERS.length]!;
@@ -37,11 +38,12 @@ const Loading = () => <StateBlock kind="loading" title="در حال بارگذا
 function MemberRow({ m, children }: { m: Member; children?: ReactNode }) {
   const { me } = useSession();
   const you = m.user.id === me?.id;
+  const id = userIdentity(m.user);
   return (
     <li>
-      <Avatar size="sm" {...userIdentity(m.user).avatar} you={you} />
+      <Avatar size="sm" {...id.avatar} initials={id.initials} you={you} />
       <div className="sx-rows__main">
-        <b><a href={`/users/${m.user.id}`}><bdi>{m.user.displayName}</bdi></a>{you && <Badge tone="you" size="sm">شما</Badge>}</b>
+        <b><a className="sx-namelink" href={`/users/${m.user.id}`}><bdi>{m.user.displayName}</bdi></a>{you && <Badge tone="you" size="sm">شما</Badge>}</b>
       </div>
       <div className="sx-rows__acts">
         <Badge size="sm" tone={m.role === 'owner' ? 'premium' : 'neutral'} icon={m.role === 'owner' ? 'crown' : m.role === 'manager' ? 'shield' : undefined}>{m.status === 'active' ? ROLE_FA[m.role] : STATUS_FA[m.status]}</Badge>
@@ -131,7 +133,7 @@ export function GroupPage() {
       <Breadcrumbs items={[{ label: 'گروه‌ها', href: '/groups' }, { label: d.name }]} />
       <Card className="sx-head">
         <span className="sx-mosaic" aria-hidden="true">
-          {active.slice(0, 3).map((m) => <Avatar key={m.user.id} {...userIdentity(m.user).avatar} />)}
+          {active.slice(0, 3).map((m) => <Avatar key={m.user.id} {...userIdentity(m.user).avatar} initials={userIdentity(m.user).initials} />)}
           {active.length > 3 && <Avatar initials={`+${faNum(active.length - 3)}`} />}
         </span>
         <div className="sx-head__text">
@@ -211,7 +213,7 @@ export function ClubsPage() {
                     <BannerArt variant={bannerOf(c.slug)} height={72} />
                     <div className="sx-clubcard__body">
                       <div className="sx-clubcard__top"><Crest name={c.name} size={56} /><Badge size="sm" icon={POLICY_ICON[c.joinPolicy]}>{POLICY_FA[c.joinPolicy]}</Badge></div>
-                      <div className="bgv-row"><a href={`/clubs/${c.slug}`} className="t-title"><strong>{c.name}</strong></a><span className="sx-cap bgv-latin" dir="ltr">{c.slug}</span></div>
+                      <div className="bgv-row"><a href={`/clubs/${c.slug}`} className="t-title sx-namelink"><strong>{c.name}</strong></a><span className="sx-cap bgv-latin" dir="ltr">{c.slug}</span></div>
                       {c.description && <p className="sx-desc">{c.description}</p>}
                       <div className="sx-clubcard__foot">
                         <span className="sx-cap bgv-row"><Icon name="users" size="sm" />{faNum(c.memberCount)} عضو</span>

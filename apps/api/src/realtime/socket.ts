@@ -93,7 +93,10 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
     }, 60_000);
     socket.on('disconnect', () => {
       clearInterval(beat);
-      void db.delete(schema.tableWatchers).where(eq(schema.tableWatchers.socketId, socket.id)).catch(() => undefined);
+      // The tables this socket watched learn at once that a seated player dropped (seat `connected`, chess «قطع»).
+      void db.delete(schema.tableWatchers).where(eq(schema.tableWatchers.socketId, socket.id)).returning({ tableId: schema.tableWatchers.tableId })
+        .then((rows) => Promise.all(rows.map((r) => db.execute(sql`select pg_notify('table_changed', ${r.tableId})`))))
+        .catch(() => undefined);
     });
     socket.emit(ServerEvents.sessionReady, { userId, serverTime: new Date().toISOString() });
 
@@ -110,8 +113,9 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
         try {
           const admin = socket.data.auth.roles.includes('admin');
           const snapshot = await buildTableSnapshot(db, registry, { tableId: parsed.data.tableId, userId, inviteCode: parsed.data.inviteCode, admin });
-          // An admin watches silently: no watcher row, so players see no extra spectator.
-          if (snapshot.table.mySeat === null && !admin) {
+          // An admin watches silently: no watcher row, so players see no extra spectator. Players get a row too: it is
+          // their table connection (spectator counts leave participants out).
+          if (!(snapshot.table.mySeat === null && admin)) {
             await db.insert(schema.tableWatchers).values({ tableId: parsed.data.tableId, socketId: socket.id, userId })
               .onConflictDoUpdate({ target: [schema.tableWatchers.tableId, schema.tableWatchers.socketId], set: { seenAt: sql`now()` } });
           }

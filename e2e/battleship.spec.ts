@@ -61,7 +61,7 @@ test('undo window: the shell flies to the target at once without a result, undo 
 });
 
 async function turn(p: Page, n: number): Promise<boolean> {
-  const game = p.locator('.bs');
+  const game = p.locator('.bs, .tbl-dock'); // rotate / random / confirm render in the frame's dock row (DockSlot)
   const confirm = game.getByRole('button', { name: 'تأیید چیدمان' });
   if (await confirm.count()) {
     await game.getByRole('button', { name: 'چیدمان تصادفی' }).click();

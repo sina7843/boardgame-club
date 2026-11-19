@@ -1,14 +1,12 @@
 /* یاتزی — a walnut dice tray lined with green felt above an ivory paper score sheet. Palette: walnut #5a3218,
    felt #1d5a32, ivory #f6ecd2, ink #2a1c10, brass #d9a441. Dice are ivory with ink pips (pips are code, not art). */
 .yz { --ink: #2a1c10; --brass: #d9a441; display: grid; gap: 0.7rem; inline-size: 100%; padding: 0.4rem; color: var(--ink); }
-.yz > :first-child { justify-self: center; }
 .yz__live { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.2rem 0.8rem; margin: 0; font-size: 0.85rem; color: var(--foreground, inherit); }
 .yz__live span:first-child { font-weight: 800; }
 
 .yz__tray { display: grid; gap: 0.6rem; justify-items: center; padding: 0.7rem; border-radius: 18px;
-  background: url('./art/wood.webp') center / 320px #5a3218; box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.2), inset 0 -3px 6px rgb(0 0 0 / 0.4), 0 6px 14px rgb(0 0 0 / 0.3); }
-.yz__felt { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem; inline-size: 100%; min-block-size: 6rem; padding: 0.9rem 0.5rem 1.2rem; border-radius: 12px;
-  background: radial-gradient(ellipse at center, rgb(255 255 255 / 0.08), rgb(0 0 0 / 0.35)), url('./art/felt.webp') center / 260px #1d5a32; box-shadow: inset 0 3px 10px rgb(0 0 0 / 0.55); }
+  background: url('./art/yahtzee-tray.png') center / 100% 100% no-repeat; filter: drop-shadow(0 8px 12px rgb(0 0 0 / 0.5)); }
+.yz__felt { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem; inline-size: 100%; min-block-size: 6rem; padding: 0.9rem 0.5rem 1.2rem; border-radius: 12px; background: none; }
 .yz__empty { color: #d8ecd9; font-size: 0.9rem; }
 .yz-keep { position: relative; display: grid; justify-items: center; padding: 0; border: 0; background: transparent; color: #fff4d2; line-height: 0; cursor: pointer; border-radius: 14px; transition: transform 0.15s; }
 .yz-keep:disabled { cursor: default; }
@@ -16,8 +14,12 @@
 .yz-keep__die { display: block; }
 .yz-keep small { position: absolute; inset-block-end: -1rem; font-size: 0.65rem; font-weight: 800; line-height: 1; }
 .yz-keep--on { transform: translateY(-6px); }
-.yz-keep--on .yz-die__body { stroke: var(--brass); stroke-width: 4; }
+.yz-keep--on .yz-die--art { object-fit: contain; border-radius: 12%; }
+.yz-keep--on .yz-die--art { outline: 3px solid var(--brass); outline-offset: 1px; }
+.yz-die__body { stroke: var(--brass); stroke-width: 4; }
 .yz-die { inline-size: 3.1rem; block-size: 3.1rem; filter: drop-shadow(2px 4px 2px rgb(0 0 0 / 0.45)); }
+.yz-die--art { object-fit: contain; border-radius: 12%; }
+.yz-keep--on .yz-die--art { outline: 3px solid var(--brass); outline-offset: 1px; }
 .yz-die__body { fill: #fbf5e4; stroke: #c9b78a; stroke-width: 2; }
 .yz-die__pip { fill: var(--ink); }
 .yz__roll { display: flex; align-items: center; gap: 0.6rem; }
@@ -61,3 +63,107 @@
 .yz__padtitle { display: inline-block; margin-inline-end: 0.4rem; padding: 0 0.5rem; border-radius: 6px; background: #fff6e0; color: #8f1d1d; font-weight: 900; }
 .yz-row--section th { position: static !important; text-align: start !important; padding-block: 0.15rem !important; font-size: 0.72rem; font-weight: 900 !important; color: #fff6e0; background: #2a1c10 !important; }
 .yz-col--me { box-shadow: inset 0 -3px 0 #8f1d1d; color: #8f1d1d; }
+
+/* two sheets side by side (upper / lower), tray below with roll + write buttons */
+.yz__sheets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; align-items: start; }
+.yz__roll { flex-wrap: wrap; justify-content: center; }
+.yz__sheets .yz__sheetwrap { min-inline-size: 0; }
+.yz__sheet caption { border-radius: 12px 12px 0 0; }
+@media (max-width: 520px) {
+  .yz { padding: 0; gap: 0.5rem; }
+  .yz__sheets { gap: 0.3rem; }
+  .yz__sheet { font-size: 0.68rem; }
+  .yz__sheet th, .yz__sheet td { padding: 0.15rem 0.2rem; white-space: normal; }
+  .yz__sheet tbody th small { display: none; }
+  .yz-opt { min-inline-size: 1.8rem; min-block-size: 1.6rem; padding: 0 0.2rem; }
+  .yz__tray { padding: 0.4rem; gap: 0.3rem; }
+  .yz__felt { padding: 0.4rem 0.2rem 0.8rem; min-block-size: 3rem; gap: 0.3rem; }
+  .yz__cup { inline-size: 2rem; block-size: 2rem; }
+  .yz__roll { flex-wrap: nowrap; gap: 0.3rem; }
+}
+
+/* Shared frame (design §1/§3): the score sheets fill the stage with compact rows; the tray with the roll / record
+   buttons is the dock row (tray art around the dice, buttons stacked beside it). */
+.yz--framed { padding: 0; gap: var(--space-2); }
+.yz--framed .yz__sheet { font-size: 0.8rem; }
+.yz--framed .yz__sheet th, .yz--framed .yz__sheet td { padding-block: 0.1rem; }
+.yz--framed .yz-opt { min-block-size: 1.6rem; }
+.yz__tray--dock { display: flex; flex-direction: row; align-items: center; gap: var(--space-3); inline-size: min(100%, 700px); padding: 0; border-radius: 0; background: none; filter: none; }
+.yz__tray--dock .yz__felt { flex: 1 1 auto; min-block-size: 4.6rem; padding: 0.7rem 1rem 1rem; border-radius: 12px;
+  background: url('./art/yahtzee-tray.png') center / 100% 100% no-repeat; filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.45)); }
+.yz__tray--dock .yz-die { inline-size: 2.6rem; block-size: 2.6rem; }
+.yz__tray--dock .yz__roll { flex: none; flex-direction: column; align-items: stretch; gap: var(--space-2); }
+.yz__tray--dock .yz__cup { display: none; }
+.yz__tray--dock .yz-submit { white-space: normal; block-size: auto; min-block-size: 2.25rem; max-inline-size: 13rem; }
+@media (max-width: 520px) {
+  .yz__tray--dock { flex-direction: column; }
+  .yz__tray--dock .yz__felt { inline-size: 100%; }
+  .yz__tray--dock .yz__roll { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .yz__tray--dock .yz-die { inline-size: 2.3rem; block-size: 2.3rem; }
+}
+
+/* Round 3 (design §1/§3): player names in the red header row, a dark band per section, roll = wide token with an icon. */
+.yz__sheet thead .yz-row--names th, .yz__sheet thead .yz-row--names th:first-child { background: #8f1d1d; color: #fff6e0; border-block-end: 0; font-size: 0.78rem; }
+.yz__sheet thead .yz-row--names .yz-col--me { background: #e8a642; color: #2a1c10; box-shadow: none; }
+.yz__sheet thead .yz-row--names .yz-col--turn:not(.yz-col--me) { box-shadow: inset 0 -3px 0 #e8a642; }
+.yz__sheetwrap { border-radius: var(--radius-md); }
+.yz__tray--dock .yz-rollbtn { min-inline-size: 11rem; }
+/* Rail card «پاداش بخش بالا». */
+.yz-rail { display: grid; gap: var(--space-2); }
+.yz-rail h3 { margin: 0; font-size: 15px; color: var(--heading); }
+.yz-rail__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.yz-rail__tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.yz-rail__tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+/* Phones: one sheet per row so each label stays on one line and no column runs off the edge. */
+@media (max-width: 520px) {
+  .yz__sheets { grid-template-columns: minmax(0, 1fr); }
+  .yz__sheet { font-size: 0.78rem; }
+  .yz__sheet th, .yz__sheet td { white-space: nowrap; }
+  .yz--framed .yz__sheet tbody th small { display: none; }
+  .yz__tray--dock .yz-rollbtn { min-inline-size: 0; flex: 1 1 auto; }
+}
+/* Round 4: your column body is tinted; on phones the two halves read as one sheet and the tray sits beside the buttons. */
+.yz-colbg--me { background: rgb(232 166 66 / 0.18); }
+@media (max-width: 520px) {
+  .yz__sheets { gap: 0; }
+  .yz__sheets .yz__sheetwrap:first-child { border-end-start-radius: 0; border-end-end-radius: 0; box-shadow: none; }
+  .yz__sheets .yz__sheetwrap + .yz__sheetwrap { border-start-start-radius: 0; border-start-end-radius: 0; }
+  .yz__sheets .yz__sheetwrap + .yz__sheetwrap thead { display: none; }
+  .yz__tray--dock { flex-direction: row; gap: var(--space-2); }
+  .yz__tray--dock .yz__felt { inline-size: auto; flex: 1 1 auto; min-inline-size: 0; padding: 0.5rem 0.4rem 0.8rem; gap: 0.25rem; }
+  .yz__tray--dock .yz-die { inline-size: 2rem; block-size: 2rem; }
+  .yz__tray--dock .yz__roll { flex-direction: column; flex-wrap: nowrap; flex: 0 1 9rem; }
+  .yz__tray--dock .yz__roll .bgv-btn, .yz__tray--dock .yz__roll button { white-space: normal; block-size: auto; min-block-size: 44px; font-size: 0.8rem; }
+}
+.yz-rail h3 { font-weight: 800; }
+
+/* Round 5 (design §1/§3): framed sheet, 34px rows with the hint under the name, seat dots in the header. */
+.yz--framed .yz__sheetwrap { border: 3px solid #7a1f1a; border-radius: 10px; box-shadow: none; overflow: hidden; }
+.yz--framed .yz__sheet { table-layout: fixed; }
+.yz--framed .yz__sheet col:first-child { width: 34%; }
+.yz--framed .yz__sheet tbody th, .yz--framed .yz__sheet tbody td { block-size: 34px; padding: 0 0.35rem; line-height: 1.15; }
+.yz--framed .yz__sheet tbody th span { display: block; font-size: 14px; font-weight: 700; }
+.yz--framed .yz__sheet tbody th small { display: block; margin: 0; font-size: 10.5px; font-weight: 400; color: #7a6552; opacity: 1; }
+.yz--framed .yz__sheet tbody .yz-row--section th { block-size: 20px; font-size: 11.5px; }
+.yz--framed .yz__sheet tfoot th, .yz--framed .yz__sheet tfoot td { block-size: 30px; padding-block: 0; }
+.yz--framed .yz-row--total th, .yz--framed .yz-row--total td { block-size: 38px; }
+.yz--framed .yz-cell--open { opacity: 1; color: #b4a38e; }
+.yz--framed .yz-opt { position: relative; min-inline-size: 2.5rem; min-block-size: 25px; }
+.yz-seatdot { display: inline-block; inline-size: 7px; block-size: 7px; margin-inline-end: 4px; border-radius: 50%; vertical-align: middle; }
+.yz-homelabel { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 520px) {
+  .yz--framed .yz__sheets { gap: 0; }
+  .yz--framed .yz__sheets .yz__sheetwrap:first-child { border-block-end: 0; border-end-start-radius: 0; border-end-end-radius: 0; }
+  .yz--framed .yz__sheets .yz__sheetwrap + .yz__sheetwrap { border-block-start: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+  .yz--framed .yz__sheet tbody th, .yz--framed .yz__sheet tbody td { block-size: 28px; }
+  .yz--framed .yz__sheet tbody th span { font-size: 13px; }
+  .yz--framed .yz-row--bonus { display: none; }
+  .yz-homelabel { position: static; inline-size: auto; block-size: auto; overflow: visible; clip-path: none; }
+  .yz--framed .yz-opt::after { content: ''; position: absolute; inset: -9px -2px; }
+}
+/* Phones outside the frame (tutorial): the roll and record buttons wrap, so their long labels cannot widen the page. */
+@media (max-width: 520px) {
+  .yz, .yz__tray { grid-template-columns: minmax(0, 1fr); }
+  .yz__tray:not(.yz__tray--dock) .yz__roll { flex-wrap: wrap; }
+  .yz__tray:not(.yz__tray--dock) :is(.yz-rollbtn, .yz-submit) { white-space: normal; block-size: auto; min-block-size: 44px; max-inline-size: 100%; }
+}

@@ -71,3 +71,20 @@ button.cr-hint, .cr-confirm.cr-hint { animation: cr-pulse 1s ease-in-out infinit
 .cr-log ol { margin: 0; padding-inline-start: 1.2rem; display: grid; gap: 0.15rem; max-block-size: 10rem; overflow-y: auto; }
 
 @media (prefers-reduced-motion: reduce) { .cr-pop, .cr-hint .cr-hex, button.cr-hint { animation: none; } }
+
+/* Framed: the felt and seat strip are the shell's; the whole 12×9 map (rows 1–9) fits the stage height. */
+.cr--framed { padding: 0; background: none; box-shadow: none; border-radius: 0; color: var(--felt-ink); gap: var(--space-2); }
+.cr--framed .cr-zoom { max-inline-size: 100%; }
+@media (min-width: 900px) { .cr--framed .cr-zoom { max-inline-size: min(52rem, max(300px, calc((var(--gf-b, 600px) - 150px) * 1.117))); } }
+
+/* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
+.cr { --zb-aspect: 1.12; }
+
+/* Round 2 (reference §1): board first, then «سرنخ مخفی شما» and the action row under it; players' markers as the rail
+   card instead of the in-felt legend (it was cut at the stage bottom). */
+.cr--framed > .cr-zoom { order: 1; }
+.cr--framed > .cr-clue { order: 2; }
+.cr--framed > .cr-actions, .cr--framed > .cr-confirm-bar { order: 3; }
+.cr-railpl { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+.cr-railpl li { display: flex; align-items: center; gap: var(--space-2); }
+.cr-railpl li > span:last-child { margin-inline-start: auto; color: var(--text-muted); font-size: 12.5px; }

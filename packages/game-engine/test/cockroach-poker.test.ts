@@ -18,6 +18,17 @@ const reject = (snap: EngineSnapshot, seat: number, action: unknown) => {
 const total = (s: CockroachState) => s.hands.flat().length + s.table.flat().length + (s.chain ? 1 : 0);
 
 describe('cockroach poker rules', () => {
+  it('RULES E1: two players lose on five of a kind, not four', () => {
+    const base = startGame(m, { playerCount: 2, seed: 3, options: {} }).snapshot;
+    const s0 = structuredClone(st(base));
+    s0.current = 0; s0.hands = [['fly', 'rat'], ['bat', 'toad']]; s0.table = [[], ['fly', 'fly', 'fly']];
+    let snap: EngineSnapshot = { ...base, state: s0 };
+    snap = act(snap, 0, { type: 'give', card: 'fly', to: 1, claim: 'fly' });
+    snap = act(snap, 1, { type: 'call', truth: false });
+    expect(st(snap).table[1]!.filter((x) => x === 'fly')).toHaveLength(4);
+    expect(st(snap).outcome).toBeNull();
+  });
+
   it('deals all 64 cards', () => {
     const s = st(game(3));
     expect(total(s)).toBe(64);
@@ -88,7 +99,7 @@ describe('cockroach poker rules', () => {
     }
     const s = st(snap);
     expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1 }, { seat: 1, place: 2 }]);
-    expect(s.table).toEqual([['scorpion', 'rat'], ['fly', 'fly', 'fly', 'stinkbug', 'stinkbug', 'stinkbug', 'toad', 'stinkbug']]);
+    expect(s.table).toEqual([['scorpion', 'rat'], ['fly', 'fly', 'fly', 'stinkbug', 'stinkbug', 'stinkbug', 'stinkbug', 'toad', 'stinkbug']]);
     expect(s.hands).toEqual([['fly', 'fly', 'fly', 'fly', 'fly'], ['cockroach', 'bat', 'toad', 'spider']]);
   });
 

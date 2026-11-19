@@ -152,3 +152,62 @@
   .ht-shifter { grid-column: 1 / -1; }
   .ht-pile, .ht-engine { min-inline-size: 0; inline-size: 100%; }
 }
+
+/* Printed card faces (112×180 art): the image is the card. */
+.ht-card--face { background: none; box-shadow: none; padding: 0; min-block-size: 0; line-height: 0; }
+.ht-card--face.ht-card--md, .ht-card--face.ht-card--md.ht-card--garage { inline-size: 4rem; min-block-size: 0; padding: 0; }
+.ht-card--face.ht-card--sm { inline-size: 2rem; block-size: auto; }
+.ht-card--face img { inline-size: 100%; block-size: auto; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }
+@media (max-width: 480px) { .ht-card--face.ht-card--md, .ht-card--face.ht-card--md.ht-card--garage { inline-size: 3.2rem; } }
+
+/* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
+.ht { --zb-aspect: 1.58; }
+
+/* Round 3: the zoom viewport shrank to a strip (an overflow-hidden flex child may shrink to 0 inside the height-capped
+   grid). It keeps its size now, the board is capped so the car mat still fits under it, and the grass sits on the
+   viewport so the zoom toolbar stays above the board instead of on it. */
+.ht .zb__viewport { flex: none; }
+.ht__board { overflow: visible; background: none; box-shadow: none; }
+.ht__board .zb__viewport { border-radius: var(--radius-md); background: url('./art/grass.webp') 0 0 / 160px 160px, var(--felt); box-shadow: var(--shadow-ring-felt); }
+@media (min-width: 900px) {
+  .gf-stage .ht .ht__board { max-inline-size: max(20rem, calc((100cqb - 3.5rem - 21rem) * var(--zb-aspect, 1))); margin-inline: auto; }
+}
+
+/* Round 4: speed 0 / 5 starting upgrades have no delivered face art — a labelled placeholder at the face-card size
+   (not a blank white card). The hand row is smaller so it fits the desktop felt; on phones the car mat stays in the
+   scrolling felt. */
+.ht-card--speed:not(.ht-card--face) { background: var(--surface); color: var(--text); box-shadow: var(--shadow-ring); }
+.ht-card--speed.ht-card--md:not(.ht-card--face) { inline-size: 4rem; min-block-size: 0; aspect-ratio: 5 / 7; padding: var(--space-1); }
+.ht-card__v { font-size: 1.5rem; }
+.ht-card__ph { font-size: 10px; line-height: 1.2; text-align: center; color: var(--text-muted); }
+@media (min-width: 900px) {
+  .ht .ht-card--face.ht-card--md, .ht .ht-card--speed.ht-card--md:not(.ht-card--face) { inline-size: 3.3rem; }
+  .gf-stage .ht .ht__board { max-inline-size: max(18rem, calc((100cqb - 3.5rem - 24rem) * var(--zb-aspect, 1))); }
+}
+
+/* Round 5, desktop frame: a compact car mat (one low row + the hand) so the circuit can take ~90% of the felt width and
+   the hand stays inside the stage. The race-order strip returns once cards are revealed. */
+@media (min-width: 900px) {
+  .gf-stage .ht { position: relative; padding: var(--space-2); gap: var(--space-2); }
+  .gf-stage .ht > .ht__bar { position: absolute; inset-block-start: var(--space-2); inset-inline-start: var(--space-2); z-index: calc(var(--z-felt) + 1); }
+  .gf-stage .ht .ht__board { max-inline-size: max(18rem, calc((100cqb - 16rem) * var(--zb-aspect, 1))); }
+  .gf-stage .ht[data-phase="plan"] > .ht__racers { display: none; }
+  .gf-stage .ht .ht__cockpit.ht-mat { display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-3); }
+  .gf-stage .ht .ht-mat__top { gap: var(--space-2); }
+  .gf-stage .ht .ht-mat__car img { inline-size: 2.8rem; }
+  .gf-stage .ht .ht-shifter { gap: 2px var(--space-2); padding: 2px var(--space-2); }
+  .gf-stage .ht .ht-shifter::before, .gf-stage .ht .ht-shifter::after, .gf-stage .ht .ht-shifter .ht__gearart { display: none; }
+  .gf-stage .ht .ht-gearbtn, .gf-stage .ht .ht-gearpos { display: flex; align-items: center; gap: var(--space-1); min-inline-size: 4rem; min-block-size: 1.8rem; padding: 0 var(--space-1); border-radius: var(--radius-sm); }
+  .gf-stage .ht .ht-gearbtn small, .gf-stage .ht .ht-gearpos small { font-size: 10px; }
+  .gf-stage .ht .ht-engine { padding: var(--space-1) var(--space-2); gap: 0; }
+  .gf-stage .ht .ht-engine__flames { min-block-size: 0; }
+  .gf-stage .ht .ht-engine__flames img { inline-size: 1rem; block-size: 1rem; }
+  .gf-stage .ht .ht-engine__n { font-size: 1rem; line-height: 1.1; }
+  .gf-stage .ht .ht-pile { grid-template-columns: auto auto; column-gap: var(--space-1); align-items: center; min-inline-size: 0; padding: var(--space-1); }
+  .gf-stage .ht .ht-pile > :first-child { grid-row: 1 / span 3; }
+  .gf-stage .ht .ht-pile__back, .gf-stage .ht .ht-pile__empty { inline-size: 1.3rem; block-size: 1.8rem; }
+  .gf-stage .ht .ht-pile .ht-card--sm { inline-size: 1.3rem; }
+  .gf-stage .ht .ht-pile b { font-size: 0.85rem; line-height: 1.1; }
+  .gf-stage .ht .ht-pile small { font-size: 10px; line-height: 1.2; }
+  .gf-stage .ht .ht__hand { flex-wrap: nowrap; }
+}

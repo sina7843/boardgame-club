@@ -3,11 +3,11 @@
 // at either end; the trade row runs through the middle; played ships and bases form your fleet line.
 import './renderer.css';
 import { useRef } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
-import fed from './art/fac-fed.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import fed from './art/sr-f-fed.png';
 import blob from './art/fac-blob.webp';
-import cult from './art/fac-cult.webp';
-import emp from './art/fac-emp.webp';
+import cult from './art/sr-f-cult.png';
+import emp from './art/sr-f-emp.png';
 import { TYPE, type Faction, type Fx, type SrView } from './rules.ts';
 
 // Faction emblems are cut from a generated sprite sheet (see DECISIONS.md); 'none' keeps the plain glyph.
@@ -22,8 +22,14 @@ export function fxText(fx: Fx | undefined) {
     fx.scrap ? `اسقاط ${fa(fx.scrap)}` : '', fx.scrapRow ? 'پاک‌سازی بازار' : '', fx.oppDiscard ? 'حریف −۱ کارت' : ''].filter(Boolean).join(' ');
 }
 
+// Handoff card faces (design/games/group-d/art/star-realms): the printed name, cost and abilities of each engine type.
+const FACE = import.meta.glob<string>('./art/sr-*.png', { eager: true, import: 'default' });
+const faceOf = (k: string) => FACE[`./art/sr-${k}.png`];
+
 export function SrCard({ k, size = 'md' }: { k: string; size?: 'sm' | 'md' }) {
   const t = TYPE[k]!;
+  const face = faceOf(k);
+  if (face) return <span className={`sr-card sr-card--${size} sr-card--face`} aria-label={`${t.name}${t.base ? `، پایگاه ${fa(t.base.defense)}${t.base.outpost ? ' (پاسگاه)' : ''}` : ''}: ${fxText(t.fx)}`}><img src={face} alt="" draggable={false} /></span>;
   return (
     <span className={`sr-card sr-card--${size} sr-f--${t.faction} ${t.base ? 'sr-card--base' : ''}`} aria-label={`${t.name}${t.base ? `، پایگاه ${fa(t.base.defense)}${t.base.outpost ? ' (پاسگاه)' : ''}` : ''}: ${fxText(t.fx)}`}>
       {EMBLEM[t.faction] && <img className="sr-card__emb" src={EMBLEM[t.faction]} alt="" aria-hidden="true" />}
@@ -83,6 +89,7 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${view.seq}|${q ? JSON.stringify(q) : ''}`);
   const opp = 1 - me;
+  const framed = useInFrame() !== null; // the shell draws players, authority and whose-turn
   const hint = expected as unknown as Hint;
   const has = (t: string) => legalActions.some((a) => a.type === t);
   const attackable = new Set(legalActions.filter((a) => a.type === 'attack').map((a) => a.base as number));
@@ -128,14 +135,24 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
   );
 
   return (
-    <div className="sr" ref={root} data-seq={view.seq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+    <div className={framed ? 'sr sr--framed' : 'sr'} ref={root} data-seq={view.seq}>
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>تجارت برای خرید و حمله برای ضربه است. پایگاه‌های پاسگاه را باید پیش از اقتدار حریف نابود کرد؛ توانایی هم‌پیمان وقتی فعال می‌شود که کارتی از همان گروه بازی شده باشد.</p>
+        </RailSlot>
+      )}
 
       <section data-flip-anchor={`seat-${opp}`} className={`sr-side sr-side--opp ${view.current === opp && !view.outcome ? 'sr-side--now' : ''}`} aria-label={`ناوگان ${who(opp)}`}>
         <div className="sr-side__head">
-          <bdi className="sr-side__name">{who(opp)}</bdi>
-          <Num n={theirs.authority} hit className="sr-auth" />
-          <small>دسته <Num n={theirs.deck} /> · دست <Num n={theirs.hand} /> · <span data-flip-anchor={`discard-${opp}`}>دورریز <Num n={theirs.discard} /></span></small>
+          {framed && <span className="sr-authp"><small>اعتبار <bdi>{who(opp)}</bdi></small><Num n={theirs.authority} hit /></span>}
+          {!framed && <bdi className="sr-side__name">{who(opp)}</bdi>}
+          {!framed && <Num n={theirs.authority} hit className="sr-auth" />}
+          {framed ? <span className="sr-piles">
+            <span className="sr-pile" aria-label={`دستهٔ حریف: ${fa(theirs.deck)} کارت`}><i className="sr-pile__back" /><small>دسته <Num n={theirs.deck} /></small></span>
+            <span className="sr-pile" data-flip-anchor={`discard-${opp}`} aria-label={`دورریز حریف: ${fa(theirs.discard)} کارت`}>{theirs.top !== null ? <span className="sr-pile__top"><SrCard k={k(theirs.top)} size="sm" /></span> : <i className="sr-pile__back sr-pile__back--empty" />}<small>دورریز <Num n={theirs.discard} /></small></span>
+          </span> : <small>دسته <Num n={theirs.deck} /> <span className="bgv-sep" /> دست <Num n={theirs.hand} />  <span className="bgv-sep" /> <span data-flip-anchor={`discard-${opp}`}>دورریز <Num n={theirs.discard} /></span></small>}
           {chip(opp)}
           {attackable.has(-1) && <Button size="sm" disabled={busy} className={hint?.type === 'attack' && hint.base === -1 ? 'sr-hint' : ''} onClick={() => onAction({ type: 'attack', base: -1 })}>حمله ({fa(view.pool.combat)})</Button>}
         </div>
@@ -155,14 +172,22 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
         })}
         <span className="sr-slot sr-slot--row">
           <button type="button" data-flip-anchor="explorer" className={`sr-pick ${buyable.has(5) ? 'sr-pick--can' : ''}`} disabled={busy || !buyable.has(5)} onClick={() => onAction({ type: 'buy', slot: 5 })}><SrCard k="explorer" /></button>
-          <small className="sr-deckcount" data-flip-anchor="trade-deck">بازار <Num n={view.tradeDeckCount} /></small>
+          {!framed && <small className="sr-deckcount" data-flip-anchor="trade-deck">بازار <Num n={view.tradeDeckCount} /></small>}
         </span>
+        {framed && (
+          <span className="sr-rowinfo">
+            <span className="sr-rowchip" data-flip-anchor="trade-deck">دستهٔ تجارت: <Num n={view.tradeDeckCount} /></span>
+            <span className="sr-rowchip">نابودشده‌ها: <Num n={view.scrapped.length} /></span>
+            <small>کاوشگر همیشه هست، ۲ تجارت</small>
+          </span>
+        )}
       </section>
 
       {myTurn && (
         <div className="sr-pool">
-          <span className="sr-pool__trade">◈ <Num n={view.pool.trade} /> تجارت</span>
-          <span className="sr-pool__combat">✸ <Num n={view.pool.combat} /> حمله</span>
+          <span className="sr-pool__trade">تجارت <Num n={view.pool.trade} /></span>
+          <span className="sr-pool__combat">نبرد <Num n={view.pool.combat} /></span>
+          <span className="sr-pool__scrap">نابودی <Num n={view.pool.scrap} /></span>
         </div>
       )}
 
@@ -189,9 +214,13 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
       <section data-flip-anchor={`seat-${me}`} className={`sr-side sr-side--me ${myTurn ? 'sr-side--now' : ''}`} aria-label="ناوگان شما">
         {mine.bases.length > 0 && <Bases seat={me} />}
         <div className="sr-side__head">
-          <bdi className="sr-side__name">{who(me)}</bdi>
-          <Num n={mine.authority} hit className="sr-auth sr-auth--me" />
-          <small><span data-flip-anchor={`deck-${me}`}>دسته <Num n={mine.deck} /></span> · <span data-flip-anchor={`discard-${me}`}>دورریز <Num n={mine.discard} /></span></small>
+          {framed && <span className="sr-authp sr-authp--me"><small>اعتبار شما</small><Num n={mine.authority} hit /></span>}
+          {!framed && <bdi className="sr-side__name">{who(me)}</bdi>}
+          {!framed && <Num n={mine.authority} hit className="sr-auth sr-auth--me" />}
+          {framed ? <span className="sr-piles">
+            <span className="sr-pile" data-flip-anchor={`deck-${me}`} aria-label={`دستهٔ شما: ${fa(mine.deck)} کارت`}><i className="sr-pile__back" /><small>دسته <Num n={mine.deck} /></small></span>
+            <span className="sr-pile" data-flip-anchor={`discard-${me}`} aria-label={`دورریز شما: ${fa(mine.discard)} کارت`}>{mine.top !== null ? <span className="sr-pile__top"><SrCard k={k(mine.top)} size="sm" /></span> : <i className="sr-pile__back sr-pile__back--empty" />}<small>دورریز <Num n={mine.discard} /></small></span>
+          </span> : <small><span data-flip-anchor={`deck-${me}`}>دسته <Num n={mine.deck} /></span> <span className="bgv-sep" /> <span data-flip-anchor={`discard-${me}`}>دورریز <Num n={mine.discard} /></span></small>}
           {chip(me)}
         </div>
         {view.hand && !view.outcome && (
@@ -210,7 +239,7 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
           </div>
         )}
       </section>
-      {view.last && (
+      {!framed && view.last && (
         <p className="sr-last" key={view.seq}><bdi>{who(view.last.seat)}</bdi>: {view.last.kind === 'hit' ? `${fa(view.last.amount!)} ضربه` : view.last.kind === 'destroy' ? `نابودی ${TYPE[k(view.last.card!)]!.name}` : view.last.kind === 'buy' ? `خرید ${TYPE[k(view.last.card!)]!.name}` : view.last.kind === 'play' ? `بازی ${TYPE[k(view.last.card!)]!.name}` : view.last.kind === 'scrapSelf' ? `اسقاط ${TYPE[k(view.last.card!)]!.name}` : view.last.kind === 'end' ? 'پایان نوبت' : 'بازی همه'}{view.last.kind === 'buy' && TYPE[k(view.last.card!)]!.faction !== 'none' ? ` (${FACTION_FA[TYPE[k(view.last.card!)]!.faction]})` : ''}</p>
       )}
     </div>

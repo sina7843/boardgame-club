@@ -1,7 +1,9 @@
-// Pawn and wood art: cut from a generated sheet (see DECISIONS.md). Shared by the renderer and the cover.
-import red from './art/pawn-red.webp'; import blue from './art/pawn-blue.webp';
-import green from './art/pawn-green.webp'; import yellow from './art/pawn-yellow.webp';
-export { default as OAK } from './art/tex-oak.webp';
+// Board, pawn and wall art: design/games/group-a/art/quoridor, copied as-is. Shared by the renderer and the cover.
+import red from './art/quoridor-pawn-red.png'; import gold from './art/quoridor-pawn-gold.png';
+import brown from './art/quoridor-pawn-brown.png'; import green from './art/quoridor-pawn-green.png';
+export { default as BOARD } from './art/quoridor-board.png';
+export { default as WALL_H } from './art/quoridor-wall-h.png';
+export { default as WALL_V } from './art/quoridor-wall-v.png';
 
-// Indexed by seat, matching the seat colours red, blue, green, yellow.
-export const PAWN_SRC = [red, blue, green, yellow];
+// Indexed by seat: red, gold, brown, green (the design's pawn colours and goal sides).
+export const PAWN_SRC = [red, gold, brown, green];

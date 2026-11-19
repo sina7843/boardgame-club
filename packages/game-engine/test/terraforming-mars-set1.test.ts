@@ -109,7 +109,7 @@ describe('terraforming-mars set1: requirements, production and VP', () => {
     expect(me(snap).prod).toMatchObject({ energy: 0, mc: 3 });
     snap = again(snap);
     me(snap).hand = ['017']; me(snap).prod.energy = 1;
-    expect(refuse(snap, 0, { type: 'play', card: '017' })).toBe('NO_SPACE');
+    expect(refuse(snap, 0, { type: 'play', card: '017' })).toBe('ACCEPTED'); // RULES.md E1: the tile is skipped, the card is playable
   });
 
   it('018 Methane From Titan: oxygen min 2 %; heat and plant prod +2; 2 VP', () => {
@@ -441,7 +441,7 @@ describe('terraforming-mars set1: ongoing effects', () => {
     expect(me(snap).res.mc).toBe(mc - 3);
     snap = withHand(['020']);
     for (const sp of MARS) if (!sp.ocean && !st(snap).tiles[sp.id]) st(snap).tiles[sp.id] = { kind: 'greenery', owner: 1 };
-    expect(refuse(snap, 0, { type: 'play', card: '020' })).toBe('NO_SPACE');
+    expect(refuse(snap, 0, { type: 'play', card: '020' })).toBe('ACCEPTED'); // RULES.md E1: the tile is skipped, the card is playable
   });
 
   it('031 Optimal Aerobraking: own space events give 3 M€ and 3 heat', () => {

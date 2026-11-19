@@ -1,70 +1,101 @@
-/* راه الدورادو: an explorer's map — parchment border, saturated terrain hexes, a golden city crown. Card paintings, pawn emblem and map backdrop are cut from a generated sheet (see DECISIONS.md). */
-.ed { display: grid; gap: 0.55rem; inline-size: 100%; color: #2a1d10; text-align: center; padding: 0.5rem; border-radius: 16px;
-  background: linear-gradient(160deg, #efe0bd, #d9c49a); box-shadow: inset 0 0 0 2px #a8875a; }
-.ed > :first-child { justify-self: center; }
-.ed-s--g { --s: #3f8a3a; } .ed-s--b { --s: #2f7fc4; } .ed-s--y { --s: #d9a520; } .ed-s--any { --s: #8a5ad6; }
+/* الدورادو: printed map (372x553) with an SVG overlay for legal hexes and pawns; cards are full faces from design/games/group-d/art/el-dorado. */
+.ed { display: grid; gap: var(--space-3); inline-size: 100%; color: var(--felt-ink); text-align: center; justify-items: center; }
+.ed-board { inline-size: min(372px, 100%); }
+.ed-mapi { position: relative; }
+.ed-mapi > img { display: block; inline-size: 100%; block-size: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-piece); }
+.ed-map { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
+.ed-hex { cursor: pointer; }
+.ed-tap { fill: color-mix(in srgb, var(--felt-gold) 30%, transparent); stroke: var(--felt-gold); stroke-width: 4; }
+.ed-hex:focus-visible .ed-tap { stroke: var(--felt-ink); }
+.ed-pawn { filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--felt) 60%, black)); transition: transform var(--dur-base, 0.25s); }
+.ed-hint { animation: ed-pulse 1s ease-in-out infinite; }
+.ed-hint:not(g) { outline: 3px solid var(--felt-gold); }
 
-.ed-a--explorer { --art: url('./art/explorer.webp'); } .ed-a--sailor { --art: url('./art/sailor.webp'); } .ed-a--traveller { --art: url('./art/traveller.webp'); }
-.ed-a--scout { --art: url('./art/scout.webp'); } .ed-a--trailblazer { --art: url('./art/trailblazer.webp'); } .ed-a--pioneer { --art: url('./art/pioneer.webp'); }
-.ed-a--machete { --art: url('./art/machete.webp'); } .ed-a--captain { --art: url('./art/captain.webp'); } .ed-a--photographer { --art: url('./art/photographer.webp'); }
-.ed-a--journalist { --art: url('./art/journalist.webp'); } .ed-a--chest { --art: url('./art/chest.webp'); } .ed-a--millionaire { --art: url('./art/millionaire.webp'); }
-.ed-a--jack { --art: url('./art/jack.webp'); } .ed-a--adventurer { --art: url('./art/adventurer.webp'); } .ed-a--plane { --art: url('./art/plane.webp'); }
-.ed-a--cartographer { --art: url('./art/cartographer.webp'); } .ed-a--compass { --art: url('./art/compass.webp'); } .ed-a--scientist { --art: url('./art/scientist.webp'); }
-.ed-a--native { --art: url('./art/native.webp'); }
+.ed-card { position: relative; display: block; inline-size: 108px; line-height: 0; }
+.ed-card--sm { inline-size: 54px; }
+.ed-card img { display: block; inline-size: 100%; block-size: auto; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }
 
-.ed-crew { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
-.ed-crew__p { display: flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: rgb(255 255 255 / 0.45); font-size: 0.78rem; font-weight: 700; }
-.ed-crew__p small { font-weight: 500; color: #5a4a2a; }
-.ed-crew__p.is-now { box-shadow: inset 0 0 0 2px var(--pawn); }
-.ed-dot { inline-size: 1.4rem; block-size: 1.4rem; border-radius: 50%; background: url('./art/pawn.webp') center / cover; box-shadow: 0 0 0 2px var(--pawn), 0 0 0 3.5px #fff; }
-
-.ed-board { justify-self: center; inline-size: min(100%, 26rem); position: relative; padding: 0.4rem; border-radius: 14px; background: #1f3a2a; box-shadow: inset 0 0 0 3px #a8875a, inset 0 0 22px #000; }
-.ed-board::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: url('./art/bd-map.webp') center / cover; opacity: 0.3; }
-.ed-map { position: relative; display: block; inline-size: 100%; block-size: auto; }
-.ed-hex polygon { stroke: #1a140c; stroke-width: 1.2; transition: filter 0.2s; }
-.ed-hex text { font-size: 9px; font-weight: 800; fill: #fff; paint-order: stroke; stroke: rgb(0 0 0 / 0.5); stroke-width: 2px; pointer-events: none; }
-.ed-k--g polygon { fill: #3f8a3a; } .ed-k--b polygon { fill: #2f7fc4; } .ed-k--y polygon { fill: #d9a520; } .ed-k--r polygon { fill: #8a7a6a; }
-.ed-k--c polygon { fill: #b5543a; } .ed-k--m polygon { fill: #4a4038; } .ed-k--s polygon { fill: #c9b48a; } .ed-k--E polygon { fill: #ffd75a; }
-.ed-star { fill: #8a5a08 !important; font-size: 12px !important; stroke: none !important; }
-.ed-hex--can { cursor: pointer; }
-.ed-hex--can polygon { stroke: #fff1b0; stroke-width: 2.5; filter: brightness(1.25) drop-shadow(0 0 3px #fff1b0); animation: ed-glow 1.2s ease-in-out infinite; }
-.ed-hex--can:focus-visible { outline: none; }
-.ed-hex--can:focus-visible polygon { stroke: #ff9d6b; }
-.ed-pawn { stroke: #fff; stroke-width: 1.8; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.6)); transition: cx 0.6s cubic-bezier(0.22, 1, 0.36, 1), cy 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
-
-.ed-card { display: grid; justify-items: center; align-content: start; gap: 0.1rem; border-radius: 8px; line-height: 1.2; color: #2a1d10;
-  background: var(--art) top / 100% 40% no-repeat, #fbf3df; box-shadow: inset 0 0 0 2px var(--s), 0 3px 6px -3px #000; }
-.ed-card--md { inline-size: 4.2rem; block-size: 5.4rem; padding-block-start: 0.3rem; }
-.ed-card--sm { inline-size: 3.3rem; block-size: 3.6rem; padding-block-start: 0.2rem; }
-.ed-card__pts { inline-size: 1.6rem; block-size: 1.6rem; display: grid; place-items: center; border-radius: 50%; background: var(--s); color: #fff; box-shadow: 0 0 0 1.5px #fff, 0 2px 4px rgb(0 0 0 / 0.5); font-size: 0.9rem; }
-.ed-card--sm .ed-card__pts { inline-size: 1.2rem; block-size: 1.2rem; font-size: 0.7rem; }
-.ed-card__name { font-size: 0.62rem; font-weight: 800; }
-.ed-card--sm .ed-card__name { font-size: 0.5rem; }
-.ed-card small { font-size: 0.5rem; color: #5a4a2a; }
-
-.ed-me { display: grid; gap: 0.4rem; justify-items: center; }
-.ed-active { padding: 0.25rem 0.7rem; border-radius: 999px; border: 1px dashed #8a5a08; background: rgb(255 215 90 / 0.35); color: inherit; font: inherit; font-size: 0.75rem; cursor: pointer; }
-.ed-active.is-on { border-style: solid; background: #ffd75a; font-weight: 800; }
-.ed-hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
-.ed-slot { display: grid; gap: 0.15rem; justify-items: center; }
-.ed-pick { padding: 0; border: 0; background: none; border-radius: 9px; line-height: 0; cursor: pointer; transition: transform 0.18s; }
-.ed-chip { padding: 0 0.45rem; border-radius: 999px; background: #ffd75a; font-size: 0.65rem; font-weight: 800; }
+.ed-me { display: grid; gap: var(--space-2); justify-items: center; inline-size: 100%; }
+.ed-hand { display: flex; direction: ltr; padding-block-start: 10px; justify-content: center; max-inline-size: 100%; }
+.ed-slot { position: relative; display: grid; justify-items: center; gap: 4px; flex: none; margin-inline-start: -40px; }
+.ed-slot:first-child { margin-inline-start: 0; }
+.ed-pick { padding: 0; border: 0; background: none; border-radius: var(--radius-sm); cursor: pointer; line-height: 0; min-block-size: 44px; }
 .ed-pick:disabled { cursor: default; }
-.ed-pick.is-on { transform: translateY(-6px); box-shadow: 0 0 0 3px #ff9d6b; }
-.ed-pick.is-pay { transform: translateY(-4px); box-shadow: 0 0 0 3px #8a7a6a; }
-.ed-mini { padding: 0.1rem 0.4rem; border-radius: 999px; border: 1px solid #8a5a08; background: rgb(255 255 255 / 0.5); color: inherit; font: inherit; font-size: 0.6rem; cursor: pointer; }
-.ed-bar { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
-.ed-market { display: grid; gap: 0.3rem; padding: 0.45rem; border-radius: 12px; background: rgb(255 255 255 / 0.35); }
-.ed-market__title { margin: 0; font-size: 0.75rem; font-weight: 700; }
-.ed-market__row { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
-.ed-buy { position: relative; display: grid; justify-items: center; gap: 0.1rem; padding: 0; border: 0; background: none; color: inherit; font: inherit; line-height: 1; border-radius: 9px; opacity: 0.55; }
-.ed-buy.is-can { opacity: 1; cursor: pointer; }
-.ed-buy.is-can:hover { transform: translateY(-3px); }
-.ed-buy__cost { position: absolute; inset-block-start: -0.35rem; inset-inline-end: -0.35rem; inline-size: 1.1rem; block-size: 1.1rem; display: grid; place-items: center; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff1b0, #d9a520 60%, #8a6408); font-size: 0.6rem; font-style: normal; font-weight: 900; }
-.ed-buy small { font-size: 0.55rem; }
-.ed-hint { animation: ed-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ff7a2a !important; }
+.ed-pick.is-on, .ed-pick.is-pay { transform: translateY(-10px); }
+.ed-pick.is-on img, .ed-pick.is-pay img { outline: 3px solid var(--felt-gold); outline-offset: 2px; }
+.ed-mini { padding: 2px 8px; border-radius: var(--radius-pill); border: 0; background: var(--felt-plate); color: var(--felt-ink); box-shadow: var(--shadow-ring-felt); font: inherit; font-size: 11.5px; min-block-size: 44px; cursor: pointer; position: relative; z-index: calc(var(--z-felt) + 1); direction: rtl; }
+.ed-active { padding: 6px 14px; border-radius: var(--radius-pill); border: 0; background: var(--felt-plate); color: var(--felt-ink); box-shadow: var(--shadow-ring-felt); font: inherit; font-size: 13px; min-block-size: 44px; cursor: pointer; }
+.ed-active.is-on { background: var(--felt-gold); color: var(--brand-ink); font-weight: 800; }
+.ed-bar { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+.ed-chip { padding: 0 8px; border-radius: var(--radius-pill); background: var(--felt-gold); color: var(--brand-ink); font-size: 11px; font-weight: 800; }
 
-@keyframes ed-glow { 50% { filter: brightness(1.05); } }
-@keyframes ed-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+.ed-market { display: grid; gap: 4px; justify-items: center; color: var(--felt-muted); font-size: 12px; }
+.ed-market__title { margin: 0; }
+.ed-market__row { display: grid; grid-template-columns: repeat(5, 54px); gap: 8px 4px; direction: ltr; }
+.ed-buy { position: relative; padding: 0; border: 0; background: none; border-radius: var(--radius-xs); cursor: default; line-height: 0; }
+.ed-buy small { position: absolute; inset-block-start: -5px; inset-inline-end: -5px; min-inline-size: 17px; block-size: 17px; padding-inline: 3px; box-sizing: border-box; border-radius: var(--radius-pill); display: grid; place-items: center; background: var(--felt-plate); color: var(--felt-ink); box-shadow: var(--shadow-ring-felt); font-size: 10.5px; line-height: 1; }
+.ed-buy.is-can { cursor: pointer; } .ed-buy.is-can img { outline: 3px solid var(--success); }
+.ed-buy:disabled:not(.is-can) img { filter: grayscale(0.75) brightness(0.7); }
+.ed-buy.is-can:hover { transform: translateY(-3px); }
+
+/* Outside the table frame the renderer lists the crews itself. */
+.ed-crew { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+.ed-crew__p { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); font-size: 12.5px; }
+.ed-crew__p small { color: var(--felt-muted); }
+.ed-crew__p.is-now { outline: 2px solid var(--pawn); }
+.ed-dot { inline-size: 14px; block-size: 14px; border-radius: 50%; background: var(--pawn); }
+.ed .bg-pop { display: inline-block; }
+
+@media (max-width: 480px) {
+  .ed-card { inline-size: 84px; } .ed-card--sm { inline-size: 54px; }
+  .ed-slot { margin-inline-start: -34px; }
+}
+@keyframes ed-pulse { 50% { opacity: 0.6; } }
 @media (prefers-reduced-motion: reduce) { .ed * { animation: none !important; transition: none !important; } }
+
+/* Framed: map beside the market (all 16 card types, 8 per row) and your hand; hand cards wrap instead of overlapping under your bar. */
+.ed--framed .ed-hand { flex-wrap: wrap; gap: var(--space-2); padding-block-start: var(--space-2); }
+.ed--framed .ed-slot, .ed--framed .ed-slot:first-child { margin-inline-start: 0; }
+.ed--framed .ed-card { inline-size: 84px; }
+.ed--framed .ed-market { inline-size: 100%; }
+.ed--framed .ed-market__row { grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); inline-size: 100%; justify-items: center; gap: var(--space-3) var(--space-2); }
+.ed--framed .ed-buy small { inset-block-start: 2px; inset-inline-end: 2px; }
+@media (min-width: 900px) {
+  .ed--framed { grid-template-columns: auto minmax(0, 1fr); align-items: start; column-gap: var(--space-4); }
+  .ed--framed > .ed-board { grid-column: 1; grid-row: 1 / span 3; inline-size: min(372px, max(240px, calc((var(--gf-b, 600px) - 24px) * 0.67))); }
+  .ed--framed > .ed-market { grid-column: 2; grid-row: 1; }
+  .ed--framed > .ed-me { grid-column: 2; grid-row: 2; }
+  .ed--framed > :not(.ed-board):not(.ed-market):not(.ed-me) { grid-column: 1 / -1; }
+}
+
+/* Round 3 regression: the framed hand size (84px) also hit the market's small cards, so six wide columns overflowed
+   the felt. Market cards stay small and the grid fits its column. */
+.ed--framed .ed-market .ed-card, .ed--framed .ed-market .ed-card--sm { inline-size: 56px; }
+.ed--framed .ed-market__row { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); min-inline-size: 0; }
+@media (min-width: 900px) { .ed--framed > .ed-market { min-inline-size: 0; overflow: hidden; } }
+
+/* Round 4: the market is two rows of 8 (no lone 16th card spilling onto the hand), the hand one row of 4; phones
+   stack map, market and hand in the scrolling felt. */
+.ed--framed .ed-market__row { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--space-2) 4px; }
+.ed--framed .ed-market .ed-card, .ed--framed .ed-market .ed-card--sm { inline-size: 100%; max-inline-size: 56px; }
+@media (min-width: 900px) { .ed--framed > .ed-market { overflow: visible; } }
+.ed--framed .ed-hand { flex-wrap: nowrap; justify-content: center; }
+.ed--framed .ed-hand .ed-card { inline-size: 76px; }
+@media (max-width: 899px) {
+  .ed--framed { grid-template-columns: 1fr; }
+  .ed--framed > * { grid-column: 1; grid-row: auto; }
+  .ed--framed .ed-hand .ed-card { inline-size: 64px; }
+}
+
+/* Round 5: readable market at 1440: four rows of four 72px cards beside the map (two rows of eight were 40px wide);
+   phones read map, then hand, then market, and the page scrolls. */
+.ed--framed .ed-market__row { grid-template-columns: repeat(4, minmax(0, 72px)); justify-content: center; gap: var(--space-2); }
+.ed--framed .ed-market .ed-card, .ed--framed .ed-market .ed-card--sm { inline-size: 100%; max-inline-size: 72px; }
+.ed--framed .ed-hand .ed-card { inline-size: 72px; }
+@media (max-width: 899px) {
+  .ed--framed .ed-market__row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ed--framed .ed-market .ed-card, .ed--framed .ed-market .ed-card--sm { max-inline-size: 84px; }
+  .ed--framed > * { order: 2; }
+  .ed--framed > .ed-board { order: 1; }
+  .ed--framed > .ed-market { order: 3; }
+}

@@ -35,6 +35,8 @@ export interface KingdominoState {
   kingdoms: (Cell | null)[][][];
   discarded: number[];
   last: { seat: number; dom: number; placed: { r: number; c: number; dir: number } | null } | null;
+  /** Public move list for the table frame (every entry is visible to all seats). */
+  log?: { seat: number; text: string }[];
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
@@ -182,7 +184,7 @@ export const kingdominoModule: GameModule<KingdominoState, KingdominoAction, Kin
     }
     s.timeouts[seat] = 0;
     s.seq += 1;
-    if (a.type === 'pick') { s.next[a.slot]!.owner = seat; s.last = null; }
+    if (a.type === 'pick') { s.next[a.slot]!.owner = seat; s.last = null; s.log = [...(s.log ?? []), { seat, text: `برداشتن دومینوی ${(s.next[a.slot]!.dom + 1).toLocaleString('fa-IR')}` }].slice(-40); }
     else {
       const dom = s.current[s.idx]!.dom;
       if (a.place) {
@@ -193,6 +195,7 @@ export const kingdominoModule: GameModule<KingdominoState, KingdominoAction, Kin
       } else s.discarded.push(dom);
       if (a.slot !== undefined) s.next[a.slot]!.owner = seat;
       s.last = { seat, dom, placed: a.place };
+      s.log = [...(s.log ?? []), { seat, text: a.place ? `گذاشتن دومینوی ${(dom + 1).toLocaleString('fa-IR')}` : `دور انداختن دومینوی ${(dom + 1).toLocaleString('fa-IR')}` }].slice(-40);
     }
     advance(s);
     return finish(s, [{ type: a.type, seat }]);
@@ -239,6 +242,7 @@ export const kingdominoModule: GameModule<KingdominoState, KingdominoAction, Kin
         stats: [{ key: 'crowns', label: 'تاج', value: x.crowns, icon: 'crown' }],
         ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
       })),
+      moves: s.log ?? [],
       shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }],
       ...(sc.filter((x) => x.total === top).length === 1 && top > 0 ? { leaderSeat: sc.findIndex((x) => x.total === top) } : {})
     };

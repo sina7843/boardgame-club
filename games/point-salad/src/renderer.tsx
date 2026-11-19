@@ -3,13 +3,7 @@
 // Tap a pile's rule, or one or two vegetables; tap one of your rules first to flip it into a vegetable this turn.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
-import tomato from './art/tomato.webp';
-import lettuce from './art/lettuce.webp';
-import carrot from './art/carrot.webp';
-import cabbage from './art/cabbage.webp';
-import pepper from './art/pepper.webp';
-import onion from './art/onion.webp';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameAction, type GameRendererProps } from '@bg/ui';
 import { CARDS, VEG, counts, ruleScore, scores, type PointSaladView, type Rule, type Veg } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -17,7 +11,10 @@ export const VEG_FA: Record<Veg, string> = { tomato: 'گوجه', lettuce: 'کا�
 const sign = (n: number) => (n > 0 ? `+${fa(n)}` : `−${fa(-n)}`);
 
 // Vegetable discs are the BGA Point Salad client art (see DECISIONS.md).
-const ART: Record<Veg, string> = { tomato, lettuce, carrot, cabbage, pepper, onion };
+const GC = import.meta.glob('./art/gc/point-salad-*.png', { eager: true, import: 'default' });
+const gc = (n: string) => GC[`./art/gc/point-salad-${n}.png`]!;
+const ART = Object.fromEntries(VEG.map((v) => [v, gc(`sym-${v}`)])) as Record<Veg, string>;
+const CARD_ART = Object.fromEntries(VEG.map((v) => [v, gc(v)])) as Record<Veg, string>;
 
 export function VegIcon({ v, size = 1.4 }: { v: Veg; size?: number }) {
   return <img src={ART[v]} alt={VEG_FA[v]} draggable={false} style={{ inlineSize: `${size}rem`, blockSize: `${size}rem` }} className={`ps-veg ps-v--${v}`} />;
@@ -36,8 +33,20 @@ export function RuleText({ rule }: { rule: Rule }) {
   }
 }
 
+/** The delivered art has only six printed rule faces; a card gets its picture when the engine card is exactly one of them. */
+function ruleArt(veg: Veg, r: Rule): string | null {
+  const key = r.k === 'most' && r.veg === 'carrot' && veg === 'cabbage' ? 'cabbage-rule-03'
+    : r.k === 'parity' && r.veg === 'cabbage' && veg === 'carrot' ? 'carrot-rule-02'
+    : r.k === 'each' && veg === 'carrot' && r.terms.length === 2 && r.terms[0]![0] === 'cabbage' && r.terms[0]![1] === 3 && r.terms[1]![0] === 'tomato' && r.terms[1]![1] === -2 ? 'carrot-rule-08'
+    : r.k === 'fewest' && r.veg === 'pepper' && veg === 'lettuce' ? 'lettuce-rule-04'
+    : r.k === 'combo' && veg === 'lettuce' && r.pts === 5 && r.veg.length === 2 && [...r.veg].sort().join() === 'carrot,tomato' ? 'lettuce-rule-14'
+    : r.k === 'most' && r.veg === 'tomato' && veg === 'onion' ? 'onion-rule-03' : null;
+  return key ? (gc(key) as string | undefined) ?? null : null;
+}
+
 export function RuleCard({ id, pts, from, exit }: { id: number; pts?: number; from?: string; exit?: string }) {
-  return <span className="ps-rule" data-flip={from ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit}><RuleText rule={CARDS[id]!.rule} />{pts !== undefined && <b className="ps-rule__pts">{fa(pts)}</b>}</span>;
+  const art = ruleArt(CARDS[id]!.veg, CARDS[id]!.rule);
+  return <span className={art ? 'ps-rule ps-rule--art' : 'ps-rule'} data-flip={from ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit}>{art ? <><img className="ps-vegcard" src={art} alt="" draggable={false} /><span className="visually-hidden"><RuleText rule={CARDS[id]!.rule} /></span></> : <RuleText rule={CARDS[id]!.rule} />}{pts !== undefined && <b className="ps-rule__pts">{fa(pts)}</b>}</span>;
 }
 
 export default function PointSaladRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<PointSaladView>) {
@@ -82,20 +91,28 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const order = mySeat === null ? view.rules.map((_, k) => k) : [mySeat, ...view.rules.map((_, k) => k).filter((k) => k !== mySeat)];
 
+  const framed = useInFrame() !== null; // the shell draws seats, scores, whose-turn and the events log
+
   return (
     <div className="ps" ref={root} data-seq={served.seq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>یا یک دستور از بالای دسته بردارید، یا تا دو سبزی از بازار. هر دستور را می‌توانید به یک سبزی تبدیل کنید. دستورها در پایان بازی امتیاز می‌دهند.</p>
+        </RailSlot>
+      )}
 
       {!view.outcome && (
         <section className="ps__market" aria-label="بازار">
           {[0, 1, 2].map((p) => {
             const top = view.pileTops[p];
             return (
-              <div key={p} className="ps-crate" data-flip-anchor={`crate-${p}`}>
+              <div key={p} className="ps-crate">
                 {top !== null && top !== undefined
-                  ? <button type="button" className={['ps-pile', hint?.type === 'rule' && hint.pile === p ? 'ps-hint' : ''].join(' ')} disabled={!piles.has(p) || busy || sel.length > 0}
+                  ? <button type="button" data-flip-anchor={`crate-${p}`} className={['ps-pile', hint?.type === 'rule' && hint.pile === p ? 'ps-hint' : ''].join(' ')} disabled={!piles.has(p) || busy || sel.length > 0}
                     onClick={() => act({ type: 'rule', pile: p, ...extra })} aria-label={`برداشتن دستور دستهٔ ${fa(p + 1)}`}><RuleCard id={top} from={`crate-${p}`} /><small>{fa(view.pileCounts[p]!)} کارت</small></button>
-                  : p === waiting ? <span className="ps-pile ps-pile--empty">…</span> : <span className="ps-pile ps-pile--empty">خالی</span>}
+                  : p === waiting ? <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">…</span> : <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">خالی</span>}
                 <div className="ps-crate__veg">
                   {[p * 2, p * 2 + 1].map((i) => {
                     const id = view.market[i];
@@ -104,7 +121,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
                     return (
                       <button key={i} type="button" className={['ps-slot', on ? 'ps-slot--on' : '', hint?.type === 'veg' && hint.slots?.includes(i) && !on ? 'ps-hint' : ''].join(' ')}
                         disabled={!vegHint || busy} aria-pressed={on} onClick={() => setSel(on ? sel.filter((x) => x !== i) : [...sel, i].slice(-2))}>
-                        <span data-flip={`c-${id}`} data-flip-from={`crate-${p}`} data-flip-exit={`seat-${view.current}`} style={{ display: 'inline-flex' }}><VegIcon v={CARDS[id]!.veg} size={2.2} /></span>
+                        <span data-flip={`c-${id}`} data-flip-from={`crate-${p}`} data-flip-exit={`seat-${view.current}`} style={{ display: 'inline-flex' }}><img src={CARD_ART[CARDS[id]!.veg]} alt={VEG_FA[CARDS[id]!.veg]} draggable={false} className="ps-vegcard" /></span>
                       </button>
                     );
                   })}
@@ -114,28 +131,30 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
           })}
         </section>
       )}
-      {vegHint && !view.outcome && (
-        <div className="ps__bar">
-          <Button size="sm" disabled={busy || sel.length !== vegHint.need} className={hint?.type === 'veg' && sel.length === vegHint.need ? 'ps-hint' : ''}
-            onClick={() => act({ type: 'veg', slots: sel.slice().sort((a, b) => a - b), ...extra })}>برداشتن {fa(sel.length)} سبزی</Button>
-          {flip !== null && <span className="ps__flipnote">این نوبت یک دستور به سبزی تبدیل می‌شود</span>}
-        </div>
-      )}
+      {vegHint && !view.outcome && (() => {
+        const bar = (
+          <>
+            <Button size="sm" disabled={busy || sel.length !== vegHint.need} className={hint?.type === 'veg' && sel.length === vegHint.need ? 'ps-hint' : ''}
+              onClick={() => act({ type: 'veg', slots: sel.slice().sort((a, b) => a - b), ...extra })}>برداشتن {fa(sel.length)} سبزی</Button>
+            {flip !== null && <span className="ps__flipnote">این نوبت یک دستور به سبزی تبدیل می‌شود</span>}
+          </>
+        );
+        return framed ? <DockSlot>{bar}</DockSlot> : <div className="ps__bar">{bar}</div>;
+      })()}
 
       <ul className="ps__players" aria-label="بازیکنان">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : order).map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['ps-pl', view.current === s && !view.outcome ? 'ps-pl--turn' : '', s === mySeat ? 'ps-pl--me' : '', view.outcome?.placements.find((x) => x.seat === s)?.place === 1 ? 'ps-pl--win' : ''].join(' ')}>
-            <div className="ps-pl__head"><bdi className="ps-pl__name">{who(s)}</bdi><span className="ps-pl__score bg-pop" key={sc[s]}>{fa(sc[s]!)} امتیاز</span></div>
+            <div className="ps-pl__head"><bdi className="ps-pl__name">{who(s)}</bdi>{!framed && <span className="ps-pl__score bg-pop" key={sc[s]}>{fa(sc[s]!)} امتیاز</span>}</div>
             <div className="ps-pl__veg">{VEG.map((x) => <span key={x} className={all[s]![x] ? '' : 'ps-zero'}><VegIcon v={x} size={1.2} /><b className="bg-pop" key={all[s]![x]}>{fa(all[s]![x])}</b></span>)}</div>
-            <div className="ps-pl__rules">
+            {view.rules[s]!.length > 0 && <div className="ps-pl__rules">
               {view.rules[s]!.map((id) => {
                 const pts = ruleScore(CARDS[id]!.rule, s, all);
                 return s === me && myTurn && !view.outcome
                   ? <button key={id} type="button" className={`ps-flip ${flip === id ? 'ps-flip--on' : ''}`} aria-pressed={flip === id} onClick={() => setFlip(flip === id ? null : id)} title="برگرداندن به سبزی"><RuleCard id={id} pts={pts} from={`seat-${s}`} exit="drop" /></button>
                   : <RuleCard key={id} id={id} pts={pts} from={`seat-${s}`} exit="drop" />;
               })}
-              {!view.rules[s]!.length && <span className="ps-zero">بدون دستور</span>}
-            </div>
+            </div>}
           </li>
         ))}
       </ul>

@@ -4,7 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 const api = process.env.VITE_API_PROXY ?? 'http://127.0.0.1:3000';
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
+  // The SSR build (src/prerender.tsx, build time only) needs no copy of public/.
+  publicDir: isSsrBuild ? false : 'public',
   plugins: [react(), tailwindcss()],
   server: {
     host: '127.0.0.1',
@@ -14,5 +16,5 @@ export default defineConfig({
     proxy: { '/api': { target: api, changeOrigin: false, ws: true } }
   },
   preview: { host: '127.0.0.1', port: 4173, proxy: { '/api': { target: api, ws: true } } },
-  build: { target: 'es2023', sourcemap: true }
-});
+  build: { target: 'es2023', sourcemap: !isSsrBuild }
+}));

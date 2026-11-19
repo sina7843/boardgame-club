@@ -29,7 +29,8 @@ export function ItemArt(props: { item: CosmeticItem; me: Pick<Me, 'avatarKey'>; 
 }
 
 function renderItemArt({ item, me, size = 'md' }: { item: CosmeticItem; me: Pick<Me, 'avatarKey'>; size?: 'md' | 'lg' }) {
-  const avatar = (key: string) => <AvatarArt avatarKey={key} />;
+  // Legacy symbol keys («meeple» …) have no layered art; dress the default avatar instead of an empty circle.
+  const avatar = (key: string) => <AvatarArt avatarKey={parseAvatar(key) ? key : DEFAULT_AVATAR} />;
   switch (item.slot) {
     case 'fr': return <Avatar size={size === 'lg' ? 'xl' : 'lg'}><AvatarArt avatarKey={formatAvatar({ ...myParts(me), fr: item.i })} frame /></Avatar>;
     case 't': return <span className="pf-titlechip"><span className="t-micro bgv-muted">لقب</span><span className="t-label">{item.nameFa}</span></span>;

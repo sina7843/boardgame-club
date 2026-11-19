@@ -12,43 +12,35 @@
 /* ---------- the course ---------- */
 .cu__track {
   direction: ltr; position: relative; display: grid; inline-size: min(100%, 46rem); justify-self: center;
-  grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: repeat(4, 6.2rem); gap: 5px; padding: 0.7rem; border-radius: 20px;
-  background: radial-gradient(ellipse at 50% 50%, rgb(255 214 140 / 0.15), rgb(60 30 5 / 0.45) 75%), url('./art/bd-desert.webp') center / cover #b88440;
-  box-shadow: inset 0 0 0 2px rgb(255 226 170 / 0.35), inset 0 0 40px rgb(40 18 0 / 0.5), 0 14px 30px -18px #000;
+  aspect-ratio: 772 / 447; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 1.2%; padding: 2.2% 2.3%;
+  background: url('./art/camel-up-board-empty.png') center / 100% 100% no-repeat; filter: drop-shadow(0 14px 20px rgb(0 0 0 / 0.5));
 }
+/* the sand tiles are painted on the board image; these cells are only hit areas and anchors */
 .cu-sp {
   position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-inline-size: 0; padding: 0 0 0.25rem;
-  border: 0; border-radius: 10px; font: inherit; color: var(--ink);
-  background: linear-gradient(160deg, rgb(255 244 214 / 0.8), rgb(230 196 128 / 0.66));
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.55), 0 3px 0 var(--dune), 0 5px 8px -4px rgb(30 12 0 / 0.7);
+  border: 0; border-radius: 10px; font: inherit; color: var(--ink); background: none;
 }
 .cu-sp--can { cursor: pointer; outline: 3px solid #2f7fc1; outline-offset: -3px; animation: cu-glow 1.2s ease-in-out infinite; }
 .cu-sp--can:hover, .cu-sp--can:focus-visible { background: linear-gradient(160deg, #fff7df, #f0d49a); }
-.cu-sp__n { position: absolute; inset-block-start: 4px; inset-inline-start: 6px; font-size: 0.68rem; font-weight: 900; color: var(--terra); opacity: 0.85; }
-/* start flag on 1, chequered finish line under 16 (the loop closes between them) */
-.cu-sp--first::before { content: ''; position: absolute; inset-block-start: 5px; inset-inline-end: 6px; inline-size: 0.6rem; block-size: 0.45rem; background: #3f9a4a; border-radius: 1px; }
-.cu-sp--last::after {
-  content: ''; position: absolute; inset-inline: 0; inset-block-end: -6px; block-size: 7px; border-radius: 2px;
-  background: repeating-conic-gradient(#1d1208 0 25%, #fff7df 0 50%) 0 0 / 7px 7px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
-}
+/* the start flag and chequered finish line and the space numbers are on the board image */
+.cu-sp small { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
 .cu-stack { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
 .cu-stack .cu-camel { inline-size: 3.8rem !important; block-size: 3.8rem !important; margin-block-end: -2.1rem; }
 .cu-stack .cu-camel:last-child { margin-block-end: 0; }
-.cu-tile { position: absolute; inset-block-start: 4px; inset-inline-end: 5px; padding: 0.05rem 0.35rem; border-radius: 999px; font-size: 0.7rem; font-weight: 900; color: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
-.cu-tile--oasis { background: linear-gradient(#4fb35b, #2d7a37); }
-.cu-tile--mirage { background: linear-gradient(#c75a3a, #8a2f1a); }
+.cu-tile { position: absolute; inset-block-start: 6%; inset-inline-end: 6%; inline-size: 46%; }
+.cu-tile img { display: block; inline-size: 100%; block-size: auto; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.4)); }
 
 /* ---------- the pyramid in the middle ---------- */
 .cu-centre {
-  grid-column: 2 / 6; grid-row: 2 / 4; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto auto; align-items: center; align-content: center; column-gap: 0.75rem;
-  padding: 0.4rem 0.9rem; border-radius: 16px; background: radial-gradient(ellipse at 30% 60%, rgb(255 220 150 / 0.35), rgb(40 18 0 / 0.35)); direction: rtl;
+  grid-column: 2 / 6; grid-row: 2 / 4; display: grid; grid-template-columns: 1fr; align-items: center; align-content: center; justify-items: center;
+  padding: 0.4rem 0.9rem; padding-inline-start: 60%; direction: rtl; pointer-events: none;
 }
-.cu-centre__pyr { grid-row: 1 / 4; grid-column: 2; justify-self: center; inline-size: 8.5rem; block-size: 8.5rem; object-fit: contain; filter: drop-shadow(0 8px 10px rgb(30 12 0 / 0.6)); }
 .cu-centre__dice { grid-column: 1; display: flex; gap: 0.3rem; justify-content: center; }
 .cu-die { inline-size: 1.7rem; block-size: 1.7rem; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.5)); }
 .cu-die__body { fill: var(--c); stroke: var(--c-dk); stroke-width: 1.5; }
 .cu-die__pip { fill: #fff; }
 .cu-c--white .cu-die__pip, .cu-c--yellow .cu-die__pip { fill: #3a2410; }
+.cu-die--art { object-fit: contain; }
 .cu-die--in { opacity: 0.3; filter: grayscale(0.4); }
 .cu-die--pending { --c: #e9dcc0; --c-dk: #8a7a5c; }
 .cu__roll {
@@ -60,15 +52,19 @@
 
 /* ---------- leg-bet tiles: a stack per camel, its height shows how many are left ---------- */
 .cu__bets { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; padding-block-end: 0.4rem; }
-.cu-legtile {
-  position: relative; display: grid; justify-items: center; gap: 0.05rem; inline-size: 4.6rem; padding: 0.35rem 0.3rem 0.4rem; border: 0; border-radius: 12px; font: inherit; cursor: pointer; color: var(--ink);
+.cu-legtile { position: relative; display: grid; justify-items: center; gap: 0.2rem; padding: 0; border: 0; background: none; font: inherit; cursor: pointer; color: var(--felt-ink, #fbf1df); }
+.cu-legtile__face {
+  display: grid; justify-items: center; gap: 0.05rem; inline-size: 3.2rem; padding: 0.25rem; border-radius: 10px; color: var(--ink);
   background: linear-gradient(170deg, color-mix(in srgb, var(--c) 35%, #fff8e6), color-mix(in srgb, var(--c) 70%, #fff8e6));
-  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.65), 0 calc(min(var(--left, 1), 4) * 2px) 0 var(--c-dk), 0 calc(min(var(--left, 1), 4) * 2px + 6px) 10px -6px #000;
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.65), 0 calc(min(var(--left, 1), 4) * 2px) 0 var(--c-dk);
   transition: transform 0.15s ease;
 }
-.cu-legtile:not(:disabled):hover { transform: translateY(-2px); }
-.cu-legtile b { display: grid; place-items: center; inline-size: 1.7rem; block-size: 1.7rem; border-radius: 50%; font-size: 1rem; background: radial-gradient(circle at 35% 30%, #fff1b8, var(--gold) 60%, #b8862a); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
-.cu-legtile:disabled { opacity: 0.78; cursor: default; filter: saturate(0.75); }
+.cu-legtile:not(:disabled):hover .cu-legtile__face { transform: translateY(-2px); }
+.cu-legtile:focus-visible { outline: 2px solid var(--focus-on-felt, #ffd27a); outline-offset: 2px; border-radius: 10px; }
+.cu-legtile b { display: grid; place-items: center; inline-size: 1.5rem; block-size: 1.5rem; border-radius: 50%; font-size: 0.9rem; background: radial-gradient(circle at 35% 30%, #fff1b8, var(--gold) 60%, #b8862a); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
+.cu-legtile__art { inline-size: 100%; block-size: auto; display: block; }
+.cu-legtile:disabled { cursor: default; }
+.cu-legtile:disabled .cu-legtile__face { opacity: 0.78; filter: saturate(0.75); }
 
 .cu__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
 .cu-on { box-shadow: 0 0 0 3px var(--gold) !important; }
@@ -101,13 +97,8 @@
 
 /* ---------- phones ---------- */
 @media (max-width: 480px) {
-  .cu__track { grid-template-rows: repeat(4, 4.4rem); gap: 3px; padding: 0.45rem; border-radius: 14px; }
-  .cu-sp { border-radius: 7px; padding-block-end: 0.15rem; }
-  .cu-sp__n { font-size: 0.58rem; inset-block-start: 2px; inset-inline-start: 4px; }
   .cu-stack .cu-camel { inline-size: 2rem !important; block-size: 2rem !important; margin-block-end: -1.3rem; }
-  .cu-tile { font-size: 0.58rem; padding: 0 0.25rem; }
   .cu-centre { column-gap: 0.4rem; padding: 0.25rem 0.4rem; }
-  .cu-centre__pyr { inline-size: 4.6rem; block-size: 4.6rem; }
   .cu-die { inline-size: 1.15rem; block-size: 1.15rem; }
   .cu-centre__dice { gap: 0.15rem; }
   .cu__roll { font-size: 0.72rem; padding: 0.1rem 0.5rem; margin-block-start: 0.25rem; }
@@ -122,3 +113,80 @@
 @keyframes cu-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @keyframes cu-glow { 50% { outline-color: rgb(47 127 193 / 0.35); } }
 @media (prefers-reduced-motion: reduce) { .cu * { animation: none !important; transition: none !important; } }
+
+/* One action bar (design §1/§3): four groups on one felt plate, split by hairlines; in the frame it is the dock row. */
+.cu__bar { display: flex; flex-wrap: wrap; gap: var(--space-2) 0; justify-content: center; align-items: stretch; inline-size: min(100%, 52rem); margin-inline: auto;
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate, rgb(0 0 0 / 0.2)); box-shadow: var(--shadow-ring-felt); box-sizing: border-box; }
+.cu__grp { display: grid; gap: 0.35rem; align-content: start; padding-inline: var(--space-3); }
+.cu__grp + .cu__grp { border-inline-start: 1px solid var(--felt-line, rgb(255 236 200 / 0.15)); }
+.cu__cap { margin: 0; font-size: 0.78rem; font-weight: 700; color: var(--felt-ink, #fbf1df); text-align: start; }
+.cu__cap small { margin-inline-start: 0.35rem; font-weight: 600; color: var(--felt-muted, #e8d8b8); }
+.cu__grpbody { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; justify-content: center; }
+.cu__grp small { font-size: 0.72rem; color: var(--felt-muted, #e8d8b8); }
+.cu-legtile__left { font-size: 0.7rem; font-weight: 700; color: var(--felt-muted, #e8d8b8); }
+.cu__bets { padding-block-end: 0; }
+.cu__overall { padding-block: 0; background: none; box-shadow: none; border-radius: 0; }
+.cu__ovpick { flex: 0 0 100%; display: grid; gap: var(--space-2); padding-block-start: var(--space-2); border-block-start: 1px solid var(--felt-line, rgb(255 236 200 / 0.15)); }
+.cu__ovpick .cu__cap { text-align: center; }
+.cu__ovpick .cu-ov { padding: 0; background: none; box-shadow: none; }
+.cu__ovpick .cu-ov button { display: grid; place-items: center; min-inline-size: 44px; min-block-size: 44px; padding: 0.2rem; border-radius: var(--radius-sm); background: var(--felt-plate, rgb(0 0 0 / 0.25)); box-shadow: inset 0 0 0 2px var(--c); }
+.cu__ovpick .cu-ov button:disabled { opacity: 0.35; cursor: default; }
+.cu__ovpick .cu-ov button:hover:not(:disabled) { background: var(--c); }
+/* Desktop stage is a size container: the course fits its height (aspect 772 / 447) instead of pushing the bar out. */
+.cu__track { max-inline-size: calc((100cqb - 2.5rem) * 772 / 447); }
+@media (max-width: 480px) {
+  .cu__grp { padding-inline: var(--space-2); }
+  .cu-legtile__face { inline-size: 2.6rem; }
+}
+
+/* Round 3: one row of square tiles (~60px) on the bar; the dock portal sits outside .cu, so the bar carries its own vars
+   and the captions use the felt ink in both themes. */
+.cu__bar { --ink: #3a2410; --gold: #f2c35b; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; inline-size: auto; max-inline-size: 100%; }
+.cu__bar .cu__cap, .cu__bar .cu__overall h3 { color: var(--felt-ink); white-space: nowrap; }
+.cu__grp { flex: none; }
+.cu__grpbody { flex-wrap: nowrap; }
+.cu__bar .cu-tilebtn { display: inline-grid; justify-items: center; align-content: center; gap: 2px; inline-size: 3.75rem; block-size: 3.75rem; min-block-size: 44px; padding: 0.2rem; white-space: nowrap; font-size: 0.72rem; line-height: 1.2; }
+.cu__bar .cu-tilebtn .cu-pyramid { margin: 0; inline-size: 1.6rem; block-size: 1.6rem; }
+.cu__bar .cu-tilebtn svg { margin: 0; }
+.cu__bar .cu-legtile__face { inline-size: 2.8rem; }
+.cu__ovpick { --ink: #3a2410; inline-size: min(100%, 52rem); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); border: 0; background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); box-sizing: border-box; }
+.cu__ovpick .cu__cap { color: var(--felt-ink); }
+.cu__ovpick .cu__cap small { color: var(--felt-muted); }
+/* Round 4: square tiles (radius-sm, not the pill button shape), the pyramid tile is a white secondary token; phones wrap
+   the bar into two rows (as the reference) so nothing overflows the 390 viewport. */
+.cu__bar .cu-tilebtn { border-radius: var(--radius-sm); }
+.cu__bar { min-inline-size: 0; }
+@media (max-width: 899px) {
+  .cu__bar { flex-wrap: wrap; inline-size: 100%; overflow-x: visible; row-gap: var(--space-3); }
+  .cu__grp + .cu__grp { border-inline-start: 0; }
+  .cu__bets { flex: 1 1 100%; }
+  .cu__track { inline-size: 100%; }
+}
+
+/* Round 5: «این مرحله» rail card, the dice pill and dashed legal desert cells on the board. */
+.cu-rail { display: grid; gap: var(--space-2); }
+.cu-rail h3 { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); font-size: 15px; font-weight: 800; color: var(--heading); }
+.cu-rail__note { margin-inline-start: auto; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.cu-rail__rank { display: flex; align-items: center; gap: var(--space-2); font-size: 13px; color: var(--text-muted); }
+.cu-rail__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.cu-rail__tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.cu-rail__tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+.cu-sp--legal { outline: 2px dashed var(--ink); outline-offset: -3px; }
+.cu-centre__left { grid-column: 1; margin-block-start: 0.3rem; padding: 0.15rem 0.7rem; border-radius: var(--radius-pill); background: rgb(29 18 8 / 0.78); color: #fff3d6; font-size: 0.78rem; font-weight: 800; white-space: nowrap; }
+
+/* Phone bar: one row of leg tiles, one row of three buttons; «کاشی» / «شرط نهایی» open their choices under them. */
+.cu__phonebtns { display: none; }
+@media (max-width: 480px) { .cu-centre__left { font-size: 0.62rem; padding: 0.05rem 0.4rem; margin-block-start: 0.1rem; } }
+@media (max-width: 899px) {
+  .cu__track { max-inline-size: none; }
+  .cu__bar--framed { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); padding: var(--space-2); }
+  .cu__bar--framed .cu__grp { padding-inline: 0; border-inline-start: 0; }
+  .cu__bar--framed .cu__cap { display: none; }
+  .cu__bar--framed .cu__grpbody { justify-content: center; }
+  .cu__bar--framed .cu__rollgrp, .cu__bar--framed .cu__actions, .cu__bar--framed .cu__overall { display: none; }
+  .cu__bar--framed[data-open="desert"] .cu__actions, .cu__bar--framed[data-open="final"] .cu__overall { display: grid; order: 2; }
+  .cu__phonebtns { display: grid; order: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+  .cu__phonebtns .btn { block-size: auto; min-block-size: 44px; padding-inline: var(--space-1); gap: 4px; border-radius: var(--radius-sm); font-size: 0.78rem; }
+  .cu__phonebtns .cu-pyramid { margin: 0; inline-size: 1.2rem; block-size: 1.2rem; }
+  .cu__bar--framed .cu-legtile__face { inline-size: 2.6rem; }
+}

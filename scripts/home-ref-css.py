@@ -192,7 +192,7 @@ def drop_fallbacks(css):
 POST = [
     ('box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--brand-cream) 18%,transparent)', 'box-shadow:var(--shadow-ring-felt)'),
     ('background:#20394A', 'background:var(--felt-plate)'),
-    ('border-radius:10px', 'border-radius:calc(var(--radius-sm) + 2px)'),
+    ('border-radius:10px', 'border-radius:var(--radius-pill)'),  # thin bars (weight, rating distribution)
     ('box-shadow:inset 0 0 0 1.5px var(--link)', 'outline:1.5px solid var(--link);outline-offset:-1.5px'),
     ('box-shadow:var(--shadow-ring),0 2px 0 var(--line)', 'box-shadow:var(--shadow-ring)'),
     ('box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--brand-gold) 55%,transparent)',

@@ -3,15 +3,25 @@
 // card first narrows the targets to that card.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, usePieceIds, usePrevious, type GameRendererProps } from '@bg/ui';
-import rM from './art/rM.webp';
-import rS from './art/rS.webp';
-import bM from './art/bM.webp';
-import bS from './art/bS.webp';
-import paper from './art/paper.webp';
-import { TEMPLE, cardById, type OnitamaView, type Piece } from './rules.ts';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePieceIds, usePrevious, type GameRendererProps } from '@bg/ui';
+// Board, pieces and cards: design/games/group-a/art/onitama, copied as-is (the design ships 7 of the 16 card faces).
+import rM from './art/onitama-red-master.png';
+import rS from './art/onitama-red-student.png';
+import bM from './art/onitama-blue-master.png';
+import bS from './art/onitama-blue-student.png';
+import boardArt from './art/onitama-board.png';
+import cardBoar from './art/onitama-card-boar.png';
+import cardCobra from './art/onitama-card-cobra.png';
+import cardElephant from './art/onitama-card-elephant.png';
+import cardFrog from './art/onitama-card-frog.png';
+import cardMantis from './art/onitama-card-mantis.png';
+import cardMonkey from './art/onitama-card-monkey.png';
+import cardRabbit from './art/onitama-card-rabbit.png';
+import { cardById, type OnitamaView, type Piece } from './rules.ts';
 
-const S = 120, M = 26, SIZE = 5 * S + 2 * M;
+const CARD_ART: Record<string, string> = { boar: cardBoar, cobra: cardCobra, elephant: cardElephant, frog: cardFrog, mantis: cardMantis, monkey: cardMonkey, rabbit: cardRabbit };
+const fa = (n: number) => n.toLocaleString('fa-IR');
+const S = 120, M = 20, SIZE = 5 * S + 2 * M;
 type Mv = { card: string; from: number; to: number };
 const gridDist = (a: number, b: number) => Math.hypot((a % 5) - (b % 5), Math.floor(a / 5) - Math.floor(b / 5));
 
@@ -26,6 +36,7 @@ function preview(v: OnitamaView, seat: number, q: GameRendererProps<OnitamaView>
 }
 
 export default function OnitamaRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<OnitamaView>) {
+  const framed = useInFrame() !== null; // the shell draws players, clocks, whose-turn and the move log
   const me = mySeat ?? 0;
   // Undo window: my move (piece, capture, card swap) shows at once; undo clears `queued` and it all glides back.
   const view = preview(served, me, queued);
@@ -74,9 +85,24 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const endText = view.end && { stone: 'استاد زده شد (راه سنگ)', stream: 'استاد به معبد رسید (راه رود)', resign: 'انصراف', timeout: 'اتمام زمان', repetition: 'تکرار سه‌باره — مساوی' }[view.end.kind];
 
+  // Rail card «استاد / شاگرد» (reference): my piece art and the students left on each side.
+  const mine = (t: 'M' | 'S') => `${me === 0 ? 'r' : 'b'}${t}` as Piece;
+  const students = (seat: number) => view.board.filter((p) => p === `${seat === 0 ? 'r' : 'b'}S`).length;
+
   return (
     <div className="oni" data-turn={turnNo} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p>{view.current === mySeat && !view.outcome
+            ? <>اول <b>یک مهره</b> و بعد یک خانهٔ روشن را بزنید، یا اول <b>کارت</b> را بزنید تا فقط حرکت‌های همان کارت پیدا شود.</>
+            : <>برنده کسی است که <b>استاد حریف را بزند</b> یا استاد خود را به <b>معبد حریف</b> برساند.</>}</p>
+          <div className="oni-kinds">
+            <div><img src={ART[mine('M')]} alt="" /><span><b>استاد</b>زدنش یعنی برد</span></div>
+            <div><img src={ART[mine('S')]} alt="" /><span><b>شاگرد</b>{fa(students(me))} شاگرد شما<span className="oni-sep" aria-hidden />{fa(students(1 - me))} شاگرد حریف</span></div>
+          </div>
+        </RailSlot>
+      )}
 
       <div className="oni__hand oni__hand--them" aria-label={`کارت‌های ${who(1 - me)}`}>
         {view.hands[1 - me as 0 | 1].map((id) => <MoveCard key={id} id={id} upside />)}
@@ -86,24 +112,9 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
         <ZoomBoard label="صفحه اونیتاما">
           <svg className="oni-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه اونیتاما" style={{ direction: 'ltr' }}>
             <defs>
-              <linearGradient id="oni-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3a2a22" /><stop offset="1" stopColor="#1a120d" /></linearGradient>
               <filter id="oni-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="5" stdDeviation="4" floodOpacity=".45" /></filter>
             </defs>
-            <rect width={SIZE} height={SIZE} rx="18" fill="url(#oni-frame)" />
-            <image href={paper} x={M} y={M} width={5 * S} height={5 * S} preserveAspectRatio="none" />
-            {Array.from({ length: 6 }, (_, k) => (
-              <g key={k} className="oni-ink">
-                <line x1={M + k * S} y1={M} x2={M + k * S} y2={M + 5 * S} />
-                <line x1={M} y1={M + k * S} x2={M + 5 * S} y2={M + k * S} />
-              </g>
-            ))}
-            {TEMPLE.map((t, seat) => {
-              const { x, y } = xy(t);
-              return <g key={t} className={`oni-temple oni-temple--${seat === 0 ? 'red' : 'blue'}`} aria-hidden="true">
-                <path d={`M${x - 34} ${y - 26} L${x + 34} ${y - 26} M${x - 26} ${y - 14} L${x + 26} ${y - 14} M${x - 20} ${y - 26} L${x - 20} ${y + 30} M${x + 20} ${y - 26} L${x + 20} ${y + 30}`} />
-              </g>;
-            })}
-
+            <image href={boardArt} x="0" y="0" width={SIZE} height={SIZE} preserveAspectRatio="none" />
             {Array.from({ length: 25 }, (_, i) => {
               const { x, y } = xy(i);
               const tg = targets.filter((m) => m.to === i);
@@ -116,7 +127,7 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
                   onClick={() => tapSquare(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapSquare(i); } }}>
                   <rect x={x - S / 2} y={y - S / 2} width={S} height={S} fill="transparent" />
                   {moved && (moved.from === i || moved.to === i) && <rect x={x - S / 2 + 4} y={y - S / 2 + 4} width={S - 8} height={S - 8} className="oni-last" />}
-                  {tg.map((m, k) => <circle key={m.card} cx={x + (tg.length > 1 ? (k ? 14 : -14) : 0)} cy={y} r="13" className={`oni-target oni-target--${cardById(m.card).color}`} />)}
+                  {tg.map((m, k) => <circle key={m.card} cx={x + (tg.length > 1 ? (k ? 14 : -14) : 0)} cy={y} r={view.board[i] ? 44 : 13} className={view.board[i] ? 'oni-target oni-target--cap' : 'oni-target'} />)}
                 </g>
               );
             })}
@@ -167,31 +178,23 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
 
 const pieceFa = (p: Piece, me: number) => `${(p[0] === 'r') === (me === 0) ? 'شما' : 'حریف'} — ${p[1] === 'M' ? 'استاد' : 'شاگرد'}`;
 
-// Pieces and the board paper are the BGA Onitama client art (see DECISIONS.md).
 const ART: Record<Piece, string> = { rM, rS, bM, bS };
 
 function Token({ x, y, p }: { x: number; y: number; p: Piece }) {
-  const w = p[1] === 'M' ? 104 : 90;
-  return <image href={ART[p]} x={x - w / 2} y={y - w / 2 - 4} width={w} height={w} filter="url(#oni-shadow)" />;
+  const w = p[1] === 'M' ? 100 : 90;
+  return <image href={ART[p]} x={x - w / 2} y={y - (w * 70) / 160 - 4} width={w} height={(w * 70) / 80} filter="url(#oni-shadow)" />;
 }
 
 function MoveCard({ id, upside, selectable, selected, onSelect }: { id: string; upside?: boolean; selectable?: boolean; selected?: boolean; onSelect?: () => void }) {
   const c = cardById(id);
-  const cells = new Set(c.moves.map(([dx, dy]) => `${dx},${dy}`));
-  const body = (
+  const art = CARD_ART[id];
+  const body = art ? (
     <>
-      <span className={`oni-card__stamp oni-card__stamp--${c.color}`} aria-hidden="true" />
-      <strong className="oni-card__name">{c.nameFa}</strong>
-      <span className="oni-card__en"><bdi>{c.nameEn}</bdi></span>
-      <span className="oni-card__grid" aria-hidden="true">
-        {Array.from({ length: 25 }, (_, k) => {
-          const dx = (k % 5) - 2, dy = 2 - Math.floor(k / 5);
-          return <i key={k} className={dx === 0 && dy === 0 ? 'is-me' : cells.has(`${dx},${dy}`) ? `is-move is-${c.color}` : ''} />;
-        })}
-      </span>
+      <img src={art} alt="" draggable={false} />
+      <span className="oni-card__cap">{c.nameFa}</span>
     </>
-  );
-  const cls = ['oni-card', upside ? 'oni-card--upside' : '', selected ? 'oni-card--sel' : ''].join(' ');
+  ) : <strong className="oni-card__name">{c.nameFa}</strong>;
+  const cls = ['oni-card', art ? 'oni-card--art' : '', upside && art ? 'oni-card--upside' : '', selected ? 'oni-card--sel' : ''].join(' ');
   const label = `کارت ${c.nameFa}: ${c.moves.map(([dx, dy]) => `${dy > 0 ? `${dy} جلو` : dy < 0 ? `${-dy} عقب` : ''}${dx ? ` ${Math.abs(dx)} ${dx > 0 ? 'راست' : 'چپ'}` : ''}`.trim()).join('، ')}`;
   return selectable
     ? <button type="button" data-flip={`card-${id}`} className={cls} aria-pressed={selected} aria-label={label} onClick={onSelect}>{body}</button>

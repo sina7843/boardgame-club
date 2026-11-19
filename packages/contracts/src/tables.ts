@@ -90,6 +90,10 @@ export const seatView = z.object({
   /** Chosen «لقب» (catalogue key) and this season's league in this game and pace, when placed. */
   titleKey: z.string().nullable().optional(),
   league: leagueSchema.nullable().optional(),
+  /** Current rating in this game and mode (rating mode of the table), when the player has one. */
+  rating: z.number().int().nullable().optional(),
+  /** Running tables: the player has a live table connection (socket) right now. */
+  connected: z.boolean().optional(),
   ready: z.boolean(),
   /** Bot seats only. */
   bot: z.object({ level: botLevelSchema, nameFa: z.string(), avatarKey: avatarKeySchema, style: botStyleSchema }).optional()
@@ -146,7 +150,9 @@ export const publicSummarySchema = z.object({
     strikes: z.number().int().optional(),
     turnOrder: z.number().int().optional(),
     income: z.record(z.string(), z.number()).optional(),
-    power: z.record(z.string(), z.number()).optional()
+    power: z.record(z.string(), z.number()).optional(),
+    /** Extra public panel data for games with their own rail card (handoffs: TM, Brass); never hidden information. */
+    detail: z.custom<object>((v) => typeof v === 'object' && v !== null && !Array.isArray(v)).optional()
   })),
   shared: z.array(z.object({ key: z.string(), label: z.string(), value: z.union([z.number(), z.string()]), max: z.number().optional() })).optional(),
   strikesMax: z.number().int().optional(),
@@ -167,7 +173,11 @@ export const tableSnapshot = z.object({
     summary: publicSummarySchema.nullable(),
     deadline: z.object({ dueAt: z.iso.datetime(), frozen: z.boolean() }).nullable(),
     /** Chess-clock tables: each seat's remaining ms as of `since`; the clock of `running` counts down from then. */
-    clocks: z.object({ left: z.array(z.number()), since: z.iso.datetime(), running: z.number().int().nullable(), initialMs: z.number().int() }).nullable().optional(),
+    clocks: z.object({ left: z.array(z.number()), since: z.iso.datetime(), running: z.number().int().nullable(), initialMs: z.number().int(),
+      /** The running seat has not made its first move: its bank waits, a short first-move countdown runs instead. */
+      first: z.boolean().optional(),
+      /** Nobody moved in time at the start: the game was aborted (no result, no rating change). */
+      aborted: z.boolean().optional() }).nullable().optional(),
     result: outcomeSchema.nullable(),
     tutorial: z.object({
       step: z.number().int(), total: z.number().int(), instructionFa: z.string(), introFa: z.string(),

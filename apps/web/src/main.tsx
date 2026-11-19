@@ -29,6 +29,7 @@ const Settings = lazy(() => import('./pages/Settings.tsx').then((m) => ({ defaul
 const Showcase = lazy(() => import('./pages/Showcase.tsx').then((m) => ({ default: m.Showcase })));
 const Admin = lazy(() => import('./pages/Admin.tsx').then((m) => ({ default: m.Admin })));
 const CreateTable = lazy(() => import('./pages/CreateTable.tsx').then((m) => ({ default: m.CreateTable })));
+const ChessLobby = lazy(() => import('./pages/ChessLobby.tsx').then((m) => ({ default: m.ChessLobby })));
 const OpenTables = lazy(() => import('./pages/OpenTables.tsx').then((m) => ({ default: m.OpenTables })));
 const TablePage = lazy(() => import('./pages/Table.tsx').then((m) => ({ default: m.TablePage })));
 const TableCodePage = lazy(() => import('./games/TableCode.tsx').then((m) => ({ default: m.TableCodePage })));
@@ -75,6 +76,7 @@ const router = createBrowserRouter([
       { path: 'games', element: <Catalog /> },
       { path: 'games/:id', element: <GameDetailPage /> },
       { path: 'wiki', element: <WikiPage /> },
+      { path: 'games/chess/new', element: <ChessLobby /> },
       { path: 'games/:id/new', element: <CreateTable /> },
       { path: 'tables', element: <OpenTables /> },
       { path: 'tables/mine', element: <MyTablesPage /> },

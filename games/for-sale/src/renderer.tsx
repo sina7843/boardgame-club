@@ -3,9 +3,33 @@
 // your hand (and bid stepper) at the bottom.
 import './renderer.css';
 import { useEffect, useId, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
 import type { ForSaleView } from './rules.ts';
 import props from './art/props.webp';
+import p3 from './art/for-sale-property-03.png';
+import p5 from './art/for-sale-property-05.png';
+import p8 from './art/for-sale-property-08.png';
+import p11 from './art/for-sale-property-11.png';
+import p12 from './art/for-sale-property-12.png';
+import p13 from './art/for-sale-property-13.png';
+import p17 from './art/for-sale-property-17.png';
+import p21 from './art/for-sale-property-21.png';
+import p24 from './art/for-sale-property-24.png';
+import p26 from './art/for-sale-property-26.png';
+import p27 from './art/for-sale-property-27.png';
+import p29 from './art/for-sale-property-29.png';
+import q0 from './art/for-sale-cheque-00.png';
+import q2 from './art/for-sale-cheque-02.png';
+import q6 from './art/for-sale-cheque-06.png';
+import q9 from './art/for-sale-cheque-09.png';
+import q12 from './art/for-sale-cheque-12.png';
+import q14 from './art/for-sale-cheque-14.png';
+import coinArt from './art/for-sale-coin.png';
+
+// Printed faces from design/games/group-c/art/for-sale. The handoff ships only a sample of values; the rest keep the
+// older printed sprite (properties) or the drawn slip (cheques) until the full set arrives.
+const PROP_ART: Record<number, string> = { 3: p3, 5: p5, 8: p8, 11: p11, 12: p12, 13: p13, 17: p17, 21: p21, 24: p24, 26: p26, 27: p27, 29: p29 };
+const CHEQUE_ART: Record<number, string> = { 0: q0, 2: q2, 6: q6, 9: q9, 12: q12, 14: q14 };
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const TIER = ['کپر', 'کلبه', 'خانه', 'آپارتمان', 'برج', 'کاخ'];
@@ -16,6 +40,11 @@ const tier = (v: number) => Math.min(5, Math.floor((v - 1) / 5));
 
 export function Prop({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; flipExit?: string }) {
   const clip = useId();
+  if (PROP_ART[v]) return (
+    <span className={['fs-card', 'fs-card--prop', 'fs-card--art', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`ملک ${fa(v)} (${TIER[tier(v)]})`}>
+      <img src={PROP_ART[v]} alt="" aria-hidden="true" draggable={false} />
+    </span>
+  );
   return (
     <span className={['fs-card', 'fs-card--prop', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`ملک ${fa(v)} (${TIER[tier(v)]})`}>
       <svg viewBox="-45 -62 90 124" aria-hidden="true" direction="ltr">
@@ -30,6 +59,11 @@ export function Prop({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; 
 }
 
 export function Cheque({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; flipExit?: string }) {
+  if (CHEQUE_ART[v]) return (
+    <span className={['fs-card', 'fs-card--cheque', 'fs-card--art', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={v ? `چک ${fa(v)} هزار` : 'چک صفر'}>
+      <img src={CHEQUE_ART[v]} alt="" aria-hidden="true" draggable={false} />
+    </span>
+  );
   return (
     <span className={['fs-card', 'fs-card--cheque', `fs-card--${size}`, v === 0 ? 'fs-card--void' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={v ? `چک ${fa(v)} هزار` : 'چک صفر'}>
       <svg viewBox="-62 -36 124 72" aria-hidden="true" direction="ltr">
@@ -49,7 +83,7 @@ function Pop({ v, className = '' }: { v: number; className?: string }) {
   const pop = usePop(v);
   return <b key={v} className={`${className} ${pop}`}>{fa(v)}</b>;
 }
-const Coins = ({ n }: { n: number }) => <span className="fs-coins" aria-label={`${fa(n)} سکه`}><i aria-hidden="true" /><Pop v={n} /></span>;
+const Coins = ({ n }: { n: number }) => <span className="fs-coins" aria-label={`${fa(n)} سکه`}><img src={coinArt} alt="" aria-hidden="true" draggable={false} /><Pop v={n} /></span>;
 const chequeId = (market: number[], i: number) => `q-${market[i]}-${market.slice(0, i).filter((x) => x === market[i]).length}`;
 
 export default function ForSaleRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<ForSaleView>) {
@@ -95,13 +129,19 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
     const i = x ? prev.indexOf(x.cheque) : -1;
     return i >= 0 ? [chequeId(prev, i)] : [];
   };
+  const framed = useInFrame() !== null;
   const refund = me >= 0 ? view.bids[me]! - Math.floor(view.bids[me]! / 2) : 0;
 
   return (
     <div className="fs" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p>{buying ? 'کنار کشیدن ارزان‌ترین ملک را می‌دهد و نصف پیشنهادتان (رو به پایین) برمی‌گردد. اگر سکه کافی نیست فقط کنار می‌کشید.' : 'همه هم‌زمان و مخفیانه یک ملک می‌فروشند؛ ملک بزرگ‌تر چک بزرگ‌تر می‌گیرد.'}</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      {!view.outcome && <ul className="fs__players" aria-label="بازیکنان">
+      {!framed && !view.outcome && <ul className="fs__players" aria-label="بازیکنان">
         {order.map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['fs-pl', view.current === s && !view.outcome ? 'fs-pl--turn' : '', view.passed[s] && buying ? 'fs-pl--passed' : '', s === mySeat ? 'fs-pl--me' : ''].join(' ')}>
             <bdi className="fs-pl__name">{who(s)}</bdi>
@@ -124,7 +164,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
         </section>
       )}
 
-      {last && !view.outcome && (
+      {!framed && last && !view.outcome && (
         <p className="fs__last" role="status" key={view.seq}>
           {last.kind === 'take'
             ? <><bdi>{who(last.seat)}</bdi> ملک <b>{fa(last.card)}</b> را برداشت{last.paid ? <> و {fa(last.paid)} سکه داد</> : ' (رایگان)'}</>
@@ -132,7 +172,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
         </p>
       )}
 
-      {view.outcome && (
+      {!framed && view.outcome && (
         <ul className="fs__final" aria-label="حساب آخر">
           {view.outcome.placements.map(({ seat: s, place }) => (
             <li key={s} className={place === 1 ? 'fs__win' : ''}><b className="fs__place">{fa(place)}</b><bdi className="fs-pl__name">{who(s)}</bdi>

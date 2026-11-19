@@ -9,7 +9,12 @@ export const enqueueBody = z.strictObject({
   pace: paceSchema,
   competition: competitionSchema.default('friendly'),
   playerCount: z.number().int().min(1).max(16),
-  turnSeconds: z.number().int().positive()
+  turnSeconds: z.number().int().positive(),
+  /**
+   * Live games with a clock option (chess): queue for this «m+0» control instead of a per-move time. The queue is keyed
+   * by the bank (turnSeconds = m × 60) and the matched table gets the clock (see createMatchTable).
+   */
+  clock: z.string().regex(/^\d{1,2}\+0$/).optional()
 });
 export type EnqueueBody = z.infer<typeof enqueueBody>;
 
@@ -111,7 +116,7 @@ export const EMOTE_BODY = /^:(em\.\d{1,3}):$/;
 export const messageEditBody = z.strictObject({ body: z.string().min(1).max(1000) });
 /** Own messages can be edited for this long after sending. */
 export const MESSAGE_EDIT_WINDOW_SECONDS = 120;
-export const REACTION_EMOJIS = ['👍', '😂', '😮', '😢', '🔥', '👏'] as const;
+export const REACTION_EMOJIS = ['👍', '😂', '😮', '😢', '🔥', '👏', '🎉'] as const;
 export const reactionBody = z.strictObject({ emoji: z.enum(REACTION_EMOJIS) });
 export const muteChatBody = z.strictObject({ muted: z.boolean() });
 export const reactionItem = z.object({ emoji: z.string(), count: z.number().int(), mine: z.boolean() });

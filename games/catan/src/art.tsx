@@ -10,19 +10,44 @@ import hexFields from './art/hex-fields.webp';
 import hexMountains from './art/hex-mountains.webp';
 import hexDesert from './art/hex-desert.webp';
 import harbor from './art/harbor.webp';
-import robber from './art/robber.webp';
 import ocean from './art/bd-ocean.webp';
-import resLumber from './art/res-lumber.webp';
-import resBrick from './art/res-brick.webp';
-import resWool from './art/res-wool.webp';
-import resGrain from './art/res-grain.webp';
-import resOre from './art/res-ore.webp';
-import devKnight from './art/dev-knight.webp';
-import devVp from './art/dev-vp.webp';
-import devRoad from './art/dev-road.webp';
-import devMonopoly from './art/dev-monopoly.webp';
-import devPlenty from './art/dev-plenty.webp';
-import cardBack from './art/card-back.webp';
+import resLumber from './art/catan-res-wood.png';
+import resBrick from './art/catan-res-brick.png';
+import resWool from './art/catan-res-wool.png';
+import resGrain from './art/catan-res-grain.png';
+import resOre from './art/catan-res-ore.png';
+import devKnight from './art/catan-dev-knight.png';
+import devVp from './art/catan-dev-vp.png';
+import devRoad from './art/catan-dev-roads.png';
+import devMonopoly from './art/dev-monopoly.webp'; // no monopoly card in the handoff art: placeholder, listed in the report
+import devPlenty from './art/catan-dev-plenty.png';
+import cardBack from './art/catan-dev-back.png';
+import robberPng from './art/catan-robber.png';
+import boardPng from './art/catan-board.png';
+import costPng from './art/catan-cost.png';
+import roadB from './art/catan-road-b.png';
+import roadO from './art/catan-road-o.png';
+import roadW from './art/catan-road-w.png';
+import setB from './art/catan-set-b.png';
+import setO from './art/catan-set-o.png';
+import setW from './art/catan-set-w.png';
+import cityB from './art/catan-city-b.png';
+import cityO from './art/catan-city-o.png';
+import cityW from './art/catan-city-w.png';
+import die1 from './art/catan-die-1.png';
+import die3 from './art/catan-die-3.png';
+import die4 from './art/catan-die-4.png';
+import die5 from './art/catan-die-5.png';
+
+/** Piece art by seat (0 red, 1 blue, 2 white, 3 orange). The handoff has no red pieces: seat 0 reuses blue, hue-shifted (placeholder). */
+const PIECE = [
+  { road: roadB, set: setB, city: cityB, hue: 150 }, { road: roadB, set: setB, city: cityB, hue: 0 },
+  { road: roadW, set: setW, city: cityW, hue: 0 }, { road: roadO, set: setO, city: cityO, hue: 0 }
+];
+export const pieceArt = (seat: number, kind: 'road' | 'set' | 'city') => ({ src: PIECE[seat]![kind], style: PIECE[seat]!.hue ? { filter: `hue-rotate(${PIECE[seat]!.hue}deg)` } : undefined });
+export const BOARD_PNG = boardPng;
+export const COST_PNG = costPng;
+const DIE_PNG: Record<number, string> = { 1: die1, 3: die3, 4: die4, 5: die5 }; // 2 and 6 are missing: the CSS face stays for them
 
 const HEX: Record<Terrain, string> = { forest: hexForest, hills: hexHills, pasture: hexPasture, fields: hexFields, mountains: hexMountains, desert: hexDesert };
 const RES: Record<Res, string> = { lumber: resLumber, brick: resBrick, wool: resWool, grain: resGrain, ore: resOre };
@@ -81,7 +106,7 @@ export function HarborArt({ x, y }: { x: number; y: number }) {
 
 /** Robber figure; its base sits on the origin, ~40 units tall. */
 export function RobberPawn() {
-  return <image className="ct-robber__body" href={robber} x="-20" y="-30" width="40" height="40" />;
+  return <image className="ct-robber__body" href={robberPng} x="-13" y="-34" width="26" height="42" />;
 }
 
 /** Painted resource card art as a square image (alt is empty: the parent carries the label). */
@@ -93,6 +118,7 @@ const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0,
 /** CSS-drawn die face (3x3 pip grid). Decorative: the parent carries the label. */
 /** A die thrown in (bg-roll, remount per roll); `pending` tumbles with the pips hidden until the server's result. */
 export function DieFace({ value, red, pending }: { value: number; red?: boolean; pending?: boolean }) {
+  if (!pending && !red && DIE_PNG[value]) return <img aria-hidden="true" className="ct-die ct-die--img bg-roll" src={DIE_PNG[value]} alt="" draggable={false} />;
   return (
     <span aria-hidden="true" className={`ct-die${red ? ' ct-die--red' : ''} ${pending ? 'bg-tumble' : 'bg-roll'}`} style={{ ['--i' as string]: red ? 1 : 0 }}>
       {Array.from({ length: 9 }, (_, k) => <i key={k} className={PIPS[value]?.includes(k) ? 'ct-die__pip' : ''} data-pip="" />)}

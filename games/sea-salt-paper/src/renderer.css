@@ -7,7 +7,7 @@
 .sp2__round { margin: 0; font-size: 0.82rem; color: #cfe3ee; }
 
 .sp2-card { position: relative; display: inline-grid; justify-items: center; align-content: center; gap: 0.1rem; border-radius: 6px; color: #fff;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--p) 75%, white 25%) 0 50%, var(--p) 50%); box-shadow: 0 3px 6px -3px #000, inset 0 0 0 1px rgb(255 255 255 / 0.35); }
+  background: var(--p); box-shadow: 0 3px 6px -3px #000, inset 0 0 0 1px rgb(255 255 255 / 0.35); }
 .sp2-c--white.sp2-card, .sp2-c--yellow.sp2-card, .sp2-c--sky.sp2-card { color: var(--ink); }
 .sp2-card--md { inline-size: 3.4rem; block-size: 4.6rem; }
 .sp2-card--sm { inline-size: 1.6rem; block-size: 2.1rem; border-radius: 4px; }
@@ -32,7 +32,7 @@
 .sp2-deck:disabled, .sp2-pile:disabled { cursor: default; }
 .sp2-deck__back { inline-size: 3.4rem; block-size: 4.6rem; border-radius: 6px; background: repeating-linear-gradient(45deg, #f4efe2 0 5px, #e6dfcc 5px 10px); box-shadow: 0 3px 6px -3px #000, inset 0 0 0 2px #c9bfa6; }
 .sp2-pile--can { box-shadow: 0 0 0 2px #ffd98a; }
-.sp2-pile__empty { display: grid; place-items: center; inline-size: 3.4rem; block-size: 4.6rem; border-radius: 6px; border: 2px dashed rgb(255 255 255 / 0.4); }
+.sp2-pile__empty { display: grid; place-items: center; inline-size: 4.4rem; aspect-ratio: 149 / 208; border-radius: 6px; background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); color: var(--felt-muted); }
 
 .sp2__choice { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); animation: sp2-drop 0.3s ease-out both; }
 .sp2__note { font-size: 0.82rem; color: #cfe3ee; }
@@ -54,3 +54,33 @@
 
 /* v2: BGA origami photos (sprite of 10 × 6 squares) */
 .sp2-card__art { display: block; background-size: 1000% 600%; background-repeat: no-repeat; }
+
+.sp2-card--face { background: none; box-shadow: none; display: inline-block; line-height: 0; }
+.sp2-card--face img { display: block; inline-size: 100%; block-size: auto; border-radius: 6px; box-shadow: 0 2px 0 rgb(0 0 0 / 0.3), 0 10px 16px -8px rgb(0 0 0 / 0.6); }
+.sp2-card--face.sp2-card--md { inline-size: 4.4rem; block-size: auto; }
+.sp2-card--face.sp2-card--sm { inline-size: 1.6rem; block-size: auto; }
+.sp2-deck__img { inline-size: 4.4rem; block-size: auto; border-radius: 6px; box-shadow: 0 2px 0 rgb(0 0 0 / 0.3), 0 10px 16px -8px rgb(0 0 0 / 0.6); }
+
+/* Inside the table frame: the felt, seat strip, scores and log are the shell's. */
+.sp2--framed { color: var(--felt-ink); }
+.sp2--framed .sp2__sea { background: none; box-shadow: none; padding: 0; gap: 1.2rem; }
+.sp2--framed .sp2-deck, .sp2--framed .sp2-pile { background: none; color: var(--felt-muted); min-block-size: 44px; }
+.sp2--framed .sp2-pile--can { box-shadow: 0 0 0 3px var(--felt-gold); }
+.sp2--framed .sp2-pick--on { box-shadow: 0 0 0 3px var(--felt-gold); }
+.sp2--framed .sp2-pl { background: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.4rem; padding: 0; }
+.sp2--framed .sp2__players--framed { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; justify-content: center; }
+.sp2--framed .sp2__choice { background: rgb(250 245 236 / 0.07); box-shadow: inset 0 0 0 1.5px var(--felt-gold); }
+.sp2--framed .sp2__note, .sp2--framed .sp2__pts { color: var(--felt-muted); }
+.sp2--framed .sp2__pts b { color: var(--felt-gold); }
+.sp2--framed .sp2__me { border-block-start: 0; }
+.sp2--framed .sp2-hint { box-shadow: 0 0 0 3px var(--felt-gold) !important; }
+.sp2--framed .sp2-pick { min-inline-size: 44px; min-block-size: 44px; }
+/* Cards without a printed face and empty piles keep the printed card's size and shape (QA round 2: they looked like odd placeholders). */
+.sp2-card--md:not(.sp2-card--face) { inline-size: 4.4rem; block-size: auto; aspect-ratio: 149 / 208; }
+@media (max-width: 600px) { .sp2--framed .sp2-card--md, .sp2--framed .sp2-deck__img, .sp2--framed .sp2-pile__empty { inline-size: 3.2rem; } }
+
+/* QA round 3: a card with no printed face (piles and hand) shows its picture across the full card width, the name band
+   under it, instead of a small thumbnail inside a coloured frame. */
+.sp2-card--md:not(.sp2-card--face) { align-content: space-between; padding: 0 0 0.25rem; overflow: hidden; }
+.sp2-card--md:not(.sp2-card--face) .sp2-card__art { inline-size: 100%; border-radius: 6px 6px 0 0; box-shadow: none; }
+.sp2-card--md:not(.sp2-card--face) small { font-size: 0.7rem; }

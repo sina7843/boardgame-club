@@ -23,7 +23,7 @@ async function decide(p: Page, n: number): Promise<ReturnType<Page['locator']> |
     const b = btn(name);
     if (await enabled(b)) return b.first();
   }
-  const mortgage = panel.getByRole('button', { name: /^رهن|^فروش ساختمان/ });
+  const mortgage = p.locator('.am-panel--decide, .am-debt').getByRole('button', { name: /^رهن|^فروش ساختمان/ });
   if (await enabled(mortgage)) return mortgage.first();
   if (await enabled(btn(/^اعلام ورشکستگی/))) return btn(/^اعلام ورشکستگی/).first();
   const build = p.locator('details.am-panel').getByRole('button', { name: /^ساخت/ });

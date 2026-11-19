@@ -39,25 +39,48 @@ function TicketStatus({ t, onChange, game }: { t: TicketView; onChange: () => vo
     </Card>
   );
   if (t.status === 'queued') {
+    // ponytail: «۱ از ۳ حریف پیدا شد» is omitted (the ticket carries no found-count); the rating bar is centred on «شما» (no own rating on the ticket).
     return (
-      <section className="pg-stack" aria-labelledby="q-h">
-        {summary}
-        <div className="pg-center">
-          <div className="pg-radar" aria-hidden><i /><i /><i /><b /><em /><span><Avatar size="lg" you initials={me?.displayName.charAt(0)} {...(me ? userIdentity(me).avatar : {})} /></span></div>
-          <span className="t-num-xl bgv-num" role="timer" aria-label="زمان انتظار">{mmss(waited)}</span>
-          <h2 id="q-h" className="t-title" style={{ margin: 0 }}>در صف «{t.gameNameFa}»، دنبال حریف هم‌سطح می‌گردیم</h2>
-        </div>
-        <Card>
-          <div className="bgv-row"><b className="t-label" style={{ flex: 1 }}>دامنه مهارت</b><Badge tone="info" icon="arrow-up-right">در حال باز شدن</Badge></div>
-          <p className="t-body-sm" style={{ margin: 0 }}>الان <bdi dir="ltr">± {faNum(t.window)}</bdi> امتیاز. هرچه بیشتر منتظر بمانید، دامنه مهارت تا سقف مشخص بازتر می‌شود. بازیکن تازه با امتیاز پایه ۱۵۰۰ سنجیده می‌شود.</p>
-        </Card>
-        {game?.botAvailable && waited >= BOT_OFFER_SECONDS && (
-          <Card raised title="بازی با ربات">
-            <p className="t-body-sm bgv-muted">حریف آنلاین پیدا نشد. می‌خواهید تا آن موقع با ربات بازی کنید؟ با شروع بازی، از صف خارج می‌شوید.</p>
-            <BotPlay gameId={t.gameId} minPlayers={t.playerCount} maxPlayers={t.playerCount} players={t.playerCount} />
+      <section className="pg-qm" aria-labelledby="q-h">
+        <div className="pg-stack">
+          <Card>
+            <div className="pg-center">
+              <div className="pg-radar" aria-hidden><i /><i /><i /><b /><em /><span><Avatar size="lg" you initials={me?.displayName.charAt(0)} {...(me ? userIdentity(me).avatar : {})} /></span></div>
+              <span className="t-num-xl bgv-num" role="timer" aria-label="زمان انتظار">{mmss(waited)}</span>
+              <h2 id="q-h" className="t-title" style={{ margin: 0 }}>در صف «{t.gameNameFa}»، دنبال حریف هم‌سطح می‌گردیم</h2>
+            </div>
           </Card>
-        )}
-        <Button variant="leave" block onClick={cancel}>لغو جست‌وجو</Button>
+          {game?.botAvailable && waited >= BOT_OFFER_SECONDS && (
+            <Card raised title="بازی با ربات">
+              <p className="t-body-sm bgv-muted">حریف آنلاین پیدا نشد. می‌خواهید تا آن موقع با ربات بازی کنید؟ با شروع بازی، از صف خارج می‌شوید.</p>
+              <BotPlay gameId={t.gameId} minPlayers={t.playerCount} maxPlayers={t.playerCount} players={t.playerCount} />
+            </Card>
+          )}
+        </div>
+        <div className="pg-stack">
+          <Card title="این جستجو">
+            <div className="pg-stack">
+              <div className="bgv-row">
+                <img className="bgv-box bgv-box--sm pg-thumb" style={{ inlineSize: 64, blockSize: 36 }} src={`/covers/box/${t.gameId}.webp`} alt="" />
+                <b className="t-title" style={{ flex: 1 }}>{t.gameNameFa}</b>
+                <Button size="sm" onClick={cancel}>تغییر بازی</Button>
+              </div>
+              <div className="bgv-chips">
+                <Badge tone="neutral">{PACE_FA[t.pace]}</Badge>
+                <Badge tone="neutral">{t.competition === 'ranked' ? 'رتبه‌دار' : 'دوستانه'}</Badge>
+                <Badge tone="neutral">{faNum(t.playerCount)} نفر</Badge>
+                <Badge tone="neutral">{durationFa(t.turnSeconds)} برای هر نوبت</Badge>
+              </div>
+              <div>
+                <div className="bgv-row"><b className="t-label" style={{ flex: 1 }}>بازهٔ امتیاز حریف</b><Badge tone="info" icon="arrow-up-right">در حال باز شدن</Badge></div>
+                <div className="pg-qm__range" role="img" aria-label={`بازهٔ امتیاز حریف: ${faNum(t.window)} امتیاز بالاتر و پایین‌تر از شما`}><i /></div>
+                <div className="pg-qm__ends"><bdi dir="ltr">− {faNum(t.window)}</bdi><b>شما</b><bdi dir="ltr">+ {faNum(t.window)}</bdi></div>
+              </div>
+              <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>هرچه بیشتر منتظر بمانید، بازه تا سقف مشخص بازتر می‌شود. بازیکن تازه با امتیاز پایه ۱۵۰۰ سنجیده می‌شود.</p>
+            </div>
+          </Card>
+          <Button variant="leave" block onClick={cancel}>لغو جست‌وجو</Button>
+        </div>
       </section>
     );
   }
@@ -177,7 +200,7 @@ export function QuickMatch() {
     <>
       <PageTabs group="tables" />
       <PageHead title="بازی سریع" sub="بازی و حالت را انتخاب کنید؛ «زنده» یعنی همه هم‌زمان آنلاین‌اند و «نوبتی» یعنی هر کس در مهلت خودش حرکت می‌کند. قبل از شروع هر دو طرف آمادگی را تأیید می‌کنند." />
-      <div className="pg-stack" style={{ maxInlineSize: 640 }}>
+      <div className="pg-stack" style={active?.status === 'queued' ? undefined : { maxInlineSize: 640 }}>
         {active ? <TicketStatus t={active} onChange={reload} game={games.data.items.find((g) => g.id === active.gameId)} /> : (
           <>
             {recent && <TicketStatus t={recent} onChange={reload} />}

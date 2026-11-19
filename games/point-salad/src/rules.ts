@@ -211,6 +211,7 @@ export const pointSaladModule: GameModule<PointSaladState, PointSaladAction, Poi
         ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
       })),
       shared: [{ key: 'deck', label: 'دسته', value: s.piles.reduce((a, p) => a + p.length, 0) }],
+      moves: s.last ? [{ seat: s.last.seat, text: `${s.last.kind === 'rule' ? 'یک دستور برداشت' : `${s.last.took.length.toLocaleString('fa-IR')} سبزی برداشت`}${s.last.flipped !== null ? '، یک دستور را برگرداند' : ''}` }] : [],
       ...(sc.filter((x) => x === top).length === 1 && top > 0 ? { leaderSeat: sc.indexOf(top) } : {})
     };
   },

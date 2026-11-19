@@ -54,8 +54,13 @@
 .hs-pl__bid { display: flex; flex-wrap: wrap; gap: 0.2rem; justify-content: center; }
 .hs-pl__won { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; }
 
-.hs__me { display: grid; gap: 0.6rem; justify-items: center; padding-block: 0.6rem 0.2rem; border-block-start: 1px dashed rgb(217 181 106 / 0.35); }
-.hs__fan { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.hs__me { display: grid; gap: 0.6rem; justify-items: center; padding-block: 0.6rem 0.2rem; }
+/* Banknotes (QA round 3): the value is printed across the middle of the note, so notes overlap by at most a quarter and wrap
+   to a second row before that; a picked note rises without being lifted above its neighbours. Desktop keeps a tight row. */
+.hs__fan { --w: 3.6rem; display: flex; flex-wrap: wrap; row-gap: 0.7rem; justify-content: center; inline-size: 100%; padding-block-start: 0.6rem; }
+.hs__fan > .hs-pick { flex: none; position: relative; min-inline-size: 0; }
+.hs__fan > .hs-pick + .hs-pick { margin-inline-start: max(-0.9rem, min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w)))); }
+@media (max-width: 600px) { .hs__fan { --w: 3rem; } .hs__fan .hs-note--img.hs-note--md { inline-size: 3rem; } }
 .hs-pick { padding: 0; border: 0; background: transparent; border-radius: 7px; line-height: 0; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
 .hs-pick:disabled { cursor: default; opacity: 0.8; }
 .hs-pick--on { transform: translateY(-8px); box-shadow: 0 0 0 3px var(--gold), 0 8px 14px -6px rgb(217 181 106 / 0.8); }
@@ -67,3 +72,29 @@
 @keyframes hs-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .hs *, .hs__last { animation: none !important; transition: none !important; } }
 .hs-pl__money { display: inline-block; }
+
+/* Inside the shared table frame: 44px touch targets for the banknote fan. */
+.hs-pick { min-block-size: 2.75rem; min-inline-size: 2.75rem; display: inline-grid; place-items: center; }
+
+/* Delivered art: status cards (116 x 153) and banknotes (66 x 46) are whole pictures. */
+.hs-card.hs-card--img { background: none; box-shadow: none; overflow: visible; }
+.hs-card--img::after { display: none; }
+.hs-card__face { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.hs-note.hs-note--img { background: none; box-shadow: none; border-radius: 0; }
+.hs-note--img img { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.hs-note--img.hs-note--md { inline-size: 3.6rem; block-size: auto; aspect-ratio: 66 / 46; }
+.hs-note--img.hs-note--sm { inline-size: 2.2rem; block-size: auto; aspect-ratio: 66 / 46; }
+
+/* QA round 4: desktop = one tight row of touching notes; phones = two balanced rows with no overlap (every value readable,
+   no lone note on a second row). A picked or hinted note rises with an inner ring, never a ring that enlarges it. */
+/* QA round 5: the printed note is 52 x 34 inside a 66 x 46 transparent image, so neighbours touch at -14/66 of the width and
+   the two values without art (6, 12) are drawn at that same printed size. The ring follows the printed edge. */
+.hs__fan { flex-wrap: nowrap; }
+.hs__fan > .hs-pick + .hs-pick { margin-inline-start: calc(var(--w) * -14 / 66); }
+.hs__fan .hs-note:not(.hs-note--img) { box-sizing: border-box; inline-size: calc(var(--w) * 52 / 66); block-size: calc(var(--w) * 34 / 66); margin: calc(var(--w) * 6 / 66) calc(var(--w) * 7 / 66); }
+.hs__fan .hs-pick--on { z-index: 1; box-shadow: none; outline: 2px solid var(--felt-gold); outline-offset: -6px; }
+.hs__fan .hs-hint { box-shadow: none; outline: 2px dashed var(--felt-gold); outline-offset: -6px; animation: none; }
+@media (max-width: 600px) {
+  .hs__fan { display: grid; grid-template-columns: repeat(var(--cols), auto); gap: 0.6rem 0.3rem; justify-content: center; }
+  .hs__fan > .hs-pick + .hs-pick { margin-inline-start: 0; }
+}

@@ -87,7 +87,7 @@ test('three players set up Risk and play regular turns', async ({ browser }, inf
   expect(ends).toBe(TURNS);
   expect(seen.has('place')).toBe(true);
   // Hidden information: card hands are counts for the others.
-  for (const p of pages) await expect(p.locator('.rk-players')).toBeVisible();
+  for (const p of pages) await expect(p.locator('.gf-seat').first()).toBeVisible(); // frame rail replaces the player panel
   for (const [k, p] of pages.entries()) await p.screenshot({ path: shot(info.project.name, `turns-${k}`), fullPage: true });
   test.info().annotations.push({ type: 'moves', description: [...seen].join(',') });
   for (const p of pages) await p.context().close();

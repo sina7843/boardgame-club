@@ -623,6 +623,22 @@ export const unoModule: GameModule<UnoState, UnoAction, UnoView> = {
         strikes: s.timeouts[seat] ?? 0
       })),
       shared: [{ key: 'draw', label: 'دسته', value: s.draw.length }],
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        const fa = (n: number) => n.toLocaleString('fa-IR');
+        const col = (c: Card) => (c.color ? ` ${{ r: 'قرمز', y: 'زرد', g: 'سبز', b: 'آبی' }[c.color]}` : '');
+        switch (e.t) {
+          case 'play': return [{ seat: e.seat, text: `${{ num: fa(e.card.value ?? 0), skip: 'ردشدن', rev: 'برگشت', d2: '+۲', wild: 'رنگی', wd4: 'رنگی +۴' }[e.card.kind]}${col(e.card)}${e.uno ? '، اونو' : ''}` }];
+          case 'draw': return e.n ? [{ seat: e.seat, text: `${fa(e.n)} کارت کشید` }] : [];
+          case 'pass': return [{ seat: e.seat, text: 'نوبت را تمام کرد' }];
+          case 'skip': return [{ seat: e.seat, text: 'نوبتش سوخت' }];
+          case 'caught': return [{ seat: e.seat, text: 'اونو نگفت و جریمه شد' }];
+          case 'challenge': return [{ seat: e.by, text: 'به +۴ اعتراض کرد' }];
+          case 'timeout': return [{ seat: e.seat, text: 'زمانش تمام شد' }];
+          case 'left': return [{ seat: e.seat, text: 'کنار رفت' }];
+          case 'handEnd': return [{ seat: e.winner, text: 'دست را برد' }];
+          default: return [];
+        }
+      }).slice(-40),
       strikesMax: MAX_TIMEOUTS,
       ...(s.target !== null && top > 0 && s.scores.filter((v) => v === top).length === 1 ? { leaderSeat: s.scores.indexOf(top) } : {})
     };

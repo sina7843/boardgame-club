@@ -4,7 +4,7 @@
 .ct {
   --ct-ink: #2a2520; --ct-token: #f6efdc; --ct-hot: #b3261e; --ct-sea: #2a6f97;
   --ct-brick: #c4683b; --ct-lumber: #2f6b3a; --ct-wool: #93c463; --ct-grain: #e3bf4a; --ct-ore: #8b919c;
-  display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size;
+  display: grid; gap: var(--sp-4); min-inline-size: 0; inline-size: 100%; container-type: inline-size;
 }
 .ct__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); color: var(--text-2); font-size: var(--fs-sm); }
 .ct-help { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
@@ -172,7 +172,6 @@
 /* Phone held sideways: island and action panel side by side, island fits the screen height. */
 @media (orientation: landscape) and (max-height: 560px) {
   .ct-main { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
-  .ct-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
 }
 
 /* ---- Illustrated pass: cartographer's island. Sandy shore + foam, gilded panels, ivory build cards. ---- */
@@ -229,4 +228,67 @@
   .ct-player--me { grid-template-columns: minmax(0, 1fr) minmax(0, 26rem); align-items: start; column-gap: var(--sp-4); }
   .ct-player--me > :not(.ct-costcard) { grid-column: 1; }
   .ct-player--me .ct-costcard { grid-column: 2; grid-row: 1 / span 4; margin: 0; }
+}
+
+/* Handoff PNG art: dice, cost card; inside the shared frame the shell owns the felt, seats and log. */
+.ct-die--img { inline-size: 2rem; block-size: 2rem; display: inline-block; object-fit: contain; background: none; box-shadow: none; }
+.ct-costcard { inline-size: min(100%, 22rem); block-size: auto; display: block; margin-inline: auto; }
+.ct--framed { color: var(--felt-ink); }
+
+/* Framed: the island fits the felt (never taller than the stage), the bank is a column beside it. */
+.ct--framed { gap: var(--space-2); }
+.ct--framed .ct-board-wrap { grid-template-columns: minmax(0, 1fr) auto; align-items: start; justify-items: center; }
+.ct--framed .ct-board { max-inline-size: min(720px, 100%); }
+@media (min-width: 900px) { .ct--framed .ct-board { max-inline-size: min(720px, max(280px, calc(var(--gf-b, 720px) - 130px))); } }
+.ct--framed .ct-bank { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-md); background: var(--felt-plate); font-size: var(--fs-sm); }
+.ct--framed .ct-bank .ct-mini { justify-content: space-between; gap: var(--space-2); }
+.ct--framed .ct-costcard { margin: 0; }
+
+/* Board aspect for the frame stage height cap; below 1 leaves room for the resource hand under the board. */
+.ct { --zb-aspect: 0.72; }
+
+/* Round 2: the frame caps a ZoomBoard at the whole stage height, which pushed «منابع شما» to a hairline under the
+   felt. Catan keeps a row for the hand (reference: board ~430px with the hand row below it). */
+@media (min-width: 900px) {
+  .ct--framed .ct-main .zb { max-inline-size: calc((100cqb - 3.5rem - 9rem) * var(--zb-aspect, 1)); }
+  .ct--framed .ct-hand .ct-cards { flex-wrap: nowrap; }
+}
+
+/* Round 3 (reference §1): side column = bank as a 2 × 3 card grid (five resources + development deck), dice, the two
+   award cards; your resource cards at about reference size, a count on each, hidden at zero; the island larger (the
+   hand row is now small, so the cap reserves less). */
+.ct-rack { display: grid; gap: var(--space-3); justify-items: center; align-content: start; }
+.ct-bankgrid { list-style: none; margin: 0; padding: var(--space-2); display: grid; grid-template-columns: repeat(2, 2.6rem); gap: var(--space-2); border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.ct-bankcard { position: relative; display: grid; justify-items: center; gap: 2px; line-height: 0; }
+.ct-bankcard > span, .ct-bankcard > img { display: block; inline-size: 2.6rem; aspect-ratio: 2 / 3; overflow: hidden; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }
+.ct-bankcard > span svg, .ct-bankcard > span img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.ct-bankcard > img { object-fit: cover; }
+.ct-bankcard b { line-height: 1.2; font-size: 12px; color: var(--felt-ink); }
+.ct-rack .ct-dice { color: var(--felt-ink); }
+.ct-awards { display: grid; grid-template-columns: repeat(2, 3.4rem); gap: var(--space-2); }
+.ct-award { display: grid; justify-items: center; gap: 2px; text-align: center; }
+.ct-award img { inline-size: 100%; block-size: auto; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }
+.ct-award small { font-size: 11px; line-height: 1.3; color: var(--felt-muted); }
+.ct--framed { --zb-aspect: 1; }
+.ct--framed .ct-hand .ct-cards { display: flex; gap: var(--space-2); justify-content: center; }
+.ct--framed .ct-card { inline-size: 4.2rem; }
+.ct--framed .ct-card[hidden] { display: none; }
+@media (min-width: 900px) {
+  .ct--framed .ct-main .zb { max-inline-size: calc((100cqb - 3.5rem - 8rem) * var(--zb-aspect, 1)); }
+  .ct--framed .ct-board { max-inline-size: min(720px, 100%); }
+}
+
+/* Round 4: dice always visible (blank before the first roll); award captions on one line; phones: the island full
+   width with the bank / dice / awards as a row under it and the hand below. */
+.ct-die--blank { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.ct-awards { grid-template-columns: repeat(2, 4.6rem); }
+.ct-award small { white-space: nowrap; font-size: 10.5px; }
+@media (max-width: 899px) {
+  .ct--framed .ct-board-wrap { grid-template-columns: 1fr; }
+  .ct-rack { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-2); }
+  .ct-bankgrid { grid-template-columns: repeat(3, 2rem); }
+  .ct-bankcard > span, .ct-bankcard > img { inline-size: 2rem; }
+  .ct-awards { grid-template-columns: repeat(2, 3.4rem); }
+  .ct-award small { display: none; }
+  .ct-rack .ct-dice { flex-direction: column; }
 }

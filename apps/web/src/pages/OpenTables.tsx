@@ -85,7 +85,7 @@ export function OpenTables() {
                     </span>
                     <Badge icon="armchair">{faNum(t.players)} از {faNum(t.capacity)} نفر</Badge>
                   </div>
-                  <Button variant="primary" icon="armchair" loading={joining === t.id} onClick={() => join(t.id)} aria-label={`پیوستن به میز ${t.gameNameFa}`}>پیوستن</Button>
+                  <Button variant="secondary" icon="armchair" loading={joining === t.id} onClick={() => join(t.id)} aria-label={`نشستن پشت میز ${t.gameNameFa}`}>بشین</Button>
                 </li>
               ))}
             </ul>

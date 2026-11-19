@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion, shot } from './helpers.ts';
+import { motionLog, openTableStatus, player, recordMotion, shot } from './helpers.ts';
 
 // Full games between two independent clients (separate browser contexts and sessions), live and turn-based.
 test.describe.configure({ mode: 'serial' });
@@ -18,7 +18,7 @@ async function createAndStart(host: Page, guest: Page, gameId: string, pace: 'ز
   await host.getByRole('button', { name: 'آماده‌ام' }).click();
 }
 
-const myTurn = (p: Page) => p.getByText(/نوبت شماست|پیشنهاد پنهان خود را ثبت کنید/).first().isVisible();
+const myTurn = (p: Page) => p.getByText(/نوبت شماست|حرکت با شماست|پیشنهاد پنهان خود را ثبت کنید/).first().isVisible();
 
 async function whoseTurn(a: Page, b: Page): Promise<[Page, Page]> {
   for (let i = 0; i < 40; i++) {
@@ -51,6 +51,7 @@ async function playSealedBids(a: Page, b: Page, project: string, label: string) 
   const bids = [[5, 1], [1, 5], [2, 3], [3, 2], [4, 4]]; // a, b per round
   for (const [round, [ta, tb]] of bids.entries()) {
     for (const [p, token] of [[a, ta], [b, tb]] as const) {
+      await openTableStatus(p);
       await expect(p.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible();
       await p.getByRole('button', { name: `ژتون ${token!.toLocaleString('fa-IR')}`, exact: true }).click();
       if (p === a) {
@@ -143,7 +144,7 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   await mover.getByRole('button', { name: 'تمام‌صفحه', exact: true }).click();
   await expect.poll(() => mover.evaluate(() => document.fullscreenElement?.classList.contains('tbl') ?? false)).toBe(true);
   await mover.locator('.tbl').evaluate((el) => { el.scrollTop = el.scrollHeight; });
-  await expect(mover.locator('.tbl-felt')).toBeInViewport();
+  await expect(mover.locator('.tbl-felt, .gf-felt')).toBeInViewport();
   await mover.screenshot({ path: shot('fullscreen', info.project.name) });
   await mover.getByRole('button', { name: 'خروج از تمام‌صفحه' }).click();
   await expect.poll(() => mover.evaluate(() => document.fullscreenElement)).toBeNull();
@@ -198,7 +199,7 @@ test('sealed-bids undo window: the tapped token is sealed in the envelope at onc
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
   await p.waitForTimeout(800);
   await motionLog(p);
-  const envelope = p.locator('.sb .sb-env');
+  const envelope = p.locator('.sb-bids .sb-env');
   await p.getByRole('button', { name: 'ژتون ۱', exact: true }).click();
   await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
   await expect(envelope).toBeVisible();

@@ -69,14 +69,15 @@ b.cp-tag { padding: 0 0.4rem; border-radius: 6px; background: var(--role); color
 .cp-resp__btn--block { background: var(--role); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.25); }
 .cp-resp__btn--pass { background: rgb(255 255 255 / 0.12); color: #f4ead8; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); }
 
-.cp-acts { display: grid; gap: 0.4rem; inline-size: min(100%, 34rem); grid-template-columns: repeat(auto-fit, minmax(7.2rem, 1fr)); }
-.cp-act { display: grid; gap: 0.1rem; padding: 0.45rem 0.5rem; border-radius: 12px; border: 0; font: inherit; color: #fff; cursor: pointer; text-align: center;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--role) 85%, white 15%), var(--role)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2), 0 4px 10px -6px #000; transition: filter 0.12s, box-shadow 0.12s; }
-.cp-act--plain { --role: #6b5a3e; }
-.cp-act--coup { --role: #8c1c2b; }
-.cp-act:hover:not(:disabled), .cp-act:focus-visible { filter: brightness(1.15); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2), 0 0 0 2px rgb(255 255 255 / 0.55); outline: none; }
-.cp-act:disabled { opacity: 0.35; cursor: default; filter: grayscale(0.5); }
-.cp-act--on { box-shadow: 0 0 0 3px var(--gold); }
+.cp-acts { display: grid; gap: var(--space-2); inline-size: 100%; grid-template-columns: repeat(auto-fit, minmax(6.4rem, 1fr)); }
+/* Action tiles (QA round 2): printed white tokens; the picked one amber, the ones you cannot take grey. */
+.cp-act { display: grid; gap: 0.1rem; padding: var(--space-2); border-radius: var(--radius-sm); border: 1.5px solid var(--ink-btn); font: inherit; color: var(--text); cursor: pointer; text-align: center;
+  background: var(--surface); box-shadow: var(--shadow-tile-sm); transition: transform var(--dur-fast) var(--ease-out); }
+@media (hover: hover) { .cp-act:hover:not(:disabled) { transform: translateY(-1px); } }
+.cp-act:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.cp-act:focus-visible { outline: 2px solid var(--focus-on-felt); outline-offset: 2px; }
+.cp-act:disabled { cursor: default; background: var(--surface-sunken); color: var(--text-muted); border-color: transparent; box-shadow: none; }
+.cp-act--on { background: var(--primary); color: var(--on-primary); border-color: var(--ink-btn-primary); }
 .cp-act__name { font-weight: 900; }
 .cp-act__note { font-size: 0.7rem; opacity: 0.85; }
 
@@ -88,3 +89,22 @@ b.cp-tag { padding: 0 0.4rem; border-radius: 6px; background: var(--role); color
 @keyframes cp-aim { 50% { box-shadow: inset 0 0 0 2px transparent, 0 0 0 3px rgb(255 122 107 / 0.25); } }
 @keyframes cp-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .cp *, .cp-claim, .cp-ex { animation: none !important; transition: none !important; } }
+
+/* Design art: the printed card (102:140) is the picture. */
+.cp-card__img { display: block; object-fit: contain; border-radius: 6px; }
+.cp-card--md .cp-card__img { inline-size: 4.6rem; block-size: 6.3rem; }
+.cp-card--sm .cp-card__img { inline-size: 2.6rem; block-size: 3.6rem; }
+
+/* Felt centre in the shared frame: treasury and the court deck (design: Coup.jpg §1). */
+.cp-center { display: flex; gap: var(--space-6, 1.5rem); align-items: center; justify-content: center; }
+.cp-treasury { display: grid; justify-items: center; gap: 0.15rem; font-size: 0.85rem; }
+.cp-treasury b { font-size: 2rem; font-weight: 900; }
+.cp-treasury__coin { inline-size: 1.6rem; block-size: 1.6rem; border-radius: 50%; background: url('./art/coins.webp') center / cover; }
+.cp-deck { display: grid; justify-items: center; gap: 0.3rem; font-size: 0.8rem; }
+.cp-deck__img { inline-size: 4.6rem; block-size: 6.3rem; object-fit: contain; filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.5)); }
+
+/* --surface is dark on the felt: action tiles use the fixed white card stock, grey when unavailable, seven in one row on desktop. */
+.cp-act { background: var(--felt-ink); color: var(--brand-ink); }
+.cp-act:disabled { background: var(--felt-muted); color: var(--brand-ink); }
+.cp-act--on { background: var(--primary); color: var(--on-primary); }
+@media (min-width: 900px) { .cp-acts { grid-template-columns: repeat(7, minmax(0, 1fr)); } }

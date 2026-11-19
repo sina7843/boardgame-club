@@ -60,6 +60,10 @@ export type CheckersAction = z.infer<typeof checkersAction>;
 
 export const rowOf = (i: number) => Math.floor(i / 8);
 export const colOf = (i: number) => i % 8;
+/** Standard draughts square number 1–32 (dark's back row = 1–4, numbered from light's left, as in printed notation). */
+export const squareNo = (i: number) => rowOf(i) * 4 + ((7 - colOf(i)) >> 1) + 1;
+/** Printed move notation: «9-14», a capture «23x14», a multi-jump «10x17x26». */
+export const notation = (h: { path: number[]; captured: number[] }) => h.path.map(squareNo).join(h.captured.length ? 'x' : '-');
 const at = (r: number, c: number) => (r >= 0 && r < 8 && c >= 0 && c < 8 ? r * 8 + c : -1);
 export const isDark = (i: number) => (rowOf(i) + colOf(i)) % 2 === 0;
 const colorOf = (p: Piece): Color => (p === 'd' || p === 'D' ? 'd' : 'l');
@@ -268,6 +272,7 @@ export const checkersModule: GameModule<CheckersState, CheckersAction, CheckersV
           strikes: s.timeouts[seat]!
         };
       }),
+      moves: s.history.slice(-40).map((h) => ({ seat: h.seat, text: `${notation(h)}${h.crowned ? '، شاه شد' : ''}` })),
       strikesMax: MAX_TIMEOUTS
     };
   },

@@ -3,30 +3,28 @@
 // a small choice tray (pick cards from hand and/or a supply pile) before the play is sent.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CARDS, KINGDOM, type CardId, type DomView } from './rules.ts';
 
-// Card art is the printed Dominion 2nd-edition illustration of each card (scans from github.com/connorburt/dominion-cards,
-// see DECISIONS.md); card back, coin and VP icons stay from a generated sprite sheet.
-import copperArt from './art/copper.webp';
-import silverArt from './art/silver.webp';
-import goldArt from './art/gold.webp';
-import estateArt from './art/estate.webp';
-import duchyArt from './art/duchy.webp';
-import provinceArt from './art/province.webp';
-import cellarArt from './art/cellar.webp';
-import moatArt from './art/moat.webp';
-import merchantArt from './art/merchant.webp';
-import villageArt from './art/village.webp';
-import workshopArt from './art/workshop.webp';
-import militiaArt from './art/militia.webp';
-import remodelArt from './art/remodel.webp';
-import smithyArt from './art/smithy.webp';
-import marketArt from './art/market.webp';
-import mineArt from './art/mine.webp';
-import cardBack from './art/card-back.webp';
-import coin from './art/coin.webp';
-import vp from './art/vp.webp';
+// Card art: design/games/group-d/art/dominion (full card faces, text is part of the image).
+import copperArt from './art/dominion-copper.png';
+import silverArt from './art/dominion-silver.png';
+import goldArt from './art/dominion-gold.png';
+import estateArt from './art/dominion-estate.png';
+import duchyArt from './art/dominion-duchy.png';
+import provinceArt from './art/dominion-province.png';
+import cellarArt from './art/dominion-cellar.png';
+import moatArt from './art/dominion-moat.png';
+import merchantArt from './art/dominion-merchant.png';
+import villageArt from './art/dominion-village.png';
+import workshopArt from './art/dominion-workshop.png';
+import militiaArt from './art/dominion-militia.png';
+import remodelArt from './art/dominion-remodel.png';
+import smithyArt from './art/dominion-smithy.png';
+import marketArt from './art/dominion-market.png';
+import mineArt from './art/dominion-mine.png';
+import cardBack from './art/dominion-back.png';
+import coin from './art/dominion-coin.png';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 
@@ -34,14 +32,11 @@ const ART: Record<CardId, string> = { copper: copperArt, silver: silverArt, gold
 
 export function DomCard({ c, size = 'md', count }: { c: CardId; size?: 'sm' | 'md'; count?: number }) {
   const info = CARDS[c];
-  const kind = info.attack ? 'attack' : info.reaction ? 'reaction' : info.kind;
   return (
-    <span className={`dm-card dm-card--${size} dm-k--${kind}`} aria-label={`${info.name}، قیمت ${fa(info.cost)}${count !== undefined ? `، ${fa(count)} مانده` : ''}`}>
-      <b className="dm-card__cost">{fa(info.cost)}</b>
-      <img className="dm-card__art" src={ART[c]} alt="" draggable={false} />
-      <span className="dm-card__name">{info.name}</span>
-      {size === 'md' && <span className="dm-card__text">{info.kind === 'treasure' ? `${fa(info.coins!)} سکه` : info.kind === 'victory' ? `${fa(info.vp!)} امتیاز` : info.text}</span>}
-      {count !== undefined && <i key={count} className="dm-card__count bg-pop">{fa(count)}</i>}
+    <span className={`dm-p dm-p--${size}`} aria-label={`${info.name}، قیمت ${fa(info.cost)}${count !== undefined ? `، ${fa(count)} مانده` : ''}`}>
+      <img src={ART[c]} alt="" draggable={false} />
+      <span className="visually-hidden">{info.name}</span>
+      {count !== undefined && <b key={count} className="bg-pop">{fa(count)}</b>}
     </span>
   );
 }
@@ -133,12 +128,19 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
           : myTurn ? { tone: 'mine' as const, text: view.phase === 'action' && playable.size ? 'کارت کنش بازی کنید یا گنج‌ها را رو کنید' : 'خرید کنید یا نوبت را تمام کنید' }
             : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const piles: CardId[][] = [['copper', 'silver', 'gold', 'estate', 'duchy', 'province'], KINGDOM];
+  const framed = useInFrame() !== null;
 
   return (
     <div className="dm" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>هر نوبت: یک کنش، رو کردن گنج‌ها و یک خرید. بازی با خالی شدن دستهٔ ایالت یا سه دسته از بازار تمام می‌شود.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <ul className="dm__players" aria-label="بازیکنان">
+      {!framed && <ul className="dm__players" aria-label="بازیکنان">
         {view.others.map((o, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['dm-player', k === view.current && !view.outcome ? 'dm-player--now' : '', k === me ? 'dm-player--me' : ''].join(' ')}>
             <bdi className="dm-player__name">{who(k)}</bdi>
@@ -146,14 +148,16 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
             {o.top && (view.last?.kind === 'buy' && view.last.seat === k && view.last.card === o.top
               ? <span className="dm-player__top" data-flip={`gain-${k}-${o.discard}`} data-flip-from={`pile-${o.top}`}>{CARDS[o.top].name}</span>
               : <span className="dm-player__top">{CARDS[o.top].name}</span>)}
-            {view.vp && <b key={view.vp[k]} className="dm-player__vp bg-pop"><img className="dm-ico" src={vp} alt="" draggable={false} />{fa(view.vp[k]!)} امتیاز</b>}
+            {view.vp && <b key={view.vp[k]} className="dm-player__vp bg-pop">{fa(view.vp[k]!)} امتیاز</b>}
           </li>
         ))}
-      </ul>
+      </ul>}
 
+      <div className="dm__top">
       <section className="dm__supply" aria-label="بازار">
+        <div className="dm-sup">
         {piles.map((row, r) => (
-          <div key={r} className={`dm__row dm__row--${r ? 'kingdom' : 'base'}`}>
+          <div key={r} className={r ? 'dm-king' : 'dm-base'}>
             {row.map((c) => {
               const forGain = mode && needsGain && canGain(c);
               const can = forGain || (!mode && !militia && buyable.has(c));
@@ -167,10 +171,25 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
             })}
           </div>
         ))}
+      </div>
       </section>
+      {/* Reference: opponents' deck / hand / discard panels beside the supply (the seat strip only shows names and clocks). */}
+      {framed && view.others.length > 1 && (
+        <ul className="dm__opps" aria-label="حریف‌ها">
+          {view.others.map((o, k) => k === me ? null : (
+            <li key={k} data-flip-anchor={`seat-${k}`} className={['dm-opp', k === view.current && !view.outcome ? 'dm-opp--now' : ''].join(' ')}>
+              <bdi className="dm-player__name">{who(k)}</bdi>
+              <span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />{fa(o.deck)} دسته</span>
+              <span>{fa(o.hand)} دست</span>
+              <span>{o.top ? <img className="dm-ico dm-ico--back" src={ART[o.top]} alt={CARDS[o.top].name} draggable={false} /> : null}{fa(o.discard)} دورریخته</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      </div>
 
-      {view.inPlay.length > 0 && (
-        <div className="dm__play" aria-label="کارت‌های بازی‌شده">{view.inPlay.map((c, i) => {
+      {(framed || view.inPlay.length > 0) && (
+        <div className={view.inPlay.length ? 'dm__play' : 'dm__play dm__play--empty'} aria-label="کارت‌های بازی‌شده">{framed && <small className="dm__play-label">در بازی</small>}{!view.inPlay.length && <small>هنوز کارتی بازی نشده</small>}{view.inPlay.map((c, i) => {
           const mine = view.current === me;
           const id = flipId(mine ? `me${gen(me)}-` : `p${view.current}t${gen(view.current)}-`, c);
           return <span key={i} className="dm__play-card" data-flip={id} data-flip-from={mine ? undefined : `seat-${view.current}`} data-flip-exit={`seat-${view.current}`}><DomCard c={c} size="sm" /></span>;
@@ -179,7 +198,17 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
 
       {view.hand && !view.outcome && (
         <section className="dm__me" aria-label="دست شما">
-          {myTurn && <p className="dm__tally"><span>کنش {fa(view.actions)}</span><span>خرید {fa(view.buys)}</span><span className="dm-coins bg-pop" key={view.coins}><img className="dm-ico" src={coin} alt="" draggable={false} />{fa(view.coins)} سکه</span></p>}
+          {(myTurn || framed) && (
+            <div className="dm__row">
+              <p className="dm__tally"><span>کنش {fa(view.actions)}</span><span>خرید {fa(view.buys)}</span><span className="dm-coins bg-pop" key={view.coins}><img className="dm-ico" src={coin} alt="" draggable={false} />{fa(view.coins)} سکه</span></p>
+              {framed && me >= 0 && view.others[me] && (
+                <p className="dm__mine" data-flip-anchor={`seat-${me}`}>
+                  <span className="dm__pile-mini" aria-label={`دستهٔ شما: ${fa(view.others[me]!.deck)} کارت`}><img src={cardBack} alt="" draggable={false} /><b>{fa(view.others[me]!.deck)}</b></span>
+                  <span className="dm__pile-mini" aria-label={`دورریختهٔ شما: ${fa(view.others[me]!.discard)} کارت`}>{view.others[me]!.top ? <img src={ART[view.others[me]!.top!]} alt="" draggable={false} /> : <i />}<b>{fa(view.others[me]!.discard)}</b></span>
+                </p>
+              )}
+            </div>
+          )}
           <div className="dm__hand">
             {hand.map((c, i) => {
               const sel = picked.includes(i) || mode?.index === i;
@@ -200,7 +229,7 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
               <Button size="sm" disabled={busy || !ready} onClick={send}>بازی {CARDS[mode.card].name}</Button>
               <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setMode(null); setPicked([]); setGain(null); }}>انصراف</Button>
             </>}
-            {!mode && !militia && canTreasures && <Button size="sm" disabled={busy} className={hint?.type === 'treasures' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'treasures' })}>رو کردن گنج‌ها</Button>}
+            {!mode && !militia && canTreasures && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'treasures' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'treasures' })}>رو کردن گنج‌ها</Button></DockSlot>}
             {!mode && !militia && canEnd && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>}
           </div>
         </section>

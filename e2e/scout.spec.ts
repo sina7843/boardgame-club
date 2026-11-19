@@ -83,7 +83,14 @@ async function turn(p: Page, n: number): Promise<boolean> {
   const [from, count] = opts[0]!;
   await p.locator('.sc-pick').nth(from).click();
   if (count > 1) await p.locator('.sc-pick').nth(from + count - 1).click();
-  await p.getByRole('button', { name: /^نمایش/ }).click();
+  const showBtn = p.getByRole('button', { name: /^نمایش/ });
+  // The options read above can be out of date by the time both cards are tapped: clear the selection and read them again.
+  if (!(await expect(showBtn).toBeEnabled({ timeout: 3_000 }).then(() => true, () => false))) {
+    const on = p.locator('.sc-pick--on');
+    for (let i = 0; i < 4 && (await on.count()); i++) await (i % 2 ? on.last() : on.first()).click();
+    return false;
+  }
+  await showBtn.click();
   return true;
 }
 
@@ -99,7 +106,7 @@ test('three players play «سیرک» to the result', async ({ browser }, info) 
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.sc__players')).toBeVisible();
+  await expect(host.locator('.gf-seat').first()).toBeVisible(); // the frame rail replaces the renderer's player panel
 
   for (let n = 0; n < 500; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;

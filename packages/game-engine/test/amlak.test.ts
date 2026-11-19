@@ -159,6 +159,17 @@ describe('amlak turns', () => {
     expect(st(snap).p[0]!.cash).toBe(1500 - (2 * 25 + 100));
   });
 
+  it('buy phase: mortgaging raises money for the purchase (RULES E1)', () => {
+    let snap = game(2, (s) => { s.p[0]!.cash = 0; own(s, 0, 5); s.script = [[2, 4]]; });
+    snap = act(snap, 0, { type: 'roll' });
+    expect(st(snap)).toMatchObject({ phase: 'buy' });
+    expect(reject(snap, 0, { type: 'buy' })).toBe('NOT_ENOUGH_CASH');
+    expect(projectFor(m, snap, p(0)).legalActions.some((h) => h.type === 'mortgage' && h.sq === 5)).toBe(true);
+    snap = act(snap, 0, { type: 'mortgage', sq: 5 });
+    expect(st(snap)).toMatchObject({ phase: 'buy' });
+    expect(st(snap).p[0]!.cash).toBeGreaterThan(0);
+  });
+
   it('debts: mortgage to pay; automatic bankruptcy when everything would not cover it; assets go to the creditor', () => {
     let snap = game(2, (s) => { s.p[0]!.cash = 3; own(s, 0, 5); own(s, 1, 6); s.script = [[2, 4]]; });
     snap = act(snap, 0, { type: 'roll' });

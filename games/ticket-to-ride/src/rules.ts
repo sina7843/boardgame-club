@@ -620,6 +620,18 @@ export const ttrModule: GameModule<TtrState, TtrAction, TtrView> = {
         { key: 'tickets', label: 'مأموریت‌ها', value: s.ticketDeck.length }
       ],
       strikesMax: MAX_TIMEOUTS,
+      moves: s.log.slice(-40).flatMap((e): { seat: number; text: string }[] => {
+        const n = (x: number) => x.toLocaleString('fa-IR');
+        switch (e.t) {
+          case 'keep': return [{ seat: e.seat, text: `${n(e.kept)} بلیت نگه داشت` }];
+          case 'market': return [{ seat: e.seat, text: 'کارت رو برداشت' }];
+          case 'deck': return [{ seat: e.seat, text: 'کارت از دسته کشید' }];
+          case 'tickets': return [{ seat: e.seat, text: `${n(e.n)} بلیت کشید` }];
+          case 'claim': return [{ seat: e.seat, text: `مسیر ساخت، +${n(e.points)}` }];
+          case 'pass': return [{ seat: e.seat, text: 'نوبت را رد کرد' }];
+          default: return [];
+        }
+      }),
       ...(top > 0 && s.routePoints.filter((v) => v === top).length === 1 ? { leaderSeat: s.routePoints.indexOf(top) } : {})
     };
   },

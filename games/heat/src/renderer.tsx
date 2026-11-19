@@ -4,22 +4,24 @@
 // slipstream and discards. Everything secret (hands, decks, plans) is only ever shown to its owner.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
-import car0 from './art/car-0.webp';
-import car1 from './art/car-1.webp';
-import car2 from './art/car-2.webp';
+import { Button, DockSlot, MOTION, RailSlot, useInFrame, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import car0 from './art/ht-car-b.png';
+import car1 from './art/ht-car-g.png';
+import car2 from './art/ht-car-y.png';
 import car3 from './art/car-3.webp';
 import car4 from './art/car-4.webp';
 import car5 from './art/car-5.webp';
-import wSun from './art/w-sun.webp';
-import wRain from './art/w-rain.webp';
-import wFog from './art/w-fog.webp';
-import wCold from './art/w-cold.webp';
-import wHeat from './art/w-heatwave.webp';
-import flameArt from './art/heat.webp';
-import stressArt from './art/stress.webp';
+import wSun from './art/ht-tok-weather.png';
+import wRain from './art/ht-wcard-rain.png';
+import wFog from './art/ht-tok-weather.png';
+import wCold from './art/ht-tok-weather.png';
+import wHeat from './art/ht-tok-weather.png';
+import flameArt from './art/ht-heat.png';
+import stressArt from './art/ht-stress.png';
 import flagArt from './art/flag.webp';
-import gearArt from './art/gear.webp';
+import gearArt from './art/ht-gear1.png';
+import s1 from './art/ht-s1.png'; import s2 from './art/ht-s2.png'; import s3 from './art/ht-s3.png'; import s4 from './art/ht-s4.png';
+import gBrakes from './art/ht-g-brakes.png'; import gCooler from './art/ht-g-cooler.png'; import gTurbo from './art/ht-g-turbo.png';
 import { GARAGE, GEAR_COOL, type Card, type HeatView, type LogEntry, type RoadId, type WeatherId } from './rules.ts';
 import { pointAt, trackOf, type TrackId } from './tracks.ts';
 
@@ -51,12 +53,19 @@ export function cardLabel(c: Card): string {
   return `سرعت ${fa(c.v ?? 0)}${c.up ? ' (ارتقای شروع)' : ''}`;
 }
 
+/** Printed card faces from the handoff: speed 1–4, heat, stress and the three garage upgrades that have art; the rest stay numeric tiles. */
+const FACE_SPEED: Record<number, string> = { 1: s1, 2: s2, 3: s3, 4: s4 };
+const FACE_GARAGE: Partial<Record<string, string>> = { brakes: gBrakes, cooler: gCooler, turbo: gTurbo };
+const faceOf = (c: Card) => c.k === 'heat' ? flameArt : c.k === 'stress' ? stressArt : c.k === 'speed' ? FACE_SPEED[c.v ?? 0] : FACE_GARAGE[c.g!];
+
 export function HeatCard({ c, size = 'md' }: { c: Card; size?: 'sm' | 'md' }) {
+  const face = faceOf(c);
+  if (face) return <span className={`ht-card ht-card--face ht-card--${size}${c.up ? ' ht-card--up' : ''}`} aria-label={cardLabel(c)}><img src={face} alt="" draggable={false} /></span>;
   return (
     <span className={`ht-card ht-card--${c.k} ht-card--${size}${c.up ? ' ht-card--up' : ''}`} aria-label={cardLabel(c)}>
       {c.k === 'heat' ? <img src={flameArt} alt="" draggable={false} />
         : c.k === 'stress' ? <><img src={stressArt} alt="" draggable={false} /><b>؟</b></>
-          : <><b className="ht-card__v">{fa(c.v ?? 0)}</b>{c.k === 'garage' && size === 'md' && <small className="ht-card__g">{GARAGE[c.g!].nameFa}<br />{garageText(c)}</small>}</>}
+          : <><b className="ht-card__v">{fa(c.v ?? 0)}</b>{c.k === 'speed' && <small className="ht-card__ph">{c.up ? 'ارتقای آغازین' : 'سرعت'}</small>}{c.k === 'garage' && size === 'md' && <small className="ht-card__g">{GARAGE[c.g!].nameFa}<br />{garageText(c)}</small>}</>}
     </span>
   );
 }
@@ -65,7 +74,7 @@ function where(view: HeatView, pos: number) {
   const L = trackOf(view.track).length;
   if (pos < 0) return 'پشت خط شروع';
   const lap = Math.min(Math.floor(pos / L) + 1, view.laps);
-  return `دور ${fa(lap)} از ${fa(view.laps)} · خانهٔ ${fa(pos - (lap - 1) * L)}`;
+  return `دور ${fa(lap)} از ${fa(view.laps)}، خانهٔ ${fa(pos - (lap - 1) * L)}`;
 }
 
 function logText(e: LogEntry, who: (s: number) => string): string {
@@ -143,7 +152,7 @@ function Track({ view, who }: { view: HeatView; who: (s: number) => string }) {
         const lim = Math.max(1, c.limit + (road === 'up' ? 1 : road === 'down' ? -1 : 0));
         return (
           <g key={i} className="ht-corner">
-            <title>{`پیچ ${fa(i + 1)} (خانهٔ ${fa(c.at)}): محدودیت سرعت ${fa(lim)}${road ? ` · ${ROAD_FA[road]}` : ''}`}</title>
+            <title>{`پیچ ${fa(i + 1)} (خانهٔ ${fa(c.at)}): محدودیت سرعت ${fa(lim)}${road ? `، ${ROAD_FA[road]}` : ''}`}</title>
             <line {...{ x1: a.x1, y1: a.y1, x2: a.x2, y2: a.y2 }} className="ht-corner__line" />
             <circle cx={b.x1} cy={b.y1} r="26" className="ht-corner__badge" />
             <text x={b.x1} y={b.y1 + 10} className="ht-corner__lim">{fa(lim)}</text>
@@ -269,9 +278,11 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
       return rb.pos - ra.pos || ra.lane - rb.lane;
     });
 
+  const framed = useInFrame() !== null;
   return (
     <div className="ht" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر دور همه هم‌زمان دنده و کارت را پنهانی انتخاب می‌کنند؛ بعد کارت‌ها رو می‌شود و ماشین‌ها به ترتیب مسابقه حرکت می‌کنند. در پیچ، سرعت بیش از حد گرما می‌خواهد.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="ht__bar">
         <span className="ht-chip">پیست {TRACK_FA[view.track]}</span>
@@ -299,7 +310,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
       )}
 
       <ol className="ht__racers" aria-label="ترتیب مسابقه">
-        {order.map((s) => {
+        {order.filter((s) => !framed || mySeat === null || s === mySeat).map((s) => {
           const r = view.racers[s]!;
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
           // My own piles and played cards live on my car mat below (one home per motion id / anchor).
@@ -318,8 +329,8 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
                   {view.races > 1 && <span className="ht-tag">{fa(r.points)} امتیاز</span>}
                 </div>
                 <div className="ht-racer__sub">
-                  {r.resigned ? 'انصراف داده' : r.finished ? `تمام کرد · ${fa(r.finished.over)} خانه بعد از خط` : where(view, r.pos)}
-                  {!onMat && <span className="ht-racer__counts"> · دست {fa(r.hand)} · <span data-flip-anchor={`deck-${s}`}>دسته {fa(r.deck)}</span> · <span data-flip-anchor={`discard-${s}`}>دورریز {fa(r.discard)}</span></span>}
+                  {r.resigned ? 'انصراف داده' : r.finished ? `تمام کرد، ${fa(r.finished.over)} خانه بعد از خط` : where(view, r.pos)}
+                  {!onMat && <span className="ht-racer__counts"> <span className="bgv-sep" /> دست {fa(r.hand)} <span className="bgv-sep" /> <span data-flip-anchor={`deck-${s}`}>دسته {fa(r.deck)}</span> <span className="bgv-sep" /> <span data-flip-anchor={`discard-${s}`}>دورریز {fa(r.discard)}</span></span>}
                 </div>
                 {r.revealed && !onMat && <Play r={r} s={s} />}
                 {r.revealed && onMat && <div className="ht-racer__play"><b key={r.speed} className="ht-speed bg-pop">سرعت {fa(r.speed)}</b></div>}
@@ -383,8 +394,8 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
           {me.plan && <p className="ht__note">انتخاب ثبت‌شده: دندهٔ {fa(me.plan.gear)} و {fa(me.plan.cards.length)} کارت</p>}
           {plan && (
             <div className="ht__actions">
-              <Button size="sm" disabled={!planOk || busy} className={`ht-submit${planOk && isHint({ type: 'plan', gear: g, cards: sorted(sel) }) ? ' ht-hint' : ''}`}
-                onClick={() => onAction({ type: 'plan', gear: g, cards: sorted(sel) })}>ثبت دندهٔ {fa(g)} و {fa(sel.length)} کارت{gOpt?.cost ? ' (۱ گرما)' : ''}</Button>
+              <DockSlot><Button size="sm" disabled={!planOk || busy} className={`ht-submit${planOk && isHint({ type: 'plan', gear: g, cards: sorted(sel) }) ? ' ht-hint' : ''}`}
+                onClick={() => onAction({ type: 'plan', gear: g, cards: sorted(sel) })}>ثبت دندهٔ {fa(g)} و {fa(sel.length)} کارت{gOpt?.cost ? ' (۱ گرما)' : ''}</Button></DockSlot>
             </div>
           )}
           {react && (
@@ -395,14 +406,14 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
               )}
               <button type="button" className={['ht-toggle', slip && slipOk ? 'ht-toggle--on' : '', hint?.type === 'react' && hint.slipstream && !(slip && slipOk) && slipOk ? 'ht-hint' : ''].join(' ')}
                 aria-pressed={slip && slipOk} disabled={!slipOk || busy} onClick={() => setSlip(!slip)}>مکش +۲</button>
-              <span className="ht__note">خنک‌سازی خودکار: {fa(react.cooldown)}{disc.length ? ` · دور ریختن ${fa(disc.length)} کارت` : ''}</span>
-              <Button size="sm" disabled={busy} className={`ht-end${isHint(reactAction) ? ' ht-hint' : ''}`} onClick={() => onAction(reactAction)}>پایان نوبت</Button>
+              <span className="ht__note">خنک‌سازی خودکار: {fa(react.cooldown)}{disc.length ? `، دور ریختن ${fa(disc.length)} کارت` : ''}</span>
+              <DockSlot><Button size="sm" disabled={busy} className={`ht-end${isHint(reactAction) ? ' ht-hint' : ''}`} onClick={() => onAction(reactAction)}>پایان نوبت</Button></DockSlot>
             </div>
           )}
         </section>
       )}
 
-      {view.log.length > 0 && (
+      {!framed && view.log.length > 0 && (
         <ul className="ht__log" aria-label="رویدادهای این دور" aria-live="polite">
           {view.log.slice(-8).map((e, i) => <li key={`${view.seq}-${i}`}>{logText(e, who)}</li>)}
         </ul>

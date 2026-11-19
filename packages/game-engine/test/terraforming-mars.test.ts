@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ADJ, AWARD_COSTS, AWARDS, CARD, CARDS, MARS, MILESTONE_COST, MILESTONES, PROJECTS, SPACE, awardPoints, legalSpaces, score, terraformingMarsModule, type TmState, type TmView
+  ADJ, AWARD_COSTS, AWARDS, CARD, CARDS, MARS, MILESTONE_COST, MILESTONES, PROJECTS, SPACE, awardPoints, legalSpaces, score, terraformingMars, terraformingMarsModule, type TmState, type TmView
 } from '@bg/game-terraforming-mars';
 import { applyAction, applyTimeout, createRng, projectFor, replay, startGame, type EngineSnapshot, type ReplayInput } from '../src/index.ts';
 
@@ -313,14 +313,14 @@ describe('terraforming-mars: cards and effects', () => {
     expect(score(st(snap), 0).cards).toBe(1); // Water Import: 1 jovian; Ants 1 microbe → 0; Decomposers 1 → 0
   });
 
-  it('a card whose tile has no legal area cannot be played', () => {
+  it('a card whose tile has no legal area is still playable; the tile is skipped (RULES.md E1)', () => {
     const snap = clean(2, 100);
     const s = st(snap);
     s.oceans = 4;
     s.players[0]!.prod.energy = 2;
     s.players[0]!.hand = ['008'];
     for (const sp of MARS) if (!sp.ocean) s.tiles[sp.id] = { kind: 'greenery', owner: 1 };
-    expect(reject(snap, 0, { type: 'play', card: '008' })).toBe('NO_SPACE');
+    expect(reject(snap, 0, { type: 'play', card: '008' })).toBe('ACCEPTED'); // RULES.md E1: the tile is skipped, the card is playable
   });
 
   it('Power Grid counts its own power tag', () => {
@@ -637,8 +637,9 @@ describe('terraforming-mars: closed engine gaps', () => {
     st(snap).players[0]!.res.heat = 6;
     st(snap).players[0]!.res.mc = 0;
     st(snap).players[0]!.prod.mc = -5; st(snap).players[0]!.tr = 5; // production leaves exactly 0 M€
-    snap = act(snap, 0, { type: 'pass' });
+    snap = act(snap, 0, { type: 'endTurn' }); // after an action only «پایان نوبت» (RULES.md E4)
     snap = act(snap, 1, { type: 'pass' });
+    snap = act(snap, 0, { type: 'pass' });
     expect(st(snap).phase).toBe('research');
     const offer = st(snap).players[0]!.offer;
     expect(hints(snap, 0)[0]).toMatchObject({ type: 'research', max: 2 });
@@ -743,6 +744,7 @@ describe('terraforming-mars: redaction in play', () => {
     }
     expect(view(snap, 0).prompt).toMatchObject({ kind: 'cards', cards: [top] });
     snap = act(snap, 0, { type: 'respond', cards: [] });
+    snap = act(snap, 0, { type: 'endTurn' });
     for (let k = 0; k < 3; k++) snap = act(snap, st(snap).current, { type: 'pass' });
     expect(st(snap).phase).toBe('draft');
     const pack = st(snap).players[2]!.pack;
@@ -803,7 +805,7 @@ describe('terraforming-mars: plain terraforming through hints only (mirrors the 
               : q.kind === 'choice' ? { type: 'respond', index: o } : q.kind === 'cards' ? { type: 'respond', cards: q.cards.slice(0, q.min) } : { type: 'respond', amount: o };
         } else {
           const proj = ['asteroid', 'aquifer', 'greenery'].find((pr) => hs.some((x) => x.type === 'project' && x.project === pr));
-          a = h('firstAction') ? { type: 'firstAction' } : h('convertHeat') ? { type: 'convertHeat' } : h('convertPlants') ? { type: 'convertPlants' } : proj ? { type: 'project', project: proj } : { type: 'pass' };
+          a = h('firstAction') ? { type: 'firstAction' } : h('convertHeat') ? { type: 'convertHeat' } : h('convertPlants') ? { type: 'convertPlants' } : proj ? { type: 'project', project: proj } : h('endTurn') ? { type: 'endTurn' } : { type: 'pass' };
         }
         snap = act(snap, seat, a);
       }
@@ -816,19 +818,101 @@ describe('terraforming-mars: plain terraforming through hints only (mirrors the 
 });
 
 describe('terraforming mars publicSummary', () => {
-  it('one entry per seat; hand counts and globals only, no card ids', () => {
+  it('one entry per seat; hand counts and globals only, no hidden card ids', () => {
     const snap = game(3, 4);
     const sum = terraformingMarsModule.publicSummary!(st(snap));
     expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
-    expect(sum.shared!.map((x) => x.value)).toEqual([1, -30, 0, 0]);
+    expect(sum.shared!.map((x) => x.key)).toEqual(['generation', 'temperature', 'oxygen', 'oceans', 'deck', 'discard']);
+    expect(sum.shared!.slice(0, 4).map((x) => x.value)).toEqual([1, -30, 0, 0]);
+    expect(sum.shared![4]!.value).toBe(st(snap).deck.length);
     const one = act(snap, 0, { type: 'corp', corp: st(snap).players[0]!.corpOffer[0], cards: [] });
-    const two = act(snap, 0, { type: 'corp', corp: st(snap).players[0]!.corpOffer[1], cards: [] });
     expect(terraformingMarsModule.publicSummary!(st(one)).seats[0]!.status).toBe('done');
     expect(terraformingMarsModule.publicSummary!(st(one)).seats[1]!.status).toBeUndefined();
-    const s = begin(2, 3);
-    const after = terraformingMarsModule.publicSummary!(st(s));
-    expect(after.seats.every((x) => x.stats![1]!.value === 0 || typeof x.stats![1]!.value === 'number')).toBe(true);
-    expect(JSON.stringify(after)).not.toMatch(/"(?:corp|card)"/);
-    void two;
+    // The secret pick stays secret until everyone chose: no corporation in the summary yet.
+    const json = JSON.stringify(terraformingMarsModule.publicSummary!(st(one)));
+    for (const id of [...st(one).players[0]!.corpOffer, ...st(one).players.flatMap((x) => [...x.offer, ...x.hand])]) expect(json).not.toContain(`"${id}"`);
+  });
+
+  it('HANDOFF HUD: primary = current total score, at most 4 stats, the panel body in detail, public log lines of at most 40 characters', () => {
+    let snap = clean(2, 60);
+    const s = st(snap);
+    s.players[0]!.corp = 'R17';
+    s.players[0]!.played = ['141'];
+    s.players[0]!.res.plants = 3; s.players[0]!.prod.heat = 2;
+    snap = act(snap, 0, { type: 'project', project: 'asteroid' });
+    const sum = terraformingMarsModule.publicSummary!(st(snap));
+    const me = sum.seats[0]! as typeof sum.seats[number] & { detail: Record<string, unknown> };
+    expect(me.primary).toEqual({ label: 'امتیاز', value: score(st(snap), 0).total });
+    expect(me.stats!.length).toBeLessThanOrEqual(4);
+    expect(me.stats!.map((x) => x.key)).toEqual(['tr', 'mc', 'hand', 'plants']);
+    expect(me.badges).toEqual(st(snap).firstPlayer === 0 ? [{ key: 'first', label: 'نفر اول' }] : []);
+    expect(me.detail).toMatchObject({ corp: 'R17', tr: 21, res: { plants: 3 }, prod: { heat: 2 }, firstPlayer: st(snap).firstPlayer === 0, actionsTaken: 1 });
+    expect((me.detail.tags as Record<string, number>).power).toBe(1);
+    expect((me.detail.tags as Record<string, number>).event).toBe(0);
+    expect(sum.moves!.at(-1)).toEqual({ seat: 0, text: 'پروژهٔ استاندارد: سیارک' });
+    expect(sum.moves!.every((x) => x.text.length <= 40)).toBe(true);
+  });
+});
+
+describe('terraforming-mars: rulebook fixes (RULES.md «تفاوت موتور با دفترچه»)', () => {
+  it('E4: pass only in a turn without an action; after one action only end turn or a second action', () => {
+    let snap = clean(2, 60);
+    expect(hints(snap, 0).map((h) => h.type)).toContain('pass');
+    expect(hints(snap, 0).map((h) => h.type)).not.toContain('endTurn');
+    snap = act(snap, 0, { type: 'project', project: 'powerPlant' });
+    expect(reject(snap, 0, { type: 'pass' })).toBe('ACTION_TAKEN');
+    expect(hints(snap, 0).map((h) => h.type)).toContain('endTurn');
+    expect(hints(snap, 0).map((h) => h.type)).not.toContain('pass');
+    snap = act(snap, 0, { type: 'endTurn' });
+    expect(st(snap).current).toBe(1);
+    expect(reject(snap, 1, { type: 'pass' })).toBe('ACCEPTED');
+  });
+
+  it('E1: a card whose land tile has no legal space is played; only the tile is skipped', () => {
+    let snap = clean(2, 60);
+    const s = st(snap);
+    s.players[0]!.hand = ['044']; // Natural Preserve: isolated special tile, +1 M€ production
+    for (let i = 3; i <= 63; i += 2) s.tiles[String(i).padStart(2, '0')] = { kind: 'greenery', owner: 1 };
+    snap = act(snap, 0, { type: 'play', card: '044' });
+    expect(st(snap).players[0]!.played).toContain('044');
+    expect(st(snap).players[0]!.prod.mc).toBe(1);
+    expect(Object.values(st(snap).tiles).some((t) => t.card === '044')).toBe(false);
+    expect(view(snap, 0).prompt).toBeNull();
+  });
+
+  it('E7: «دوران شرکت‌ها» is off by default on the site (manifest default = the rulebook standard game)', () => {
+    const o = terraformingMarsModule.manifest.options.find((x) => x.key === 'corporateEra')!;
+    expect(o.default).toBe(false);
+    expect(o.choices[0]!.value).toBe(false);
+  });
+
+  it('E6: the Persian name is «ترافورمینگ مارس»', () => {
+    expect(terraformingMars.catalog.nameFa).toBe('ترافورمینگ مارس');
+  });
+});
+
+describe('terraforming-mars: action bar data comes from the engine', () => {
+  it('legal hints carry the default payment (autoPay); the viewer gets payment values and the error code of each blocked action', () => {
+    let snap = clean(2, 10);
+    const s = st(snap);
+    s.players[0]!.res.steel = 3;
+    s.players[0]!.hand = ['141', '009'];
+    const h = hints(snap, 0);
+    const pp = h.find((x) => x.type === 'project' && x.project === 'powerPlant');
+    expect(pp).toBeUndefined(); // steel never pays standard projects
+    expect(view(snap, 0).me!.blocked['project:powerPlant']).toBe('CANNOT_AFFORD');
+    const v = view(snap, 0);
+    expect(v.me!.values).toEqual({ steel: 2, titanium: 3, heat: false });
+    expect(v.me!.plantsPerGreenery).toBe(8);
+    expect(v.me!.blocked['project:asteroid']).toBe('CANNOT_AFFORD');
+    expect(v.me!.blocked['milestone:terraformer']).toBe('MILESTONE_NOT_REACHED');
+    expect(v.me!.blocked.convertHeat).toBe('CANNOT_CONVERT');
+    expect(view(snap, 1).me!.blocked).toEqual({});
+    expect(v.metrics.terraformer).toEqual([20, 20]);
+    snap = clean(2, 30);
+    st(snap).players[0]!.res.steel = 3;
+    st(snap).players[0]!.hand = ['141'];
+    const play = hints(snap, 0).find((x) => x.type === 'play' && x.card === '141');
+    expect(play).toMatchObject({ cost: 4, steel: true, pay: { mc: 0, steel: 2, titanium: 0, heat: 0 } });
   });
 });

@@ -169,7 +169,16 @@ export const snakesModule: GameModule<SnakesState, SnakesAction, SnakesView> = {
   publicSummary(s) {
     const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
     const top = Math.max(...s.pos);
+    const fa = (n: number) => n.toLocaleString('fa-IR');
     return {
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        switch (e.t) {
+          case 'roll': return [{ seat: e.seat, text: `${fa(e.die)}: ${e.via === 'stay' ? `ماند روی ${fa(e.from)}` : e.via === 'ladder' ? `نردبان تا ${fa(e.to)}` : e.via === 'snake' ? `مار تا ${fa(e.to)}` : e.via === 'bounce' ? `برگشت تا ${fa(e.to)}` : `خانه ${fa(e.to)}`}` }];
+          case 'left': return [{ seat: e.seat, text: 'کنار رفت' }];
+          case 'timeout': return [{ seat: e.seat, text: 'زمانش تمام شد' }];
+          default: return [];
+        }
+      }).slice(-40),
       seats: s.pos.map((pos, seat) => ({
         seat,
         primary: { label: 'خانه', value: pos, target: SIZE },

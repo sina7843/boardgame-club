@@ -3,13 +3,13 @@
 // cards. Tap gems to pick (three different, or the same gem twice for a pair); tap a card to buy or reserve it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
-import gemW from './art/gem-diamond.webp';
-import gemU from './art/gem-sapphire.webp';
-import gemG from './art/gem-emerald.webp';
-import gemR from './art/gem-ruby.webp';
-import gemK from './art/gem-onyx.webp';
-import gemO from './art/gem-gold.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import gemW from './art/splendor-token-w.png';
+import gemU from './art/splendor-token-u.png';
+import gemG from './art/splendor-token-g.png';
+import gemR from './art/splendor-token-r.png';
+import gemK from './art/splendor-token-k.png';
+import gemO from './art/splendor-token-gold.png';
 import cardsArt from './art/cards.webp';
 import noblesArt from './art/nobles.webp';
 import { CARDS, GEMS, NOBLES, bonuses, payment, type Gem, type SplendorView, type Token } from './rules.ts';
@@ -124,6 +124,7 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
     : ret ? { tone: 'mine' as const, text: `بیش از ده گوهر دارید: ${fa(ret.count)} تا پس بدهید` }
       : myTurn ? { tone: 'mine' as const, text: view.ending ? 'دور آخر! گوهر بردارید یا کارت بخرید/رزرو کنید' : 'گوهر بردارید یا کارت بخرید/رزرو کنید' }
         : { tone: 'wait' as const, text: `نوبت ${who(view.current)}${view.ending ? ' (دور آخر)' : ''}` };
+  const framed = useInFrame() !== null; // the shell draws players, points and whose-turn
   const order = mySeat === null ? view.tokens.map((_, k) => k) : [...view.tokens.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
   const cardHint = (id: number) => hint?.type === 'buy' && hint.card === id;
   const last = view.last;
@@ -139,56 +140,9 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
     );
   };
 
-  return (
-    <div className="sp" ref={root} data-seq={served.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-
-      <div className="sp__nobles" aria-label="بزرگان">{view.nobles.map((n) => <span key={n} data-flip={`noble-${n}`}><NobleTile id={n} /></span>)}</div>
-
-      <section className="sp__market" aria-label="کارت‌ها">
-        {[2, 1, 0].map((l) => (
-          <div key={l} className="sp__row">
-            <button type="button" data-flip-anchor={`deck-${l + 1}`} className={`sp-deck sp-l--${l + 1}`} disabled={!blindLevels.has(l + 1) || busy || card !== null || sel.length > 0}
-              onClick={() => onAction({ type: 'reserve', level: l + 1 })} aria-label={`رزرو کارت ناشناس ${LEVEL_FA[l + 1]}`}>
-              <span>{LEVEL_FA[l + 1]}</span><b key={view.deckCounts[l]} className="bg-pop">{fa(view.deckCounts[l]!)}</b>
-            </button>
-            {view.market[l]!.map((id, i) => (id === null ? <span key={`e${i}`} className="sp-slot sp-slot--empty" /> : <span key={id}>{cardBtn(id)}</span>))}
-          </div>
-        ))}
-      </section>
-
-      {card !== null && (
-        <div className="sp__cardbar" role="group" aria-label="کارت انتخاب‌شده">
-          {buyable.has(card) && <Button size="sm" disabled={busy} className={cardHint(card) ? 'sp-hint' : ''} onClick={() => onAction({ type: 'buy', card })}>خرید</Button>}
-          {reservable.has(card) && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'reserve', card })}>رزرو (+طلا)</Button>}
-          {!buyable.has(card) && me >= 0 && <span className="sp__short">کمبود: {(() => { const b = bonuses(view.bought[me]!); const t = view.tokens[me]!; const miss = GEMS.map((g) => ({ g, n: Math.max(0, (CARDS[card]!.cost[g] ?? 0) - b[g] - t[g]) })).filter((x) => x.n); const gap = miss.reduce((a, x) => a + x.n, 0) - t.o; return gap > 0 ? `${fa(gap)} گوهر` : '—'; })()}</span>}
-        </div>
-      )}
-
-      <section className="sp__bank" aria-label="بانک گوهر">
-        {(['w', 'u', 'g', 'r', 'k', 'o'] as Token[]).map((t) => {
-          const n = sel.filter((x) => x === t).length;
-          const can = t !== 'o' && (take?.colors.includes(t as Gem) || pairs.has(t as Gem)) && !busy;
-          return (
-            <button key={t} type="button" data-flip-anchor={`bank-${t}`} className={['sp-bankgem', n ? 'sp-bankgem--on' : '', hint?.type === 'take' && hint.gems?.includes(t as Gem) && !n ? 'sp-hint' : ''].join(' ')}
-              disabled={!can} onClick={() => tapGem(t as Gem)} aria-pressed={n > 0}>
-              <Chip t={t} n={view.bank[t]} />{n > 0 && <span className="sp-bankgem__sel">{n > 1 ? '×۲' : '✓'}</span>}
-            </button>
-          );
-        })}
-        {last?.kind === 'return' && last.gems?.map((g, i) => gemImg(g, `back-${last.seat}-${g}-${i}`, `seat-${last.seat}`))}
-      </section>
-      {(take || pairs.size > 0) && (
-        <div className="sp__takebar">
-          <Button size="sm" disabled={!takeOk || busy} className={hint?.type === 'take' && takeOk ? 'sp-hint' : ''} onClick={() => onAction({ type: 'take', gems: sel })}>
-            برداشتن {sel.length ? sel.map((g) => GEM_FA[g]).join('، ') : 'گوهر'}
-          </Button>
-          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>رد کردن نوبت</Button></DockSlot>}
-        </div>
-      )}
-
-      <ul className="sp__players" aria-label="بازیکنان">
-        {(view.outcome ? view.outcome.placements.map((x) => x.seat) : order).map((s) => {
+  // Rivals' ledgers move beside the bank on desktop frames only (phones keep them in the list under the market).
+  const side = framed && !view.outcome && order.some((k) => k !== mySeat) && typeof window !== 'undefined' && window.matchMedia('(min-width: 900px)').matches;
+  const ledger = (s: number) => {
           const b = bonuses(view.bought[s]!);
           const t = view.tokens[s]!;
           const isMe = s === mySeat;
@@ -196,13 +150,14 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
           return (
             <li key={s} data-flip-anchor={`seat-${s}`} className={['sp-pl', view.current === s && !view.outcome ? 'sp-pl--turn' : '', isMe ? 'sp-pl--me' : '', place === 1 ? 'sp-pl--win' : ''].join(' ')}>
               <div className="sp-pl__head">
-                {place && <b className="sp-pl__place">{fa(place)}</b>}
+                {!framed && place && <b className="sp-pl__place">{fa(place)}</b>}
                 <bdi className="sp-pl__name">{who(s)}</bdi>
-                <span className="sp-pl__pts bg-pop" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>
-                {view.visited[s]!.length > 0 && <span className="sp-pl__nob" data-flip={last?.seat === s && last.noble !== undefined ? `noble-${last.noble}` : undefined}>{fa(view.visited[s]!.length)} بزرگ</span>}
+                {!framed && <span className="sp-pl__pts bg-pop" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>}
+                {!framed && view.visited[s]!.length > 0 && <span className="sp-pl__nob" data-flip={last?.seat === s && last.noble !== undefined ? `noble-${last.noble}` : undefined}>{fa(view.visited[s]!.length)} بزرگ</span>}
                 {last?.kind === 'take' && last.seat === s && last.gems?.map((g, i) => gemImg(g, `took-${s}-${g}-${i}`, `bank-${g}`))}
               </div>
               <div className="sp-pl__grid">
+                <span className="sp-col sp-col--lbl" aria-hidden="true"><small>کارت</small><small>ژتون</small></span>
                 {GEMS.map((g) => (
                   <span key={g} className={`sp-col sp-t--${g}`}>
                     <span className="sp-col__bonus" title="کارت" data-flip={bought !== undefined && last?.seat === s && CARDS[bought]!.color === g ? `card-${bought}` : undefined}>{fa(b[g])}</span>
@@ -223,8 +178,71 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
               )}
             </li>
           );
-        })}
-      </ul>
+        };
+  return (
+    <div className={framed ? 'sp sp--framed' : 'sp'} ref={root} data-seq={served.seq} data-phase={view.phase}>
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>اولین کسی که به ۱۵ اعتبار برسد، پس از پایان دور، برنده است. هر نوبت فقط یک کار: سه گوهر ناهمرنگ، دو گوهر هم‌رنگ، رزرو یا خرید.</p>
+        </RailSlot>
+      )}
+
+      <div className="sp__nobles" aria-label="بزرگان">{view.nobles.map((n) => <span key={n} data-flip={`noble-${n}`}><NobleTile id={n} /></span>)}</div>
+
+      <div className="sp__table">
+      {side && <ul className="sp__players sp__players--side" aria-label="حریف‌ها">{order.filter((k) => k !== mySeat).map(ledger)}</ul>}
+      <section className="sp__bank" aria-label="بانک گوهر">
+          {(['w', 'u', 'g', 'r', 'k', 'o'] as Token[]).map((t) => {
+            const n = sel.filter((x) => x === t).length;
+            const can = t !== 'o' && (take?.colors.includes(t as Gem) || pairs.has(t as Gem)) && !busy;
+            return (
+              <button key={t} type="button" data-flip-anchor={`bank-${t}`} className={['sp-bankgem', n ? 'sp-bankgem--on' : '', hint?.type === 'take' && hint.gems?.includes(t as Gem) && !n ? 'sp-hint' : ''].join(' ')}
+                disabled={!can} onClick={() => tapGem(t as Gem)} aria-pressed={n > 0}>
+                <Chip t={t} n={view.bank[t]} />{n > 0 && <span className="sp-bankgem__sel">{n > 1 ? '×۲' : '✓'}</span>}
+              </button>
+            );
+          })}
+          {last?.kind === 'return' && last.gems?.map((g, i) => gemImg(g, `back-${last.seat}-${g}-${i}`, `seat-${last.seat}`))}
+        </section>
+      <section className="sp__market" aria-label="کارت‌ها">
+        {[2, 1, 0].map((l) => (
+          <div key={l} className="sp__row">
+            <button type="button" data-flip-anchor={`deck-${l + 1}`} className={`sp-deck sp-l--${l + 1}`} disabled={!blindLevels.has(l + 1) || busy || card !== null || sel.length > 0}
+              onClick={() => onAction({ type: 'reserve', level: l + 1 })} aria-label={`رزرو کارت ناشناس ${LEVEL_FA[l + 1]}`}>
+              <span>{LEVEL_FA[l + 1]}</span><b key={view.deckCounts[l]} className="bg-pop">{fa(view.deckCounts[l]!)}</b>
+            </button>
+            {view.market[l]!.map((id, i) => (id === null ? <span key={`e${i}`} className="sp-slot sp-slot--empty" /> : <span key={id}>{cardBtn(id)}</span>))}
+          </div>
+        ))}
+      </section>
+      </div>
+
+      {card !== null && (
+        <div className="sp__cardbar" role="group" aria-label="کارت انتخاب‌شده">
+          {buyable.has(card) && <Button size="sm" disabled={busy} className={cardHint(card) ? 'sp-hint' : ''} onClick={() => onAction({ type: 'buy', card })}>خرید</Button>}
+          {reservable.has(card) && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'reserve', card })}>رزرو (+طلا)</Button>}
+          {!buyable.has(card) && me >= 0 && <span className="sp__short">کمبود: {(() => { const b = bonuses(view.bought[me]!); const t = view.tokens[me]!; const miss = GEMS.map((g) => ({ g, n: Math.max(0, (CARDS[card]!.cost[g] ?? 0) - b[g] - t[g]) })).filter((x) => x.n); const gap = miss.reduce((a, x) => a + x.n, 0) - t.o; return gap > 0 ? `${fa(gap)} گوهر` : '—'; })()}</span>}
+        </div>
+      )}
+
+      
+      {(take || pairs.size > 0) && (
+        <div className="sp__takebar">
+          <Button size="sm" disabled={!takeOk || busy} className={hint?.type === 'take' && takeOk ? 'sp-hint' : ''} onClick={() => onAction({ type: 'take', gems: sel })}>
+            برداشتن {sel.length ? sel.map((g) => GEM_FA[g]).join('، ') : 'گوهر'}
+          </Button>
+          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>رد کردن نوبت</Button></DockSlot>}
+        </div>
+      )}
+
+      {(() => {
+        const list = view.outcome ? view.outcome.placements.map((x) => x.seat) : order;
+        // Framed (reference): rivals' ledgers stand in a column beside the bank; yours stays under the market.
+        const below = side ? list.filter((k) => k === mySeat) : list;
+        return below.length > 0 && <ul className="sp__players" aria-label="بازیکنان">{below.map(ledger)}</ul>;
+      })()}
 
       {ret && (
         <div className="sp__takebar">

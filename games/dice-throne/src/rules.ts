@@ -240,7 +240,7 @@ export const dtModule: GameModule<DtState, DtAction, DtView> = {
         break;
       }
     }
-    if (s.log.length > 8) s.log = s.log.slice(-8);
+    if (s.log.length > 40) s.log = s.log.slice(-40);
     return finish(s, [{ type: a.type, seat }]);
   },
 
@@ -304,6 +304,7 @@ export const dtModule: GameModule<DtState, DtAction, DtView> = {
         ],
         ...(winners.has(seat) ? { status: 'winner' as const } : {})
       })),
+      moves: s.log.map((l) => ({ seat: l.seat, text: l.text.slice(0, 40) })),
       ...(hp[0] !== hp[1] ? { leaderSeat: hp[0]! > hp[1]! ? 0 : 1 } : {})
     };
   },

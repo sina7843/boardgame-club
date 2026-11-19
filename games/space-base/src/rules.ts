@@ -179,6 +179,7 @@ export const sbModule: GameModule<SbState, SbAction, SbView> = {
         s.shop = s.shop.map((row) => row.filter((x) => x !== a.ship));
         refill(s);
         b.credits -= ship.cost;
+        b.credits = b.income; // RULES.md E2 (BGA): buying spends everything; credits drop to the income level
         b.deployed[ship.sector - 1]!.push(b.station[ship.sector - 1]!);
         b.station[ship.sector - 1] = a.ship;
         b.income += ship.onBuy?.income ?? 0;
@@ -233,6 +234,8 @@ export const sbModule: GameModule<SbState, SbAction, SbView> = {
     const top = Math.max(...vps);
     const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
     return {
+      // State keeps only the latest event.
+      moves: s.last ? [{ seat: s.last.seat, text: ({ separate: 'دو بخش جدا', sum: 'بخش جمع', buy: 'ناو خرید', pass: 'نوبت را تمام کرد', roll: 'تاس ریخت' } as Record<string, string>)[s.last.kind] ?? 'حرکت کرد' }] : [],
       seats: s.boards.map((b, seat) => ({
         seat,
         primary: { label: 'امتیاز', value: b.vp, target: GOAL },

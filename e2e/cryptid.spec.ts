@@ -16,6 +16,7 @@ test('interactive tutorial: question, forced cube, refuted search, yes answer, s
   await expect(p.getByText('در فاصلهٔ ۱ خانه از جنگل', { exact: true })).toBeVisible();
   for (const step of ['۱', '۲', '۳', '۴', '۵', '۶']) {
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۶`))).toBeVisible();
+    await p.locator('button.cr-mode.cr-hint, button.cr-target.cr-hint, .cr-cell.cr-hint').first().waitFor(); // hints arrive after the opponent's reply
     const mode = p.locator('button.cr-mode.cr-hint');
     if (await mode.count()) await mode.click();
     const target = p.locator('button.cr-target.cr-hint');
@@ -70,8 +71,8 @@ async function turn(p: Page, n: number): Promise<boolean> {
   // Keyboard pick (the cells are focusable buttons): robust against the zoom controls overlaying the map corner.
   await cells.nth((n * 7) % k).focus();
   await p.keyboard.press('Enter');
-  await p.locator('button.cr-confirm').click();
-  return true;
+  // The pick can be refused or the turn can move on; a miss only means «try another cell on the next pass».
+  return p.getByRole('button', { name: 'ثبت', exact: true }).click({ timeout: 5_000 }).then(() => true, () => false); // on the table it sits in the dock row
 }
 
 test('three players play «کریپتید» to the result', async ({ browser }, info) => {

@@ -19,9 +19,9 @@
 .hb-stack b, .hb-stack small { position: relative; }
 .hb__last { margin: 0; font-size: 0.85rem; color: #dfe5ff; animation: hb-drop 0.35s ease-out both; }
 
-.hb-card { position: relative; display: inline-grid; place-items: center; border-radius: 7px; background: linear-gradient(160deg, #1d2552, #0f1736); box-shadow: inset 0 0 0 2px var(--c), 0 3px 6px -3px #000; }
-.hb-card--md { inline-size: 2.7rem; block-size: 3.8rem; }
-.hb-card--sm { inline-size: 1.5rem; block-size: 2.1rem; border-radius: 4px; }
+.hb-card { position: relative; display: inline-grid; place-items: center; border-radius: 7px; background: #0f1736; box-shadow: inset 0 0 0 2px var(--c), 0 3px 6px -3px #000; }
+.hb-card--md { inline-size: 2.2rem; block-size: 4.4rem; }
+.hb-card--sm { inline-size: 1.1rem; block-size: 2.1rem; border-radius: 4px; }
 .hb-card img { position: absolute; inset: 0; margin: auto; inline-size: 92%; aspect-ratio: 1; object-fit: contain; opacity: 0.45; }
 .hb-card b { position: relative; font-size: 1.3rem; font-weight: 900; color: var(--c); text-shadow: 0 0 6px #000; }
 .hb-card--sm b { font-size: 0.8rem; }
@@ -44,7 +44,7 @@
 .hb__me { display: grid; gap: 0.5rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(159 184 255 / 0.4); }
 .hb__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
 .hb-mine { display: grid; gap: 0.1rem; justify-items: center; align-content: center; inline-size: 3.6rem; min-block-size: 4.6rem; padding: 0.2rem; border: 0; border-radius: 9px; color: #eef2ff; font: inherit; cursor: pointer;
-  background: repeating-linear-gradient(45deg, #1d2552 0 6px, #16204a 6px 12px); box-shadow: inset 0 0 0 2px var(--c, #5a64a0); transition: transform 0.15s, box-shadow 0.15s; }
+  background: url('./art/hanabi-back.png') center / auto 100% no-repeat #16204a; box-shadow: inset 0 0 0 2px var(--c, #5a64a0); transition: transform 0.15s, box-shadow 0.15s; }
 .hb-mine:disabled { cursor: default; }
 .hb-mine--on { transform: translateY(-6px); box-shadow: inset 0 0 0 2px var(--c, #5a64a0), 0 0 0 3px #ffd23f; }
 .hb-mine__face { font-size: 1.4rem; font-weight: 900; color: var(--c, #c4cbe8); }
@@ -71,3 +71,8 @@
 
 /* v2: BGA card pictures (sprite); the number stays on top */
 .hb-card { background-size: 500% 700%; background-repeat: no-repeat; }
+
+@media (pointer: coarse) { .hb-clueBtn, .hb-cl { min-block-size: 44px; min-inline-size: 44px; } .hb-mine { min-inline-size: 44px; } }
+
+.hb-card .hb-card__art { position: absolute; inset: 0; margin: 0; inline-size: 100%; block-size: 100%; aspect-ratio: auto; object-fit: contain; opacity: 1; }
+.hb-mine__face { text-shadow: 0 0 4px #000, 0 0 2px #000; }

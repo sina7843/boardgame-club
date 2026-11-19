@@ -71,7 +71,9 @@ async function seatAtOpenTable(db: Db, registry: GameRegistry, play: PlayConfig,
 
 /** Join a queue, or sit straight down at a matching open table (returns its id as `tableId`). */
 export async function enqueue(db: Db, registry: GameRegistry, play: PlayConfig, cfg: MatchConfig, userId: string, body: EnqueueBody): Promise<{ id?: string; tableId?: string }> {
-  const tableId = await seatAtOpenTable(db, registry, play, userId, body);
+  // A clock queue is keyed by the bank (open tables may run another clock, so none is taken over).
+  if (body.clock) body = { ...body, turnSeconds: Number(body.clock.split('+')[0]) * 60 };
+  const tableId = body.clock ? null : await seatAtOpenTable(db, registry, play, userId, body);
   if (tableId) return { tableId };
   const id = await db.transaction(async (tx) => {
     const { game, settings } = await activeVersion(tx, registry, body.gameId);
@@ -80,7 +82,9 @@ export async function enqueue(db: Db, registry: GameRegistry, play: PlayConfig, 
     if (game.access === 'premium' && !(await isPremium(tx, userId))) throw new AppError('PREMIUM_REQUIRED');
     if (!settings.competitions.includes(body.competition)) throw new AppError('MODE_NOT_SUPPORTED');
     if (body.playerCount < settings.minPlayers || body.playerCount > settings.maxPlayers) throw new AppError('VALIDATION_FAILED');
-    assertTimeAllowed(settings, body.pace, body.turnSeconds);
+    if (body.clock) {
+      if (body.pace !== 'live' || !settings.options.find((o) => o.key === 'clock')?.allowed.includes(body.clock)) throw new AppError('OPTION_NOT_ALLOWED');
+    } else assertTimeAllowed(settings, body.pace, body.turnSeconds);
     await assertLimits(tx, userId, body.pace, play, { forQueue: true }); // also refuses a second active ticket
     const [r] = await tx.select({ mu: ratings.mu, sigma: ratings.sigma }).from(ratings)
       .where(and(eq(ratings.userId, userId), eq(ratings.gameId, game.id), eq(ratings.mode, body.pace)));
@@ -139,7 +143,7 @@ export async function runMatcher(db: Db, cfg: MatchConfig, key: QueueKey, regist
         bots = key.playerCount - group.length;
       }
       for (const g of group.slice(1)) pool.splice(pool.indexOf(g), 1);
-      created.push(await createMatchTable(tx, cfg, key, group, bots));
+      created.push(await createMatchTable(tx, cfg, key, group, bots, registry));
     }
     return created;
   });
@@ -152,16 +156,29 @@ async function gameHasBot(tx: Tx, registry: GameRegistry | undefined, gameId: st
   return !!v && registry.has(gameId, v.rulesVersion) && !!registry.resolve(gameId, v.rulesVersion).bot;
 }
 
-async function createMatchTable(tx: Tx, cfg: MatchConfig, key: QueueKey, group: Ticket[], bots = 0): Promise<string> {
+/**
+ * The clock of a matched live table: a game whose `clock` option offers «m+0» for the queue's time (m × 60 s) plays on
+ * that chess clock. ponytail: the bank rides in turnSeconds (tickets have no options column); add one if a game ever
+ * needs a clock queue with increments.
+ */
+async function matchedClock(tx: Tx, registry: GameRegistry | undefined, key: QueueKey): Promise<string | null> {
+  if (!registry || key.pace !== 'live' || key.turnSeconds % 60 !== 0) return null;
+  const { settings } = await activeVersion(tx, registry, key.gameId);
+  const v = `${key.turnSeconds / 60}+0`;
+  return settings.options.find((o) => o.key === 'clock')?.allowed.includes(v) ? v : null;
+}
+
+async function createMatchTable(tx: Tx, cfg: MatchConfig, key: QueueKey, group: Ticket[], bots = 0, registry?: GameRegistry): Promise<string> {
   const [version] = await tx.execute(sql`
     select v.id from game_versions v join games g on g.id = v.game_id
     where v.game_id = ${key.gameId} and v.status = 'active' and g.status = 'active' order by v.published_at desc limit 1`) as unknown as { id: string }[];
   if (!version) throw new AppError('GAME_NOT_ACCEPTING_TABLES');
+  const clock = await matchedClock(tx, registry, key);
   const tableId = randomUUID();
   await tx.insert(gameTables).values({
     id: tableId, gameId: key.gameId, gameVersionId: version.id, pace: key.pace, competition: key.competition, visibility: 'private',
     status: 'open', hostId: group[0]!.userId, capacity: key.playerCount, isMatchmade: true,
-    settings: { turnSeconds: key.turnSeconds, reminders: key.pace === 'turn', ...(bots ? { bot: { level: FILL_BOT_LEVEL, personas: pickPersonas(bots) } } : {}) }
+    settings: { turnSeconds: key.turnSeconds, reminders: key.pace === 'turn', ...(clock ? { options: { clock } } : {}), ...(bots ? { bot: { level: FILL_BOT_LEVEL, personas: pickPersonas(bots) } } : {}) }
   });
   await tx.insert(participants).values([
     ...group.map((t, seat) => ({ tableId, seat, userId: t.userId, kind: 'human' })),

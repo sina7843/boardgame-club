@@ -1,16 +1,16 @@
 // اتللو renderer: a green baize board with brass lines (SVG, LTR geometry). One tap on a dotted square places a disc;
 // the outflanked discs turn over one after another, rippling out from the new disc.
 import './renderer.css';
-import { Fragment, useId, useRef } from 'react';
-import { TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
-import discB from './art/disc-b.webp';
-import discW from './art/disc-w.webp';
-import texBaize from './art/tex-baize.webp';
+import { useRef } from 'react';
+import { RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import discB from './art/othello-black-disc.png';
+import discW from './art/othello-white-disc.png';
+import boardArt from './art/othello-board.png';
 import { flips, type Disc, type OthelloView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-const S = 100, M = 34, SIZE = 8 * S + 2 * M;
-// Disc and baize art are cut from a generated sheet (see DECISIONS.md).
+// Board and discs: design/games/group-a/art/othello (board art is 523 px with the grid at 26..497, scaled so a square is 100).
+const S = 100, M = 44, SIZE = 888;
 const DISC = { b: discB, w: discW };
 const FILES = 'abcdefgh';
 const name = (i: number) => `${FILES[i % 8]}${Math.floor(i / 8) + 1}`;
@@ -35,7 +35,6 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
   const trail = useRef({ sig, prev: view.board, cur: view.board, n: 0 });
   if (trail.current.sig !== sig) trail.current = { sig, prev: trail.current.cur, cur: view.board, n: trail.current.n + 1 };
   const prev = trail.current.prev, step = trail.current.n;
-  const felt = `${useId()}-felt`;
   const myDisc: Disc = mySeat === null ? 'b' : view.colors[mySeat]!;
   const legal = new Set(legalActions.filter((a) => a.type === 'place').map((a) => a.sq as number));
   const myTurn = legal.size > 0 && pendingSq === null;
@@ -58,6 +57,7 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
     ? (lastPass.seat === mySeat ? 'حرکتی نداشتید؛ نوبت شما رد شد' : `${seatName(lastPass.seat)} حرکتی نداشت؛ نوبت دوباره با ${who(view.turn)}`)
     : null;
 
+  const framed = useInFrame() !== null; // inside the shared table frame the shell draws players, scores and whose-turn
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
@@ -66,8 +66,15 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
 
   return (
     <div className="oth" data-moves={view.history.length}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <div className="oth__score" role="group" aria-label={`سیاه ${fa(view.counts.b)}، سفید ${fa(view.counts.w)}`}>
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>هر حرکت باید دست‌کم یک ردیف مهرهٔ حریف را بین مهرهٔ تازه و مهرهٔ دیگری از شما بگیرد؛ همهٔ مهره‌های گیرافتاده برمی‌گردند.</p>
+          {passNote && <p role="status">{passNote}</p>}
+        </RailSlot>
+      )}
+      {!framed && <div className="oth__score" role="group" aria-label={`سیاه ${fa(view.counts.b)}، سفید ${fa(view.counts.w)}`}>
         {(['b', 'w'] as Disc[]).map((d) => (
           <div key={d} className={['oth-side', `oth-side--${d}`, view.turn === d && !view.outcome ? 'oth-side--turn' : ''].join(' ')}>
             <img className="oth-side__disc" src={DISC[d]} alt="" aria-hidden="true" />
@@ -76,28 +83,19 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
           </div>
         ))}
         <div className="oth__bar" aria-hidden="true"><span style={{ inlineSize: `${(view.counts.b / Math.max(1, total)) * 100}%` }} /></div>
-      </div>
+      </div>}
 
       <ZoomBoard label="صفحه اتللو">
         <svg className="oth-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه اتللو" style={{ direction: 'ltr' }}>
           <defs>
-            <linearGradient id="oth-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3b2a1a" /><stop offset="1" stopColor="#1d140b" /></linearGradient>
-            <pattern id={felt} patternUnits="userSpaceOnUse" x={M} y={M} width="256" height="256"><image href={texBaize} width="256" height="256" /></pattern>
             <filter id="oth-shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".55" /></filter>
           </defs>
-          <rect width={SIZE} height={SIZE} rx="22" fill="url(#oth-frame)" />
-          <rect x={M} y={M} width={8 * S} height={8 * S} fill={`url(#${felt})`} />
-          {Array.from({ length: 9 }, (_, k) => (
-            <Fragment key={k}>
-              <line x1={M + k * S} y1={M} x2={M + k * S} y2={M + 8 * S} className="oth-line" />
-              <line x1={M} y1={M + k * S} x2={M + 8 * S} y2={M + k * S} className="oth-line" />
-            </Fragment>
-          ))}
-          {[[2, 2], [6, 2], [2, 6], [6, 6]].map(([c, r]) => <circle key={`${c}${r}`} cx={M + c! * S} cy={M + r! * S} r="7" className="oth-star" />)}
-          {Array.from({ length: 8 }, (_, k) => (
+          <image href={boardArt} x="0" y="0" width={SIZE} height={SIZE} preserveAspectRatio="none" />
+          {/* The reference board has no coordinate labels; they stay only outside the frame (tutorial). */}
+          {!framed && Array.from({ length: 8 }, (_, k) => (
             <g key={k} className="oth-coord">
-              <text x={M + k * S + S / 2} y={SIZE - 9}>{FILES[k]}</text>
-              <text x={15} y={M + k * S + S / 2 + 6}>{8 - k}</text>
+              <text x={M + k * S + S / 2} y={SIZE - 14}>{FILES[k]}</text>
+              <text x={22} y={M + k * S + S / 2 + 6}>{8 - k}</text>
             </g>
           ))}
 
@@ -144,7 +142,7 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
         </svg>
       </ZoomBoard>
 
-      {passNote && <p className="oth__note" role="status">{passNote}</p>}
+      {!framed && passNote && <p className="oth__note" role="status">{passNote}</p>}
       {view.end?.kind === 'board' && view.end.score && (
         <p className="oth__end" role="status">نتیجه نهایی (خانه‌های خالی به برنده می‌رسد): <bdi>{seatName(0)}</bdi> {fa(view.end.score[0])} — <bdi>{seatName(1)}</bdi> {fa(view.end.score[1])}</p>
       )}

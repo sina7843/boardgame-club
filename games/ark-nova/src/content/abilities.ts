@@ -20,7 +20,14 @@ const PRIMATES_PROJECT = 108;
 
 /** Other players that interactive effects may affect: at least 5 appeal and not immune (Quarantine Lab). */
 function targets(c: Ctx): number[] {
-  return c.s.players.map((_, k) => k).filter((k) => k !== c.seat && c.s.players[k]!.appeal >= 5 && !qany(ctx(c.s, k, c.rng), 'immune'));
+  return c.s.players.map((_, k) => k).filter((k) => k !== c.seat && !c.s.out?.includes(k) && c.s.players[k]!.appeal >= 5 && !qany(ctx(c.s, k, c.rng), 'immune'));
+}
+/** Venom: targets with more appeal than you. */
+const venomHit = (c: Ctx) => targets(c).filter((k) => c.s.players[k]!.appeal > P(c).appeal);
+/** Constriction: targets ahead of you in appeal and/or conservation, with the number of tracks they lead. */
+function constrictHit(c: Ctx): [number, number][] {
+  const me = P(c);
+  return targets(c).map((k) => { const o = c.s.players[k]!; return [k, (o.appeal > me.appeal ? 1 : 0) + (o.cp > me.cp ? 1 : 0)] as [number, number]; }).filter(([, n]) => n > 0);
 }
 /** Players leading a track (ties: all of them); you take part in the comparison, so if you lead alone nobody is affected. */
 function leaders(c: Ctx, track: 'appeal' | 'cp', min: number): number[] {
@@ -116,8 +123,9 @@ const impls: Partial<Record<AbilityKey, AbilityImpl>> = {
   },
   venom: {
     nameFa: 'زهر', textFa: (v) => `هر بازیکن با جذابیت بیشتر از شما (دست‌کم ۵) روی ${fa(v)} کارت کنش کم‌ارزش‌ترین خانه‌هایش نشان زهر می‌گیرد.`,
+    affects: (c) => venomHit(c),
     now: (c, v) => {
-      const hit = targets(c).filter((k) => c.s.players[k]!.appeal > P(c).appeal);
+      const hit = venomHit(c);
       for (const k of hit) { const o = c.s.players[k]!; for (const card of o.slots.slice(0, Number(v))) o.tok[card].venom = 1; }
       if (hit.length) log(c, 'venomed', { seats: hit, n: Number(v) });
     }
@@ -135,6 +143,7 @@ const impls: Partial<Record<AbilityKey, AbilityImpl>> = {
     textFa: (v) => (Number(v) >= 2
       ? 'از باغ‌وحش با بیشترین جذابیت و از باغ‌وحش با بیشترین حفاظت (دست‌کم ۱): ۵ پول بگیرید یا ۱ کارت تصادفی از دستش بکشید؛ انتخاب با اوست.'
       : 'از باغ‌وحش با بیشترین جذابیت: ۵ پول بگیرید یا ۱ کارت تصادفی از دستش بکشید؛ انتخاب با اوست.'),
+    affects: (c, v) => [leaders(c, 'appeal', 5), Number(v) >= 2 ? leaders(c, 'cp', 1) : []],
     now: (c, v) => {
       chooseVictim(c, leaders(c, 'appeal', 5), 'a:pilfer', 'دستبرد: کدام باغ‌وحش با بیشترین جذابیت؟');
       if (Number(v) >= 2) chooseVictim(c, leaders(c, 'cp', 1), 'a:pilfer', 'دستبرد: کدام باغ‌وحش با بیشترین حفاظت؟');
@@ -146,22 +155,17 @@ const impls: Partial<Record<AbilityKey, AbilityImpl>> = {
   },
   constriction: {
     nameFa: 'فشردن', textFa: () => 'هر بازیکن جلوتر از شما در جذابیت و/یا حفاظت (دست‌کم ۵ جذابیت) به ازای هر مسیر ۱ نشان فشردن روی کارت‌های کنش پرارزش‌ترین خانه‌ها (۵، سپس ۴) می‌گیرد.',
+    affects: (c) => constrictHit(c),
     now: (c) => {
-      const me = P(c);
-      const hit: number[] = [];
-      for (const k of targets(c)) {
-        const o = c.s.players[k]!;
-        const n = (o.appeal > me.appeal ? 1 : 0) + (o.cp > me.cp ? 1 : 0);
-        if (!n) continue;
-        hit.push(k);
-        for (const card of o.slots.slice(5 - n)) o.tok[card].con = 1;
-      }
-      if (hit.length) log(c, 'constricted', { seats: hit });
+      const hit = constrictHit(c);
+      for (const [k, n] of hit) { const o = c.s.players[k]!; for (const card of o.slots.slice(5 - n)) o.tok[card].con = 1; }
+      if (hit.length) log(c, 'constricted', { seats: hit.map(([k]) => k) });
     }
   },
   hypnosis: {
     nameFa: 'هیپنوتیزم', textFa: (v) => `پس از پایان کنش، می‌توانید با یکی از کارت‌های کنش خانهٔ ۱ تا ${fa(v)} باغ‌وحش با بیشترین جذابیت (دست‌کم ۵، نه خودتان) یک کنش انجام دهید.`,
     // The target is decided now (this animal's appeal must not count); the action itself comes after finishing.
+    affects: (c) => leaders(c, 'appeal', 5),
     now: (c, v) => { const seats = leaders(c, 'appeal', 5); if (seats.length) afterAction(c, 'a:hypnosis', { seats, n: Number(v) }); }
   },
   scavenging: {

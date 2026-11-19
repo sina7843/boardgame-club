@@ -1,27 +1,16 @@
 /* Ludo (منچ). The board keeps its own physical palette (wood frame, card stock) in both themes; pieces show a number as well as colour. */
-.ld { display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
+.ld { display: grid; gap: var(--sp-4); min-inline-size: 0; inline-size: 100%; container-type: inline-size; }
 .ld-main { display: grid; gap: var(--sp-4); }
 @container (min-width: 820px) { .ld-main { grid-template-columns: minmax(0, 560px) minmax(220px, 1fr); align-items: start; } }
-.ld-board { inline-size: min(100%, 560px); block-size: auto; touch-action: manipulation; filter: drop-shadow(0 10px 14px rgb(0 0 0 / 0.35)); }
-.ld-board__bg { stroke: #3a2a1a; stroke-width: 1; }
+.ld-board { inline-size: min(100%, 560px); block-size: auto; touch-action: manipulation; }
 
-/* squares: bevelled printed tiles */
-.ld-track { filter: drop-shadow(0 1.2px 0.8px rgb(60 35 10 / 0.35)); }
-.ld-cell { stroke: #3a2a1a; stroke-width: 1.8; }
-.ld-cell__tint { fill-opacity: 0.62; stroke: none; }
-.ld-cell__hi { fill: none; stroke: #fff; stroke-opacity: 0.7; stroke-width: 1.2; }
-.ld-cell--yard { stroke-width: 1.6; stroke-dasharray: none; }
-.ld-start { fill: #fff; stroke: #3a2a1a; stroke-width: 1.2; stroke-linejoin: round; paint-order: stroke; }
-.ld-arrow { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.ld-arrow--under { stroke: #1b130b; stroke-width: 5.5; stroke-opacity: 0.7; }
-.ld-target { fill: rgb(255 255 255 / 0.25); stroke: #1b130b; stroke-width: 3; stroke-dasharray: 5 4; }
+.ld-target { fill: none; stroke: var(--heading); stroke-width: 3; stroke-dasharray: 5 4; }
 
 /* current player's yard glows */
-.ld-yard--turn { filter: drop-shadow(0 0 7px currentColor); animation: ld-glow 1600ms ease-in-out infinite; }
-@keyframes ld-glow { 50% { filter: drop-shadow(0 0 14px currentColor); } }
+.ld-yard--turn { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 8 6; animation: ld-glow 1600ms ease-in-out infinite; }
+@keyframes ld-glow { 50% { stroke-opacity: 0.4; } }
 
 /* pawns */
-.ld-piece__shadow { fill: #000; opacity: 0.4; }
 .ld-pawn { pointer-events: none; }
 .ld-btn-die { inline-size: 1.6em; block-size: 1.6em; object-fit: contain; margin-inline-end: 0.4em; vertical-align: middle; }
 .ld-piece text { font: 900 15px/1 var(--font, sans-serif); fill: #fff; stroke: #1b130b; stroke-width: 3.2px; paint-order: stroke; stroke-linejoin: round; text-anchor: middle; pointer-events: none; }
@@ -55,3 +44,23 @@
 @media (orientation: landscape) and (max-height: 560px) {
   .ld-main { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
 }
+
+/* Shared frame (design Ludo §1/§3): the board centred on white card stock in a dark frame; one turn card in the dock row. */
+.ld-board { display: block; margin-inline: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-ring-strong); }
+.ld .zb { margin-inline: auto; }
+.ld-main:not(:has(.ld-side > *)) { display: block; }
+.ld-turn { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); inline-size: min(100%, 700px); padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); color: var(--felt-ink); box-sizing: border-box; }
+.ld-turn .ld-die { inline-size: 48px; block-size: 48px; flex: none; }
+.ld-turn__t { margin: 0; flex: 1 1 12rem; min-inline-size: 0; font-size: 14px; line-height: 1.6; color: var(--felt-ink); text-align: start; }
+.ld-turn .ld-choices { display: flex; flex-wrap: wrap; gap: var(--space-2); flex: 1 1 100%; justify-content: center; }
+.ld-turn .ld-choices button { white-space: normal; block-size: auto; min-block-size: 44px; }
+.ld-pawn__ring { fill: none; stroke: #1b130b; stroke-width: 3; }
+/* Rail card «مهره‌های شما» (design Ludo §1): heading + your colour, chips, the rule tip in an inset box. */
+.ld-rail { display: grid; gap: var(--space-2); }
+.ld-rail h3 { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); font-size: 15px; color: var(--heading); }
+.ld-rail__note { margin-inline-start: auto; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.ld-rail__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.ld-rail__tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.ld-rail__tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+.ld-rail h3 { font-weight: 800; }

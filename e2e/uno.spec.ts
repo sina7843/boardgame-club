@@ -24,6 +24,9 @@ const myTurn = async (p: Page) => (await p.locator('.uno-hand .uno-card--playabl
   || (await p.getByRole('button', { name: 'پذیرفتن و کشیدن ۴ کارت' }).count()) > 0
   || (await p.locator('.uno-colors').count()) > 0;
 
+// Progress signal (the table frame shows the events in the rail, not in the renderer): draw pile, top card, playable cards.
+const sig = (p: Page) => p.evaluate(() => `${document.querySelector('.uno-pile__count')?.textContent}|${document.querySelector('.uno-pile--discard [data-flip]')?.getAttribute('data-flip')}|${document.querySelectorAll('.uno-hand .uno-card--playable').length}`);
+
 async function takeTurn(p: Page) {
   const accept = p.getByRole('button', { name: 'پذیرفتن و کشیدن ۴ کارت' });
   if (await accept.count()) return accept.click();
@@ -71,10 +74,10 @@ test('three players play a full UNO hand to the result', async ({ browser }, inf
     let mover: Page | null = null;
     for (const p of pages) if (await myTurn(p)) { mover = p; break; }
     if (!mover) { await a.waitForTimeout(150); continue; }
-    const before = await mover.locator('.uno-log li').first().textContent();
+    const before = await sig(mover);
     await takeTurn(mover);
     if (turns === 4) for (const [i, p] of pages.entries()) await p.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
-    await expect.poll(async () => (await mover!.locator('.uno-log li').first().textContent()) !== before || (await a.getByRole('heading', { name: /بردید|باختید|مساوی/ }).count()) > 0, { timeout: 10_000 }).toBe(true);
+    await expect.poll(async () => (await sig(mover!)) !== before || (await a.getByRole('heading', { name: /بردید|باختید|مساوی/ }).count()) > 0, { timeout: 10_000 }).toBe(true);
   }
   for (const p of pages) await expect(p.getByRole('heading', { name: /بردید|باختید|مساوی/ })).toBeVisible();
   await a.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });

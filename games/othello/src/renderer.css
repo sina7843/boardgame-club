@@ -11,10 +11,10 @@
 .oth__bar { grid-column: 1 / -1; block-size: 6px; border-radius: 999px; background: #ecebe6; overflow: hidden; direction: ltr; }
 .oth__bar span { display: block; block-size: 100%; background: #1d1f22; transition: inline-size 0.5s ease; }
 
-.oth-board { display: block; inline-size: 100%; max-inline-size: 720px; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
+.oth-board { display: block; inline-size: 100%; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
 .oth-line { stroke: #0c3a25; stroke-width: 3px; }
 .oth-star { fill: #0c3a25; }
-.oth-coord text { font: 700 18px/1 var(--font, sans-serif); fill: #d9c9a3; text-anchor: middle; opacity: 0.8; }
+.oth-coord text { font: 700 18px/1 var(--font-fa); fill: #d9c9a3; text-anchor: middle; opacity: 0.8; }
 .oth-sq { outline: none; }
 .oth-sq--legal { cursor: pointer; }
 .oth-sq:focus-visible rect:first-child { stroke: #ffd27a; stroke-width: 5px; }
@@ -46,3 +46,7 @@
 }
 :root[data-motion='reduce'] .oth-flip__new, :root[data-motion='reduce'] .oth-sq--hint .oth-dot { animation: none; }
 :root[data-motion='reduce'] .oth-flip__old, :root[data-motion='reduce'] .oth-lift { animation: none; opacity: 0; }
+
+/* Inside the shared table frame (useInFrame): the board takes the frame's square edge. */
+.oth-board { max-inline-size: min(720px, var(--gf-b, 720px)); }
+.oth > .zb { justify-self: stretch; }

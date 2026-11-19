@@ -482,6 +482,7 @@ export const duelModule: GameModule<DuelState, DuelAction, DuelView> = {
         ],
         ...(winners.has(seat) ? { status: 'winner' as const } : {})
       })),
+      moves: s.last && s.last.kind !== 'draft' ? [{ seat: s.last.seat, text: ({ build: 'کارت ساخت', discard: 'کارت فروخت', wonder: 'شگفتی بنا کرد', progress: 'نشان علم برداشت' } as Record<string, string>)[s.last.kind] ?? 'حرکت کرد' }] : [],
       shared: [
         { key: 'age', label: 'دوران', value: s.age, max: 3 },
         { key: 'military', label: 'جنگ', value: s.military }

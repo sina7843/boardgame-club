@@ -59,6 +59,12 @@ export function clockControl(table: { pace: string; settings: unknown }): { init
 export const LAG_QUOTA_MAX_MS = 1500;
 export const LAG_QUOTA_REGAIN_MS = 100;
 
+/** Time for each side's first move (design/games/chess ENGINE.md P1): the bank only starts with that move. */
+export const FIRST_MOVE_SECONDS = 30;
+/** The running seat has not made its first move yet (tables from before this rule have no `moved`: all count as moved). */
+export const firstMovePending = (table: { clock: (typeof gameTables.$inferSelect)['clock'] }) =>
+  !!table.clock?.moved && table.clock.seat !== null && !table.clock.moved[table.clock.seat];
+
 /** Initial bank per seat. */
 const initialBanks = (table: typeof gameTables.$inferSelect, ctl: NonNullable<ReturnType<typeof clockControl>>) =>
   Array.from({ length: table.capacity }, (_, seat) => (seat === 1 ? ctl.guestInitialMs : ctl.initialMs));
@@ -73,13 +79,19 @@ function chargeClock(table: typeof gameTables.$inferSelect, seat: number, lagMs:
   const st = table.clock;
   if (!ctl || !st || st.seat !== seat) return null;
   const now = Date.now();
+  if (st.moved && !st.moved[seat]) {
+    // First move: the bank was not running (first-move countdown), so nothing is charged and no increment is given.
+    const moved = st.moved.slice(); moved[seat] = true;
+    table.clock = { ...st, since: now, seat: null, moved };
+    return { spentMs: Math.max(0, now - st.since), lagMs: 0, leftMs: st.left[seat]! };
+  }
   const used = Math.max(0, now - st.since);
   const quota = st.lagQuota?.slice() ?? Array.from({ length: st.left.length }, () => LAG_QUOTA_MAX_MS);
   const credit = Math.max(0, Math.min(Math.floor(lagMs), quota[seat] ?? 0, used));
   quota[seat] = Math.min(LAG_QUOTA_MAX_MS, (quota[seat] ?? 0) - credit + LAG_QUOTA_REGAIN_MS);
   const left = st.left.slice();
   left[seat] = Math.max(0, left[seat]! - (used - credit)) + ctl.incrementMs;
-  table.clock = { left, since: now, seat: null, lagQuota: quota };
+  table.clock = { ...st, left, since: now, seat: null, lagQuota: quota };
   return { spentMs: used, lagMs: credit, leftMs: left[seat]! };
 }
 
@@ -94,9 +106,14 @@ function chessClock(table: typeof gameTables.$inferSelect, pending: number[]): n
   const now = Date.now();
   const st = table.clock;
   const left = st?.left.slice() ?? initialBanks(table, ctl);
-  if (st && st.seat !== null) left[st.seat] = Math.max(0, left[st.seat]! - (now - st.since)) + ctl.incrementMs;
-  table.clock = { left, since: now, seat: pending[0]!, ...(st?.lagQuota ? { lagQuota: st.lagQuota } : {}) };
-  return Math.max(1, left[pending[0]!]!) / 1000;
+  // A clock still running here timed out: it is charged without an increment (the increment follows a completed move).
+  if (st && st.seat !== null && !(st.moved && !st.moved[st.seat])) left[st.seat] = Math.max(0, left[st.seat]! - (now - st.since));
+  const moved = st ? st.moved : Array.from({ length: left.length }, () => false);
+  const seat = pending[0]!;
+  table.clock = { left, since: now, seat, ...(st?.lagQuota ? { lagQuota: st.lagQuota } : {}), ...(moved ? { moved } : {}) };
+  // Before a side's first move only the first-move countdown runs (its bank waits).
+  if (moved && !moved[seat]) return Math.min(FIRST_MOVE_SECONDS, Math.max(1, left[seat]! / 1000));
+  return Math.max(1, left[seat]!) / 1000;
 }
 
 /** Time of an action, for PGN clocks and fair-play review: only on clock tables and tournament tables (the hot path stays light elsewhere). */
@@ -142,8 +159,9 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
   ]);
   await tx.update(gameTables).set({ revision }).where(eq(gameTables.id, table.id));
   table.revision = revision;
-  // The mover's clock stops now (also on the move that ends the game, so the record has its final time).
-  const charged = input.kind === 'action' && !table.isTutorial ? chargeClock(table, input.seat, input.lagMs ?? 0) : null;
+  // The mover's clock stops now (also on the move that ends the game, so the record has its final time). An action that
+  // keeps the turn (no deadline change: a chess draw offer or decline) leaves the running clock alone.
+  const charged = input.kind === 'action' && !table.isTutorial && step.scheduleChanges.length > 0 ? chargeClock(table, input.seat, input.lagMs ?? 0) : null;
   if (input.kind === 'action') await recordMoveTime(tx, table, revision, input, charged);
 
   if (step.scheduleChanges.length === 0) {
@@ -307,10 +325,13 @@ export async function executeCommand(db: Db, registry: GameRegistry, input: Comm
     if (table.isTutorial && !isResign) {
       await tx.update(gameTables).set({ tutorialStep: table.tutorialStep + 1 }).where(eq(gameTables.id, table.id));
       // The tutorial opponent is a fixed script applied through the same engine path.
-      if (tutorialStep?.reply && !step.outcome && step.pendingSeats.includes(1)) {
-        const reply = applyAction(module, step.snapshot, { kind: 'player', seat: 1 }, tutorialStep.reply, logicalTime);
+      let last = step;
+      for (const action of tutorialStep?.reply ? [tutorialStep.reply, ...(tutorialStep.then ?? [])] : []) {
+        if (last.outcome || !last.pendingSeats.includes(1)) break;
+        const reply = applyAction(module, last.snapshot, { kind: 'player', seat: 1 }, action, logicalTime);
         if ('ok' in reply) throw new Error(`tutorial script rejected: ${reply.errorCode}`);
-        await persistStep(tx, locked, reply, { kind: 'action', seat: 1, action: tutorialStep.reply, logicalTime });
+        await persistStep(tx, locked, reply, { kind: 'action', seat: 1, action, logicalTime });
+        last = reply;
       }
     }
     return receipt('accepted', revision, null);
@@ -386,6 +407,15 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
     // Head-to-head tables fall through to the game's own timeout rule (chess: loss on time).
     if (d.deadlineKey === 'turn' && await botTakeover(tx, locked, module.pendingSeats(snap.state))) {
       await playBotTurn(tx, locked, snap);
+      return 'fired';
+    }
+    if (d.deadlineKey === 'turn' && firstMovePending(table) && !(table.settings as { tournament?: unknown }).tournament) {
+      // ENGINE.md P1: a side that does not make its first move in time aborts the game: no result, no rating change.
+      table.clock = { ...table.clock!, seat: null, aborted: true };
+      await tx.update(gameTables).set({ status: 'cancelled', clock: table.clock, finishedAt: sql`now()` }).where(eq(gameTables.id, table.id));
+      await tx.update(scheduledDeadlines).set({ status: 'cancelled' })
+        .where(and(eq(scheduledDeadlines.tableId, table.id), eq(scheduledDeadlines.status, 'pending')));
+      await tx.execute(sql`select pg_notify('table_changed', ${table.id})`); // lifecycle change: same revision, full snapshot push
       return 'fired';
     }
     const logicalTime = Date.now();

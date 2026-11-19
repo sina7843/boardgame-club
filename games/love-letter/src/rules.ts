@@ -12,6 +12,7 @@ export const CARD_FA: Record<number, string> = { 1: 'نگهبان', 2: 'کشیش
 const DECK = [1, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 7, 8];
 export const tokensToWin = (players: number) => (players === 2 ? 7 : players === 3 ? 5 : 4);
 
+const seatNo = (n: number) => (n + 1).toLocaleString('fa-IR');
 export type LogEntry =
   | { seq: number; t: 'play'; seat: number; card: number; target: number | null; guess: number | null; result: 'out' | 'miss' | 'none' | 'tie' | 'swap' | 'discard' | 'seen' | 'protect' }
   | { seq: number; t: 'out'; seat: number; card: number; by: 'guard' | 'baron' | 'princess' }
@@ -308,6 +309,13 @@ export const loveLetterModule: GameModule<LoveLetterState, LoveLetterAction, Lov
         ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : !s.active[seat] || !s.inRound[seat] ? { status: 'out' as const } : {})
       })),
       shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'round', label: 'دور', value: s.round }],
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        const fa = (n: number) => n.toLocaleString('fa-IR');
+        if (e.t === 'play') return [{ seat: e.seat, text: `${CARD_FA[e.card]}${e.target !== null && e.target !== e.seat ? `، هدف ${seatNo(e.target)}` : ''}${e.card === 1 && e.guess ? `، حدس ${CARD_FA[e.guess]}` : ''}`.slice(0, 40) }];
+        if (e.t === 'out') return [{ seat: e.seat, text: `${CARD_FA[e.card]}، بیرون از دور` }];
+        if (e.t === 'round') return [{ seat: e.winners[0] ?? 0, text: `دور ${fa(e.round)} را برد` }];
+        return [{ seat: e.seat, text: e.t === 'timeout' ? 'زمانش تمام شد' : 'کنار رفت' }];
+      }).slice(-40),
       ...(leaders === 1 && top > 0 ? { leaderSeat: s.tokens.indexOf(top) } : {})
     };
   },

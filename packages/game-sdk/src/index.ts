@@ -173,6 +173,8 @@ export interface PublicSummary {
     income?: Record<string, number>;
     /** Power pools by key (e.g. Gaia bowls `gaia`, `b1`, `b2`, `b3`). */
     power?: Record<string, number>;
+    /** Extra public panel data for a game's own rail card (handoffs: TM, Brass). Never hidden information. */
+    detail?: object;
   }>;
   /** Shared resources: deck size, round, team pool. */
   shared?: Array<{ key: string; label: string; value: number | string; max?: number }>;
@@ -205,6 +207,8 @@ export interface TutorialStep<Action> {
   expected: Action | null;
   /** Scripted reply for the tutorial seat 1 after the learner's action, if the game waits on it. */
   reply: Action | null;
+  /** Further scripted seat-1 actions applied in order after `reply`, while seat 1 is still to act (e.g. it also opens the next round). */
+  then?: Action[];
 }
 
 export interface TutorialScript<Action> {

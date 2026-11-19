@@ -15,7 +15,7 @@ test('interactive tutorial: rotate and sew, leather 7×7, sew, advance to the en
   const at = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۵`))).toBeVisible();
   await at('۱');
   await p.locator('.pw-patch.pw-hint:not([data-motion-ghost])').click();
-  await p.getByRole('button', { name: /^چرخش/ }).click();
+  await p.getByRole('button', { name: /^چرخ(ش|اندن)/ }).click();
   await p.locator('.pw-cell.pw-hint:not([data-motion-ghost])').click();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-sew'), fullPage: true });
   await p.getByRole('button', { name: 'بدوز' }).click();
@@ -105,7 +105,7 @@ test('undo window: the bought patch is sewn on and the pawn walks at once, and u
   const patch = p.locator('.pw-patch.pw-hint:not([data-motion-ghost])');
   const id = await patch.getAttribute('data-flip');
   await patch.click();
-  await p.getByRole('button', { name: /^چرخش/ }).click();
+  await p.getByRole('button', { name: /^چرخ(ش|اندن)/ }).click();
   await p.locator('.pw-cell.pw-hint:not([data-motion-ghost])').click();
   await motionLog(p);
   await p.getByRole('button', { name: 'بدوز' }).click();

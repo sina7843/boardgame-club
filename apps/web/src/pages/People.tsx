@@ -1,9 +1,9 @@
-import { useEffect, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react';
 import { GuestState } from '../shell/GuestState.tsx';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { cosmetic, type Presence, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, ChipGroup, Icon, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
+import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, ChipGroup, Icon, Identity, League, Menu, PageHead, Segmented, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { userIdentity } from '../lib/bgv.tsx';
@@ -37,7 +37,7 @@ function PersonRow({ p, presence, children }: { p: PublicProfile; presence?: Pre
   const line = presenceLine(presence);
   return (
     <li>
-      <Identity {...userIdentity(p, { size: 'lg', name: <a href={`/users/${p.id}`}><bdi>{p.displayName}</bdi></a>,
+      <Identity {...userIdentity(p, { size: 'lg', name: <a className="sx-namelink" href={`/users/${p.id}`}><bdi>{p.displayName}</bdi></a>,
         ...(presence ? { status: presence.online ? 'online' : 'offline' } : {}), ...(line ? { sub: line } : {}) })} />
       {children && <div className="pf-actions">{children}</div>}
     </li>
@@ -268,6 +268,20 @@ export function FriendsPage() {
   );
 }
 
+/** Profile overflow: a framed icon-only neutral token (not the ghost glyph of the chat menus) that opens a DS Menu in a popover. */
+function ProfileMenu({ items }: { items: Parameters<typeof Menu>[0]['items'] }) {
+  const id = useId();
+  const close = () => (document.getElementById(id) as HTMLElement & { hidePopover?: () => void } | null)?.hidePopover?.();
+  return (
+    <>
+      <Button variant="secondary" iconOnly icon="more-horizontal" popoverTarget={id}>بیشتر</Button>
+      <div id={id} popover="auto" className="chat-pop">
+        <Menu label="بیشتر" items={items.map((it) => (it === '-' ? it : { ...it, onClick: (e) => { close(); it.onClick?.(e); } }))} />
+      </div>
+    </>
+  );
+}
+
 /** A player's profile. `/me/profile` renders the same page for oneself with `own` (Profile-Own-Desktop): completeness card and shortcuts in `extra`. */
 export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boolean; extra?: ReactNode } = {}) {
   const phone = usePhone();
@@ -283,6 +297,7 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
   const [report, setReport] = useState<'user' | 'display_name' | 'bio' | null>(null);
   const [ptab, setPtab] = useState<'overview' | 'games' | 'trophies'>('overview');
   const presence = usePresence(card.data ? [card.data.id] : []);
+  if (card.error?.status === 401) return <GuestState title="برای دیدن پروفایل بازیکنان وارد شوید" text="پروفایل‌ها بعد از ورود باز می‌شوند." next={`/users/${id}`} />;
   if (card.error) return <StateBlock kind={card.error.status === 404 ? 'empty' : 'error'} title={card.error.status === 404 ? 'این بازیکن پیدا نشد' : 'پروفایل دریافت نشد'} />;
   if (!card.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const u = card.data;
@@ -298,15 +313,16 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
   const self = u.relationship === 'self';
   const actions = <>
           {self && <>
-            <Button variant="secondary" icon="pencil" href={own ? '#profile-edit' : '/me/profile'}>ویرایش پروفایل</Button>
+            <Button variant="primary" icon="pencil" href={own ? '/me/studio' : '/me/profile'}>ویرایش پروفایل</Button>
             {own && <Button variant="secondary" icon="eye" href={`/users/${u.id}`}>نمای عمومی</Button>}
+            <CopyProfileLink userId={u.id} iconOnly />
           </>}
           {u.relationship === 'none' && <Button variant="primary" icon="user-plus" onClick={() => act('/friends/requests', 'POST', { userId: u.id }, 'درخواست دوستی فرستاده شد.')}>افزودن دوست</Button>}
           {u.relationship === 'incoming' && <Button variant="primary" onClick={() => act(`/friends/requests/${u.id}/accept`, 'POST')}>پذیرش دوستی</Button>}
           {u.relationship === 'outgoing' && <Badge icon="check">درخواست دوستی فرستاده شد</Badge>}
-          {u.relationship === 'friends' && <Button variant="secondary" icon="message-circle" onClick={message}>پیام خصوصی</Button>}
-          <CopyProfileLink userId={u.id} />
-          {!self && <MessageMenu label="بیشتر" className="" items={[
+          {!self && <Button variant="secondary" icon="message-circle" onClick={message}>پیام</Button>}
+          {!self && <ProfileMenu items={[
+            { icon: 'link', label: 'کپی لینک پروفایل', onClick: () => { void navigator.clipboard?.writeText(`${location.origin}/users/${u.id}`).then(() => toast('success', 'لینک پروفایل کپی شد.'), () => toast('error', 'کپی ممکن نشد.')); } },
             u.muted ? { icon: 'volume-2', label: 'لغو بی‌صدا', onClick: () => act(`/mutes/${u.id}`, 'DELETE') }
               : { icon: 'volume-x', label: 'بی‌صدا', onClick: () => act('/mutes', 'POST', { userId: u.id }, 'بی‌صدا شد.') },
             u.relationship === 'blocked' ? { icon: 'ban', label: 'رفع مسدودی', onClick: () => act(`/blocks/${u.id}`, 'DELETE', undefined, 'رفع مسدودی انجام شد.') }
@@ -319,7 +335,8 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
   const presenceText = presenceLine(presence[u.id]);
   const best = u.ratings?.length ? [...u.ratings].sort((a, b) => b.rating - a.rating)[0] : undefined;
   // Profile-Public-Mobile: the sections sit behind three tabs.
-  const show = (t: typeof ptab) => !phone || ptab === t;
+  const tabbed = phone && !own;
+  const show = (t: typeof ptab) => !tabbed || ptab === t;
   return (
     <>
       {!phone && (own ? <Breadcrumbs items={[{ label: 'خانه', href: '/' }, { label: 'پروفایل من' }]} />
@@ -344,8 +361,8 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
               {best && <div><b className="t-num-md bgv-num">{faNum(best.rating)}</b><span>امتیاز رتبه</span></div>}
             </div>
           )}
-          <Tabs label="بخش‌های پروفایل" value={ptab} onChange={(v) => setPtab(v as typeof ptab)}
-            items={[{ value: 'overview', label: 'نمای کلی' }, { value: 'games', label: 'بازی‌ها' }, { value: 'trophies', label: 'جام‌ها' }]} />
+          {!own && <Segmented label="بخش‌های پروفایل" value={ptab} onChange={(v) => setPtab(v as typeof ptab)}
+            options={[{ value: 'overview', label: 'نمای کلی' }, { value: 'games', label: 'بازی‌ها' }, { value: 'trophies', label: 'جام‌ها' }]} />}
         </section>
       ) : <ProfileHead
         name={<bdi>{u.displayName}</bdi>}
@@ -366,18 +383,25 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
       {u.relationship !== 'blocked' && u.stats === null && u.recent === null && u.ratings === null && !self && (
         <p className="t-body-sm bgv-muted" role="status">این بازیکن آمار و سابقهٔ بازی خود را نمایش نمی‌دهد.</p>
       )}
-      {phone && ((ptab === 'overview' && !trophies.length && !favourites.length && !u.clubs.length && !u.mutualFriends.length)
+      {tabbed && ((ptab === 'overview' && !trophies.length && !favourites.length && !u.clubs.length && !u.mutualFriends.length)
         || (ptab === 'games' && !u.recent?.length && !u.mastery?.length && !u.ratings?.length) || (ptab === 'trophies' && !trophies.length))
         && <p className="t-body-sm bgv-muted" role="status">{ptab === 'trophies' ? 'هنوز جامی نگرفته است.' : ptab === 'games' ? 'هنوز بازی عمومی تمام‌شده‌ای نیست.' : 'هنوز چیزی برای نمایش نیست.'}</p>}
       {/* Profile-Public-Desktop: trophies, recent games and mastery in the main column; favourites, clubs and mutual friends beside. */}
       <div className="bgv-cols pf-profcols">
         <div className="pf-profmain">
+          {own && !trophies.length && (
+            <section className="bgv-card pf-pcard" aria-labelledby="tro-h">
+              <h2 id="tro-h" className="pf-h2">ویترین جام‌ها</h2>
+              <StateBlock kind="empty" title="ویترین شما خالی است" text="جام‌های دلخواه‌تان را برای نمایش به دیگران انتخاب کنید."
+                action={<Button variant="secondary" icon="trophy" href="/me/studio">انتخاب جام‌ها</Button>} />
+            </section>
+          )}
           {trophies.length > 0 && (show('overview') || show('trophies')) && (
             <section className="bgv-card pf-pcard" aria-labelledby="tro-h">
               <div className="bgv-row"><h2 id="tro-h" className="pf-h2">ویترین جام‌ها</h2>
                 <span className="t-caption bgv-muted">{faNum(trophies.length)} جام</span></div>
               <div className="pf-trophies">
-                {trophies.slice(0, phone && ptab === 'trophies' ? undefined : phone ? 4 : 5).map((a) => <Trophy key={a.key} tier={a.tier} name={a.titleFa} />)}
+                {trophies.slice(0, tabbed && ptab === 'trophies' ? undefined : phone ? 4 : 5).map((a) => <Trophy key={a.key} tier={a.tier} name={a.titleFa} />)}
               </div>
             </section>
           )}

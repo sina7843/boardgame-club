@@ -48,7 +48,7 @@ async function move(p: Page): Promise<string | null> {
   return null;
 }
 
-const lastLog = (p: Page) => p.locator('.ct-log li').first().textContent();
+const lastLog = (p: Page) => p.locator('.gf-stage').getAttribute('data-rev'); // the frame replaces the renderer's log
 
 test('three players set up Catan and play regular turns', async ({ browser }, info) => {
   test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
@@ -84,7 +84,7 @@ test('three players set up Catan and play regular turns', async ({ browser }, in
   // Hidden information: each client shows only its own resource cards; others are counts.
   for (const p of pages) {
     await expect(p.locator('.ct-hand .ct-cards')).toHaveCount(1);
-    await expect(p.locator('.ct-player__counts').first()).toContainText('کارت منبع');
+    await expect(p.locator('.gf-seat').first()).toBeVisible(); // others' cards are counts in the frame rail
   }
   for (const [k, p] of pages.entries()) await p.screenshot({ path: shot(info.project.name, `turns-${k}`), fullPage: true });
   test.info().annotations.push({ type: 'moves', description: [...seen].join(',') });

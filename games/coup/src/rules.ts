@@ -374,9 +374,23 @@ export const coupModule: GameModule<CoupState, CoupAction, CoupView> = {
         seat,
         primary: { label: 'سکه', value: s.coins[seat]! },
         stats: [{ key: 'influence', label: 'نفوذ', value: cs.filter((c) => !c.revealed).length, icon: 'heart' }],
+        // Face-up (lost) influence cards are public.
+        badges: cs.filter((c) => c.revealed).map((c, i) => ({ key: `lost${i}`, label: ROLE_FA[c.role], tone: 'danger' as const })),
         ...(winners.has(seat) ? { status: 'winner' as const } : !aliveSeat(s, seat) ? { status: 'out' as const } : {})
       })),
-      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }]
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }],
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        const r = (x: unknown) => ROLE_FA[x as Role];
+        switch (e.t) {
+          case 'act': return [{ seat: e.seat, text: `${ACT_FA[e.act as Act]}${e.claim ? ` (ادعای ${r(e.claim)})` : ''}` }];
+          case 'challenge': return [{ seat: e.seat, text: `چالش: ${e.truthful ? 'راست بود' : 'بلوف بود'}` }];
+          case 'block': return [{ seat: e.seat, text: `جلوگیری با ${r(e.role)}` }];
+          case 'reveal': return [{ seat: e.seat, text: `${r(e.role)} را از دست داد` }];
+          case 'eliminated': return [{ seat: e.seat, text: 'بیرون رفت' }];
+          case 'exchanged': return [{ seat: e.seat, text: 'کارت‌ها را عوض کرد' }];
+          default: return [];
+        }
+      }).slice(-40)
     };
   },
 

@@ -7,17 +7,14 @@
 .sc > .sc__players, .sc > .sc__me { justify-self: stretch; }
 .sc__round { margin: 0; font-size: 0.82rem; color: #e3d2b8; }
 
-.sc-card { position: relative; display: inline-grid; grid-template-rows: auto 1fr; justify-items: center; border-radius: 8px; color: #fff;
-  background: linear-gradient(170deg, hsl(var(--h) 70% 55%), hsl(var(--h) 65% 38%)); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.5), 0 3px 6px -3px #000; }
-.sc-card--md { inline-size: 2.6rem; block-size: 3.8rem; padding: 0.15rem 0; }
-.sc-card--sm { inline-size: 1.8rem; block-size: 2.6rem; }
-.sc-card__top { font-size: 1.35rem; font-weight: 900; line-height: 1.1; text-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
-.sc-card--sm .sc-card__top { font-size: 0.95rem; }
-.sc-card__star { align-self: center; font-size: 0.7rem; opacity: 0.6; }
-.sc-card__bot { position: absolute; inset-block-end: 0.15rem; transform: rotate(180deg); font-size: 0.7rem; font-weight: 800; line-height: 1; opacity: 0.9; }
-.sc-card--sm .sc-card__bot { font-size: 0.55rem; inset-block-end: 0.1rem; }
-.sc-v--1 { --h: 200; } .sc-v--2 { --h: 180; } .sc-v--3 { --h: 160; } .sc-v--4 { --h: 130; } .sc-v--5 { --h: 95; }
-.sc-v--6 { --h: 50; } .sc-v--7 { --h: 32; } .sc-v--8 { --h: 15; } .sc-v--9 { --h: 350; } .sc-v--10 { --h: 300; }
+.sc-card { position: relative; display: inline-block; border-radius: 6px; line-height: 0; }
+.sc-card img { display: block; inline-size: 100%; block-size: auto; border-radius: 6px; box-shadow: 0 2px 0 rgb(0 0 0 / 0.3), 0 10px 16px -8px rgb(0 0 0 / 0.6); }
+.sc-card--md { inline-size: 3.4rem; }
+.sc-card--sm { inline-size: 2.4rem; }
+/* Placeholder for a face with no published art. */
+.sc-card--ph { display: inline-grid; align-content: space-between; justify-items: center; aspect-ratio: 54 / 78; padding: 0.25rem 0; line-height: 1.1; background: var(--felt-ink); color: var(--felt); box-shadow: var(--shadow-ring-felt); }
+.sc-card--ph .sc-card__top { font-size: 1.4rem; font-weight: 900; }
+.sc-card--ph .sc-card__bot { font-size: 0.75rem; opacity: 0.7; transform: rotate(180deg); }
 
 .sc__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
 .sc-pl { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; padding: 0.4rem 0.55rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); font-size: 0.82rem; }
@@ -55,3 +52,70 @@
 @keyframes sc-gap { 50% { background: rgb(255 214 140 / 0.3); } }
 @keyframes sc-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sc * { animation: none !important; transition: none !important; } }
+
+/* Inside the table frame the felt is the shell's: no backdrop, felt colours for text, 44px touch areas on the hand. */
+.sc--framed { background: none; padding: 0; color: var(--felt-ink); }
+.sc--framed .sc__ring { background: rgb(250 245 236 / 0.06); box-shadow: inset 0 0 0 1.5px rgb(250 245 236 / 0.16); border-radius: var(--radius-md); padding: 1rem 1rem 1.4rem; }
+.sc--framed .sc__owner, .sc--framed .sc__empty { color: var(--felt-ink); }
+.sc--framed .sc-card--md { inline-size: 4.2rem; }
+.sc--framed .sc-end { box-shadow: 0 0 0 2px var(--felt-gold); }
+.sc--framed .sc-end--on { box-shadow: 0 0 0 3px var(--felt-gold); }
+.sc--framed .sc-pick--on { box-shadow: 0 0 0 3px var(--felt-gold); }
+.sc--framed .sc-gap { border-color: var(--felt-gold); color: var(--felt-gold); background: transparent; min-inline-size: 44px; block-size: 4rem; }
+.sc--framed .sc-pick { min-inline-size: 44px; }
+.sc--framed .sc__me { border-block-start: 0; }
+.sc--framed .sc-hint { box-shadow: 0 0 0 3px var(--felt-gold) !important; }
+@media (max-width: 600px) { .sc--framed .sc-card--md { inline-size: 2.6rem; } .sc--framed .sc__hand { gap: 0.1rem; } }
+
+/* Hands are one overlapping row (QA round 2: wrapped hands pushed the controls under the own plate on phones).
+   While scouting, the «+» gaps need room, so that hand may wrap. */
+.sc__hand { --w: 3.4rem; flex-wrap: nowrap; inline-size: 100%; }
+.sc--framed .sc__hand { --w: 4.2rem; }
+.sc__hand > * { flex: none; position: relative; }
+.sc__hand:not(.sc__hand--gaps) > * + * { margin-inline-start: min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+.sc__hand--gaps { flex-wrap: wrap; }
+.sc__hand .sc-pick--on { z-index: 1; }
+@media (max-width: 600px) {
+  .sc--framed .sc__hand { --w: 2.75rem; }
+  .sc--framed .sc__ring { min-block-size: 0; padding: var(--space-2); }
+}
+
+/* QA round 3: the orientation block is centred in `.sc__me`, so it shrank to its content and the 100%-based overlap left one
+   card and slivers. It stretches now, and a card never hides more than 60% under its neighbour (the hand wraps first). */
+.sc__orient { justify-self: stretch; inline-size: 100%; }
+.sc__hand:not(.sc__hand--gaps) { flex-wrap: wrap; row-gap: 0.4rem; }
+.sc__hand:not(.sc__hand--gaps) > * + * { margin-inline-start: max(calc(var(--w) * -0.6), min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w)))); }
+
+/* QA round 4. Only 13 of the 45 faces are delivered; every other face is a labelled placeholder coloured like the printed
+   suit of each value (sampled from the delivered faces; 9 interpolated): the top half in the top value's colour with the
+   number at the reading corner (it stays visible in an overlapping row), the bottom band in the other value's colour. */
+.sc-t--1 { --ct: #38a0d4; } .sc-t--2 { --ct: #39d5d5; } .sc-t--3 { --ct: #38d29f; } .sc-t--4 { --ct: #9ae6a7; } .sc-t--5 { --ct: #78d138; }
+.sc-t--6 { --ct: #d1b838; } .sc-t--7 { --ct: #d58c39; } .sc-t--8 { --ct: #d05e37; } .sc-t--9 { --ct: #d5397a; } .sc-t--10 { --ct: #d539d5; }
+.sc-b--1 { --cb: #38a0d4; } .sc-b--2 { --cb: #39d5d5; } .sc-b--3 { --cb: #38d29f; } .sc-b--4 { --cb: #9ae6a7; } .sc-b--5 { --cb: #78d138; }
+.sc-b--6 { --cb: #d1b838; } .sc-b--7 { --cb: #d58c39; } .sc-b--8 { --cb: #d05e37; } .sc-b--9 { --cb: #d5397a; } .sc-b--10 { --cb: #d539d5; }
+.sc-card--ph { grid-template-rows: 1fr auto; align-content: stretch; justify-items: stretch; padding: 0; overflow: hidden; border-radius: 6px; background: var(--ct); color: #1a1410; box-shadow: inset 0 0 0 1.5px #fff; }
+.sc-card--ph .sc-card__top { justify-self: start; align-self: start; padding: 0.15rem 0.3rem; font-size: 1.2rem; }
+.sc-card--ph .sc-card__bot { display: block; padding-block: 0.15rem; text-align: center; background: var(--cb); opacity: 1; }
+/* One row per orientation preview (overlap, no wrap) and a margin from the felt edge. */
+.sc__orient .sc__hand { flex-wrap: nowrap; }
+.sc__orient .sc__hand > * + * { margin-inline-start: min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+.sc--framed { padding-inline: var(--space-3); box-sizing: border-box; }
+
+/* QA round 5: the flex gap was added on top of the fitted overlap, so 14 cards ran past both ends. No gap, one row, and the
+   overlap alone fits the row inside the padded felt. */
+.sc__hand:not(.sc__hand--gaps), .sc--framed .sc__hand:not(.sc__hand--gaps) { flex-wrap: nowrap; gap: 0; justify-content: safe center; }
+.sc__hand:not(.sc__hand--gaps) > * + *, .sc__orient .sc__hand:not(.sc__hand--gaps) > * + * { margin-inline-start: min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+
+/* QA round 6: placeholders wear the same dark card frame and shadow as the printed faces; digits stay apart on phones. */
+.sc-card--ph { box-shadow: inset 0 0 0 2px #1a1410, 0 2px 0 rgb(0 0 0 / 0.3), 0 10px 16px -8px rgb(0 0 0 / 0.6); }
+@media (max-width: 600px) { .sc-card--ph .sc-card__top { padding: 0.1rem 0.15rem; font-size: 0.8rem; } .sc-card--ph .sc-card__bot { font-size: 0.6rem; } }
+
+/* Final QA: on phones each orientation preview wraps into rows of whole cards, so every printed value stays readable. */
+@media (max-width: 600px) {
+  .sc__orient .sc__hand:not(.sc__hand--gaps), .sc--framed .sc__orient .sc__hand:not(.sc__hand--gaps) { flex-wrap: wrap; justify-content: center; gap: 0.15rem; --w: 2.75rem; }
+  .sc__orient .sc__hand:not(.sc__hand--gaps) > * + * { margin-inline-start: 0; }
+  /* The playing hand wraps the same way: overlapped cards left too little of each one to tap. */
+  .sc__hand.sc__hand--play:not(.sc__hand--gaps) { flex-wrap: wrap; justify-content: center; gap: 0.15rem; }
+  .sc__hand.sc__hand--play:not(.sc__hand--gaps) > * + * { margin-inline-start: 0; }
+}
+

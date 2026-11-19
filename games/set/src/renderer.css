@@ -13,7 +13,8 @@
 
 .set__board { display: grid; gap: var(--sp-2); grid-template-columns: repeat(4, minmax(0, 1fr)); padding: var(--sp-3);
   border-radius: 16px; background: radial-gradient(ellipse at 50% 30%, #2f6b4f, #1d4733); box-shadow: inset 0 2px 10px rgb(0 0 0 / 0.45); }
-@media (min-width: 720px) { .set__board { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+/* Reference: 4 columns x 3 rows (12 cards); extra cards add rows. */
+.set__board { inline-size: min(100%, 34rem); justify-self: center; }
 
 .set-card { position: relative; display: grid; place-items: center; aspect-ratio: 5 / 6.2; padding: 6%; border: 0; border-radius: 10px;
   background: #fbfaf6; cursor: pointer; min-block-size: var(--touch, 44px);
@@ -45,3 +46,30 @@
 .set-mini svg { inline-size: 100%; block-size: 100%; }
 
 @media (prefers-reduced-motion: reduce) { .set-hint { animation: none; } .set-card, .set-card:not(:disabled):hover { transition: none; transform: none; } }
+
+.set__deck-img { inline-size: 1.6rem; block-size: auto; border-radius: 3px; }
+img.set-card__face { object-fit: contain; border-radius: 6px; }
+/* Inside the table frame the felt and the dock come from the shell. */
+.set--framed .set__board { background: none; box-shadow: none; padding: 0; }
+.set--framed .set-card--on, .set--framed .set-hint { box-shadow: 0 0 0 4px var(--felt-gold) !important; }
+.set--framed .set__bar { position: static; background: none; box-shadow: none; padding: 0; }
+.set--framed .set__deck { color: var(--felt-ink); }
+.set--framed .set__status { justify-content: center; }
+
+.set__status { padding-inline: var(--space-3); }
+.set--framed .set__bar { padding-inline: var(--space-3); }
+
+/* A printed card face is already a card: no second white frame around it (QA round 2: nested card frames). */
+.set-card:has(> img.set-card__face) { padding: 0; background: none; box-shadow: none; }
+.set__count { margin: 0; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
+.set--framed .set__count { color: var(--felt-muted); }
+
+/* QA round 3: every card fills the same 5 : 6.2 slot (a printed face is stretched to the slot, not letterboxed), and on
+   phones the board keeps a margin from the felt edge. */
+.set-card > img.set-card__face { inline-size: 100%; block-size: 100%; object-fit: fill; border-radius: 10px; }
+@media (max-width: 600px) { .set--framed .set__board { inline-size: calc(100% - 2 * var(--space-3)); } }
+
+/* QA round 4: the printed PNG (132 x 162) has a 6px transparent shadow margin around the card, so it read smaller than the
+   drawn cards. It is scaled by exactly that margin (120 -> 132, 150 -> 162) and clipped to the same box. */
+.set-card:has(> img.set-card__face) { overflow: hidden; background: #fbfaf6; } /* ds-check-ignore: card stock colour of the printed face */
+.set-card > img.set-card__face { scale: 1.1 1.08; }

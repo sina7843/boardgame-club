@@ -252,6 +252,7 @@ export const raModule: GameModule<RaState, RaAction, RaView> = {
     const top = Math.max(...vps);
     const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
     return {
+      moves: s.last ? [{ seat: s.last.seat, text: ({ play: 'کارت بازی کرد', buy: 'مکان یا بنا خرید', tap: 'قدرت فعال کرد', discard: 'کارت دور انداخت', pass: 'رد کرد' } as Record<string, string>)[s.last.kind] ?? 'حرکت کرد' }] : [],
       seats: s.players.map((m, seat) => ({
         seat,
         primary: { label: 'امتیاز', value: vps[seat]!, target: 10 },

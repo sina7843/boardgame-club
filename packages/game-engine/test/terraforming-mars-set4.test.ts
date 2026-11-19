@@ -311,7 +311,7 @@ describe('terraforming-mars set4: events', () => {
     snap = act(snap, 0, { type: 'respond', space: '14' });
     expect(st(snap).tiles['14']).toMatchObject({ kind: 'special', owner: 0, card: '140' });
     for (const id of ['09', '21', '29']) st(snap).tiles[id] = { kind: 'greenery', owner: 1 };
-    expect(refuse(snap, '140')).toBe('NO_SPACE');
+    expect(refuse(snap, '140')).toBe('ACCEPTED'); // RULES.md E1: the tile is skipped, the card is playable
   });
 });
 
@@ -356,7 +356,7 @@ describe('terraforming-mars set4: tiles', () => {
   it('Urbanized Area: city next to at least 2 cities; refused otherwise', () => {
     let snap = clean();
     P0(snap).prod.energy = 1;
-    expect(refuse(snap, '120')).toBe('NO_SPACE');
+    expect(refuse(snap, '120')).toBe('ACCEPTED'); // RULES.md E1: the tile is skipped, the card is playable
     P0(snap).hand = [];
     // two cities sharing a common neighbour
     const a = '20';
@@ -374,7 +374,7 @@ describe('terraforming-mars set4: tiles', () => {
 
   it('Industrial Center: next to a city; action 7 M€ for 1 steel production', () => {
     let snap = clean();
-    expect(refuse(snap, '123')).toBe('NO_SPACE');
+    expect(refuse(snap, '123')).toBe('ACCEPTED'); // RULES.md E1: the tile is skipped, the card is playable
     P0(snap).hand = [];
     st(snap).tiles['20'] = { kind: 'city', owner: 1 };
     snap = play(snap, '123');

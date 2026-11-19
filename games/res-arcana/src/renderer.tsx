@@ -3,12 +3,12 @@
 // Places of power and monuments wait on a velvet shelf; your mage and artifacts sit in front of you.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
-import artE from './art/ess-e.webp';
-import artL from './art/ess-l.webp';
-import artC from './art/ess-c.webp';
-import artD from './art/ess-d.webp';
-import artG from './art/ess-g.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import artE from './art/ra-ess-elan.png';
+import artL from './art/ra-ess-life.png';
+import artC from './art/ra-ess-calm.png';
+import artD from './art/ra-ess-death.png';
+import artG from './art/ra-ess-gold.png';
 import { CARDS, ESS, ESS_FA, vpOf, type Ess, type Pile, type RaView } from './rules.ts';
 
 // Painted crystals cut from a generated sheet (see DECISIONS.md), shown as round essence icons.
@@ -85,14 +85,16 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
   useEffect(() => { setDropping(null); }, [view.seq]);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const mine = view.mages[me]!;
+  const framed = useInFrame() !== null; // the shell draws the seat strip, scores and whose turn
   const status = view.outcome ? null
     : myTurn ? { tone: 'mine' as const, text: dropping !== null ? 'کدام جوهر را می‌خواهید؟' : 'یک کار انجام دهید یا رد کنید' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 
   return (
-    <div className="ra" ref={root} data-seq={view.seq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className="ra-round">دور {fa(view.round)}</p>
+    <div className={framed ? 'ra ra--framed' : 'ra'} ref={root} data-seq={view.seq}>
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نوبت یک کار: بازی کردن کارت، خریدن مکان قدرت یا بنا، فعال کردن قدرت، یا دور انداختن کارت برای جوهر. با «رد کردن» از این دور بیرون می‌روید. اول به ۱۰ امتیاز برسد می‌برد.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && <p className="ra-round">دور {fa(view.round)}</p>}
 
       <ul className="ra-rivals" aria-label="جادوگران">
         {view.mages.map((g, k) => (k === me ? null : (
@@ -104,6 +106,7 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
       </ul>
 
       <section className="ra-shelf" aria-label="مکان‌های قدرت و بناها">
+        {framed && <h3 className="ra-label">مکان‌های قدرت و بناها</h3>}
         {[...view.places, ...view.monuments].map((id) => {
           const ok = can('buy', id);
           return (
@@ -115,7 +118,8 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
       </section>
 
       <section data-flip-anchor={`seat-${me}`} className={`ra-me ${myTurn ? 'is-now' : ''}`} aria-label="میز شما">
-        <div className="ra-me__head"><bdi>{who(me)}</bdi><Num className="ra-vp ra-vp--lg" v={mine.vp}>{fa(mine.vp)} از ۱۰ ★</Num><Gems pile={mine.ess} empty="بی‌جوهر" pop />{burst(me)}</div>
+        {framed && <h3 className="ra-label">میز شما</h3>}
+        <div className={framed ? 'ra-me__head ra-me__head--framed' : 'ra-me__head'}><bdi>{who(me)}</bdi><Num className="ra-vp ra-vp--lg" v={mine.vp}>{fa(mine.vp)} از ۱۰ ★</Num><Gems pile={mine.ess} empty="بی‌جوهر" pop />{burst(me)}</div>
         <div className="ra-row">
           {mine.table.map((id) => {
             const ok = can('tap', id);

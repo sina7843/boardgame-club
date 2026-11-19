@@ -73,7 +73,7 @@
 /* Player board: the caravan card (sand cloth, ten cube slots in two rows) beside the won-orders stack and coins. */
 .ct-pl__board { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; }
 .ct-pl__card { display: grid; gap: 0.2rem; justify-items: center; padding: 0.35rem 0.5rem 0.5rem; border-radius: 10px; color: var(--ink);
-  background: linear-gradient(rgb(255 248 230 / 0.25), rgb(120 70 20 / 0.15)), url('./art/caravan-sand.webp') center / cover #d9a868;
+  background: linear-gradient(rgb(255 248 230 / 0.25), rgb(120 70 20 / 0.15)), url('./art/century-caravan.png') center / 100% 100% no-repeat #d9a868;
   box-shadow: inset 0 0 0 2px #7a4a1a, inset 0 0 0 4px rgb(255 240 200 / 0.5), 0 4px 8px -4px #000; }
 .ct-pl__cap { font-size: 0.68rem; font-weight: 900; color: #4a2a0a; }
 .ct-pl__cap .ct-caravan__n { color: #4a2a0a; font-size: inherit; }
@@ -89,3 +89,32 @@
 .ct-pl__coins small { margin-inline-end: 0.3rem; color: #e3d2b2; }
 .ct-pl__cards { color: #e3d2b2; }
 .ct-pl--me { grid-column: 1 / -1; }
+
+/* Handoff art: small cubes are images; inside the shared frame the felt and seat strip are the shell's. */
+.ct-cube { inline-size: 1rem; block-size: 1rem; object-fit: contain; background: none; box-shadow: none; border-radius: 0; }
+.ct--framed { color: var(--felt-ink); }
+.ct-slot { min-block-size: 44px; }
+
+/* Framed: small summary cards under the market (no big caravan boards); your hand stays at the bottom. */
+.ct--framed .ct__players { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--space-2); }
+.ct--framed .ct-pl { padding: var(--space-2); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.ct--framed .ct-pl--me { grid-column: auto; }
+.ct--framed .ct-pl__board { flex-direction: column; gap: var(--space-1); }
+.ct--framed .ct-pl__card--mini { background: none; box-shadow: none; padding: 0; color: var(--felt-ink); }
+.ct--framed .ct-pl__cap, .ct--framed .ct-pl__cap .ct-caravan__n { color: var(--felt-ink); }
+.ct--framed .ct-pl--me .ct-pl__card--mini .ct-cube { inline-size: 1.25rem; block-size: 1.25rem; }
+.ct--framed .ct-pl__side { justify-items: center; }
+.ct--framed .ct__orders, .ct--framed .ct__market { inline-size: 100%; }
+/* Gold and silver coins use the handoff coin art. */
+.ct-coin--gold, .ct-coin--silver { background-color: transparent; background-position: center; background-size: contain; background-repeat: no-repeat; box-shadow: none; min-inline-size: 1.5rem; block-size: 1.5rem; color: var(--ink); }
+.ct-coin--gold { background-image: url('./art/century-gold.png'); }
+.ct-coin--silver { background-image: url('./art/century-silver.png'); }
+/* Round 2: market and orders at the reference size (orders ~606px, merchants ~60px wide), index under every merchant,
+   your caravan as the printed 2 × 5 slot grid. */
+.ct--framed .ct__orders { inline-size: min(100%, 38rem); }
+.ct--framed .ct__market { inline-size: min(100%, 30rem); }
+.ct--framed .ct-card, .ct--framed .ct-order { min-block-size: 3.4rem; }
+.ct--framed .ct-cost { font-size: 12px; color: var(--felt-muted); }
+.ct--framed .ct-pl--me .ct-cv { grid-template-columns: repeat(5, 1.5rem); }
+.ct--framed .ct-pl--me .ct-cv__slot { inline-size: 1.5rem; block-size: 1.5rem; }
+.ct--framed .ct-pl--me .ct-cv__slot .ct-spice { inline-size: 1.1rem; block-size: 1.1rem; }

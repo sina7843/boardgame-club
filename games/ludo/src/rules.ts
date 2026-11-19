@@ -1,18 +1,21 @@
-// Ludo / منچ (Mensch ärgere Dich nicht rules): 2–4 players, 4 pieces each, a 40-square track and a 4-square goal
+// Ludo / منچ (Mensch ärgere Dich nicht rules): 2–4 players, 4 pieces each, a 52-square track, a 5-square goal column and a centre
 // column per colour. Roll a 6 to enter; a 6 rolls again; landing on an opponent sends it home; no landing on (or
 // jumping over, inside the goal) your own pieces; exact count into the goal. With no piece able to move without a 6,
-// you get three tries. Pieces: progress -1 = yard, 0..39 = steps from own start, 40..43 = goal squares.
+// you get three tries. Pieces: progress -1 = yard, 0..51 = steps from own start, 52..56 = goal column, 57 = centre.
 import { z } from 'zod';
 import type { Actor, ActionHint, EngineRng, GameModule, Outcome, Transition } from '@bg/game-sdk';
 import { ludo } from './definition.ts';
 
-export const TRACK = 40;
-export const GOAL = 4;
-const LAST = TRACK + GOAL - 1; // 43
+// BGA board (owner decision 2026-11-08): 52-square loop, 5-square goal column, then the centre square (progress 57).
+export const TRACK = 52;
+export const GOAL = 5;
+export const FINAL = TRACK + GOAL; // 57: the centre; any number of own pieces may stand there
+const LAST = FINAL;
+const SLOT_STEP = 13;
 const MAX_TIMEOUTS = 3;
 const LOG_SIZE = 30;
 
-/** Colour slot per seat: 2 players sit opposite (slots 0 and 2). Slot s starts on track square 10·s. */
+/** Colour slot per seat: 2 players sit opposite (slots 0 and 2). Slot s starts on track square 13·s. */
 export const slotsFor = (players: number) => (players === 2 ? [0, 2] : players === 3 ? [0, 1, 2] : [0, 1, 2, 3]);
 
 export type LogEntry =
@@ -27,7 +30,7 @@ export type LogEntry =
 export interface LudoState {
   players: number;
   slots: number[];
-  /** pieces[seat][i] = progress (-1 yard, 0..39 track, 40..43 goal). */
+  /** pieces[seat][i] = progress (-1 yard, 0..51 track, 52..56 goal column, 57 centre). */
   pieces: number[][];
   active: boolean[];
   current: number;
@@ -52,7 +55,7 @@ export type LudoAction = z.infer<typeof ludoAction>;
 export type LudoView = Omit<LudoState, 'script' | 'timeouts' | 'seq'>;
 
 /** Absolute track square of a progress value for a colour slot. */
-export const trackSquare = (slot: number, progress: number) => (slot * 10 + progress) % TRACK;
+export const trackSquare = (slot: number, progress: number) => (slot * SLOT_STEP + progress) % TRACK;
 
 function log(s: LudoState, e: LogEntry) {
   s.seq += 1;
@@ -82,7 +85,7 @@ export function target(s: LudoState, seat: number, piece: number, die: number): 
   if (to > LAST) return null;
   if (to >= TRACK) {
     // No jumping over (or landing on) own pieces inside the goal.
-    for (let g = Math.max(from + 1, TRACK); g <= to; g++) if (own.includes(g)) return null;
+    for (let g = Math.max(from + 1, TRACK); g <= Math.min(to, FINAL - 1); g++) if (own.includes(g)) return null;
     return to;
   }
   const o = occupantAt(s, trackSquare(s.slots[seat]!, to));
@@ -91,10 +94,17 @@ export function target(s: LudoState, seat: number, piece: number, die: number): 
 
 export const movablePieces = (s: LudoState, seat: number, die: number) => [0, 1, 2, 3].filter((i) => target(s, seat, i, die) !== null);
 
-/** A goal piece that can never move again: every goal square beyond it is taken by own pieces (or it is at the end). */
+/** A piece that can never move again: at the centre, or in the goal column with no die value leading anywhere. */
 function settled(own: number[], p: number) {
+  if (p === FINAL) return true;
   if (p < TRACK) return false;
-  for (let g = p + 1; g <= LAST; g++) if (!own.includes(g)) return false;
+  for (let d = 1; d <= 6; d++) {
+    const to = p + d;
+    if (to > LAST) break;
+    let free = true;
+    for (let g = p + 1; g <= Math.min(to, FINAL - 1); g++) if (own.includes(g)) free = false;
+    if (free) return false;
+  }
   return true;
 }
 /** Three tries apply when nothing can move except by entering with a 6. */
@@ -133,7 +143,7 @@ function doMove(s: LudoState, seat: number, piece: number) {
   }
   s.pieces[seat]![piece] = to;
   log(s, { t: 'move', seat, piece, from, to, captured });
-  if (s.pieces[seat]!.every((p) => p >= TRACK)) {
+  if (s.pieces[seat]!.every((p) => p === FINAL)) {
     log(s, { t: 'finished', seat });
     s.outcome = { reason: 'win', placements: rank(s, seat) };
     return;
@@ -188,11 +198,12 @@ export const ludoModule: GameModule<LudoState, LudoAction, LudoView> = {
       script: [], log: [], seq: 0, outcome: null
     };
     if (tutorial) {
-      // Learner (slot 0): two pieces in the goal (42, 43), one on 28, one on 36. Opponent (slot 2): a piece on square 34
-      // (progress 14) six ahead of the learner, one on square 5. Dice: 6 (forced capture + extra roll), 5 (choice: goal),
-      // opponent 2, 5 (forced), opponent 3, 4 (blocked inside the goal, no move), opponent 1, 1 (exact, wins).
-      s.pieces = [[43, 42, 28, 36], [14, 25, -1, -1]];
-      s.script = [6, 5, 2, 5, 3, 4, 1, 1];
+      // Learner (slot 0): two pieces at the centre (57), one on progress 40 (square 40), one in the goal column (53).
+      // Opponent (slot 2): a piece on square 46 (progress 20) six ahead of the learner's piece 3, one on progress 5.
+      // Dice: 6 (forced capture + extra roll), 4 (choice: centre), opponent 2, 6 (forced into the column + extra roll),
+      // 5 (exact count into the centre, wins).
+      s.pieces = [[57, 57, 40, 53], [20, 5, -1, -1]];
+      s.script = [6, 4, 2, 6, 5];
       beginTurn(s, 0);
     } else beginTurn(s, rng.nextInt(playerCount));
     return s;
@@ -255,9 +266,21 @@ export const ludoModule: GameModule<LudoState, LudoAction, LudoView> = {
   },
 
   publicSummary: (s) => ({
+    moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+      const fa = (n: number) => n.toLocaleString('fa-IR');
+      switch (e.t) {
+        case 'roll': return [{ seat: e.seat, text: `تاس ${fa(e.die)}` }];
+        case 'move': return [{ seat: e.seat, text: `مهره ${fa(e.piece + 1)} ${e.from < 0 ? 'از لانه' : e.to >= FINAL ? 'به خانه' : e.to >= TRACK ? 'ستون خانه' : 'جلو'}${e.captured ? '، زد' : ''}` }];
+        case 'noMove': return [{ seat: e.seat, text: 'حرکتی نداشت' }];
+        case 'finished': return [{ seat: e.seat, text: 'همه به خانه رسیدند' }];
+        case 'left': return [{ seat: e.seat, text: 'کنار رفت' }];
+        case 'timeout': return [{ seat: e.seat, text: 'زمانش تمام شد' }];
+        default: return [];
+      }
+    }).slice(-40),
     seats: s.pieces.map((ps, seat) => ({
       seat,
-      primary: { label: 'در مقصد', value: ps.filter((p) => p >= TRACK).length, target: 4 },
+      primary: { label: 'در مقصد', value: ps.filter((p) => p === FINAL).length, target: 4 },
       stats: [{ key: 'yard', label: 'در خانه', value: ps.filter((p) => p < 0).length, icon: 'shield' }],
       ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : !s.active[seat] ? { status: 'out' as const } : {}),
       strikes: s.timeouts[seat]!
@@ -270,15 +293,14 @@ export const ludoModule: GameModule<LudoState, LudoAction, LudoView> = {
   tutorial: {
     seed: 9,
     options: { deal: 'tutorial' },
-    introFa: 'آخر بازی است و شما مهره‌های قرمز هستید. دو مهره‌تان در دو خانهٔ ته ستون خانه نشسته‌اند و دو مهرهٔ دیگر روی مسیرند: مهرهٔ ۳ دوازده خانه و مهرهٔ ۴ چهار خانه مانده به ستون خانه. دقیقاً ۶ خانه جلوی مهرهٔ ۳ یک مهرهٔ سبز حریف ایستاده است. هر کس اول هر ۴ مهره‌اش را به ستون خانه برساند برنده است.',
+    introFa: 'آخر بازی است و شما مهره‌های قرمز هستید. دو مهره‌تان به خانهٔ مرکزی رسیده‌اند، یک مهره در ستون خانه است و مهرهٔ ۳ در مسیر است. دقیقاً ۶ خانه جلوی مهرهٔ ۳ یک مهرهٔ زرد حریف ایستاده است. هر کس اول هر ۴ مهره‌اش را به خانهٔ مرکزی برساند برنده است.',
     steps: [
       { instructionFa: 'تاس بریزید. مهره به تعداد عدد تاس جلو می‌رود؛ اگر فقط یک حرکت ممکن باشد، خودکار انجام می‌شود و اگر روی مهرهٔ حریف بایستید آن را به لانه‌اش برمی‌گردانید.', expected: { type: 'roll' }, reply: null },
-      { instructionFa: '۶ آمد: مهرهٔ ۴ نمی‌توانست برود، چون در ستون خانه نمی‌شود از روی مهرهٔ خودی پرید؛ پس مهرهٔ ۳ خودکار رفت و مهرهٔ سبز را زد و به لانه فرستاد. ۶ یک تاس جایزه هم دارد: دوباره تاس بریزید.', expected: { type: 'roll' }, reply: null },
-      { instructionFa: '۵ آمد و دو مهره می‌توانند حرکت کنند، پس خودتان انتخاب می‌کنید. مهرهٔ ۴ را حرکت دهید تا وارد ستون خانه شود و در دومین خانهٔ آن بنشیند؛ مهره در ستون خانه دیگر زده نمی‌شود.', expected: { type: 'move', piece: 3 }, reply: { type: 'roll' } },
-      { instructionFa: 'حریف ۲ آورد و تنها مهرهٔ روی مسیرش را جلو برد؛ مهرهٔ لانه فقط با ۶ بیرون می‌آید. تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
-      { instructionFa: '۵ آمد و مهرهٔ ۳ خودکار تا یک خانه مانده به ستون خانه رفت؛ حریف هم ۳ آورد. حالا فقط اولین خانهٔ ستون خانه خالی است و مهرهٔ ۳ دقیقاً ۱ لازم دارد. تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
-      { instructionFa: '۴ آمد و هیچ حرکتی ممکن نبود: مهرهٔ ۳ باید به آخرین خانهٔ ستون می‌رفت که پر است و در ستون خانه نمی‌شود روی مهرهٔ خودی نشست یا از رویش پرید؛ مهره‌های داخل ستون هم جای خالی جلوتر ندارند. پس نوبت به حریف رسید و او ۱ آورد. دوباره تاس بریزید.', expected: { type: 'roll' }, reply: null }
+      { instructionFa: '۶ آمد: مهرهٔ ۴ در ستون خانه است و ۶ خانه جا ندارد؛ پس مهرهٔ ۳ خودکار رفت و مهرهٔ زرد را زد و به لانه فرستاد. ۶ یک تاس جایزه هم دارد: دوباره تاس بریزید.', expected: { type: 'roll' }, reply: null },
+      { instructionFa: '۴ آمد و دو مهره می‌توانند حرکت کنند، پس خودتان انتخاب می‌کنید. مهرهٔ ۴ را حرکت دهید تا دقیقاً به خانهٔ مرکزی برسد؛ برای رسیدن به مرکز تعداد تاس باید دقیق باشد.', expected: { type: 'move', piece: 3 }, reply: { type: 'roll' } },
+      { instructionFa: 'حریف ۲ آورد و تنها مهرهٔ روی مسیرش را جلو برد؛ مهرهٔ لانه فقط با ۶ بیرون می‌آید. فقط مهرهٔ ۳ مانده است. تاس بریزید.', expected: { type: 'roll' }, reply: null },
+      { instructionFa: '۶ آمد و مهرهٔ ۳ خودکار وارد ستون خانه شد؛ دوباره تاس بریزید. تا خانهٔ مرکزی دقیقاً ۵ خانه مانده است.', expected: { type: 'roll' }, reply: null }
     ],
-    completedFa: 'بردید! با ۱ مهرهٔ آخر دقیقاً به اولین خانهٔ ستون خانه رسید و هر ۴ مهرهٔ شما در خانه نشستند و حریف دوم شد. در شروع بازی همهٔ مهره‌ها در لانه‌اند و برای بیرون آوردن هر مهره ۶ لازم است؛ تا وقتی هیچ مهره‌ای روی مسیر ندارید، هر نوبت سه بار فرصت دارید ۶ بیاورید.'
+    completedFa: 'بردید! با ۵ مهرهٔ آخر دقیقاً به خانهٔ مرکزی رسید و هر ۴ مهرهٔ شما به مرکز رسیدند و حریف دوم شد. در شروع بازی همهٔ مهره‌ها در لانه‌اند و برای بیرون آوردن هر مهره ۶ لازم است؛ تا وقتی هیچ مهره‌ای روی مسیر ندارید، هر نوبت سه بار فرصت دارید ۶ بیاورید.'
   }
 };

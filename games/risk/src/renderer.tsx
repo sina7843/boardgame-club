@@ -3,17 +3,30 @@
 // attack with dice tray, occupation, fortification, players and log. Shows only the projection: other hands are counts.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, Icon, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import {
   CARD_FA, CONTINENTS, CONTINENT_OF, T, TERRITORY_FA, TERRITORY_IDS, cardKind, cardTerritory, isSet, setValue,
   type TerritoryId
 } from './board.ts';
 import {
-  CONTINENT_LABEL, CONTINENT_LINES, COASTS, DECOR_PATHS, LAKE_PATHS, MAP_H, MAP_W, REGIONS, SEA_LANES, WRAP_LANE, project, type Pt
+  CONTINENT_LABEL, MAP_H, MAP_W, REGIONS, type Pt
 } from './geometry.ts';
-import { ArmyToken, CARD_BACK, CardIcon, Cartouche, Compass, DieFace, INK, MapDefs, Parchment, SEAT_COLOR, SEAT_FA, SEAT_WASH, Serpent, Ship, StatIcon } from './art.tsx';
+import { ArmyToken, CARD_ART, CARD_BACK, CardIcon, DieFace, INK, MapDefs, MapImage, SEAT_COLOR, SEAT_FA, SEAT_WASH, StatIcon } from './art.tsx';
 import { income, ownsContinent, territoriesOf, type LogEntry, type Phase, type RiskView } from './rules.ts';
 
+/** Desktop frame (≥900): the rail is visible, so your cards can live there; on phones it is a collapsed line. */
+function useWide() {
+  const q = '(min-width: 900px)';
+  const [m, setM] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.(q).matches);
+  useEffect(() => {
+    const mq = window.matchMedia?.(q);
+    if (!mq) return;
+    const on = () => setM(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return m;
+}
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** Isolate a (possibly Latin) player name inside Persian text. */
 const iso = (s: string) => `⁨${s}⁩`;
@@ -100,7 +113,6 @@ const curve = (p: Pt, q: Pt, bend = 0.18) => {
   const mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2, dx = q[0] - p[0], dy = q[1] - p[1];
   return `M${p[0].toFixed(1)} ${p[1].toFixed(1)} Q${(mx - dy * bend).toFixed(1)} ${(my + dx * bend).toFixed(1)} ${q[0].toFixed(1)} ${q[1].toFixed(1)}`;
 };
-const xMost = (t: number, dir: 1 | -1): Pt => REGIONS[t]!.poly.reduce((a, b) => (b[0] * dir > a[0] * dir ? b : a));
 /** Hit-test anchor: a transparent box centred on the token spot so the group's bounding-box centre is a point inside the territory. */
 const anchorOf = (poly: Pt[], c: Pt) => {
   const xs = poly.map((p) => p[0]), ys = poly.map((p) => p[1]);
@@ -108,7 +120,6 @@ const anchorOf = (poly: Pt[], c: Pt) => {
   return { x: c[0] - hw, y: c[1] - hh, width: hw * 2, height: hh * 2 };
 };
 const ANCHORS = REGIONS.map((r) => anchorOf(r.poly, r.center));
-const GRAT_LAT = [60, 30, 0, -30], GRAT_LON = [-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150];
 
 function Ribbon({ x, y, text, tint, held, chip }: { x: number; y: number; text: string; tint: string; held: boolean; chip: { color: string; seat: number } | null }) {
   const w = 30 + text.length * 6.3, h = 13;
@@ -134,6 +145,7 @@ function Pop({ v, className = '' }: { v: number; className?: string }) {
 }
 
 function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: (t: number) => void }) {
+  const framed = useInFrame() !== null;
   // Every army count shown on the map; a token bumps when its own count changed (placement, fortify, occupation).
   const shown = view.armies.map((a, t) => a + (ms.draft[t] ?? 0));
   // (A token remounts when its count changes, so the class may stay on afterwards without replaying.)
@@ -148,7 +160,6 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
   const battle = view.lastBattle && view.lastBattle.turn === view.turn ? view.lastBattle : null;
   // Effects only while the battle is the newest event: the defender's token shakes, a conquered one drops in.
   const fresh = battle && view.log.at(-1)?.t === 'battle' ? battle : null;
-  const wa = xMost(WRAP_LANE[0], -1), wk = xMost(WRAP_LANE[1], 1);
 
   // Tokens grow when the map is drawn small (phones) and are nudged apart where territories are tiny.
   const grow = Math.round(Math.min(1.4, Math.max(1, (0.8 / k) ** 0.5)) * 10) / 10;
@@ -169,38 +180,9 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
     <svg ref={svg} className={showNames ? 'rk-map rk-map--names' : 'rk-map'} viewBox={`${-PAD} ${-PAD} ${VIEW_W} ${MAP_H + PAD * 2}`} role="group" aria-label="نقشه جهان ریسک" style={{ direction: 'ltr' }}>
       <MapDefs />
       <g aria-hidden="true" pointerEvents="none">
-        <rect x={-PAD} y={-PAD} width={VIEW_W} height={MAP_H + PAD * 2} rx="10" className="rk-paper" />
-        <Parchment w={MAP_W} h={MAP_H} />
-        {GRAT_LAT.map((la) => { const y = project(0, la)[1]; return <line key={`la${la}`} x1="0" x2={MAP_W} y1={y} y2={y} className="rk-grid" />; })}
-        {GRAT_LON.map((lo) => { const x = project(lo, 0)[0]; return <line key={`lo${lo}`} y1="0" y2={MAP_H} x1={x} x2={x} className="rk-grid" />; })}
-        <rect width={MAP_W} height={MAP_H} fill="url(#rkm-vignette)" />
-        {/* Graduated neatline: a chequered band between two ink rules. */}
-        <rect x="-8" y="-8" width={MAP_W + 16} height={MAP_H + 16} className="rk-band rk-band--a" />
-        <rect x="-8" y="-8" width={MAP_W + 16} height={MAP_H + 16} className="rk-band rk-band--b" />
-        <rect x="-12.5" y="-12.5" width={MAP_W + 25} height={MAP_H + 25} className="rk-rule" />
-        <rect x="-3.5" y="-3.5" width={MAP_W + 7} height={MAP_H + 7} className="rk-rule rk-rule--thin" />
-
-        <g transform={`translate(${project(-136, -9).map((v) => v.toFixed(1)).join(' ')})`}><Compass /></g>
-        <g transform={`translate(104 ${(MAP_H - 36).toFixed(1)})`}><Cartouche title="ریسک" /></g>
-        <g transform={`translate(${project(-30, -38).map((v) => v.toFixed(1)).join(' ')})`}><Ship /></g>
-        <g transform={`translate(${project(62, -38).map((v) => v.toFixed(1)).join(' ')}) scale(-0.8 0.8)`}><Ship /></g>
-        <g transform={`translate(${project(-150, -26).map((v) => v.toFixed(1)).join(' ')})`}><Serpent /></g>
-        <g transform={`translate(${project(-58, 62).map((v) => v.toFixed(1)).join(' ')}) scale(0.75)`}><Serpent /></g>
-
-        {SEA_LANES.map((l) => <path key={`h${l.a}-${l.b}`} d={curve(l.p, l.q)} className="rk-lane-halo" />)}
-        {SEA_LANES.map((l) => <path key={`${l.a}-${l.b}`} d={curve(l.p, l.q)} className="rk-lane" />)}
-        {/* Alaska–Kamchatka wraps around the edge of the map. */}
-        <path d={`M${wa[0].toFixed(1)} ${wa[1].toFixed(1)} Q${(wa[0] / 2).toFixed(1)} 26 0 20`} className="rk-lane-halo" />
-        <path d={`M${wk[0].toFixed(1)} ${wk[1].toFixed(1)} Q${((wk[0] + MAP_W) / 2).toFixed(1)} 26 ${MAP_W} 20`} className="rk-lane-halo" />
-        <path d={`M${wa[0].toFixed(1)} ${wa[1].toFixed(1)} Q${(wa[0] / 2).toFixed(1)} 26 0 20`} className="rk-lane" />
-        <path d={`M${wk[0].toFixed(1)} ${wk[1].toFixed(1)} Q${((wk[0] + MAP_W) / 2).toFixed(1)} 26 ${MAP_W} 20`} className="rk-lane" />
+        <MapImage x={-PAD} y={-PAD} w={VIEW_W} h={MAP_H + PAD * 2} />
         <text x="6" y="13" className="rk-lane__wrap">← {TERRITORY_FA.kamchatka}</text>
         <text x={MAP_W - 6} y="13" className="rk-lane__wrap rk-lane__wrap--end">{TERRITORY_FA.alaska} →</text>
-
-        {/* Water-lining: concentric ripples around every coast, then the land with a drop shadow. */}
-        {[22, 15, 9].map((w, i) => COASTS.map((d, j) => <path key={`r${i}-${j}`} d={d} className={`rk-ripple rk-ripple--${i}`} strokeWidth={w} />))}
-        {COASTS.map((d, i) => <path key={`l${i}`} d={d} className="rk-land" filter="url(#rkm-land)" />)}
-        {DECOR_PATHS.map((p, i) => <path key={`dc${i}`} d={p.d} className="rk-decor" fill={`url(#rkm-c-${p.c})`} />)}
       </g>
 
       {REGIONS.map((r, t) => {
@@ -214,10 +196,12 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
           <g key={r.id} className={cls} {...props} onPointerEnter={() => setHover(t)} onPointerLeave={() => setHover((h) => (h === t ? null : h))} onFocus={() => setHover(t)} onBlur={() => setHover((h) => (h === t ? null : h))}>
             <rect {...ANCHORS[t]!} fill="none" pointerEvents="none" />
             <clipPath id={`rkm-clip-${t}`}><path d={r.d} /></clipPath>
-            <path d={r.d} className="rk-terr__fill" fill={`url(#rkm-c-${CONTINENT_OF[t]})`} />
-            <path d={r.d} className="rk-terr__wash" fill={SEAT_COLOR[owner]} fillOpacity={SEAT_WASH[owner]} pointerEvents="none" />
-            <path d={r.d} fill="url(#rkm-paper)" pointerEvents="none" />
-            <path d={r.d} clipPath={`url(#rkm-clip-${t})`} className="rk-terr__owner" stroke={SEAT_COLOR[owner]} pointerEvents="none" />
+            <path d={r.d} className="rk-terr__fill" fill="transparent" />
+            {/* Frame (design): land in its continent colour; the owner is the seat-coloured army token on it. */}
+            {framed ? <path d={r.d} className="rk-terr__wash" fill={`url(#rkm-c-${CONTINENT_OF[t]})`} fillOpacity={0.78} pointerEvents="none" /> : <>
+              <path d={r.d} className="rk-terr__wash" fill={SEAT_COLOR[owner]} fillOpacity={SEAT_WASH[owner]} pointerEvents="none" />
+              <path d={r.d} clipPath={`url(#rkm-clip-${t})`} className="rk-terr__owner" stroke={SEAT_COLOR[owner]} pointerEvents="none" />
+            </>}
             <path d={r.edge} className="rk-terr__edge" pointerEvents="none" />
             <path d={r.edge} className="rk-ring" pointerEvents="none" />
           </g>
@@ -225,12 +209,8 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
       })}
 
       <g aria-hidden="true" pointerEvents="none">
-        {LAKE_PATHS.map((d, i) => <path key={`lk${i}`} d={d} className="rk-lake" />)}
-        <path d={CONTINENT_LINES} className="rk-continent-line" />
-        {COASTS.map((d, i) => <path key={`c${i}`} d={d} className="rk-coast" />)}
-        {COASTS.map((d, i) => <path key={`ci${i}`} d={d} className="rk-coast rk-coast--inline" />)}
 
-        {CONTINENTS.map((c) => {
+        {!framed && CONTINENTS.map((c) => {
           const [x, y] = CONTINENT_LABEL[c.id];
           const owner = view.owner.find((_, t) => CONTINENT_OF[t] === c.id)!;
           const held = ownsContinent(view, owner, c.id);
@@ -475,17 +455,40 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
   const pickedOk = picked.length === 3 && isSet(picked) && tradeSets.some((s) => s.every((c) => picked.includes(c)));
   const hand = (view.myHand ?? []).filter((c) => !traded?.has(c));
 
+  const framed = useInFrame() !== null;
+  const wide = useWide();
   return (
-    <div className="rk" ref={root}>
+    <div className={framed ? 'rk rk--framed' : 'rk'} ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
-      <div className="rk__meta">
-        <span className="rk-chipmeta rk-chipmeta--turn">نوبت {fa(view.turn)} · {PHASE_FA[view.phase]}</span>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          {/* The map has no continent ribbons in the frame: bonuses and who holds each continent are listed here. */}
+          <section className="rk-rail" aria-label="قاره‌ها">
+            <h3>قاره‌ها{mySeat !== null && <span className="rk-rail__note">{SEAT_FA[mySeat]}</span>}</h3>
+            <div className="rk-rail__pills">
+              {CONTINENTS.map((c) => {
+                const all = view.owner.filter((_, t) => CONTINENT_OF[t] === c.id);
+                const holder = all.every((o) => o === all[0]) ? all[0]! : null;
+                const mine = mySeat === null ? 0 : all.filter((o) => o === mySeat).length;
+                return <span key={c.id} className="bgv-chip">{c.nameFa} +{fa(c.bonus)}: {holder !== null && holder === mySeat ? 'مال شما' : holder !== null ? SEAT_FA[holder] : mySeat !== null ? `${fa(mine)} از ${fa(all.length)}` : 'آزاد'}</span>;
+              })}
+              <span className="bgv-chip">دسته: {fa(view.deckCount)} کارت</span>
+            </div>
+          </section>
+          <p className="rk-rail__tip"><Icon name="book" size={18} />
+            <span>هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}. دستهٔ بعدی {fa(view.nextSetValue)} ارتش، جابه‌جایی {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}.</span>
+          </p>
+        </RailSlot>
+      )}
+      {!framed && <div className="rk__meta">
+        <span className="rk-chipmeta rk-chipmeta--turn">نوبت {fa(view.turn)}، {PHASE_FA[view.phase]}</span>
         <span className="rk-chipmeta">هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}</span>
         <span className="rk-chipmeta">دسته بعدی: {fa(view.nextSetValue)} ارتش</span>
         <span className="rk-chipmeta" data-flip-anchor="deck"><img src={CARD_BACK} alt="" aria-hidden="true" className="rk-deck" /> کارت در دسته: {fa(view.deckCount)}</span>
         <span className="rk-chipmeta">جابه‌جایی: {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}</span>
-      </div>
+      </div>}
 
       <div className="rk-main">
         <div className="rk-board-wrap">
@@ -496,8 +499,10 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
         </div>
 
         <div className="rk-side">
-          {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+          {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
+          {/* Frame: the turn panel is the dock row under the map (the map shrinks to fit), your cards go into the rail on desktop. */}
+          {(() => { const turnPanels = (<>
           {myTurn && (view.phase === 'setup' || view.phase === 'reinforce') && (
             <Panel title={view.phase === 'setup' ? 'چیدن ارتش آغازین' : view.elimTrade ? 'معاوضه پس از حذف بازیکن' : 'نیروی کمکی'} tone="decide">
               {view.phase === 'reinforce' && !view.elimTrade && mySeat !== null && (
@@ -587,6 +592,8 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
             </Panel>
           )}
 
+          </>); return framed ? (myTurn && !view.outcome ? <DockSlot><div className="rk-dock">{turnPanels}</div></DockSlot> : null) : turnPanels; })()}
+          {(() => { const handPanel = (<>
           {view.myHand && !view.outcome && (
             <section className="rk-hand" aria-label="کارت‌های شما">
               <h3>کارت‌های شما ({fa(hand.length)})</h3>
@@ -601,9 +608,10 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
                       <li key={c} data-flip={`card-${c}`} data-flip-from="deck" data-flip-exit="deck" style={{ ['--i' as string]: idx }}>
                         <button type="button" className={`rk-card rk-card--${k}`} aria-pressed={on} aria-label={text} disabled={busy || tradeSets.length === 0}
                           onClick={() => setPicked((p) => (on ? p.filter((x) => x !== c) : p.length < 3 ? [...p, c] : p))}>
+                          {CARD_ART[c] ? <img src={CARD_ART[c]} alt="" aria-hidden="true" className="rk-card__img" draggable={false} /> : <>
                           <span className="rk-card__kind">{CARD_FA[k]}</span>
                           <span className="rk-card__art" aria-hidden="true">{t !== null ? <Silhouette t={t} /> : null}<CardIcon kind={k} /></span>
-                          {t !== null ? <span className="rk-card__terr">{tFa(t)}{owned ? ' ★' : ''}</span> : <span className="rk-card__terr">جوکر</span>}
+                          {t !== null ? <span className="rk-card__terr">{tFa(t)}{owned ? ' ★' : ''}</span> : <span className="rk-card__terr">جوکر</span>}</>}
                         </button>
                       </li>
                     );
@@ -622,7 +630,8 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
             </section>
           )}
 
-          <ul className="rk-players" aria-label="بازیکنان">
+          </>); return framed && wide ? <RailSlot>{handPanel}</RailSlot> : handPanel; })()}
+          {!framed && <ul className="rk-players" aria-label="بازیکنان">
             {Array.from({ length: view.players }, (_, s) => {
               const turn = view.current === s && !view.outcome;
               const terr = territoriesOf(view, s);
@@ -649,12 +658,12 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
                 </li>
               );
             })}
-          </ul>
+          </ul>}
 
-          <details className="rk-log" open>
+          {!framed && <details className="rk-log" open>
             <summary>رویدادها</summary>
             <ol>{view.log.slice(-10).reverse().map((e) => <li key={e.seq}>{describe(e, seatName)}</li>)}</ol>
-          </details>
+          </details>}
         </div>
       </div>
     </div>

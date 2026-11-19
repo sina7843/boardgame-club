@@ -16,8 +16,10 @@ test('interactive tutorial: spider, grasshopper, placement, beetle, ant trap the
   for (const step of ['۱', '۲', '۳', '۴', '۵']) {
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۵`))).toBeVisible();
     if (step !== '۳') await p.locator('.hv-cell--hint').click(); // step 3 places a new ant; the others move a piece
-    // Step 4: the beetle climbs onto an occupied cell, whose piece is drawn over the target ring.
-    await p.locator('.hv-target--hint').click({ force: step === '۴' });
+    // Step 4: the beetle climbs onto an occupied cell, whose piece is drawn over the target ring, so a player taps that piece.
+    const ring = p.locator('.hv-target--hint');
+    const piece = p.locator(`.hv-cell[data-hex="${await ring.getAttribute('data-hex')}"]`);
+    await (await piece.count() ? piece : ring).click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
@@ -70,7 +72,7 @@ test('two players place and move bugs, then one resigns', async ({ browser }, in
   }
   if (!(await host.getByRole('heading', { name: RESULT }).count())) {
     const resign = guest.getByRole('button', { name: 'انصراف از بازی' });
-    if (!(await resign.first().isVisible())) await guest.getByRole('button', { name: 'بازیکنان و قوانین' }).click();
+    if (!(await resign.first().isVisible())) await guest.getByRole('button', { name: /^(قوانین|گزینه‌ها)$/ }).first().click(); // desktop rail | phone dock
     await resign.filter({ visible: true }).first().click();
     await guest.getByRole('button', { name: 'انصراف قطعی' }).click();
   }

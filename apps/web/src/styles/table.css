@@ -2,14 +2,16 @@
 
 /* A live game hides the app shell (Table.tsx sets html[data-immersive]); the table is the whole screen. */
 html[data-immersive] .bgv-app { display: block; padding: 0; }
+html[data-immersive] .bgv-app__main { padding-block: 0 !important; } /* the site dock is hidden, so its reserved space goes too (same specificity issue as above) */
 /* !important: the DS shell's own responsive rules (several :not() classes) are more specific than any sane selector here. */
 html[data-immersive] :is(.bgv-app > .bgv-siteheader, .bgv-app__top, .bgv-app__dock, .app-page__foot, .app-page > .bgv-banner) { display: none !important; }
 html[data-immersive] .bgv-app__main { max-inline-size: none; }
 html[data-immersive] .app-page { gap: 0; }
 
 /* Lobby */
-.tbl-head { display: inline-flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
-.tbl-head__cover { inline-size: 112px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-tile); flex: none; }
+.tbl-head { display: flex; align-items: center; gap: var(--space-3); }
+.tbl-head > .bgv-pagehead { flex: 1; min-inline-size: 0; align-items: center; }
+.tbl-head .bgv-pagehead__text { min-inline-size: 0; }
 .tbl-head__latin { font-family: var(--font-latin); font-size: 15px; font-weight: 600; color: var(--text-muted); }
 .tbl-seats .bgv-lobbyseat { flex-wrap: wrap; row-gap: var(--space-2); }
 .tbl-seats .bgv-lobbyseat > .bgv-identity { min-inline-size: 0; }
@@ -34,15 +36,22 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-prompt { display: inline-flex; align-items: center; gap: var(--space-2); min-inline-size: 0; }
 .tbl-tutorial { display: grid; gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-md); background: var(--invite-soft); }
 .tbl-rail .bgv-pcard { position: relative; }
-.tbl-said.bgv-bubble-float { inset-block-end: calc(100% - var(--space-2)); inset-inline-start: var(--space-3); z-index: var(--z-hud); }
+/* In flow inside the seat card: never straddles the top bar or a neighbouring card. */
+.tbl-said.bgv-bubble-float { position: relative; inset: auto; align-self: flex-start; margin-block-start: var(--space-1); max-inline-size: 100%; }
 .tbl-said b { font-weight: 700; }
 .tbl-said.is-mention { outline: 2px solid var(--invite); }
 .tbl-post { margin-block-start: var(--space-2); }
 
 /* Result card over the felt (the board stays reachable with «دیدن صفحهٔ بازی»). */
 .tbl-felt { position: relative; }
-.tbl-result-wrap { position: absolute; inset: 0; z-index: var(--z-hud); display: grid; place-items: center; padding: var(--space-4); overflow: auto;
-  border-radius: inherit; background: color-mix(in srgb, var(--felt) 70%, transparent); }
+.tbl-result-wrap { order: -1; display: grid; justify-items: center; }
+/* The result sits on a white card inside the felt: felt-context avatar and vote colours (cream on translucent) would be white on white. */
+.tbl-result .bgv-avatar { background: var(--surface-raised); color: var(--heading); box-shadow: var(--shadow-gap); }
+.tbl-result .bgv-avatar:is([class*="seat-"], .is-you, .is-yes, .is-no) { outline: 2px solid var(--_ring); outline-offset: 2px; }
+.tbl-result .bgv-pstate { color: var(--text-muted); }
+.tbl-result .bgv-pstate--done { color: var(--success); }
+.tbl-result .bgv-pstate--wait { color: var(--warning); }
+.tbl-result .bgv-pstate--off { color: var(--danger); }
 .tbl-result { inline-size: min(100%, 620px); }
 
 /* Move notices float at the top, never pushing the board around. */
@@ -61,19 +70,33 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-overlay--side > .bgv-sheet { inline-size: min(100%, 400px); overflow-y: auto; }
 /* About half the screen so the table stays visible above it (design Chat-Sheet). */
 .tbl-chatsheet { block-size: min(55dvh, 520px); }
-.tbl-overlay:has(> .tbl-chatsheet) { background: transparent; pointer-events: none; }
-.tbl-overlay > .tbl-chatsheet { pointer-events: auto; }
 @media (min-width: 900px) {
   .tbl-overlay:not(.tbl-overlay--side) { flex-direction: row; justify-content: flex-end; padding: var(--space-3); }
   .tbl-overlay:not(.tbl-overlay--side) > .tbl-chatsheet { inline-size: var(--chat-w); block-size: auto; border-radius: var(--radius-lg); }
 }
 @media (min-width: 1200px) { .tbl-chatbtn { display: none; } }
+/* BGA-style tables (Gaia, TM, Brass, Ark Nova, Blood Rage handoffs): no chat column; the game column takes the width and
+   the player rail is 360px (300px for Gaia and Ark Nova). Chat opens as a sheet from the game-bar button at every width. */
+.tbl-screen--bga { --rail-w: 360px; }
+.tbl-screen--gaia-project, .tbl-screen--ark-nova, .tbl-screen--blood-rage { --rail-w: 300px; }
+.tbl-screen--bga .tbl-chatbtn { display: inline-flex; }
+/* BGA tables draw their own action bar / phone dock (steps, cost, «ثبت»/«برگرد»), so the shell dock stays only for tutorials;
+   the turn pill keeps the clock. On phones the renderer draws its own compact player chips, so the shell strip is hidden. */
+.tbl-dock--bga { display: none; }
+@media (max-width: 899px) { .tbl-screen.tbl-screen--bga .bgv-hud.tbl-rail { display: none; } }
+/* Renderer <RailSlot> content joins the rail's flex column; a `.rail-top` block (status box, parameter dashboard) goes above the
+   player cards, anything else below them (log). */
+.tbl-railslot { display: contents; }
+.tbl-rail .rail-top { order: -1; }
+/* BGA tables lay their own zones on the page (white action bar, felt cards per zone): the shell felt is only a frame-less box. */
+.tbl-screen--bga .tbl-felt { background: none; box-shadow: none; border: 0; padding: 0; }
+.tbl-screen--bga .tbl-stage { background: none; }
+@media (min-width: 900px) { .tbl-screen--bga.bgv-tablescreen--desk { grid-template-columns: var(--rail-w) minmax(0, 1fr); } }
 
 @media (max-width: 899px) {
   .tbl-felt { padding: var(--space-2); }
   .tbl-felt > .bgv-felt__stage { min-block-size: 0; }
   .tbl-rail { overflow-y: visible; }
-  .tbl-head__cover { inline-size: 80px; }
 }
 
 /* Popover menus (message actions, quick chat). */
@@ -98,12 +121,17 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-said[style] { background: var(--tbl-bubble); color: var(--tbl-bubble-ink); }
 
 /* Lobby on phones: the ready / leave buttons live in a bar pinned above the dock, not below the chat. */
-.tbl-lobbybar { display: none; }
+.tbl-lobbyacts { display: grid; gap: var(--space-3); }
+.tbl-lobbybar, .tbl-lobbyroot-pad { display: none; }
 @media (max-width: 899px) {
-  .tbl-lobbyacts { display: none; }
-  .tbl-lobbybar { display: flex; gap: var(--space-2); position: sticky; inset-block-end: calc(var(--dock-h) + var(--space-2)); z-index: var(--z-sticky);
-    padding: var(--space-3); background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); }
-  .tbl-lobbybar > * { flex: 1; }
+  .tbl-lobbyacts, .tbl-lobbynote { display: none; }
+  /* One bar above the dock; the spacer keeps the end of the page clear of it. */
+  .tbl-lobbybar { display: grid; gap: var(--space-2); position: fixed; inset-inline: var(--space-2); inset-block-end: calc(var(--dock-h) + var(--space-2)); z-index: var(--z-sticky);
+    padding: var(--space-3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); }
+  .tbl-lobbybar__note { margin: 0; }
+  .tbl-lobbybar__row { display: flex; align-items: center; gap: var(--space-3); }
+  .tbl-lobbybar__row > .bgv-btn:not(.bgv-btn--icon) { flex: 1; }
+  .tbl-lobbyroot-pad { display: block; block-size: 160px; }
 }
 
 .tbl-sheetrow { display: flex; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-1); border-block-end: 1px solid var(--line); }
@@ -111,9 +139,14 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-rail .bgv-pcard { cursor: pointer; }
 
 /* Phones: the result is its own full screen page (no player strip, board or dock behind it). */
-@media (max-width: 899px) {
-  .tbl-result-wrap { position: fixed; inset: 0; z-index: var(--z-sheet); background: var(--bg); place-items: start center; }
-}
+
+/* Quick-chat chips must not shrink below their text (the tray scrolls instead); upstream DS bundle.css lets them shrink so the emoji overhangs the frame. */
+.bgv-quicktray > .bgv-chip { flex: none; }
+
+/* Long-pressed message menu: under the lifted bubble, 12px from every edge; reaction strip above it. */
+.chat-msg.is-lifted { anchor-name: --chat-lift; }
+.chat-pop--lift { position-anchor: --chat-lift; position-area: block-end span-inline-start; margin: var(--space-3); max-inline-size: calc(100vw - var(--space-3) * 2); position-try-fallbacks: flip-block; }
+.chat-msg.is-lifted > .bgv-reactbar { position: absolute; inset-block-end: calc(100% + var(--space-2)); inset-inline-end: var(--space-3); }
 
 /* Long-pressed message: lifted above a scrim with its reaction bar and menu. */
 .chat-msg.is-lifted { position: relative; z-index: var(--z-dialog); }
@@ -154,3 +187,211 @@ html[data-immersive] .app-page { gap: 0; }
 
 /* Player names are plain strings (the card uses them as its accessible name); isolate them so a Latin name keeps its direction. */
 .bgv-pcard__name b { unicode-bidi: isolate; }
+
+/* Game top: game bar + connection banner directly under it (the grid row grows with the banner). */
+.tbl-top { grid-column: 1 / -1; grid-row: 1; display: grid; gap: var(--space-2); min-inline-size: 0; }
+.tbl-screen:has(> .tbl-top > .tbl-offline) { grid-template-rows: auto minmax(0, 1fr) auto !important; }
+@media (max-width: 899px) { .tbl-screen:has(> .tbl-top > .tbl-offline) { grid-template-rows: auto auto auto auto !important; } }
+.tbl-guest { position: relative; min-block-size: 70dvh; }
+
+/* ---------- games with their own frame (chess, design/games/chess): game bar | renderer (rail + felt) | chat ---------- */
+.tbl-own { display: grid; grid-template-rows: auto auto minmax(0, 1fr); position: fixed; inset: 0; z-index: var(--z-felt); min-block-size: 0; overflow: hidden; }
+.tbl-own > .bgv-gamebar { grid-row: 1; }
+.tbl-pops--own { position: static; display: grid; gap: var(--space-2); padding: var(--space-2) var(--space-3) 0; }
+.tbl-own__body { grid-row: 3; min-block-size: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.tbl-own__body--chat { grid-template-columns: minmax(0, 1fr) 340px; }
+.tbl-own__chat { position: static; max-block-size: none; min-block-size: 0; border-radius: 0; border-inline-start: 1px solid var(--line); }
+.tbl-own__body > .ch { min-block-size: 0; }
+@media (max-width: 899px) {
+  /* Phone: game bar + a felt that fills the rest of the screen (the dock is fixed at the bottom edge). */
+  .tbl-own { position: static; display: flex; flex-direction: column; block-size: auto; min-block-size: 100dvh; overflow: visible; background: var(--felt); }
+  .tbl-own__body { flex: 1; display: flex; flex-direction: column; min-block-size: 0; }
+  .tbl-own__body > .ch { flex: 1; }
+}
+.tbl-ownres { display: grid; gap: var(--space-3); padding: 0 20px var(--space-3); }
+.tbl-ownres__rating { margin: 0; text-align: center; font-size: 14px; color: var(--text); }
+.tbl-ownres__up { color: var(--success); font-weight: 700; }
+.tbl-ownres__down { color: var(--danger); font-weight: 700; }
+.tbl-ownres__btns { display: grid; gap: var(--space-2); }
+.tbl-ownres__foot { display: flex; justify-content: center; gap: var(--space-1); padding-block-start: var(--space-2); border-block-start: 1px solid var(--line); }
+.tbl-ownt { display: grid; gap: var(--space-2); background: var(--surface); border-radius: var(--radius-md); box-shadow: var(--shadow-card), var(--shadow-ring); padding: var(--space-3); }
+.tbl-ownt__round { display: flex; align-items: center; gap: var(--space-2); font-size: 14px; color: var(--text); text-decoration: none; }
+.tbl-ownt__round b { color: var(--heading); }
+.tbl-ownt__round .bgv-icon { color: var(--warning); }
+.tbl-ownt__mini { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13.5px; }
+.tbl-ownt__mini li { display: grid; grid-template-columns: 24px 1fr auto; gap: var(--space-2); }
+.tbl-ownt__mini li > span { color: var(--text-muted); font-weight: 700; }
+.tbl-ownt__mini li.is-you { font-weight: 900; color: var(--heading); }
+/* chess between rounds (design/games/chess P16) */
+.tbl-rounds { display: grid; gap: var(--space-3); align-content: start; padding: var(--space-3); overflow: auto; max-inline-size: 560px; inline-size: 100%; margin-inline: auto; }
+.tbl-rounds__card { display: grid; gap: var(--space-3); background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card), var(--shadow-ring); padding: var(--space-4); }
+.tbl-rounds__head { margin: 0; display: flex; align-items: center; gap: var(--space-2); font-size: 14px; color: var(--text); }
+.tbl-rounds__head b { color: var(--heading); }
+.tbl-rounds__head .bgv-icon { color: var(--warning); }
+.tbl-rounds__next { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); box-shadow: var(--shadow-ring); }
+.tbl-rounds__next > div { display: grid; gap: 2px; }
+.tbl-rounds__next b { color: var(--heading); }
+.tbl-rounds__count { margin: 0; display: flex; align-items: baseline; justify-content: center; gap: var(--space-2); }
+.tbl-rounds__count b { font: 900 34px/1 var(--font-fa); color: var(--heading); }
+.tbl-rounds__title { margin: 0; font-size: 15px; font-weight: 700; color: var(--heading); }
+.tbl-rounds__table { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); font-size: 14px; }
+.tbl-rounds__table li { display: grid; grid-template-columns: 28px 1fr auto 52px; gap: var(--space-2); }
+.tbl-rounds__table li > span:first-child { color: var(--text-muted); font-weight: 700; }
+.tbl-rounds__table li > span:last-child { color: var(--text-muted); text-align: end; }
+.tbl-rounds__table li.is-you { font-weight: 900; color: var(--heading); }
+.tbl-rounds__links { display: flex; justify-content: center; gap: var(--space-2); flex-wrap: wrap; }
+
+/* ---------- shared frame of groups A–D (design/games/group-a…d; Table.tsx FrameView) ----------
+   game bar | rail 380 | felt (bars or seat strip around the renderer) | chat 340. Phone: one column + 4-item dock. */
+.tbl-gf { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; position: fixed; inset: 0; z-index: var(--z-felt); min-block-size: 0; overflow: hidden; }
+.tbl-gf.tbl--max { z-index: var(--z-dialog); overflow: hidden; }
+.tbl-gf > .bgv-gamebar { grid-row: 1; } .gf-banners { grid-row: 2; } .gf-body { grid-row: 3; } .gf-dock, .gf-dockwrap { grid-row: 4; }
+.gf-dockwrap > .gf-bottom { background: var(--felt); padding: var(--space-1) var(--space-2); }
+.gf-dockwrap > .gf-turnrow { background: var(--felt); padding: var(--space-2); justify-content: center; }
+.gf-dockwrap > .gf-turnrow:not(:has(.gf-turn > *)):not(:has(.gf-peek)) { display: none; }
+.gf-banners { display: grid; gap: var(--space-2); padding-inline: var(--space-3); padding-block-start: var(--space-2); }
+.gf-banners:empty { display: none; }
+.gf-body { min-block-size: 0; min-inline-size: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+@media (min-width: 900px) { .gf-body { grid-template-columns: 380px minmax(0, 1fr); } }
+@media (min-width: 1200px) { .gf-body--chat { grid-template-columns: 380px minmax(0, 1fr) 340px; } }
+.gf-chat { position: static; max-block-size: none; min-block-size: 0; border-radius: 0; border-inline-start: 1px solid var(--line); }
+.gf-chatbtn { display: none; }
+@media (min-width: 900px) and (max-width: 1199px) { .gf-chatbtn { display: inline-flex; } }
+
+/* rail */
+.gf-rail { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); min-block-size: 0; min-inline-size: 0; overflow: auto; background: var(--bg); }
+.gf-card { background: var(--surface); border-radius: var(--radius-md); box-shadow: var(--shadow-card), var(--shadow-ring); padding: var(--space-3); display: grid; gap: var(--space-2); align-content: start; }
+.gf-card h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--heading); }
+.gf-card--fill { flex: 1; min-block-size: 140px; grid-template-rows: auto minmax(0, 1fr); }
+.gf-status__t { display: flex; align-items: center; gap: var(--space-2); font-size: 15px; line-height: 1.6; color: var(--text); min-inline-size: 0; }
+.gf-status__t b { color: var(--heading); }
+.gf-dot { inline-size: 10px; block-size: 10px; border-radius: 50%; background: var(--text-muted); flex: none; }
+.gf-dot.is-mine { background: var(--success); box-shadow: var(--shadow-halo-success); }
+.gf-guide:empty { display: none; }
+.gf-guide:not(:empty) { background: var(--surface); border-radius: var(--radius-md); box-shadow: var(--shadow-card), var(--shadow-ring); padding: var(--space-3); display: grid; gap: var(--space-2); font-size: 14px; line-height: 1.7; color: var(--text); }
+.gf-guide p { margin: 0; }
+.gf-guide b { color: var(--heading); }
+.gf-note { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.gf-log { min-block-size: 0; overflow: auto; }
+.gf-log .tbl-moves { max-block-size: none; overflow: visible; }
+.gf-log--sheet { max-block-size: 60dvh; }
+.gf-turnrow { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.gf-turnrow:not(:has(.gf-turn > *, .gf-peek)) { display: none; }
+.gf-turn { display: contents; }
+.gf-turn > * { flex: none; max-inline-size: 100%; }
+.gf-actions { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--space-2); }
+.gf-actions .bgv-btn { white-space: nowrap; min-inline-size: 0; }
+.gf-sheet { max-block-size: 85dvh; overflow: auto; }
+
+/* felt */
+.gf-felt { container-type: size; position: relative; background: var(--felt); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2);
+  padding: var(--space-3) var(--space-4); min-inline-size: 0; min-block-size: 0; }
+/* Square board edge a renderer may use: the smaller of felt width and felt height minus two bars (52px) and gaps; at most 688px. */
+.gf-felt > * { --gf-b: min(688px, 100cqi - 32px, 100cqb - 104px - 40px); }
+.gf-top, .gf-bottom { inline-size: 100%; display: flex; justify-content: center; flex: none; min-inline-size: 0; }
+.gf-stage { flex: 1 1 auto; min-block-size: 0; inline-size: 100%; min-inline-size: 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center; overflow: auto; }
+.gf-stage > * { max-block-size: 100%; inline-size: 100%; }
+/* Desktop: the stage has a fixed height, so a zoomable board fits it instead of overflowing below the fold (QA round 2).
+   Boards are capped by the stage height × their aspect (square unless the game sets --zb-aspect); the toolbar row is subtracted. */
+@media (min-width: 900px) {
+  .gf-stage { container-type: size; }
+  .gf-stage .zb { max-inline-size: calc((100cqb - 3.5rem) * var(--zb-aspect, 1)); margin-inline: auto; }
+}
+
+/* player bar (duel top/bottom, «you» in seat games) */
+.gf-bar { display: flex; align-items: center; gap: var(--space-3); inline-size: var(--gf-b, 100%); max-inline-size: 100%; min-block-size: 52px; color: var(--felt-ink); flex: none; box-sizing: border-box; min-inline-size: 0; }
+.tbl-gf[data-frame="seats"] .gf-bar { inline-size: 100%; max-inline-size: 700px; }
+.gf-bar.is-out { opacity: .5; }
+.gf-bar > .bgv-avatar { box-shadow: var(--shadow-gap-felt); flex: none; }
+.gf-bar__id { flex: 1; min-inline-size: 0; display: grid; gap: 2px; }
+.gf-bar__name { display: flex; align-items: center; gap: var(--space-2); font-size: 15px; min-inline-size: 0; flex-wrap: wrap; }
+.gf-bar__name b { font-weight: 700; color: var(--felt-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gf-bar .bgv-league, .gf-seat .bgv-league { color: var(--felt-muted); }
+.gf-rating { color: var(--felt-muted); font-size: 13.5px; font-weight: 700; }
+.gf-bar__meta, .gf-seat__meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); font-size: 12.5px; color: var(--felt-muted); min-inline-size: 0; }
+.gf-stat b { color: var(--felt-ink); font-weight: 700; }
+.gf-pill { display: inline-flex; align-items: center; gap: 4px; block-size: 20px; padding-inline: 7px; border-radius: var(--radius-xs); font-size: 11.5px; font-weight: 700; background: var(--felt-plate); color: var(--clock-on-felt-critical); }
+.gf-bar__meta .tbl-said, .gf-seat__meta .tbl-said { max-inline-size: 100%; }
+
+/* clock (chess look; data-state pre · idle · run · warn · crit · flag · off) */
+.gf-clock { --w: 136px; display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--space-2); inline-size: var(--w); block-size: 46px; padding-inline: var(--space-3);
+  border-radius: var(--radius-xs); background: var(--felt-plate); color: var(--felt-muted); flex: none; box-sizing: border-box; }
+.gf-clock__t { font: 900 28px/1 var(--font-fa); direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+.gf-clock--sm { --w: auto; block-size: 28px; padding-inline: var(--space-2); border-radius: var(--radius-sm); }
+.gf-clock--sm .gf-clock__t { font-size: 15px; }
+.gf-clock > .bgv-icon { margin-inline-end: auto; }
+.gf-clock__tick { inline-size: 8px; block-size: 8px; border-radius: 50%; background: currentColor; margin-inline-end: auto; opacity: .8; }
+.gf-clock--sm .gf-clock__tick { inline-size: 6px; block-size: 6px; margin-inline-end: 0; }
+.gf-clock[data-state="idle"] { opacity: .82; }
+.gf-clock[data-state="pre"] { opacity: .55; }
+.gf-clock[data-state="run"] { background: var(--felt-control); color: var(--brand-ink); }
+.gf-clock[data-state="warn"] { background: var(--clock-on-felt-warn); color: var(--brand-ink); }
+.gf-clock[data-state="crit"], .gf-clock[data-state="flag"] { background: var(--danger); color: var(--on-danger); }
+.gf-clock[data-state="crit"] { box-shadow: var(--shadow-halo-danger); }
+.gf-clock[data-state="off"] { background: transparent; color: var(--felt-muted); border: 1.5px dashed var(--felt-line); }
+.gf-clock[data-state="crit"] .gf-clock__tick { animation: gf-pulse .5s steps(2) infinite; }
+@keyframes gf-pulse { 50% { opacity: .2; } }
+@media (prefers-reduced-motion: reduce) { .gf-clock[data-state="crit"] .gf-clock__tick { animation: none; } }
+:root[data-motion='reduce'] .gf-clock[data-state="crit"] .gf-clock__tick { animation: none; }
+
+/* opponent seat strip (seats): scrolls sideways on overflow, no negative margins */
+.gf-opps { list-style: none; margin: 0; padding: 2px; display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: var(--space-2); inline-size: 100%; max-inline-size: 900px; overflow-x: auto; scrollbar-width: none; box-sizing: border-box; }
+.gf-opps > li { flex: 1 1 200px; min-inline-size: 180px; max-inline-size: 240px; display: flex; }
+.gf-seat { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; column-gap: var(--space-2); row-gap: var(--space-1);
+  inline-size: 100%; padding: var(--space-2) var(--space-3); border: 0; border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); color: var(--felt-ink);
+  font: inherit; text-align: start; cursor: pointer; min-block-size: 44px; }
+.gf-seat.is-turn { outline: 2px solid var(--felt-gold); outline-offset: -2px; }
+.gf-seat.is-out { opacity: .5; }
+.gf-seat:focus-visible { outline: 2px solid var(--focus-on-felt); outline-offset: 2px; }
+.gf-seat > .bgv-avatar { grid-row: 1 / 3; box-shadow: var(--shadow-gap-felt); }
+.gf-seat__name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gf-seat__meta { grid-column: 2 / 4; }
+
+/* result over the whole felt column (the board stays reachable with «تاریخچهٔ حرکت‌ها و صفحهٔ بازی») */
+.gf-over { position: absolute; inset: 0; z-index: calc(var(--z-felt) + 1); display: grid; place-items: center; overflow: auto; padding: var(--space-3); background: var(--scrim); }
+.gf-over > .tbl-result { max-inline-size: 100%; }
+
+/* phone: game bar, strip/bar, felt, status line, turn buttons, your bar, fixed 4-item dock */
+.gf-mstatus { inline-size: 100%; display: grid; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate); color: var(--felt-ink); box-shadow: var(--shadow-ring-felt); box-sizing: border-box; flex: none; }
+.gf-mstatus > summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); cursor: pointer; list-style: none; min-block-size: 32px; }
+.gf-mstatus > summary::-webkit-details-marker { display: none; }
+.gf-felt > .gf-turnrow { justify-content: center; inline-size: 100%; }
+.gf-mstatus .gf-status__t, .gf-mstatus .gf-status__t b { color: var(--felt-ink); font-size: 14px; }
+.gf-mstatus .gf-guide:not(:empty) { background: none; box-shadow: none; padding: 0; color: var(--felt-muted); font-size: 13px; }
+.gf-mstatus .gf-guide b { color: var(--felt-ink); }
+.gf-dock { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface-chrome); border-block-start: 1px solid var(--line); padding-block-end: env(safe-area-inset-bottom); }
+.gf-dock button { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-block-size: 56px; min-inline-size: 44px; padding: var(--space-1); border: 0; background: none; color: var(--text); font: 700 12px/1.2 var(--font-fa); cursor: pointer; }
+.gf-dock button:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.gf-dock .bgv-badge { position: absolute; inset-block-start: 4px; inset-inline-end: calc(50% - 30px); }
+@media (max-width: 899px) {
+  /* Phone: the page itself scrolls as one column (bar, seats, board, status, hand); the game bar stays on top and the
+     dock area (actions, own bar, dock) stays at the bottom, so nothing is cut by an inner scroller. */
+  .tbl-gf:not(.tbl--max) { position: relative; inset: auto; min-block-size: 100dvh; overflow: visible; grid-template-rows: auto auto 1fr auto; } /* the middle row grows with its content */
+  .tbl-gf { background: var(--felt); }
+  html:has(.tbl-gf:not(.tbl--max)) { scroll-padding-block: var(--gf-scroll-top, 0px) var(--gf-scroll-bottom, 0px); }
+  .tbl-gf:not(.tbl--max) > .bgv-gamebar { position: sticky; inset-block-start: 0; z-index: calc(var(--z-felt) + 2); }
+  /* No game may widen the page: a wider layout shifts every tap on a phone. `clip` keeps the sticky bars working. */
+  .tbl-gf:not(.tbl--max) { max-inline-size: 100vw; }
+  .tbl-gf:not(.tbl--max) .gf-body, .tbl-gf:not(.tbl--max) .gf-felt { min-inline-size: 0; max-inline-size: 100%; overflow-x: clip; }
+  .tbl-gf:not(.tbl--max) .gf-dockwrap { position: sticky; inset-block-end: 0; z-index: calc(var(--z-felt) + 2); }
+  .tbl-gf.tbl--max .gf-body { overflow-y: auto; overscroll-behavior: contain; }
+  .gf-felt { padding: var(--space-2); gap: var(--space-2); container-type: normal; justify-content: flex-start; min-block-size: 100%; block-size: auto; }
+  .gf-stage { flex: none; overflow: visible; }
+  .gf-stage > * { max-block-size: none; }
+  .gf-felt > * { --gf-b: 100%; }
+  .gf-bar { inline-size: 100%; }
+  .gf-opps { padding-inline: var(--space-3); max-inline-size: none; }
+  /* Phone seat card: the name keeps its own row beside the avatar; the clock moves under the avatar next to the stats. */
+  .gf-seat { grid-template-columns: auto minmax(0, 1fr); }
+  .gf-seat > .bgv-avatar, .gf-seat > :first-child { grid-column: 1; grid-row: 1; }
+  .gf-seat > .gf-seat__name { grid-column: 2; grid-row: 1; min-inline-size: 0; }
+  .gf-seat > .gf-clock { grid-column: 1; grid-row: 2; justify-self: start; }
+  .gf-seat > .gf-seat__meta { grid-column: 2; grid-row: 2; min-inline-size: 0; }
+  .gf-opps > li { flex: 1 1 0; min-inline-size: 140px; } /* two opponents fit a 360–390 screen; more scroll */
+  .gf-over { position: fixed; z-index: var(--z-sheet); }
+  .gf-turnrow { justify-content: center; }
+  .gf-clock { --w: 104px; block-size: 38px; }
+  .gf-clock__t { font-size: 22px; }
+  .gf-clock--sm { --w: auto; block-size: 28px; }
+  .gf-clock--sm .gf-clock__t { font-size: 15px; }
+}

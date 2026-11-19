@@ -108,7 +108,7 @@ test('three players play «کاغذ و دریا» to the result', async ({ brows
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
     let acted = false;
     for (const p of pages) {
-      if ((await p.locator('.sp2-pl--turn .sp2-pl__name').textContent()) !== 'شما') continue;
+      if (!(await p.locator('.gf-stage--mine').count())) continue; // the frame marks my turn
       const before = await p.locator('.sp2').getAttribute('data-seq');
       if (!(await turn(p, n))) continue;
       await expect.poll(() => p.locator('.sp2').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);

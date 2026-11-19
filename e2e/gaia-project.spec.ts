@@ -55,17 +55,17 @@ test('undo before confirm: the drafted mine stands on its hex, «برگرد» ta
   await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
   const mines = p.locator('.gp-map [data-gp-piece="MI"]');
   const before = await mines.count();
-  const seq = await p.locator('.gp').getAttribute('data-seq');
+  const seq = await p.locator('.gp[data-seq]').getAttribute('data-seq');
   await p.locator('button.gp-hex--hint').first().click();
   await expect(mines).toHaveCount(before + 1);
   // only the new mine animates (fade in); the pieces already on the map keep still
   await expect(p.locator('.gp-map .gp-new')).toHaveCount(1);
-  expect(await p.locator('.gp').getAttribute('data-seq')).toBe(seq); // nothing sent yet
+  expect(await p.locator('.gp[data-seq]').getAttribute('data-seq')).toBe(seq); // nothing sent yet
   await p.locator('.gp-undo:visible').click();
   await expect(mines).toHaveCount(before);
   await p.locator('button.gp-hex--hint').first().click();
   await p.locator('.gp-confirm:visible').click();
-  await expect.poll(() => p.locator('.gp').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(seq);
+  await expect.poll(() => p.locator('.gp[data-seq]').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(seq);
   await expect(p.locator('.gp-undo:visible')).toHaveCount(0); // no undo after confirm
   await p.context().close();
 });
@@ -73,32 +73,37 @@ test('undo before confirm: the drafted mine stands on its hex, «برگرد» ta
 /** Taps a map hex; on the phone the sticky action bar may cover it after scrolling, then the tap goes to the hex itself. */
 async function tapHex(p: Page) {
   const hex = p.locator('.gp-hex[data-pick="selectable"]').first();
-  await hex.click({ timeout: 4000 }).catch(() => hex.dispatchEvent('click'));
+  await hex.click({ timeout: 4000 }).catch(() => hex.dispatchEvent('click', undefined, { timeout: 4000 }).catch(() => undefined));
 }
 
 /** Click that never blocks the turn clock: falls back to the element's own click when something covers it. */
-const tap = (l: ReturnType<Page['locator']>) => l.click({ timeout: 4000 }).catch(() => l.dispatchEvent('click'));
+const tap = (l: ReturnType<Page['locator']>) => l.click({ timeout: 4000 }).catch(() => l.dispatchEvent('click', undefined, { timeout: 4000 }).catch(() => undefined));
+
+/** A real tap with a time limit: a control that went away (the turn moved on) means «look again», not a hang. */
+const press = (l: ReturnType<Page['locator']>) => l.click({ timeout: 4000 }).catch(() => undefined);
 
 /** Opens the phone actions sheet when it is closed. */
 async function openSheet(p: Page) {
   const sheet = p.locator('.gp-sheetbtn:visible', { hasText: 'کنش‌ها' });
-  if (await sheet.count()) await sheet.click();
+  if (await sheet.count()) await press(sheet);
 }
 
 /** One move for this page if it has one: answer a power charge or open decision; on its own turn draft a faction, a
  *  set-up structure, a booster, a mine in the first rounds or a pass, answer follow-up decisions, then «تأیید». */
 async function turn(p: Page, n: number): Promise<boolean> {
-  const root = p.locator('.gp');
+  const root = p.locator('.gp[data-seq]');
   const mode = await root.getAttribute('data-turn');
   if (mode === 'decide') {
     const leech = p.locator('.gp-leech button');
-    if (await leech.count()) { const no = leech.filter({ hasText: /^رد$/ }); await ((await no.count()) ? no.first() : leech.first()).click(); return true; }
+    if (await leech.count()) { const no = leech.filter({ hasText: /^رد$/ }); await press((await no.count()) ? no.first() : leech.first()); return true; }
     await openSheet(p);
     const opt = p.locator('[data-option]:visible');
     if (!(await opt.count())) return false;
-    await opt.first().click();
+    await press(opt.first());
     return true;
   }
+  // Main action done earlier (e.g. after a power charge was answered): only free actions remain, «تأیید» ends the turn.
+  if (mode === 'held') { await openSheet(p); await tap(p.locator('.gp-confirm:visible')); return true; }
   if (mode !== 'draft') return false;
   const phase = await root.getAttribute('data-phase');
   if (phase === 'faction') await tap(p.locator('.gp-faction-pick').first());
@@ -118,7 +123,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
     }
   }
   const confirm = p.locator('.gp-confirm:visible');
-  for (let k = 0; k < 6 && !(await confirm.isEnabled().catch(() => false)); k++) {
+  for (let k = 0; k < 6 && !(await confirm.isEnabled({ timeout: 4000 }).catch(() => false)); k++) {
     await openSheet(p);
     const opt = p.locator('[data-option]:visible');
     if (!(await opt.count())) break;
@@ -141,15 +146,17 @@ test('two players play Gaia Project to the result', async ({ browser }, info) =>
   await pages[1]!.goto(invite);
   await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.gp-map')).toBeVisible();
+  // The seat that picks first gets the faction screen on phones (no map behind it); everyone else sees the map.
+  await expect(host.locator('.gp-map, .gp-faction-pick').first()).toBeVisible();
 
   for (let n = 0; n < 400; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
     let acted = false;
     for (const p of pages) {
-      const before = await p.locator('.gp').getAttribute('data-seq');
+      const before = await p.locator('.gp[data-seq]').getAttribute('data-seq');
       if (!(await turn(p, n))) continue;
-      await expect.poll(() => p.locator('.gp').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
+      // A refused or superseded click just means «look again»; a game that is truly stuck still fails the result check below.
+      if (!(await expect.poll(() => p.locator('.gp[data-seq]').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before).then(() => true, () => false))) continue;
       if (n === 12) for (const [i, q] of pages.entries()) {
         await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: info.project.name.startsWith('desktop'), timeout: 20_000 }).catch(() => undefined);
         await q.locator('[data-gp-board="faction"]').screenshot({ path: shot(info.project.name, `boards-${i}`), timeout: 5000 }).catch(() => undefined);

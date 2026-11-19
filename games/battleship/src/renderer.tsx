@@ -3,10 +3,24 @@
 // and list. Placement uses a fleet tray (pick a ship, rotate, tap a cell) with a local random layout to start from.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import bdOcean from './art/bd-ocean.webp';
-import fxHit from './art/fx-hit.webp';
-import fxMiss from './art/fx-miss.webp';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import chart from './art/chart.png';
+import fxHit from './art/fx-hit.png';
+import fxMiss from './art/fx-miss.png';
+import ship0 from './art/ship-0.png';
+import ship1 from './art/ship-1.png';
+import ship2 from './art/ship-2.png';
+import ship3 from './art/ship-3.png';
+import ship4 from './art/ship-4.png';
+import ship0s from './art/ship-0-sunk.png';
+import ship1s from './art/ship-1-sunk.png';
+import ship2s from './art/ship-2-sunk.png';
+import ship3s from './art/ship-3-sunk.png';
+import ship4s from './art/ship-4-sunk.png';
+
+const SHIPS = [ship0, ship1, ship2, ship3, ship4];
+const SHIPS_SUNK = [ship0s, ship1s, ship2s, ship3s, ship4s];
+const SHIP_PX = [272, 222, 172, 172, 122]; // art widths; 72px tall; ~54px per cell
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import { FLEET, SIZE, cellsOf, validFleet, type BsView, type Dir, type SeaView, type Ship } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -18,26 +32,19 @@ export function Shot({ x, y, hit, fresh, late, flip }: { x: number; y: number; h
   return (
     <g className={fresh ? 'bg-land' : undefined} data-flip={flip} data-flip-enter="none" style={fresh && late ? { ['--i' as string]: 10 } : undefined}>
       {hit
-        ? <image href={fxHit} x={x - 5} y={y - 5} width="10" height="10" className="bs-fx bs-fx--hit" />
-        : <image href={fxMiss} x={x - 4.5} y={y - 2.1} width="9" height="4.2" className="bs-fx bs-fx--miss" />}
+        ? <image href={fxHit} x={x - 5.5} y={y - 5.5} width="11" height="11" className="bs-fx bs-fx--hit" />
+        : <image href={fxMiss} x={x - 4.5} y={y - 4.5} width="9" height="9" className="bs-fx bs-fx--miss" />}
     </g>
   );
 }
 
-/** A ship hull spanning its cells (10 units per cell), drawn horizontally and rotated when vertical. */
+/** A ship (art image) spanning its cells (10 units per cell), rotated about its centre when vertical. */
 export function Hull({ s, sunk }: { s: Ship; sunk?: boolean }) {
-  const L = FLEET[s.ship]!.len * 10;
-  const guns = Math.max(1, FLEET[s.ship]!.len - 2);
-  const body = `M1.6 1.1 H${L - 7} L${L - 0.8} 4.5 L${L - 7} 7.9 H1.6 Q0.3 4.5 1.6 1.1 Z`;
+  const len = FLEET[s.ship]!.len, k = 10 / 54.4, w = SHIP_PX[s.ship]! * k, h = 72 * k;
+  const cx = s.x * 10 + (s.dir === 'h' ? len * 5 : 5), cy = s.y * 10 + (s.dir === 'v' ? len * 5 : 5);
   return (
-    <g className={`bs-hull ${sunk ? 'is-sunk' : ''}`} transform={`translate(${s.x * 10 + 0.5} ${s.y * 10 + 0.5}) ${s.dir === 'v' ? 'rotate(90 4.5 4.5)' : ''}`}>
-      <path d={body} className="bs-hull__body" />
-      <path d={`M3.5 4.5 H${L - 8}`} className="bs-hull__deck" />
-      {Array.from({ length: guns }, (_, i) => {
-        const cx = 6 + (i * (L - 16)) / Math.max(1, guns - 1 || 1);
-        return <g key={i}><circle cx={cx} cy={4.5} r={1.75} className="bs-hull__gun" /><path d={`M${cx} 4.5 H${cx + 3}`} className="bs-hull__barrel" /></g>;
-      })}
-      {s.ship === 0 && <rect x={L * 0.55} y={2.6} width={4} height={3.8} rx={0.6} className="bs-hull__tower" />}
+    <g className={`bs-hull ${sunk ? 'is-sunk' : ''}`} transform={s.dir === 'v' ? `rotate(90 ${cx} ${cy})` : undefined}>
+      <image href={(sunk ? SHIPS_SUNK : SHIPS)[s.ship]} x={cx - w / 2} y={cy - h / 2} width={w} height={h} />
     </g>
   );
 }
@@ -55,13 +62,9 @@ function Chart({ sea, seat, me, mine, label, onCell, canCell, hint, draft, ghost
   return (
     <section className={`bs-chart ${mine ? 'bs-chart--mine' : 'bs-chart--enemy'}`} aria-label={label}>
       <header className="bs-chart__head"><b>{label}</b><small>{fa(sea.afloat ?? ships.length)} کشتی شناور</small></header>
-      <div className="bs-chart__frame" dir="ltr" data-flip-anchor={`fleet-${seat}`}>
-        <span className="bs-corner" aria-hidden />
-        {Array.from({ length: SIZE }, (_, i) => <span key={`c${i}`} className="bs-coord bs-coord--col" aria-hidden>{fa(i + 1)}</span>)}
-        {Array.from({ length: SIZE }, (_, i) => <span key={`r${i}`} className="bs-coord bs-coord--row" style={{ gridRow: i + 2 }} aria-hidden>{ROWS[i]}</span>)}
-        <div className={`bs-sea ${lastShot?.hit ? `is-hit-${lastShot.cell % 2}` : ''} ${late ? 'is-late' : ''}`} style={{ gridRow: '2 / span 10', gridColumn: '2 / span 10' }}>
+      <div className="bs-chart__frame" dir="ltr" style={{ backgroundImage: `url(${chart})` }} data-flip-anchor={`fleet-${seat}`}>
+        <div className={`bs-sea ${lastShot?.hit ? `is-hit-${lastShot.cell % 2}` : ''} ${late ? 'is-late' : ''}`}>
           <svg viewBox="0 0 100 100" className="bs-sea__art" aria-hidden>
-            <image href={bdOcean} width="100" height="100" preserveAspectRatio="xMidYMid slice" />
             {Array.from({ length: SIZE - 1 }, (_, i) => <g key={i}><path d={`M${(i + 1) * 10} 0 V100`} className="bs-grid" /><path d={`M0 ${(i + 1) * 10} H100`} className="bs-grid" /></g>)}
             {ships.map((s) => (
               <g key={s.ship} data-flip={mine ? `ship-${s.ship}` : undefined} className={lastShot?.sunk === s.ship ? (mine ? 'bg-pop' : 'bg-flip-in') : undefined}
@@ -109,6 +112,7 @@ type Hint = { type: string; cell?: number } | null;
 export default function BattleshipRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued, sending }: GameRendererProps<BsView>) {
   const me = mySeat ?? 0;
   const opp = 1 - me;
+  const framed = useInFrame() !== null;
   const hint = expected as unknown as Hint;
   const placing = legalActions.some((a) => a.type === 'place');
   const firing = legalActions.some((a) => a.type === 'fire');
@@ -153,7 +157,13 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
 
   return (
     <div className="bs" data-seq={view.seq} data-phase={view.phase} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p><b>{placing ? 'هر ناو افقی یا عمودی؛ ناوها می‌توانند کنار هم باشند ولی روی هم نه.' : 'هر نوبت یک شلیک؛ اصابت یعنی دوباره حدس بزنید همان اطراف.'}</b></p>
+          <p>ناو هواپیمابر ۵ خانه، رزمناو ۴، ناوشکن و زیردریایی ۳ و قایق گشتی ۲ خانه است. وقتی همهٔ خانه‌های یک ناو بخورد غرق می‌شود.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {last && view.phase === 'fire' && (
         <p className={`bs-report ${last.sunk !== null ? 'is-sunk' : last.hit ? 'is-hit' : 'is-miss'}`} key={view.seq} role="status">
           <bdi>{who(last.seat)}</bdi> به {cellName(last.cell)} شلیک کرد: {last.sunk !== null ? `غرق شد — ${FLEET[last.sunk]!.name}!` : last.hit ? 'اصابت!' : 'آب'}
@@ -182,17 +192,20 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
                 <button key={f.key} type="button" aria-pressed={pick === i} disabled={busy}
                   className={['bs-tray__ship', pick === i ? 'is-on' : '', placed ? 'is-placed' : ''].join(' ')}
                   onClick={() => { setPick(i); setDraft(draft.filter((s) => s.ship !== i)); }}>
-                  <span className="bs-tray__len">{Array.from({ length: f.len }, (_, k) => <i key={k} />)}</span>
+                  <img className="bs-tray__art" src={SHIPS[i]} alt="" aria-hidden="true" style={{ inlineSize: `${f.len * 1.4}rem` }} />
                   <small>{f.name}{placed ? ' ✓' : ''}</small>
                 </button>
               );
             })}
           </div>
-          <div className="bs-tray__bar">
-            <Button size="sm" variant="secondary" disabled={busy} onClick={() => setDir(dir === 'h' ? 'v' : 'h')}>چرخاندن ({dir === 'h' ? 'افقی' : 'عمودی'})</Button>
-            <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setDraft(localRandomFleet()); setPick(null); }}>چیدمان تصادفی</Button>
-            <Button size="sm" disabled={busy || !validFleet(draft)} onClick={() => onAction({ type: 'place', ships: draft })}>تأیید چیدمان</Button>
-          </div>
+          {/* Rotate / random / confirm are the dock row (QA round 3: visible at 1440 and above the phone dock). */}
+          <DockSlot>
+            <div className="bs-tray__bar">
+              <Button size="sm" variant="secondary" disabled={busy} aria-pressed={dir === 'v'} onClick={() => setDir(dir === 'h' ? 'v' : 'h')}>چرخاندن ({dir === 'h' ? 'افقی' : 'عمودی'})</Button>
+              <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setDraft(localRandomFleet()); setPick(null); }}>چیدمان تصادفی</Button>
+              <Button disabled={busy || !validFleet(draft)} onClick={() => onAction({ type: 'place', ships: draft })}>تأیید چیدمان</Button>
+            </div>
+          </DockSlot>
         </section>
       )}
 

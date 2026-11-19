@@ -18,8 +18,8 @@ test('interactive tutorial: plays, a mistake, a throwing star', async ({ browser
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
     if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial'), fullPage: true });
     // Step 3 proposes the throwing star (the star button carries no hint highlight).
-    if (step === '۳') await p.locator('button.tm-star').click();
-    else await p.locator('.tm-play.tm-hint').click();
+    if (step === '۳') await p.locator('button.tmd-star').click();
+    else await p.locator('.tmd-play.tmd-hint').click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
@@ -35,10 +35,10 @@ test('undo window: the played card flies to the pile at once, and undo flies it 
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
   await p.waitForTimeout(800);
   await motionLog(p);
-  const card = await p.locator('.tm-play.tm-hint').getAttribute('data-card');
-  const inHand = p.locator(`.tm__hand [data-flip="c-${card}"]`);
-  const onPile = p.locator(`.tm__pile [data-flip="c-${card}"]`);
-  await p.locator('.tm-play.tm-hint').click();
+  const card = await p.locator('.tmd-play.tmd-hint').getAttribute('data-card');
+  const inHand = p.locator(`.tmd__hand [data-flip="c-${card}"]`);
+  const onPile = p.locator(`.tmd__pile [data-flip="c-${card}"]`);
+  await p.locator('.tmd-play.tmd-hint').click();
   const undo = p.getByRole('button', { name: 'انصراف', exact: true });
   await expect(undo).toBeVisible();
   await expect(onPile).toBeVisible();
@@ -64,28 +64,28 @@ test('three players play «هم‌فکر» to the result', async ({ browser }, i
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.tm__center')).toBeVisible();
+  await expect(host.locator('.tmd__center')).toBeVisible();
 
   let mistakes = 0;
   let starred = false;
   for (let n = 0; n < 400; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
     const lows = await Promise.all(pages.map(async (p) => {
-      const b = p.locator('.tm-play:not([disabled])');
+      const b = p.locator('.tmd-play:not([disabled])');
       return (await b.count()) ? Number(await b.getAttribute('data-card')) : Infinity;
     }));
     if (lows.every((x) => x === Infinity)) { await host.waitForTimeout(100); continue; }
-    const before = await host.locator('.tm').getAttribute('data-seq');
+    const before = await host.locator('.tmd').getAttribute('data-seq');
     if (!starred && n === 8 && lows.every((x) => x !== Infinity)) {
       starred = true;
-      for (const p of pages) await p.locator('.tm-star').click();
+      for (const p of pages) await p.locator('.tmd-star').click();
     } else {
       const finite = lows.filter((x) => x !== Infinity);
       const pick = mistakes < 2 && n % 9 === 4 && finite.length > 1 ? Math.max(...finite) : Math.min(...finite);
       if (pick !== Math.min(...finite)) mistakes++;
-      await pages[lows.indexOf(pick)]!.locator('.tm-play').click();
+      await pages[lows.indexOf(pick)]!.locator('.tmd-play').click();
     }
-    await expect.poll(() => host.locator('.tm').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
+    await expect.poll(() => host.locator('.tmd').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
     if (n === 9 || (n > 4 && mistakes === 1 && n % 9 === 4)) for (const [i, q] of pages.entries()) await q.screenshot({ path: shot(info.project.name, `mid${n}-${i}`), fullPage: true });
   }
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();

@@ -11,6 +11,8 @@ export interface LineThreeState {
   symbols: ['X' | 'O', 'X' | 'O'];
   current: Mark;
   outcome: Outcome | null;
+  /** Placed cells in order (optional: tables started before this field existed lack it). */
+  history?: { seat: Mark; cell: number }[];
 }
 
 export const lineThreeAction = z.discriminatedUnion('type', [
@@ -50,7 +52,7 @@ export const lineThreeModule: GameModule<LineThreeState, LineThreeAction, LineTh
     const drawn = rng.nextInt(2) as Mark;
     const first: Mark = options.firstMove === 'host' ? 0 : drawn;
     const symbols: LineThreeState['symbols'] = first === 0 ? ['X', 'O'] : ['O', 'X'];
-    return { board: Array<Mark | null>(9).fill(null), symbols, current: first, outcome: null };
+    return { board: Array<Mark | null>(9).fill(null), symbols, current: first, outcome: null, history: [] };
   },
 
   validate(state, actor, action) {
@@ -70,6 +72,7 @@ export const lineThreeModule: GameModule<LineThreeState, LineThreeAction, LineTh
     const board = state.board.slice();
     board[action.cell] = seat;
     const placed = { type: 'placed', seat, cell: action.cell };
+    state = { ...state, history: [...(state.history ?? []), { seat, cell: action.cell }] };
     if (winningLine(board)) {
       return done({ ...state, board, outcome: { placements: [{ seat, place: 1 }, { seat: (1 - seat) as Mark, place: 2 }], reason: 'win' } }, [placed]);
     }
@@ -110,7 +113,9 @@ export const lineThreeModule: GameModule<LineThreeState, LineThreeAction, LineTh
       seat,
       primary: { label: 'خانه', value: state.board.filter((c) => c === seat).length },
       ...(state.outcome && state.outcome.placements.some((p) => p.seat === seat && p.place === 1) && state.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
-    }))
+    })),
+    // Notation: column a–c from the left, row 1–3 from the bottom (as in the design).
+    moves: (state.history ?? []).slice(-40).map((h) => ({ seat: h.seat, text: `${'abc'[h.cell % 3]}${(3 - Math.floor(h.cell / 3)).toLocaleString('fa-IR')}` }))
   }),
 
   pendingSeats: (state) => (state.outcome ? [] : [state.current]),

@@ -46,7 +46,10 @@ async function turn(p: Page, n: number): Promise<boolean> {
   const game = p.locator('.ed');
   const end = p.locator('.ed, .tbl-dock').getByRole('button', { name: 'پایان نوبت', exact: true });
   if (!(await end.count())) return false;
-  const seat = await p.locator('.ed-crew__p').evaluateAll((els) => els.findIndex((e) => e.classList.contains('is-now')));
+  // The mover is this page's own seat (only the mover has «پایان نوبت»): the frame's own bar / seat cards carry data-turn.
+  const mover = p.locator('.gf-bar[data-turn], .gf-seat[data-turn]');
+  if (!(await mover.count())) return false; // between turns no seat is marked
+  const seat = Number(await mover.first().getAttribute('data-seat'));
   const row = Math.floor(Number(await game.locator(`circle[data-seat="${seat}"]`).getAttribute('data-hex')) / 6);
   if (await advance(p, row)) return true;
   const cards = game.locator('.ed-hand .ed-pick:not([disabled])');
@@ -60,7 +63,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
     if (await buy.count()) { await buy.first().click(); return true; }
   }
   const dump = p.locator('.ed, .tbl-dock').getByRole('button', { name: 'پایان نوبت و دور ریختن دست' });
-  await (await dump.count() ? dump : end).click();
+  await (await dump.count() ? dump : end).click({ timeout: 5000 }).catch(() => undefined); // an earlier click may already have ended the turn
   return true;
 }
 
@@ -107,7 +110,7 @@ test('undo window: the pawn moves and the played card leaves the hand at once, u
   await p.waitForTimeout(800);
   const hand = p.locator('.ed-hand .ed-slot');
   const n = await hand.count();
-  const pawn = p.locator('.ed-pawn').first();
+  const pawn = p.locator('.ed circle[data-seat="0"]'); // the art is an image; this ring carries the position
   const start = await pawn.getAttribute('data-hex');
   await p.locator('.ed-hand .ed-hint').click();
   const target = p.locator('.ed-hex.ed-hint');

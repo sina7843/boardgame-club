@@ -35,6 +35,7 @@ function usePoll(reload: () => void, on: boolean, ms = 5000) {
 }
 
 const cover = (gameId: string) => `/covers/box/${gameId}.webp`;
+const hideBroken = (e: { currentTarget: HTMLImageElement }) => { e.currentTarget.style.visibility = 'hidden'; };
 
 export function TournamentsPage() {
   usePageTitle('تورنمنت‌ها');
@@ -67,7 +68,7 @@ export function TournamentsPage() {
           <Card flush>
             <ul className="pg-ul">{ended.map((t) => (
               <li key={t.id} className="pg-ended">
-                <img className="pg-thumb" style={{ inlineSize: 72, blockSize: 40 }} src={cover(t.gameId)} alt="" />
+                <img className="pg-thumb" style={{ inlineSize: 72, blockSize: 40 }} src={cover(t.gameId)} alt="" onError={hideBroken} />
                 <div className="pg-ended__main"><b>{t.titleFa}</b><span className="pg-meta">{t.gameNameFa}<span className="bgv-sep" />{jalaliDateTime(t.startsAt)}</span></div>
                 <Badge tone={statusTone(t.status)} icon={STATUS_ICON[t.status]}>{STATUS_FA[t.status]}</Badge>
                 <Button size="sm" variant="ghost" href={`/tournaments/${t.id}`}>جدول نهایی</Button>
@@ -84,7 +85,7 @@ function TournamentCard({ t }: { t: TournamentSummary }) {
   return (
     <article className="pg-tcard">
       <div className="pg-tcard__cover">
-        <img src={cover(t.gameId)} alt="" />
+        <img src={cover(t.gameId)} alt="" onError={hideBroken} />
         <span className="pg-tcard__flag"><Badge tone={statusTone(t.status)} icon={STATUS_ICON[t.status]}>{STATUS_FA[t.status]}{t.status === 'running' ? `، دور ${faNum(t.currentRound)}` : ''}</Badge></span>
       </div>
       <div className="pg-tcard__body">

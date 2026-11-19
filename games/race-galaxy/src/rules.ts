@@ -70,6 +70,7 @@ export type RgView = Omit<RgState, 'players' | 'deck' | 'discard' | 'timeouts'> 
   hand: number[] | null; drawn: number[] | null; myChoice: Phase | null;
   empires: { tableau: number[]; goods: number[]; chips: number; hand: number; chose: boolean; done: boolean; vp: number; military: number }[];
   deckCount: number;
+  discardCount: number;
 };
 
 const idx = z.array(z.number().int().min(0).max(40)).max(12);
@@ -244,10 +245,10 @@ export const rgModule: GameModule<RgState, RgAction, RgView> = {
   },
 
   project(s, viewer) {
-    const { players, deck, discard: _d, timeouts: _t, ...rest } = structuredClone(s);
+    const { players, deck, discard, timeouts: _t, ...rest } = structuredClone(s);
     const me = viewer.kind === 'player' ? viewer.seat : -1;
     return {
-      ...rest, hand: players[me]?.hand ?? null, drawn: players[me]?.drawn ?? null, myChoice: players[me]?.choice ?? null, deckCount: deck.length,
+      ...rest, hand: players[me]?.hand ?? null, drawn: players[me]?.drawn ?? null, myChoice: players[me]?.choice ?? null, deckCount: deck.length, discardCount: discard.length,
       empires: players.map((e) => ({ tableau: e.tableau, goods: e.goods, chips: e.chips, hand: e.hand.length, chose: !!e.choice, done: e.done, vp: vpOf(e), military: military(e) }))
     };
   },
@@ -287,6 +288,7 @@ export const rgModule: GameModule<RgState, RgAction, RgView> = {
     const vp = s.players.map(vpOf);
     const top = Math.max(...vp);
     return {
+      moves: s.last.slice(-40).map((l) => ({ seat: l.seat, text: ({ explore: 'کاوش کرد', develop: 'پیشرفت گذاشت', settle: 'جهان گذاشت', consume: 'مصرف کرد', produce: 'تولید کرد' } as Record<string, string>)[l.kind] ?? 'حرکت کرد' })),
       seats: s.players.map((e, seat) => ({
         seat,
         primary: { label: 'امتیاز', value: vp[seat]! },

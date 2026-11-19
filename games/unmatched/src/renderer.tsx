@@ -3,12 +3,23 @@
 import { cardPicture } from './card-art.ts';
 import './renderer.css';
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import chArt_alice from './art/unmatched-ch-alice.png';
+import chArt_arthur from './art/unmatched-ch-arthur.png';
+import chArt_dracula from './art/unmatched-ch-dracula.png';
+import chArt_holmes from './art/unmatched-ch-holmes.png';
+import chArt_invisible from './art/unmatched-ch-invisible.png';
+import chArt_jekyll from './art/unmatched-ch-jekyll.png';
+import chArt_medusa from './art/unmatched-ch-medusa.png';
+import chArt_sinbad from './art/unmatched-ch-sinbad.png';
 import { CardArt, Emblem, PATHS, PORTRAITS, Scenery, SIDEKICK_EMBLEM } from './art.tsx';
 import { BOARDS, type Board } from './boards.ts';
 import { HEROES, type CardDef } from './heroes.ts';
 import type { CardRef, Fighter, LogEntry, Prompt, UnmatchedView } from './rules.ts';
+import { Dialog } from '@bg/ui/bgv';
 
+// Printed character art (design/games/group-d/art/unmatched).
+const HERO_ART: Record<string, string> = { alice: chArt_alice, arthur: chArt_arthur, dracula: chArt_dracula, holmes: chArt_holmes, invisible: chArt_invisible, jekyll: chArt_jekyll, medusa: chArt_medusa, sinbad: chArt_sinbad };
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 type Hint = { type: string; [k: string]: unknown };
 
@@ -536,28 +547,35 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
   const fromHand = (p?.cards ?? []).every((id) => hand.some((h) => h.id === id));
   const selectedAttack = attacks.find((a) => a.fighter === selFighter && a.target === selTarget && a.card === selCard);
 
+  const framed = useInFrame() !== null; // the shell draws players, health, whose-turn and events
   return (
     <div className="um" data-prompt={promptHash} ref={root}>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>میدان {board.nameFa}{view.turnNo > 0 ? `، نوبت ${fa(view.turnNo)}` : ''}. هر نوبت دو اقدام: مانور، نقشه یا حمله؛ قهرمان حریف را به صفر سلامتی برسانید.</p>
+        </RailSlot>
+      )}
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
-      <div className="um__meta">
+      {!framed && <div className="um__meta">
         <span>میدان: <strong>{board.nameFa}</strong></span>
         {view.turnNo > 0 && <span>نوبت {fa(view.turnNo)}</span>}
         <span>{view.players === 2 ? 'نبرد تن‌به‌تن' : 'همه علیه همه'}</span>
-      </div>
+      </div>}
 
-      <ul className="um-players" aria-label="بازیکنان">
+      {!framed && <ul className="um-players" aria-label="بازیکنان">
         {view.order.map((seat) => <PlayerPanel key={seat} view={view} was={before} seat={seat} me={seat === mySeat} name={seatName(seat)} />)}
-      </ul>
+      </ul>}
 
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="um-main">
         <div className="um-board-wrap">
-          {view.heroes.some((h) => h) ? <Battlefield view={view} motionKey={motionKey} marks={marks} onSpace={onSpace} onFighter={onFighter} onFog={(t) => setSelFog(t === selFog ? null : t)} /> : <HeroGallery view={view} />}
-          <ul className="um-zones" aria-label="منطقه‌ها">
+          {view.heroes.some((h) => h) ? <Battlefield view={view} motionKey={motionKey} marks={marks} onSpace={onSpace} onFighter={onFighter} onFog={(t) => setSelFog(t === selFog ? null : t)} /> : (mine && p?.kind === 'pickHero' ? null : <HeroGallery view={view} />)}
+          {view.heroes.some((h) => h) && <ul className="um-zones" aria-label="منطقه‌ها">
             {board.zones.map((z) => <li key={z.id}><span className="um-zones__dot" style={{ background: z.color }} aria-hidden="true" />{z.nameFa}</li>)}
-          </ul>
+          </ul>}
         </div>
 
         <div className="um-side">
@@ -572,7 +590,7 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
           )}
 
           {mine && p && (
-            <DecisionPanel title={p.kind === 'action' ? `اقدام ${fa(3 - view.actionsLeft)} از ۲` : WHY_FA[p.why] ?? 'تصمیم'}>
+            <DecisionPanel modal={framed && p.kind === 'pickHero'} title={p.kind === 'action' ? `اقدام ${fa(3 - view.actionsLeft)} از ۲` : WHY_FA[p.why] ?? 'تصمیم'}>
               {p.kind === 'pickHero' && (
                 <div className="um-heroes">
                   {hints.filter((h) => h.type === 'pickHero').map((h, i, all) => {
@@ -580,12 +598,7 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
                     const newSet = i === 0 || HEROES[all[i - 1]!.hero as string]!.set !== hero.set;
                     return (<Fragment key={hero.id}>{newSet && <h4 className="um-heroes__set"><bdi>{hero.set}</bdi></h4>}
                       <button type="button" className={['um-hero', exp?.hero === hero.id ? 'um-hero--hint' : ''].join(' ')} style={{ ['--hc' as string]: hero.color }} disabled={busy} onClick={() => send({ type: 'pickHero', hero: hero.id })}>
-                        <svg className="um-hero__emblem" viewBox="0 0 48 56" aria-hidden="true" focusable="false">
-                          <path d="M24 3 L44 10 V28 C44 40 35 49 24 53 C13 49 4 40 4 28 V10 Z" fill={hero.color} stroke="#2a2520" strokeWidth="2.5" />
-                          <path d="M24 3 L44 10 V28 C44 40 35 49 24 53 Z" fill="#000" fillOpacity="0.18" />
-                          <path d="M10 12 L24 7 L24 30 C16 30 11 22 10 12 Z" fill="#fff" fillOpacity="0.28" />
-                          <circle cx="24" cy="27" r="16" fill="#f6efdc" stroke="#2a2520" strokeWidth="2" /><g transform="translate(24 27) scale(.5)"><Emblem id={hero.id} c={hero.color} /></g>
-                        </svg>
+                        <img className="um-hero__art" src={HERO_ART[hero.id]} alt="" draggable={false} />
                         <strong>{hero.hero.nameFa}</strong>
                         <span className="um-hero__stats">
                           <span className="um-stat"><span aria-hidden="true">♥</span> سلامتی {fa(hero.hero.hp)}</span>
@@ -770,16 +783,18 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
         ))}
       </details>
 
-      <details className="um-log" open>
+      {!framed && <details className="um-log" open>
         <summary>رویدادها</summary>
         <ol>{view.log.slice(-8).reverse().map((e) => <li key={e.seq}>{describe(e, view, seatName)}</li>)}</ol>
-      </details>
+      </details>}
     </div>
   );
 }
 
-function DecisionPanel({ title, children }: { title: string; children: ReactNode }) {
-  return <section className="um-panel um-panel--decide" aria-label={title}><h3>{title}</h3>{children}</section>;
+function DecisionPanel({ title, children, modal }: { title: string; children: ReactNode; modal?: boolean }) {
+  const panel = <section className="um-panel um-panel--decide" aria-label={title}><h3>{title}</h3>{children}</section>;
+  // The hero pick is a centred dialog over the dimmed table (reference §4), so nothing overflows the felt.
+  return modal ? <Dialog modal data-theme={document.documentElement.dataset.theme} className="um-pickdlg">{panel}</Dialog> : panel;
 }
 
 function ChoiceList({ label, items, onPick, busy, selected, hint, compact }: {
@@ -831,12 +846,12 @@ function PlayerPanel({ view, was, seat, me, name }: { view: UnmatchedView; was?:
               <div className="um-hc__facts">
                 <span className="um-hc__fact"><span aria-hidden="true">➜</span>حرکت <b>{fa(hero.move)}</b></span>
                 <span className="um-hc__fact"><span aria-hidden="true">{hero.hero.ranged ? '➶' : '⚔'}</span>{hero.hero.ranged ? 'دوربرد' : 'نزدیک‌زن'}</span>
-                {notes.length > 0 && <span className="um-hc__note">{notes.join(' · ')}</span>}
+                {notes.length > 0 && <span className="um-hc__note">{notes.join('، ')}</span>}
               </div>
             </div>
             {kicks.length > 0 && (
               <div className="um-hc__kicks">
-                <small>یاور: {hero.sidekick.nameFa} · {hero.sidekick.ranged ? 'دوربرد' : 'نزدیک‌زن'}</small>
+                <small>یاور: {hero.sidekick.nameFa}، {hero.sidekick.ranged ? 'دوربرد' : 'نزدیک‌زن'}</small>
                 <ul className="um-hp">{kicks.map((f) => <li key={f.id}><HpDial f={f} name={fighterName(view, f.id)} /></li>)}</ul>
               </div>
             )}
@@ -871,14 +886,19 @@ function HpDial({ f, name, big }: { f: Fighter; name: string; big?: boolean }) {
   );
 }
 
-function HeroGallery({ view }: { view: UnmatchedView }) {
+function HeroGallery({ view, pick, hint, busy }: { view: UnmatchedView; pick?: (hero: string) => void; hint?: string; busy?: boolean }) {
+  // One hero grid: on your pick the free heroes are the buttons (no second picker in the panel); otherwise it shows
+  // who is still free while the others choose.
   return (
-    <div className="um-gallery">
-      {Object.values(HEROES).map((h) => (
-        <div key={h.id} className={view.heroes.includes(h.id) ? 'um-gallery__hero um-gallery__hero--taken' : 'um-gallery__hero'} style={{ ['--hc' as string]: h.color }}>
-          <strong>{h.hero.nameFa}</strong><span>{view.heroes.includes(h.id) ? 'انتخاب شد' : 'آزاد'}</span>
-        </div>
-      ))}
+    <div className="um-gallery" role={pick ? 'group' : undefined} aria-label={pick ? 'انتخاب قهرمان' : undefined}>
+      {Object.values(HEROES).map((h) => {
+        const taken = view.heroes.includes(h.id);
+        const body = <>{HERO_ART[h.id] && <img className="um-gallery__art" src={HERO_ART[h.id]} alt="" draggable={false} />}<strong>{h.hero.nameFa}</strong><span>{taken ? 'انتخاب شد' : 'آزاد'}</span></>;
+        const cls = ['um-gallery__hero', taken ? 'um-gallery__hero--taken' : '', hint === h.id ? 'um-hero--hint' : ''].join(' ');
+        return pick && !taken
+          ? <button key={h.id} type="button" className={`${cls} um-gallery__hero--pick`} style={{ ['--hc' as string]: h.color }} disabled={busy} onClick={() => pick(h.id)}>{body}</button>
+          : <div key={h.id} className={cls} style={{ ['--hc' as string]: h.color }}>{body}</div>;
+      })}
     </div>
   );
 }
@@ -909,7 +929,7 @@ function CombatPanel({ view, mySeat }: { view: UnmatchedView; mySeat: number | n
         </div>
         {c.aVal !== null && <span className="um-combat__dmg" aria-hidden="true">{(c.damage ?? 0) > 0 ? `−${fa(c.damage ?? 0)}` : '۰'}</span>}
       </div>
-      {c.aVal !== null && <p className="um-combat__result">حمله {fa(c.aVal)} − دفاع {fa(c.dVal ?? 0)} = <strong>{fa(c.damage ?? 0)} آسیب</strong> · {c.won === 'a' ? 'مهاجم برد' : 'مدافع برد'}</p>}
+      {c.aVal !== null && <p className="um-combat__result">حمله {fa(c.aVal)} − دفاع {fa(c.dVal ?? 0)} = <strong>{fa(c.damage ?? 0)} آسیب</strong>، {c.won === 'a' ? 'مهاجم برد' : 'مدافع برد'}</p>}
     </section>
   );
 }

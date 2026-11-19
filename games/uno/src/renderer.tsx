@@ -2,7 +2,7 @@
 // own hand within thumb reach. Shows only the projection; other hands are counts, never cards.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
 import { COLORS, type Card, type Color, type LogEntry, type UnoView } from './rules.ts';
 import { CardBack, CardFace, cardLabel, COLOR_FA } from './cards.tsx';
 
@@ -87,20 +87,33 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   else if (myTurn) status = { tone: 'mine', text: playableIds.size ? 'نوبت شماست: کارت هم‌رنگ، هم‌عدد یا هم‌نماد بگذارید' : 'کارت مناسبی ندارید؛ یک کارت بکشید' };
   else status = { tone: 'wait', text: `نوبت ${seatName(view.current)}${view.phase === 'wd4' ? '، تصمیم درباره +۴' : ''}` };
 
+  // Inside the shared table frame the shell draws the seat strip, scores, events and whose-turn; the hint goes to the rail's guide card.
+  const framed = useInFrame() !== null;
+
   return (
-    <div className="uno" ref={root}>
+    <div className={framed ? 'uno uno--framed' : 'uno'} ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
-      <div className="uno__meta">
-        <span>دست {fa(view.hand)}{view.target ? ` · هدف ${fa(view.target)} امتیاز` : ' · یک‌دسته'}</span>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>کارت هم‌رنگ، هم‌عدد یا هم‌نماد بگذارید؛ «رنگی» و «+۴» همیشه مجازند.{view.color ? ` رنگ فعال: ${COLOR_FA[view.color]}.` : ''} {view.direction === 1 ? 'جهت عادی' : 'جهت برعکس'}، دست {fa(view.hand)}{view.target ? `، هدف ${fa(view.target)} امتیاز` : ''}.</p>
+        </RailSlot>
+      )}
+      {framed && catchSeat !== undefined && (
+        <DockSlot><Button variant="danger" disabled={busy} onClick={() => onAction({ type: 'catch', seat: catchSeat })}>اونو نگفت! بگیر: {seatName(catchSeat)}</Button></DockSlot>
+      )}
+
+      {!framed && <div className="uno__meta">
+        <span>دست {fa(view.hand)}{view.target ? `، هدف ${fa(view.target)} امتیاز` : '، یک‌دسته'}</span>
         {view.color && <span className={`uno-pill uno-pill--${view.color}`}>رنگ: {COLOR_FA[view.color]}</span>}
         <span className="uno-dir" aria-label={view.direction === 1 ? 'جهت بازی: عادی' : 'جهت بازی: برعکس'}>
           <span aria-hidden="true" className={view.direction === 1 ? 'uno-dir__icon' : 'uno-dir__icon uno-dir__icon--rev'}>↻</span>
           {view.direction === 1 ? 'جهت عادی' : 'جهت برعکس'}
         </span>
-      </div>
+      </div>}
 
-      <ul className="uno-rail" aria-label="بازیکنان دیگر">
+      {!framed && <ul className="uno-rail" aria-label="بازیکنان دیگر">
         {others.map((s) => {
           const active = view.current === s && !view.outcome;
           return (
@@ -110,7 +123,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
               </span>
               <span className="uno-opp__body">
                 <bdi className="uno-opp__name">{seatName(s)}</bdi>
-                <span className="uno-opp__count">{view.active[s] ? `${fa(view.handCounts[s] ?? 0)} کارت` : 'کنار رفته'}{view.target ? ` · ${fa(view.scores[s] ?? 0)} امتیاز` : ''}</span>
+                <span className="uno-opp__count">{view.active[s] ? `${fa(view.handCounts[s] ?? 0)} کارت` : 'کنار رفته'}{view.target ? `، ${fa(view.scores[s] ?? 0)} امتیاز` : ''}</span>
               </span>
               {active && <span className="uno-badge">نوبت</span>}
               {view.called[s] && view.handCounts[s] === 1 && <span className="uno-badge uno-badge--uno">اونو!</span>}
@@ -118,7 +131,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
             </li>
           );
         })}
-      </ul>
+      </ul>}
 
       <div className={`uno-table ${colorClass}`}>
         <button type="button" data-flip-anchor="deck" className="uno-pile uno-pile--draw" onClick={() => canDraw && !busy && onAction({ type: 'draw' })}
@@ -139,11 +152,15 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
           <span className="uno-under" aria-hidden="true"><span /><span /></span>
           {view.top && <span key={lastPlaySeq} className="uno-pile__top" style={{ ['--rot' as string]: `${((lastPlaySeq * 37) % 17) - 8}deg` }}><CardFace card={view.top} size="lg" flip={`c-${view.top.id}`} flipFrom={lastPlayer !== null && lastPlayer !== mySeat ? `seat-${lastPlayer}` : 'deck'} /></span>}
           {pendingPlay && <span className="uno-pile__top" style={{ ['--rot' as string]: '3deg' }}><CardFace card={pendingPlay} size="lg" flip={`c-${pendingPlay.id}`} /></span>}
-          <span className="uno-pile__label">{view.color ? `رنگ فعال: ${COLOR_FA[view.color]}` : 'رنگ انتخاب نشده'}</span>
+          <span className="uno-pile__label">
+            {/* Small direction mark instead of the big arc (QA round 3). */}
+            <span className={view.direction === 1 ? 'uno-dir__icon' : 'uno-dir__icon uno-dir__icon--rev'} role="img" aria-label={view.direction === 1 ? 'جهت بازی: عادی' : 'جهت بازی: برعکس'}>↻</span>
+            {view.color ? `رنگ فعال: ${COLOR_FA[view.color]}` : 'رنگ انتخاب نشده'}
+          </span>
         </div>
       </div>
 
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {canCallUno && (
         <div className="uno-alert" role="alert">
@@ -190,14 +207,11 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
             {selected?.color && <Button size="sm" disabled={busy} onClick={() => play(selected)}>بازی {cardLabel(selected)}</Button>}
           </div>
           {needsUno && !unoArmed && <p className="uno-hand__tip">یکی‌مانده به آخر! پیش از گذاشتن کارت «اونو!» را بزنید.</p>}
-          <div className="uno-hand__cards">
-            {hand.map((c, i) => {
-              const t = i - (hand.length - 1) / 2;
-              const step = Math.min(4, 40 / hand.length);
+          <div className="uno-hand__cards" style={{ ['--n' as string]: hand.length }}>
+            {hand.map((c) => {
               const ok = playableIds.has(c.id) && !busy;
               return (
                 <CardFace key={c.id} card={c} onClick={() => tap(c)} disabled={!ok} flip={`c-${c.id}`} flipFrom="deck"
-                  style={{ ['--fan' as string]: (t * step).toFixed(2), ['--arc' as string]: (t * t * step * 0.14).toFixed(2) }}
                   state={picked === c.id ? 'selected' : ok ? 'playable' : myTurn ? 'dim' : undefined}
                   hint={exp?.type === 'play' && exp.card === c.id} />
               );
@@ -206,7 +220,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
         </section>
       )}
 
-      {view.target && (
+      {!framed && view.target && (
         <details className="uno-scores">
           <summary>امتیازها</summary>
           <table className="table">
@@ -219,10 +233,10 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
         </details>
       )}
 
-      <details className="uno-log" open>
+      {!framed && <details className="uno-log" open>
         <summary>رویدادها</summary>
         <ol>{view.log.slice(-6).reverse().map((e) => <li key={e.seq}>{describe(e, seatName)}</li>)}</ol>
-      </details>
+      </details>}
     </div>
   );
 }

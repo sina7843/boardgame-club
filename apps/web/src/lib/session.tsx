@@ -12,6 +12,15 @@ interface SessionValue {
 
 const SessionCtx = createContext<SessionValue | null>(null);
 
+// Per-device hint only (not auth): lets the home page choose its first render before /me answers.
+const HINT = 'bgv.signedIn';
+export function wasSignedIn(): boolean {
+  try { return localStorage.getItem(HINT) === '1'; } catch { return false; }
+}
+function rememberSignedIn(on: boolean) {
+  try { if (on) localStorage.setItem(HINT, '1'); else localStorage.removeItem(HINT); } catch { /* storage blocked */ }
+}
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
   const [status, setStatus] = useState<SessionValue['status']>('loading');
@@ -39,6 +48,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => { if (status === 'ready') rememberSignedIn(me !== null); }, [me, status]);
 
   const value = useMemo(() => ({ me, status, refresh, logout, setMe }), [me, status, refresh, logout]);
   return <SessionCtx.Provider value={value}>{children}</SessionCtx.Provider>;

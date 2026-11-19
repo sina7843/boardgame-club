@@ -76,6 +76,8 @@ export type Decision =
   | { kind: 'cover'; seat: number; adv: string }
   | { kind: 'research'; seat: number; tracks: Track[] | null }
   | { kind: 'lostPlanet'; seat: number }
+  /** Income phase: charge `pw` and gain `t` tokens in the order the player picks (asked only when it matters, p. 10). */
+  | { kind: 'income'; seat: number; pw: number; t: number }
   | { kind: 'custom'; seat: number; source: string; key: string; options: string[]; labelFa: string; data?: number | string };
 
 export type Phase = 'faction' | 'setup' | 'booster' | 'actions' | 'finished';
@@ -123,6 +125,8 @@ export interface GaiaState {
   ins: number;
   /** Internal: the current player's main action is done; the turn passes once `pending` is empty. */
   turnDone: boolean;
+  /** The gaia phase still has to run once the income decisions are answered. */
+  gaiaDue?: boolean;
   /** Standard tech tiles: 0–5 under the tracks (TRACKS order), 6–8 the three free spaces. Advanced: above each track. */
   techBoard: { std: (string | null)[]; adv: (string | null)[] };
   /** Track index (TRACKS order) of each advanced tile in play; kept after the tile is taken. */

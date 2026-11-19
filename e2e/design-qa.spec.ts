@@ -35,13 +35,13 @@ const DS_RADII = [...new Set([...BUNDLE_CSS.matchAll(/border-radius:\s*([^;}]+)/
 
 
 /** Interactions that bring a screen into its designed state (overlays, disconnects, open chat). Screens without one stay manual. */
-const chatOpen = async (page: Page) => { await page.locator('.tbl-chatbtn:visible, .tbl-chatpeek:visible').first().click({ timeout: 4000 }).catch(() => undefined); await page.waitForTimeout(600); };
+const chatOpen = async (page: Page) => { await page.locator('.tbl-chatbtn:visible, .tbl-chatpeek:visible').or(page.getByRole('button', { name: 'گفت‌وگوی میز' })).first().click({ timeout: 4000 }).catch(() => undefined); await page.waitForTimeout(600); };
 const hold = async (page: Page, sel: string) => { await page.locator(sel).first().evaluate((el) => el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }))); await page.waitForTimeout(900); };
 /** Moves the pending turn deadline of the table in the page URL (dev DB only) so the clock shows the wanted state. The worker is off in this run, so nothing fires. */
 const setTurnLeft = async (page: Page, seconds: number) => {
   const id = page.url().split('/').pop()?.split('?')[0] ?? '';
   if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error('not a table url');
-  execFileSync('docker', ['exec', 'boardgame-dev-postgres-1', 'psql', '-U', 'boardgame', '-d', 'boardgame', '-c',
+  execFileSync('docker', ['exec', process.env.BGV_QA_PG_CONTAINER ?? 'boardgame-dev-postgres-1', 'psql', '-U', 'boardgame', '-d', 'boardgame', '-c',
     `update scheduled_deadlines set due_at = now() + interval '${seconds} seconds' where table_id = '${id}' and deadline_key = 'turn' and status = 'pending'`]);
   await page.reload(); await page.waitForLoadState('networkidle').catch(() => {}); await page.waitForTimeout(800);
 };
@@ -53,6 +53,7 @@ const PREPARE: Record<string, (page: Page) => Promise<void>> = {
   'Table-ConnectionLost-Mobile': async (page) => { await page.context().setOffline(true); await page.waitForTimeout(4000); },
   'Offline-Mobile': async (page) => { await page.context().setOffline(true); await page.evaluate(() => window.dispatchEvent(new Event('offline'))); await page.waitForTimeout(1500); },
   'Chat-Docked-Desktop': async () => undefined,
+  'Catalog-Phone': async () => undefined, 'Catalog-Phone-Dark': async () => undefined, 'Catalog-Desktop-Dark': async () => undefined, // route-less catalog variants of /games
   'Chat-Sheet-Mobile': chatOpen,
   'Chat-Sheet-Mobile-Dark': chatOpen,
   'Chat-Spectator-Mobile': chatOpen,
@@ -163,7 +164,7 @@ function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[
     if (p && !inArt(p)) {
       const ps = getComputedStyle(p); const r = el.getBoundingClientRect(); const pr = p.getBoundingClientRect();
       const clips = ps.overflow !== 'visible' || ps.overflowX !== 'visible';
-      if (!clips && framed(ps) && s.position !== 'absolute' && s.position !== 'fixed' && (r.left < pr.left - 1 || r.right > pr.right + 1 || r.bottom > pr.bottom + 1) && overflow.length < 40) overflow.push(label(el) + " in " + (el.parentElement?.className || el.parentElement?.tagName) + "{" + (el.parentElement?.textContent || "").slice(0, 30) + "} gp=" + el.parentElement?.parentElement?.className + " " + Math.round(r.left) + "," + Math.round(r.right) + "|" + Math.round(pr.left) + "," + Math.round(pr.right));
+      if (!clips && !el.closest('details:not([open])') && framed(ps) && s.position !== 'absolute' && s.position !== 'fixed' && (r.left < pr.left - 1 || r.right > pr.right + 1 || r.bottom > pr.bottom + 1) && overflow.length < 40) overflow.push(label(el) + " in " + (el.parentElement?.className || el.parentElement?.tagName) + "{" + (el.parentElement?.textContent || "").slice(0, 30) + "} gp=" + el.parentElement?.parentElement?.className + " " + Math.round(r.left) + "," + Math.round(r.right) + "|" + Math.round(pr.left) + "," + Math.round(pr.right));
     }
     // text touching the edge of its framed box (owner rule: ≥12px padding in tiles, never touching)
     const direct = Array.from(el.childNodes).some((n) => n.nodeType === 3 && (n.textContent || '').trim());
@@ -191,16 +192,17 @@ function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[
   };
 }
 
-for (const s of SCREENS.screens) {
+for (let s of SCREENS.screens) {
   if (ONLY && !ONLY.includes(s.id) && !ONLY.includes(s.page)) continue;
   test(`design-qa ${s.page}/${s.id}`, async ({ browser }) => {
     test.setTimeout(120_000);
     const entry: Record<string, unknown> = { id: s.id, page: s.page, route: s.route, kind: s.kind, capture: s.capture, theme: s.theme, shots: [] };
     audit[s.id] = entry;
     if (s.supersededBy) { entry.status = 'superseded'; entry.supersededBy = s.supersededBy; save(); test.skip(true, `${s.id}: superseded by ${s.supersededBy}`); return; }
+    if (s.id.startsWith('Catalog-') && !s.route) s = { ...s, route: '/games' }; // screens.json has no route for the catalog variants
     if (!s.route || (s.capture === 'manual' && !PREPARE[s.id])) { entry.status = s.kind === 'spec' ? 'spec-only' : 'manual'; save(); test.skip(true, `${s.id}: ${entry.status}`); return; }
     if (QA.roles?.[s.route] && !process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`]) { entry.status = `needs-role:${QA.roles[s.route]}`; save(); test.skip(true, entry.status as string); return; }
-    const state = QA.roles?.[s.route] ? process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`] : s.route === '/login' ? undefined : (() => { const t = tableOf(s); return typeof t === 'object' ? t.storage : undefined; })() ?? await session(browser);
+    const state = QA.roles?.[s.route] ? process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`] : s.route === '/login' || /Guest/.test(s.id) ? undefined : (() => { const t = tableOf(s) ?? TABLES[s.id]; return typeof t === 'object' ? t.storage : undefined; })() ?? await session(browser);
     for (const w of s.viewports) {
       const h = s.responsive ? 900 : 844;
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', reducedMotion: 'reduce', baseURL: QA.baseURL, storageState: state, hasTouch: w < 900 });

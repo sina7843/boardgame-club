@@ -2,17 +2,20 @@
 // One tap places the mark; the table shell holds every move for a short undo window before sending it.
 import './renderer.css';
 import { useRef, type KeyboardEvent } from 'react';
-import { ActionBar, TurnIndicator, useFlip, useFresh, type GameRendererProps } from '@bg/ui';
+import { ActionBar, RailSlot, TurnIndicator, useFlip, useFresh, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Badge } from '@bg/ui/bgv';
 import type { LineThreeView } from './rules.ts';
-// Mark art is cut from a generated sheet (see DECISIONS.md).
-import markX from './art/mark-x.webp';
-import markO from './art/mark-o.webp';
+// Board and marks: design/games/group-a/art/line-three, copied as-is.
+import markX from './art/line-three-x.png';
+import markO from './art/line-three-o.png';
+import boardArt from './art/line-three-board.png';
 
 const ROW = ['بالا', 'وسط', 'پایین'];
 const COL = ['چپ', 'وسط', 'راست'];
 const cellName = (i: number) => `ردیف ${ROW[Math.floor(i / 3)]}، ستون ${COL[i % 3]}`;
 
 export default function LineThreeRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LineThreeView>) {
+  const framed = useInFrame() !== null; // the shell draws players and whose-turn
   const cells = useRef<(HTMLButtonElement | null)[]>([]);
   const mySymbol = mySeat === null ? null : view.symbols[mySeat];
   // Undo-window preview: my queued mark is already in its cell; undo lifts it out again.
@@ -40,8 +43,21 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
 
   return (
     <div className="lt" ref={root}>
-      {status && <TurnIndicator tone={myTurn ? 'mine' : 'wait'}>{status}</TurnIndicator>}
-      <div className="lt__board" role="grid" aria-label="جدول سه‌در‌سه" dir="ltr">
+      {!framed && status && <TurnIndicator tone={myTurn ? 'mine' : 'wait'}>{status}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <Badge size="sm" tone="test" icon="triangle-alert" className="lt-tag">بازی آزمایشی</Badge>
+          <ul className="lt-sym" aria-label="نشان بازیکنان">
+            {([0, 1] as const).map((seat) => { const sym = view.symbols[seat]; return (
+              <li key={seat}><img src={sym === 'X' ? markX : markO} alt={sym} draggable={false} />
+                <span><b><bdi>{seat === mySeat ? 'شما' : seatName(seat)}</bdi></b> <bdi dir="ltr">{sym}</bdi>، {sym === 'X' ? 'شروع‌کننده' : 'نفر دوم'}</span></li>
+            ); })}
+          </ul>
+          <p>هر کس زودتر <b>سه نشان</b> خود را در یک ردیف، ستون یا قطر بچیند برنده است؛ جدول پر شود و خطی کامل نشود، مساوی است.</p>
+        </RailSlot>
+      )}
+      <div className="lt__board" role="grid" aria-label="جدول سه‌در‌سه" dir="ltr" style={{ backgroundImage: `url(${boardArt})` }}>
+        <div className="lt__grid">
         {[0, 1, 2].map((r) => (
           <div role="row" key={r} className="lt__row">
             {[0, 1, 2].map((c) => {
@@ -64,8 +80,9 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
             })}
           </div>
         ))}
+        </div>
       </div>
-      {myTurn && !busy && qCell === null && (
+      {!framed && myTurn && !busy && qCell === null && (
         <ActionBar>
           <span className="muted">یک خانه خالی را بزنید</span>
         </ActionBar>

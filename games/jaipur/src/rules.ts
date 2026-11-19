@@ -280,6 +280,7 @@ export const jaipurModule: GameModule<JaipurState, JaipurAction, JaipurView> = {
       ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
     })),
     shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'round', label: 'دور', value: s.round, ...(s.best3 ? { max: 3 } : {}) }],
+    moves: s.last ? [{ seat: s.last.seat, text: (s.last.kind === 'take' ? 'یک کالا برداشت' : s.last.kind === 'camels' ? `${(s.last.count ?? 0).toLocaleString('fa-IR')} شتر برداشت` : s.last.kind === 'exchange' ? `${(s.last.cards?.length ?? 0).toLocaleString('fa-IR')} کارت معاوضه کرد` : `${(s.last.count ?? 0).toLocaleString('fa-IR')} کالا فروخت، ${(s.last.earned ?? 0).toLocaleString('fa-IR')} سکه`).slice(0, 40) }] : [],
     ...(s.seals[0] !== s.seals[1] ? { leaderSeat: s.seals[0]! > s.seals[1]! ? 0 : 1 } : {})
   }),
 

@@ -40,8 +40,10 @@ export interface CarcState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Public move history (newest last, ≤40) for the shell's event log; absent in older saved states. */
+  hist?: { seat: number; text: string }[];
 }
-export type CarcView = Omit<CarcState, 'stack' | 'timeouts'> & { tile: string | null; stackCount: number };
+export type CarcView = Omit<CarcState, 'stack' | 'timeouts' | 'hist'> & { tile: string | null; stackCount: number };
 
 export const carcAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('place'), x: z.number().int().min(-80).max(80), y: z.number().int().min(-80).max(80), rot: z.number().int().min(0).max(3), meeple: z.string().regex(/^(m|c\d|r\d)$/).optional() }),
@@ -234,13 +236,21 @@ export const carcModule: GameModule<CarcState, CarcAction, CarcView> = {
     if (a.meeple) s.meeplesLeft[seat]! -= 1;
     const scored = scoreAfter(s, a.x, a.y);
     s.last = { seat, x: a.x, y: a.y, scored };
+    {
+      const fa = (n: number) => n.toLocaleString('fa-IR');
+      const kindFa: Record<string, string> = { city: 'شهر', road: 'جاده', monastery: 'صومعه' };
+      const where = a.meeple ? `، پیرو روی ${a.meeple === 'm' ? 'صومعه' : a.meeple[0] === 'c' ? 'شهر' : 'جاده'}` : '';
+      const out: { seat: number; text: string }[] = [{ seat, text: `کاشی در ${fa(a.x)}،${fa(a.y)}${where}` }];
+      for (const x of scored) out.push({ seat: x.seat, text: `${fa(x.pts)}+ امتیاز از ${kindFa[x.kind] ?? x.kind}` });
+      s.hist = [...(s.hist ?? []), ...out].slice(-40);
+    }
     s.current = (seat + 1) % s.players;
     ensurePlaceable(s);
     return finish(s, [{ type: 'place', seat }]);
   },
 
   project(s) {
-    const { stack, timeouts: _t, ...rest } = structuredClone(s);
+    const { stack, timeouts: _t, hist: _h, ...rest } = structuredClone(s);
     return { ...rest, tile: s.outcome ? null : stack[0] ?? null, stackCount: stack.length };
   },
 
@@ -276,6 +286,7 @@ export const carcModule: GameModule<CarcState, CarcAction, CarcView> = {
         ...(won === seat ? { status: 'winner' as const } : {})
       })),
       shared: [{ key: 'deck', label: 'کاشی', value: s.stack.length }],
+      moves: (s.hist ?? []).slice(-40),
       ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
     };
   },

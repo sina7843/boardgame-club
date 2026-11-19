@@ -17,6 +17,9 @@ export const isDisgrace = (c: StatusCard) => c === 'passe' || c === 'scandal' ||
 export const isRed = (c: StatusCard) => c === 'prestige' || c === 'scandal';
 export const lux = (c: StatusCard) => (c.startsWith('l') ? Number(c.slice(1)) : 0);
 
+const LUX_FA = ['', 'گلاب‌پاش', 'کلاه', 'دستکش', 'عطر', 'شامپاین', 'تابلو', 'پیانو', 'اسب', 'قایق', 'کاخ ییلاقی'];
+const SPECIAL_FA: Record<string, string> = { prestige: 'افتخار', passe: 'از مد افتاده', scandal: 'رسوایی', faux: 'گاف' };
+
 export interface HighSocietyState {
   players: number;
   deck: StatusCard[];
@@ -255,7 +258,8 @@ export const highSocietyModule: GameModule<HighSocietyState, HighSocietyAction, 
       badges: s.faux[seat] ? [{ key: 'faux', label: 'اشتباه', tone: 'warning' as const }] : [],
       ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : s.passed[seat] ? { status: 'passed' as const } : {})
     })),
-    shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'red', label: 'کارت قرمز', value: s.red, max: 4 }]
+    shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'red', label: 'کارت قرمز', value: s.red, max: 4 }],
+    moves: s.last ? [{ seat: s.last.seat, text: `${isDisgrace(s.last.card) ? 'گرفت' : 'برد'}: ${LUX_FA[lux(s.last.card)] ?? SPECIAL_FA[s.last.card] ?? ''}${s.last.paid ? `، ${s.last.paid.toLocaleString('fa-IR')} داد` : ''}`.slice(0, 40) }] : []
   }),
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),

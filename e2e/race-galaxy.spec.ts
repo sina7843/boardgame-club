@@ -37,12 +37,12 @@ async function turn(p: Page, n: number): Promise<boolean> {
   if (await phase.count()) { await phase.nth([2, 1, 4, 3, 0][n % 5]!).click(); return true; }
   const keep = game.locator('.rg-drawn button');
   if (await keep.count()) { await keep.first().click(); return true; }
-  const skip = game.getByRole('button', { name: 'صرف‌نظر' });
+  const skip = p.getByRole('button', { name: 'صرف‌نظر' }); // dock buttons render outside .rg
   if (!(await skip.count())) return false;
   const can = game.locator('.rg-hand .rg-pick.is-can:not([disabled])');
   if (await can.count()) {
     await can.first().click();
-    const place = game.getByRole('button', { name: /^گذاشتن/ });
+    const place = p.getByRole('button', { name: /^گذاشتن/ });
     const others = game.locator('.rg-hand .rg-pick:not(.is-sel):not([disabled])');
     for (let i = 0; i < await others.count() && !(await place.isEnabled()); i++) await others.nth(i).click();
     if (await place.isEnabled()) { await place.click(); return true; }

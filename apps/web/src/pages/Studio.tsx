@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { KIND_FA, ITEM_KINDS, KIND_SLOT, cosmetic, slotItems, type ProfilePrivacy } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, CosmeticTile, Identity, LobbySeat, PageHead, PlayerCard, Segmented, StateBlock, Switch, Tabs } from '@bg/ui/bgv';
+import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, CosmeticTile, Identity, LobbySeat, PageHead, Hud, Segmented, StateBlock, Switch, Tabs } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { userIdentity } from '../lib/bgv.tsx';
 import { faNum } from '../lib/format.ts';
 import { ItemArt, useWardrobe } from '../lib/cosmeticItems.tsx';
 import { useSession } from '../lib/session.tsx';
+import { TaskTop } from '../shell/TaskTop.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ProfileEditor, useProfileDraft, type EditorTab } from './ProfileEditor.tsx';
 
@@ -60,6 +61,7 @@ function Studio({ me, w, privacy, saving, tab, setTab, frames, setFrames, setPri
 
   return (
     <>
+      <TaskTop title="استودیو پروفایل" close="/me/profile" />
       <Breadcrumbs className="app-hide-phone" items={[{ label: 'پروفایل من', href: '/me/profile' }, { label: 'استودیو پروفایل' }]} />
       <PageHead className="app-hide-phone" title="استودیو پروفایل" sub="هرچه اینجا انتخاب کنید همه‌جا با شما می‌آید: کارت بازیکن سر میز، گفت‌وگو، لابی و جدول رتبه."
         actions={<>
@@ -71,11 +73,11 @@ function Studio({ me, w, privacy, saving, tab, setTab, frames, setFrames, setPri
       <div className="bgv-cols pf-studio">
         <div className="bgv-stack">
           <section className="bgv-card pf-pcard" aria-label="ویرایشگر پروفایل" data-tour="profile-editor">
-            <Tabs label="بخش‌های استودیو" value={tab} onChange={(v) => setTab(v as StudioTab)} items={[
+            <div className="bgv-scroll-x"><Tabs label="بخش‌های استودیو" value={tab} onChange={(v) => setTab(v as StudioTab)} items={[
               { value: 'avatar', label: 'آواتار' }, { value: 'frame', label: 'قاب' }, { value: 'about', label: dot(draft.changed.about, 'معرفی و لقب') },
               { value: 'banner', label: dot(draft.changed.banner, 'بنر') }, { value: 'fav', label: dot(draft.changed.fav, 'بازی‌های محبوب') },
               { value: 'showcase', label: dot(draft.changed.showcase, 'ویترین') }, { value: 'table', label: 'کازمتیک میز' }
-            ]} />
+            ]} /></div>
             {tab === 'avatar' && (
               <div className="pf-studio__avatar">
                 <Avatar {...id.avatar} initials={id.initials} size="2xl" />
@@ -122,7 +124,7 @@ function Studio({ me, w, privacy, saving, tab, setTab, frames, setFrames, setPri
             <Segmented className="app-phone-only" label="پیش‌نمایش" value={pv} onChange={(v) => setPv(v as typeof pv)}
               options={[{ value: 'table', label: 'میز' }, { value: 'chat', label: 'گفت‌وگو' }, { value: 'rank', label: 'رتبه' }]} /></div>
           <span className="t-caption bgv-muted pf-pv--table">کارت بازیکن سر میز</span>
-          <div className="pf-prevfelt pf-pv--table"><PlayerCard {...id} name={<bdi>{me.displayName}</bdi>} you seat={1} turn waiting="در حال بازی" /></div>
+          <div className="pf-prevfelt pf-pv--table"><Hud layout="rail" label="کارت بازیکن" players={[{ ...id, name: <bdi>{me.displayName}</bdi>, you: true, seat: 1, score: faNum(8), scoreLabel: 'امتیاز', stats: [`${faNum(5)} کارت`, `${faNum(2)} دستاورد`] }]} /></div>
           <span className="t-caption bgv-muted pf-pv--chat">پیام در گفت‌وگو</span>
           <div className="pf-prevchat pf-pv--chat"><Identity {...userIdentity(draftMe, { size: 'sm' })} />{bubble && <ItemArt item={bubble} me={me} />}</div>
           <span className="t-caption bgv-muted pf-pv--table">صندلی در لابی</span>
@@ -132,12 +134,10 @@ function Studio({ me, w, privacy, saving, tab, setTab, frames, setFrames, setPri
           <span className="t-caption bgv-muted"><Badge tone="info" icon="eye">دیگران دقیقاً همین‌طور می‌بینند.</Badge></span>
         </section>
       </div>
-      {draft.dirty > 0 && (
-        <div className="pf-savebar app-phone-only" role="status">
-          <Button variant="secondary" onClick={draft.reset}>لغو</Button>
-          <Button variant="primary" icon="check" loading={draft.busy} onClick={draft.save}>ذخیرهٔ تغییرات</Button>
-        </div>
-      )}
+      <div className="pf-savebar app-phone-only">
+        <Button variant="secondary" disabled={!draft.dirty} onClick={draft.reset}>لغو</Button>
+        <Button variant="primary" icon="check" loading={draft.busy} disabled={!draft.dirty} onClick={draft.save}>ذخیرهٔ تغییرات</Button>
+      </div>
     </>
   );
 }

@@ -78,9 +78,12 @@ export function countBuilding(s: GaiaState, seat: number, b: Building | 'ac'): n
   return n;
 }
 export const hasPI = (s: GaiaState, seat: number) => s.hexes.some((h) => h.owner === seat && h.building === 'pi');
-export const planetTypes = (s: GaiaState, seat: number) => new Set(structuresOf(s, seat).map((i) => s.hexes[i]!.planet)).size;
+/** Hexes where the seat owns the planet (Lantids' extra mines on another player's planet do not count for planet
+ *  types and gaia planets: rulebook p. 20). */
+const ownPlanets = (s: GaiaState, seat: number) => structuresOf(s, seat).filter((i) => s.hexes[i]!.extra !== seat);
+export const planetTypes = (s: GaiaState, seat: number) => new Set(ownPlanets(s, seat).map((i) => s.hexes[i]!.planet)).size;
 export const sectorsOf = (s: GaiaState, seat: number) => new Set(structuresOf(s, seat).map((i) => s.hexes[i]!.sector)).size;
-export const gaiaPlanets = (s: GaiaState, seat: number) => structuresOf(s, seat).filter((i) => s.hexes[i]!.planet === 'g').length;
+export const gaiaPlanets = (s: GaiaState, seat: number) => ownPlanets(s, seat).filter((i) => s.hexes[i]!.planet === 'g').length;
 export const activeSeats = (s: GaiaState) => s.active.flatMap((a, i) => (a ? [i] : []));
 
 const BASE_VALUE: Record<Building, number> = { mine: 1, ts: 2, lab: 2, pi: 3, ac1: 3, ac2: 3, gf: 0, station: 0 };
@@ -148,7 +151,8 @@ export function gain(s: GaiaState, seat: number, g: Gain) {
   const p = s.pl[seat]!;
   for (const k of ['c', 'o', 'k'] as const) if (g[k]) p[k] = Math.max(0, Math.min(CAP[k], p[k] + g[k]));
   if (g.q) {
-    if (flag(s, seat, 'qicAsOreUntilAc2') && s.phase !== 'faction' && countBuilding(s, seat, 'ac2') === 0) p.o = Math.min(CAP.o, p.o + g.q);
+    // Gleens: every QIC (the set-up navigation one too, rulebook pp. 6, 20) is ore until the QIC academy.
+    if (flag(s, seat, 'qicAsOreUntilAc2') && countBuilding(s, seat, 'ac2') === 0) p.o = Math.min(CAP.o, p.o + g.q);
     else p.q += g.q;
   }
   if (g.vp) p.vp += g.vp;
@@ -175,21 +179,23 @@ export function pay(s: GaiaState, seat: number, cost: Gain) {
 
 // ---------------- power cycle ----------------
 
-/** Tokens in bowls I–III (the brainstone is not a removable token). */
-export const tokens = (pw: Power) => pw.b1 + pw.b2 + pw.b3;
+/** Tokens in bowls I–III; the Taklons brainstone counts as one (rulebook p. 20, RULES E6). */
+export const tokens = (pw: Power) => pw.b1 + pw.b2 + pw.b3 + (pw.brain ? 1 : 0);
 const bowl3Value = (s: GaiaState, seat: number) => (flag(s, seat, 'bowl3DoubleAfterPI') && hasPI(s, seat) ? 2 : 1);
 /** Power that can be spent from bowl III (brainstone = 3). */
 export function spendable(s: GaiaState, seat: number): number {
   const pw = s.pl[seat]!.power;
   return pw.b3 * bowl3Value(s, seat) + (pw.brain === 3 ? 3 : 0);
 }
-/** Spend power: bowl III → bowl I. The brainstone is used when it is needed or the cost is at least 3. */
+/** Spend power: bowl III → bowl I. The brainstone: as the player chose for this action (`mark.brainUse` 1 = spend it,
+ *  0 = keep it), otherwise when it is needed or the cost is at least 3. */
 export function spendPower(s: GaiaState, seat: number, n: number) {
   const pw = s.pl[seat]!.power;
   const mult = bowl3Value(s, seat);
+  const pick = s.pl[seat]!.mark.brainUse;
   let need = n;
-  // ponytail: fixed brainstone heuristic instead of asking the Taklons player; add a choice if players need it.
-  if (pw.brain === 3 && (need >= 3 || pw.b3 * mult < need)) { pw.brain = 1; need -= 3; }
+  if (pick === 1 && pw.brain !== 3) throw new Error('brainstone not in bowl III');
+  if (pw.brain === 3 && (pick === 1 || (pick !== 0 && (need >= 3 || pw.b3 * mult < need)))) { pw.brain = 1; need -= 3; }
   if (need > 0) {
     const t = Math.ceil(need / mult);
     if (t > pw.b3) throw new Error('not enough power');
@@ -208,14 +214,50 @@ function chargeInto(pw: Power, n: number): number {
 export const charge = (s: GaiaState, seat: number, n: number) => chargeInto(s.pl[seat]!.power, n);
 export const chargeable = (s: GaiaState, seat: number, n: number) => chargeInto({ ...s.pl[seat]!.power }, n);
 export function addTokens(s: GaiaState, seat: number, n: number) { s.pl[seat]!.power.b1 += n; }
-/** Remove tokens from the cycle, lowest bowl first. Returns how many were removed. */
-export function removeTokens(s: GaiaState, seat: number, n: number): number {
+/** Power cycle after income with tokens first or charge first (rulebook p. 10: the player picks the order). */
+export function incomeResults(s: GaiaState, seat: number, pw: number, t: number): { tokenFirst: Power; chargeFirst: Power } {
+  const p = s.pl[seat]!.power;
+  const tokenFirst = { ...p, b1: p.b1 + t };
+  chargeInto(tokenFirst, pw);
+  const chargeFirst = { ...p };
+  chargeInto(chargeFirst, pw);
+  chargeFirst.b1 += t;
+  return { tokenFirst, chargeFirst };
+}
+/** Tokens taken from bowls I, II, III for a Gaia Project or satellites (rulebook pp. 9, 12: the player picks). */
+export type Bowls = [number, number, number];
+const BOWL = ['b1', 'b2', 'b3'] as const;
+/** Tokens a bowl can give (the brainstone counts in its bowl). */
+const bowlCap = (pw: Power, i: number) => pw[BOWL[i]!] + (pw.brain === i + 1 ? 1 : 0);
+/** The pick is valid: whole numbers that add up to `n` and fit in each bowl. */
+export function bowlsOk(s: GaiaState, seat: number, n: number, from: Bowls): boolean {
   const pw = s.pl[seat]!.power;
+  return from.every((k, i) => Number.isInteger(k) && k >= 0 && k <= bowlCap(pw, i)) && from[0] + from[1] + from[2] === n;
+}
+/**
+ * Remove tokens from the cycle: from the chosen bowls, or lowest bowl first. Plain tokens go first; the brainstone is
+ * taken from its bowl when the pick needs it (or, by default, when nothing else is left). A removed brainstone goes to
+ * `brainTo`: the gaia area (0) for a Gaia Project, out of the game (null) for a satellite. Returns how many were removed.
+ */
+export function removeTokens(s: GaiaState, seat: number, n: number, from?: Bowls, brainTo: 0 | null = null): number {
+  const pw = s.pl[seat]!.power;
+  const want = from && bowlsOk(s, seat, n, from) ? from : null;
   let left = n;
-  for (const b of ['b1', 'b2', 'b3'] as const) { const k = Math.min(pw[b], left); pw[b] -= k; left -= k; }
+  BOWL.forEach((b, i) => {
+    const k = Math.min(pw[b], want ? want[i]! : left);
+    pw[b] -= k; left -= k;
+    if (want && want[i]! > k && pw.brain === i + 1) { pw.brain = brainTo; left -= 1; }
+  });
+  if (!want && left > 0 && pw.brain) { pw.brain = brainTo; left -= 1; }
   return n - left;
 }
-export function moveToGaia(s: GaiaState, seat: number, n: number) { s.pl[seat]!.power.gaia += removeTokens(s, seat, n); }
+/** Gaia Project: tokens go to the gaia area (a brainstone among them too; it returns in the gaia phase). */
+export function moveToGaia(s: GaiaState, seat: number, n: number, from?: Bowls) {
+  const pw = s.pl[seat]!.power;
+  const brain = pw.brain;
+  const removed = removeTokens(s, seat, n, from, 0);
+  pw.gaia += removed - (brain && pw.brain === 0 ? 1 : 0);
+}
 export const canBurn = (pw: Power) => pw.b2 >= 2 || (pw.brain === 2 && pw.b2 >= 1);
 /** Burn: one token of bowl II leaves the cycle (Itars: to the gaia area), another (or the brainstone) goes to III. */
 export function burn(s: GaiaState, seat: number) {
@@ -255,7 +297,7 @@ export function advance(s: GaiaState, seat: number, track: Track, quiet = false)
   switch (track) {
     case 'terra':
       if (lvl === 1 || lvl === 4) gain(s, seat, { o: 2 });
-      if (lvl === 5 && s.terraFed) { const id = s.terraFed; s.terraFed = null; gainFedToken(s, seat, id); }
+      if (lvl === 5 && s.terraFed) { const id = s.terraFed; s.terraFed = null; p.mark.terraFed = true; gainFedToken(s, seat, id); }
       break;
     case 'nav':
       if (lvl === 1 || lvl === 3) gain(s, seat, { q: 1 });
@@ -297,6 +339,7 @@ export function decisionOptions(s: GaiaState, d: Decision): string[] {
     case 'cover': return s.pl[d.seat]!.techs.filter((t) => !t.covered && CONTENT.techs[t.id]?.kind === 'std').map((t) => t.id);
     case 'research': return (d.tracks ?? [...TRACKS]).filter((t) => !researchBlock(s, d.seat, t));
     case 'lostPlanet': return lostPlanetHexes(s, d.seat).map(String);
+    case 'income': return ['charge-first', 'token-first'];
     case 'custom': return d.options;
   }
 }
@@ -325,12 +368,16 @@ export function resolveDecision(s: GaiaState, d: Decision, choice: string) {
     case 'tech': takeTech(s, d.seat, choice); break;
     case 'cover': {
       s.pl[d.seat]!.techs.find((t) => t.id === choice && !t.covered)!.covered = true;
-      const track = TRACKS[s.advPos[d.adv] ?? 0]!;
-      if (!researchBlock(s, d.seat, track)) advance(s, d.seat, track);
+      // Rulebook p. 13: after an advanced tile, advance one step on ANY track (not only the tile's).
+      queueResearch(s, d.seat);
       break;
     }
     case 'research': advance(s, d.seat, choice as Track); break;
     case 'lostPlanet': placeLostPlanet(s, d.seat, Number(choice)); break;
+    case 'income':
+      if (choice === 'charge-first') { charge(s, d.seat, d.pw); addTokens(s, d.seat, d.t); }
+      else { addTokens(s, d.seat, d.t); charge(s, d.seat, d.pw); }
+      break;
     case 'custom': {
       const h = sourceEffects(d.source)?.decide?.[d.key];
       if (!h) throw new Error(`no handler for ${d.source}/${d.key}`);
@@ -378,7 +425,9 @@ export interface MinePlan { cost: Gain; steps: number; extra: boolean }
 /** Cost of building a mine, or an error code. */
 export function minePlan(s: GaiaState, seat: number, hex: number, opts: MineOpts = {}): MinePlan | string {
   const h = s.hexes[hex];
-  if (!h || h.planet === 'e' || h.planet === 'l') return 'ILLEGAL_PLACEMENT';
+  if (!h || h.planet === 'e') return 'ILLEGAL_PLACEMENT';
+  // Lost Planet: only Lantids may add a mine to another player's (rulebook p. 20).
+  if (h.planet === 'l' && !(flag(s, seat, 'sharePlanets') && h.owner !== null && h.owner !== seat)) return 'ILLEGAL_PLACEMENT';
   if (countBuilding(s, seat, 'mine') >= LIMIT.mine) return 'NO_PIECES';
   const f = factionOf(s, seat);
   let steps = 0, gaiaQic = 0, extra = false, reached = false;
@@ -392,8 +441,7 @@ export function minePlan(s: GaiaState, seat: number, hex: number, opts: MineOpts
   } else if (h.owner !== seat && flag(s, seat, 'sharePlanets') && colonized(h, h.owner) && h.extra === null) {
     extra = true;
   } else return 'CELL_OCCUPIED';
-  // Free terraforming steps (power actions, booster) must terraform: not on gaia, home-type or shared planets.
-  if (opts.freeSteps && steps === 0) return 'ILLEGAL_PLACEMENT';
+  // Free terraforming steps (power actions, booster) that are not needed are lost (rulebook p. 23).
   const paid = Math.max(0, steps - (opts.freeSteps ?? 0));
   const ore = BUILD_COST.mine.o + paid * TERRAFORM_ORE[s.pl[seat]!.research.terra]!;
   const q = gaiaQic + (reached ? 0 : qicFor(s, seat, hex, opts.extraRange ?? 0));
@@ -484,11 +532,11 @@ export function gaiaformPlan(s: GaiaState, seat: number, hex: number, extraRange
   if (tokens(s.pl[seat]!.power) < t || s.pl[seat]!.q < q) return 'NOT_ENOUGH_RESOURCES';
   return { q, tokens: t };
 }
-export function gaiaform(s: GaiaState, seat: number, hex: number, extraRange = 0) {
+export function gaiaform(s: GaiaState, seat: number, hex: number, extraRange = 0, from?: Bowls) {
   const plan = gaiaformPlan(s, seat, hex, extraRange);
   if (typeof plan === 'string') throw new Error(plan);
   s.pl[seat]!.q -= plan.q;
-  moveToGaia(s, seat, plan.tokens);
+  moveToGaia(s, seat, plan.tokens, from);
   const h = s.hexes[hex]!;
   h.owner = seat; h.building = 'gf';
   log(s, { t: 'gaiaform', seat, hex });
@@ -555,6 +603,9 @@ export function fedThreshold(s: GaiaState, seat: number): number {
   return v;
 }
 const inOwnFed = (h: HexState, seat: number) => h.feds.includes(seat);
+/** Empty space for a satellite of the seat: no planet, no own satellite; another player's Ivits space station is fine (p. 20). */
+const satSpace = (h: HexState, seat: number) =>
+  h.planet === 'e' && !h.sats.includes(seat) && (h.owner === null || (h.building === 'station' && h.owner !== seat));
 const ownNode = (h: HexState, seat: number) => colonized(h, seat) || (h.owner === seat && h.building === 'station');
 /** The seat's unfederated structures connected to `start` through adjacent own structures (incl. `start`). */
 function buildingGroup(s: GaiaState, seat: number, start: number, idx = hexIndex(s.hexes)): number[] {
@@ -584,50 +635,73 @@ function connected(s: GaiaState, set: Set<number>): boolean {
 }
 
 export interface FedPlan { buildings: number[]; sats: number[]; value: number }
+/** Detailed federation check for the selection UI: what the group holds so far and the first problem (or null).
+ *  Problem codes: FED_EMPTY, FED_BAD_HEX (satellite not on empty space), FED_IN_FED (in or next to an own federation),
+ *  FED_NO_STRUCTURE, FED_NOT_CONNECTED, FED_LOW_VALUE, FED_EXTRA_SAT, FED_REDUNDANT, NOT_ENOUGH_RESOURCES. */
+export interface FedCheck extends FedPlan { need: number; error: string | null }
 /**
  * Check a federation: `hexes` = the new buildings + satellite hexes. Buildings must be the seat's, not in a federation
  * and (except single-federation factions) not next to one; satellites go on empty space; the whole group must be
  * connected, reach the threshold and use no unneeded satellite.
  */
-export function fedPlan(s: GaiaState, seat: number, hexes: number[]): FedPlan | string {
+export function fedCheck(s: GaiaState, seat: number, hexes: number[]): FedCheck {
+  const need = fedThreshold(s, seat);
   const set = new Set(hexes);
-  if (set.size !== hexes.length || set.size === 0) return 'FEDERATION_INVALID';
   const single = flag(s, seat, 'singleFederation');
   const idx = hexIndex(s.hexes);
   const buildings: number[] = [], sats: number[] = [];
+  const out = (error: string | null, value = 0): FedCheck => ({ buildings, sats, value, need, error });
+  if (set.size !== hexes.length || set.size === 0) return out('FED_EMPTY');
   const hasFed = s.hexes.some((h) => inOwnFed(h, seat));
   for (const i of set) {
     const h = s.hexes[i];
-    if (!h) return 'FEDERATION_INVALID';
+    if (!h) return out('FED_BAD_HEX');
     // Single-federation factions (Ivits) may name hexes of their growing federation; they only anchor the group.
-    if (inOwnFed(h, seat)) { if (single) continue; return 'FEDERATION_INVALID'; }
+    if (inOwnFed(h, seat)) { if (single) continue; return out('FED_IN_FED'); }
     if (ownNode(h, seat)) buildings.push(i);
-    else if (h.planet === 'e' && h.owner === null && !h.sats.includes(seat)) sats.push(i);
-    else return 'FEDERATION_INVALID';
+    else if (satSpace(h, seat)) sats.push(i);
+    else return out('FED_BAD_HEX');
   }
   // Every own structure connected to a chosen one by adjacency is part of the federation (official rule).
   for (const b of [...buildings]) for (const j of buildingGroup(s, seat, b, idx)) if (!set.has(j)) { set.add(j); buildings.push(j); }
-  if (!single) for (const i of set) if (neighbors(s.hexes, idx, i).some((j) => inOwnFed(s.hexes[j]!, seat))) return 'FEDERATION_INVALID';
-  if (!buildings.length && !(single && hasFed)) return 'FEDERATION_INVALID';
   const group = new Set(set);
   if (single) s.hexes.forEach((h, i) => { if (inOwnFed(h, seat)) group.add(i); });
-  if (!connected(s, group)) return 'FEDERATION_INVALID';
   const value = [...group].reduce((a, i) => a + powerValue(s, seat, i, true), 0);
-  if (value < fedThreshold(s, seat)) return 'FEDERATION_INVALID';
+  if (!single) for (const i of set) if (neighbors(s.hexes, idx, i).some((j) => inOwnFed(s.hexes[j]!, seat))) return out('FED_IN_FED', value);
+  if (!buildings.length && !(single && hasFed)) return out('FED_NO_STRUCTURE', value);
+  if (!connected(s, group)) return out('FED_NOT_CONNECTED', value);
+  if (value < need) return out('FED_LOW_VALUE', value);
   // ponytail: local minimality (no single satellite can be dropped), not a global minimum-satellite search.
-  for (const sat of sats) { const g = new Set(group); g.delete(sat); if (connected(s, g)) return 'FEDERATION_INVALID'; }
+  for (const sat of sats) { const g = new Set(group); g.delete(sat); if (connected(s, g)) return out('FED_EXTRA_SAT', value); }
+  // Rulebook pp. 14–15: not allowed when it would stay valid without one structure AND one satellite. A structure can
+  // only be left out if no other structure of the federation touches it (connected structures always join).
+  for (const b of buildings) {
+    if (neighbors(s.hexes, idx, b).some((j) => j !== b && group.has(j) && ownNode(s.hexes[j]!, seat))) continue;
+    for (const sat of sats) {
+      const g = new Set(group); g.delete(b); g.delete(sat);
+      if (connected(s, g) && value - powerValue(s, seat, b, true) >= need) return out('FED_REDUNDANT', value);
+    }
+  }
   const payQic = flag(s, seat, 'satelliteQic');
-  if (payQic ? s.pl[seat]!.q < sats.length : tokens(s.pl[seat]!.power) < sats.length) return 'NOT_ENOUGH_RESOURCES';
-  return { buildings, sats, value };
+  if (payQic ? s.pl[seat]!.q < sats.length : tokens(s.pl[seat]!.power) < sats.length) return out('NOT_ENOUGH_RESOURCES', value);
+  return out(null, value);
 }
+export function fedPlan(s: GaiaState, seat: number, hexes: number[]): FedPlan | string {
+  const c = fedCheck(s, seat, hexes);
+  if (c.error) return c.error.startsWith('FED_') ? 'FEDERATION_INVALID' : c.error;
+  return { buildings: c.buildings, sats: c.sats, value: c.value };
+}
+/** Hexes the seat may add to a federation selection: own structures outside a federation and satellite spaces. */
+export const fedCandidates = (s: GaiaState, seat: number) =>
+  s.hexes.flatMap((h, i) => (!inOwnFed(h, seat) && (ownNode(h, seat) || satSpace(h, seat)) ? [i] : []));
 
 export const fedTokensAvailable = (s: GaiaState) => Object.entries(s.fedSupply).filter(([, n]) => n > 0).map(([id]) => id);
 
-export function formFederation(s: GaiaState, seat: number, hexes: number[], token: string) {
+export function formFederation(s: GaiaState, seat: number, hexes: number[], token: string, from?: Bowls) {
   const plan = fedPlan(s, seat, hexes);
   if (typeof plan === 'string') throw new Error(plan);
   if (flag(s, seat, 'satelliteQic')) s.pl[seat]!.q -= plan.sats.length;
-  else removeTokens(s, seat, plan.sats.length);
+  else removeTokens(s, seat, plan.sats.length, from);
   for (const i of plan.sats) s.hexes[i]!.sats.push(seat);
   s.pl[seat]!.satellites += plan.sats.length;
   const marked = [...plan.buildings, ...plan.sats].sort((a, b) => a - b);
@@ -663,7 +737,7 @@ export function suggestFederations(s: GaiaState, seat: number, max = 3): number[
   const need = fedThreshold(s, seat);
   const blocked = (i: number) => !single && neighbors(s.hexes, idx, i).some((j) => inOwnFed(s.hexes[j]!, seat));
   const free = (i: number) => { const h = s.hexes[i]!; return !inOwnFed(h, seat) && ownNode(h, seat) && !blocked(i); };
-  const space = (i: number) => { const h = s.hexes[i]!; return h.planet === 'e' && h.owner === null && !h.sats.includes(seat) && !inOwnFed(h, seat) && !blocked(i); };
+  const space = (i: number) => { const h = s.hexes[i]!; return satSpace(h, seat) && !inOwnFed(h, seat) && !blocked(i); };
   const starts = s.hexes.flatMap((_, i) => (free(i) ? [i] : []));
   const out: number[][] = [];
   const seenKeys = new Set<string>();

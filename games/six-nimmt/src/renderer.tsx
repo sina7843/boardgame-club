@@ -1,8 +1,9 @@
 // گاو شش renderer: four rows of numbered cards (bull heads show the penalty), a fan of your cards to tap, the
 // revealed choices in order, and rows that become buttons when you must take one.
 import './renderer.css';
-import { useRef } from 'react';
-import { TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { useRef, type CSSProperties } from 'react';
+import { RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { FACE, LAST_SLOT, ROW_INDICATOR, ROW_SLOT } from './art.ts';
 import bull from './art/bull.webp';
 import cardsArt from './art/cards.webp';
 import { bullheads, type SixNimmtView } from './rules.ts';
@@ -20,19 +21,22 @@ const cardArt = (c: number) => ({ backgroundImage: `url(${cardsArt})`, backgroun
 
 function Card({ c, small, onClick, state, hint, flip, flipFrom, exit }: { flip?: string; flipFrom?: string; exit?: string; c: number; small?: boolean; onClick?: () => void; state?: 'take' | 'up'; hint?: boolean }) {
   const b = bullheads(c);
+  const face = FACE[c]; // published face if we have it, else the BGA sprite
   const body = (
     <>
+      {face && <img className="sn-card__img" src={face} alt="" draggable={false} />}
       <span className="sn-card__heads" aria-hidden="true">{Array.from({ length: b }, (_, k) => <Bull key={k} />)}</span>
       <strong className="sn-card__n">{fa(c)}</strong>
     </>
   );
-  const cls = ['sn-card', `sn-card--${tier(c)}`, small ? 'sn-card--small' : '', state ? `sn-card--${state}` : '', hint ? 'sn-card--hint' : ''].join(' ');
+  const cls = ['sn-card', `sn-card--${tier(c)}`, small ? 'sn-card--small' : '', face ? 'sn-card--img' : '', state ? `sn-card--${state}` : '', hint ? 'sn-card--hint' : ''].join(' ');
   return onClick
-    ? <button type="button" className={cls} style={cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} onClick={onClick} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</button>
-    : <span className={cls} style={cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</span>;
+    ? <button type="button" className={cls} style={face ? undefined : cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} onClick={onClick} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</button>
+    : <span className={cls} style={face ? undefined : cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</span>;
 }
 
 export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<SixNimmtView>) {
+  const framed = useInFrame() !== null;
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const busy = sending || !!queued;
@@ -62,10 +66,16 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
           : { tone: 'wait' as const, text: waitingFor.length ? `منتظر ${waitingFor.map(who).join('، ')}` : 'منتظر بقیه' };
 
   return (
-    <div className="sn" ref={root} data-seq={view.seq} data-phase={view.phase} data-chosen={String(myChoice)}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+    <div className={`sn${framed ? ' sn--framed' : ''}`} ref={root} data-seq={view.seq} data-phase={view.phase} data-chosen={String(myChoice)}>
+      {framed && status && (
+        <RailSlot>
+          <p><b>{status.text}</b></p>
+          <p>هر کارت پشت ردیفی می‌نشیند که آخرش بزرگ‌ترین عدد کوچک‌تر از آن است. کسی که کارت ششم ردیف را بگذارد، آن ردیف را برمی‌دارد؛ {view.oneRound ? 'گاو کمتر برنده است' : 'اولین نفری که به ۶۶ گاو برسد بازی را می‌بازد'}.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <ul className="sn__scores" aria-label="امتیازها">
+      {!framed && <ul className="sn__scores" aria-label="امتیازها">
         {view.totals.map((t, s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['sn-score', (s === mySeat ? myChoice : view.chosen[s]) !== false ? 'sn-score--ready' : '', view.waitingRow === s ? 'sn-score--turn' : ''].join(' ')}>
             <bdi>{who(s)}</bdi>
@@ -73,7 +83,7 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
             {!view.outcome && view.phase === 'choose' && <span className="sn-score__state">{(s === mySeat ? myChoice : view.chosen[s]) !== false ? '✓' : '…'}</span>}
           </li>
         ))}
-      </ul>
+      </ul>}
 
       <div className="sn__rows" data-flip-anchor="deck" role="group" aria-label="ردیف‌ها">
         {rows.map((r, k) => {
@@ -82,9 +92,10 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
           const content = (
             <>
               {r.map((c) => <Card key={c} c={c} small flip={`c-${c}`} flipFrom={playedBy.has(c) ? `seat-${playedBy.get(c)}` : undefined} exit="drop" />)}
-              {Array.from({ length: 5 - r.length }, (_, i) => <span key={`e${i}`} className="sn-slot" />)}
-              <span className="sn-slot sn-slot--danger" aria-hidden="true">۶</span>
+              {Array.from({ length: 5 - r.length }, (_, i) => <img key={`e${i}`} className="sn-slot" src={ROW_SLOT} alt="" draggable={false} />)}
+              <img className="sn-slot sn-slot--danger" src={LAST_SLOT} alt="" draggable={false} />
               <span className="sn-row__heads"><Bull />{fa(heads)}</span>
+              {take && <img className="sn-row__pick" src={ROW_INDICATOR} alt="" draggable={false} />}
             </>
           );
           return take
@@ -106,15 +117,15 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
       )}
 
       {view.hand && !view.outcome && (
-        <div className="sn__hand" role="group" aria-label="دست شما">
-          {view.hand.map((c) => (
+        <div className="sn__hand" role="group" aria-label="دست شما" style={{ '--n': view.hand.length + (typeof myChoice === 'number' && !view.hand.includes(myChoice) ? 1 : 0) } as CSSProperties}>
+          {/* The chosen card stays in its place in the sorted hand and only rises (QA round 3: it moved to the end and looked bigger). */}
+          {[...view.hand, ...(typeof myChoice === 'number' && !view.hand.includes(myChoice) ? [myChoice] : [])].sort((x, y) => x - y).map((c) => (
             <Card key={c} c={c} flip={`c-${c}`} flipFrom="deck" state={myChoice === c ? 'up' : undefined} hint={hintCard === c}
-              onClick={playable.has(c) && !busy ? () => onAction({ type: 'play', card: c }) : undefined} />
+              onClick={view.hand!.includes(c) && playable.has(c) && !busy ? () => onAction({ type: 'play', card: c }) : undefined} />
           ))}
-          {typeof myChoice === 'number' && !view.hand.includes(myChoice) && <Card c={myChoice} state="up" flip={`c-${myChoice}`} />}
         </div>
       )}
-      <p className="sn__meta">{view.oneRound ? 'یک دست' : `دست ${fa(view.round)} — تا ۶۶ گاو`}</p>
+      {!framed && <p className="sn__meta">{view.oneRound ? 'یک دست' : `دست ${fa(view.round)} — تا ۶۶ گاو`}</p>}
     </div>
   );
 }

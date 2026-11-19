@@ -281,7 +281,7 @@ export function GameDetailPage() {
         <BandHead id="community-h" icon="users" title="جامعه" sub={`بازیکن‌ها و تورنمنت‌های ${g.nameFa}.`} more={['رتبه‌بندی کامل', '/ranking']} />
         <div className="gd-grid gd-grid--comm">
           <div className="gd-stackcol">
-            {me && (
+            {me && (myRating || myRank) && (
               <section className="gd-card">
                 <div className="gd-cardhead"><h3 className="gd-h3"><Icon name="user" />کارنامهٔ شما</h3></div>
                 <div className="gd-me"><Face name={me.displayName} avatarKey={me.avatarKey} size="md" /><span className="gd-me__t"><b><bdi>{me.displayName}</bdi></b>{myRank?.league && <League tier={myRank.league as never} />}</span></div>
@@ -317,7 +317,8 @@ export function GameDetailPage() {
             )}
           </section>
         </div>
-        <ReviewsCard gameId={g.id} data={reviews ?? reviewsApi.data} signedIn={member} onChange={setReviews} />
+        {((reviews ?? reviewsApi.data)?.count ?? 0) > 0 || (reviews ?? reviewsApi.data)?.canReview
+          ? <ReviewsCard gameId={g.id} data={reviews ?? reviewsApi.data} signedIn={member} onChange={setReviews} /> : null}
       </section>
 
       {similar.length > 0 && (

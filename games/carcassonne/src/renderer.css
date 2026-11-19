@@ -1,7 +1,7 @@
 /* قلعه‌سازان — art direction: an illuminated-manuscript countryside. Sunlit meadow (#b3cc66 → #7a9d3f), sandstone towns
    (#e6c88c) with terracotta roofs (#c4553a) behind crenellated walls (#c98d58 on #6b4126), packed-earth roads (#ecd9a8),
    all laid on a walnut table (#3a2615) under a green baize cloth (#2c3d2a). Gold (#ffd98a) is the only interactive accent. */
-.cc { --gold: #ffd98a; --parch: #f3e6c4; --ink: #2a1d10; --wood: #3a2615;
+.cc { --parch: #f3e6c4; --ink: #2a1d10;
   display: grid; gap: 0.6rem; inline-size: 100%; color: #f6efdf; text-align: center; }
 .cc > :first-child + * { justify-self: center; }
 
@@ -39,10 +39,10 @@
 .cc-cell--last { z-index: 1; box-shadow: 0 0 0 2px var(--who), 0 0 16px color-mix(in srgb, var(--who) 70%, transparent), 0 4px 14px rgb(0 0 0 / 0.6); }
 .cc-spot { border-radius: 4px; outline: 1.5px dashed rgb(243 230 196 / 0.3); outline-offset: -4px; cursor: pointer; transition: background 0.2s; }
 .cc-spot--fit { outline-color: rgb(255 217 138 / 0.85); background: radial-gradient(circle, rgb(255 217 138 / 0.3), rgb(255 217 138 / 0.06) 70%); }
-.cc-spot--fit:not(.cc-spot--on)::before { content: ''; position: absolute; inset: 38%; border-radius: 50%; background: var(--gold); opacity: 0.6; animation: cc-glow 1.8s ease-in-out infinite; }
+.cc-spot--fit:not(.cc-spot--on)::before { content: ''; position: absolute; inset: 38%; border-radius: 50%; background: var(--felt-gold); opacity: 0.6; animation: cc-glow 1.8s ease-in-out infinite; }
 .cc-spot:hover, .cc-spot:focus-visible { background: rgb(255 217 138 / 0.3); }
 .cc-spot:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
-.cc-spot--on { outline: 2.5px solid var(--gold); outline-offset: 0; background: transparent; z-index: 2; box-shadow: 0 0 18px rgb(255 217 138 / 0.65); }
+.cc-spot--on { outline: 2.5px solid var(--felt-gold); outline-offset: 0; background: transparent; z-index: 2; box-shadow: 0 0 18px rgb(255 217 138 / 0.65); }
 .cc-spot--on .cc-tile { animation: cc-turn 0.25s ease-out; }
 .cc-spot:disabled { cursor: default; }
 
@@ -55,7 +55,7 @@
 .cc__drawn-tile { display: block; inline-size: 3.8rem; block-size: 3.8rem; border-radius: 3px;
   box-shadow: 0 0 0 1px rgb(35 22 6 / 0.7), 3px 3px 0 -1px #cdbb8f, 3px 3px 0 0 rgb(35 22 6 / 0.6), 6px 6px 0 -1px #b3a176, 6px 6px 0 0 rgb(35 22 6 / 0.6), 8px 10px 12px rgb(0 0 0 / 0.5); }
 .cc__drawn-tile .cc-tile g { transition: transform 0.25s ease-out; }
-.cc__follow { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; animation: cc-rise 0.3s ease-out both; }
+.cc__follow { position: relative; z-index: calc(var(--z-felt) + 1); /* the zoomed map must not cover the meeple choice */ display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; animation: cc-rise 0.3s ease-out both; }
 .cc-chip { padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.14); color: inherit; font: inherit; font-size: 0.78rem; cursor: pointer; }
 .cc-chip--on { background: linear-gradient(180deg, #ffe5a8, #f0c566); color: var(--ink); font-weight: 800; border-color: #fff1c9; }
 .cc-chip:disabled { opacity: 0.4; cursor: default; }
@@ -68,3 +68,37 @@
 @keyframes cc-glow { 50% { transform: scale(1.5); opacity: 0.15; } }
 @media (max-width: 480px) { .cc__map { --cell: 3.2rem; max-block-size: 52vh; } }
 @media (prefers-reduced-motion: reduce) { .cc *, .cc *::before, .cc *::after { animation: none !important; transition: none !important; } }
+
+/* Meeple art is a PNG; the follower tray icon and the stack back are PNG too. */
+.cc__back { inline-size: 1rem; block-size: 1rem; vertical-align: middle; margin-inline-end: 0.25rem; }
+.cc-spot--fit:not(.cc-spot--on)::before { min-inline-size: 0; }
+.cc-player__meeple { inline-size: 1.2rem; block-size: 1.2rem; }
+.cc-chip { min-block-size: 44px; }
+.cc__zoom button { min-inline-size: 44px; min-block-size: 44px; }
+
+/* Inside the shared table frame (useInFrame): the felt is the shell's. */
+.cc--framed .cc__map { background: none; box-shadow: none; padding: 0; max-block-size: none; }
+.cc--framed { color: var(--felt-ink); }
+.cc--framed .cc__drawn { background: none; box-shadow: none; }
+.cc__supply { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; }
+.cc__supply li { inline-size: 1.6rem; block-size: 1.8rem; display: grid; place-items: center; }
+.cc__supply li svg { inline-size: 100%; block-size: 100%; overflow: visible; }
+.cc__supply .is-used { opacity: 0.25; filter: grayscale(1); }
+
+/* Framed (reference §1): the map fills the felt, the drawn tile («کاشی شما») with the stack count stands beside it. */
+@media (min-width: 900px) {
+  .cc--framed { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .cc--framed .cc__map { grid-column: 1; }
+  .cc--framed .cc__dock { grid-column: 2; flex-direction: column; }
+}
+.cc--framed .cc__drawn { flex-direction: column; gap: var(--space-2); }
+.cc--framed .cc__drawn-tile { inline-size: 5.5rem; block-size: 5.5rem; }
+.cc__drawn-label { color: var(--felt-ink); font-size: 12px; }
+@media (max-width: 899px) { .cc--framed .cc__drawn { flex-direction: row; } .cc--framed .cc__drawn-tile { inline-size: 4rem; block-size: 4rem; } }
+/* Round 3: zoom buttons under the preview, not over it. */
+.cc--framed .cc__zoom { order: 3; }
+/* Phones: the centred map took the full board width, so a growing board widened the page. It stays screen-wide and scrolls inside. */
+@media (max-width: 899px) {
+  .cc--framed { grid-template-columns: minmax(0, 1fr); }
+  .cc--framed > .cc__map { justify-self: stretch; min-inline-size: 0; }
+}

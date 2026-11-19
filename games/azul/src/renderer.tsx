@@ -3,13 +3,14 @@
 // board is the printed player board with the tiles laid on its pattern lines, wall and floor line. Tap a tile group, then the line (or floor) to put it on.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
-import tileBlue from './art/tile-b.svg';
-import tileYellow from './art/tile-y.svg';
-import tileRed from './art/tile-r.svg';
-import tileBlack from './art/tile-k.svg';
-import tileTeal from './art/tile-w.svg';
-import tileFirst from './art/tile-first.svg';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePrevious, type GameRendererProps } from '@bg/ui';
+import tileBlue from './art/azul-tile-3.png';
+import tileYellow from './art/azul-tile-4.png';
+import tileRed from './art/azul-tile-5.png';
+import tileBlack from './art/azul-tile-1.png';
+import tileTeal from './art/azul-tile-2.png';
+import tileFirst from './art/azul-tile-0.png';
+import bagArt from './art/azul-bag.png';
 import { FLOOR, endBonus, floorPenalty, wallColor, type AzulView, type Board, type Color } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -110,6 +111,7 @@ export default function AzulRenderer({ view: real, legalActions, mySeat, seatNam
   const prevIds = usePrevious(fk, ids);
   useEffect(() => { setPick(null); }, [view.seq, q]);
   const hint = expected as unknown as (Pick & { type: string; line: number | 'floor' }) | null;
+  const framed = useInFrame() !== null; // the shell draws seats, scores, turn and events
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const myTurn = takes.length > 0;
   const chosen = pick ? takes.find((t) => t.from === pick.from && t.color === pick.color) : undefined;
@@ -141,27 +143,46 @@ export default function AzulRenderer({ view: real, legalActions, mySeat, seatNam
   };
 
   return (
-    <div className="az" data-seq={real.seq} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      {!view.outcome && <p className="az__round" data-flip-anchor="bag">دور {fa(view.round)}، کیسه: {fa(view.bagCount)} کاشی</p>}
+    <div className={framed ? 'az az--framed' : 'az'} data-seq={real.seq} ref={root}>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>هر کاشی که روی دیوار می‌نشیند به اندازهٔ کاشی‌های پیوستهٔ افقی و عمودی‌اش امتیاز می‌گیرد. کف: {FLOOR.map(neg).join('، ')}. پایان بازی: ردیف کامل {fa(2)}+، ستون {fa(7)}+، هر پنج کاشی یک رنگ {fa(10)}+.</p>
+        </RailSlot>
+      )}
+      {framed && myTurn && chosen && (
+        <DockSlot>
+          {chosen.lines.map((l) => <Button key={l} variant="primary" disabled={busy} onClick={() => send(l)}>{`بگذار در ردیف ${fa(l + 1)}`}</Button>)}
+          <Button variant="secondary" disabled={busy} onClick={() => send('floor')}>همه به کف</Button>
+          <Button variant="secondary" onClick={() => setPick(null)}>لغو</Button>
+        </DockSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && !view.outcome && <p className="az__round" data-flip-anchor="bag">دور {fa(view.round)}، کیسه: {fa(view.bagCount)} کاشی</p>}
 
       {!view.outcome && (
+        <div className="az__mkt">
         <section className="az__market" aria-label="کارگاه‌ها">
-          {view.factories.map((f, i) => (
-            <div key={i} data-flip-anchor={`fac-${i}`} className={`az-factory ${f.length ? '' : 'az-factory--empty'}`} role="group" aria-label={`کارگاه ${fa(i + 1)}`}>
+          {view.factories.map((f, i) => {
+            const a = (-90 + (360 * i) / view.factories.length) * (Math.PI / 180); // factories sit on a ring around the centre pool
+            return (
+            <div key={i} data-flip-anchor={`fac-${i}`} style={{ left: `${50 + 39 * Math.cos(a)}%`, top: `${50 + 39 * Math.sin(a)}%` }} className={`az-factory ${f.length ? '' : 'az-factory--empty'}`} role="group" aria-label={`کارگاه ${fa(i + 1)}`}>
               {f.map((c, k) => (
                 <button key={k} type="button" disabled={!myTurn || busy} onClick={() => tap(i, c)} aria-pressed={isPicked(i, c)}
                   className={['az-grp', 'az-ftile', isPicked(i, c) ? 'az-grp--on' : '', isHint(i, c) && f.indexOf(c) === k ? 'az-hint' : ''].join(' ')}
                   aria-label={`${fa(f.filter((x) => x === c).length)} کاشی ${COLOR_FA[c]}`}><Tile c={c} flip={ids.fac[i]?.[k]} from="bag" /></button>
               ))}
             </div>
-          ))}
+            );
+          })}
           <div className="az-center" aria-label="وسط میز" data-flip-anchor="center">
             {view.firstInCenter && <Tile c="first" flip="first" />}
             {group('center', view.center)}
             {!view.center.length && !view.firstInCenter && <span className="az-center__empty">وسط خالی</span>}
           </div>
         </section>
+        {framed && <p className="az__bag" data-flip-anchor="bag"><img src={bagArt} alt="" draggable={false} /><span>کیسه: {fa(view.bagCount)} کاشی<small>دور {fa(view.round)}</small></span></p>}
+        </div>
       )}
 
       {roundGains && !view.outcome && (
@@ -176,7 +197,7 @@ export default function AzulRenderer({ view: real, legalActions, mySeat, seatNam
           const hurt = !!was && b.floor.length > was.floor.length;
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
           return (
-            <BoardFrame key={s} s={s} b={b} me={s === mySeat} turn={view.current === s && !view.outcome} place={place} name={who(s)} scorePop={!!before && before[s]!.score !== b.score}
+            <BoardFrame key={s} framed={framed} s={s} b={b} me={s === mySeat} turn={view.current === s && !view.outcome} place={place} name={who(s)} scorePop={!!before && before[s]!.score !== b.score}
               floor={mine
                 ? <button type="button" className={`az-floor az-floor--ok ${hint?.line === 'floor' ? 'az-hint' : ''} ${hurt ? 'bg-hit' : ''}`} onClick={() => send('floor')} aria-label="کف">{floorCells(b.floor, ids.floor[s]!, hurt ? src : undefined)}</button>
                 : <div className={`az-floor ${hurt ? 'bg-hit' : ''}`} aria-label={`کف: ${fa(b.floor.length)} کاشی، ${neg(floorPenalty(b.floor.length))} امتیاز`}>{floorCells(b.floor, ids.floor[s]!, hurt ? src : undefined)}</div>}>
@@ -242,17 +263,17 @@ function BonusKey({ wall }: { wall: boolean[][] }) {
 }
 
 /** One player's printed board: score track on top, pattern lines → wall, floor line below. Opponents fold on phones. */
-function BoardFrame({ s, b, me, turn, place, name, scorePop, floor, children }: { s: number; b: Board; me: boolean; turn: boolean; place?: number; name: string; scorePop: boolean; floor: ReactNode; children: ReactNode }) {
-  const [open, setOpen] = useState(() => me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
+function BoardFrame({ framed, s, b, me, turn, place, name, scorePop, floor, children }: { framed: boolean; s: number; b: Board; me: boolean; turn: boolean; place?: number; name: string; scorePop: boolean; floor: ReactNode; children: ReactNode }) {
+  const [open, setOpen] = useState(() => framed || me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
   const wallN = b.wall.flat().filter(Boolean).length;
   return (
     <li className={['az-board', me ? 'az-board--me' : 'az-board--opp', turn ? 'az-board--turn' : '', place === 1 ? 'az-board--win' : '', open ? '' : 'az-board--folded'].join(' ')} aria-label={`تختهٔ ${name}`}>
       <div className="az-board__head">
         {place && <b className="az-board__place" title={`رتبهٔ ${fa(place)}`}>{fa(place)}</b>}
         <bdi className="az-board__name">{name}</bdi>
-        {turn && <span className="az-board__turn">در نوبت</span>}
-        <span className={`az-board__score ${scorePop ? 'bg-pop' : ''}`} key={b.score}>{fa(b.score)}<small> امتیاز</small></span>
-        {!me && (
+        {!framed && turn && <span className="az-board__turn">در نوبت</span>}
+        {!framed && <span className={`az-board__score ${scorePop ? 'bg-pop' : ''}`} key={b.score}>{fa(b.score)}<small> امتیاز</small></span>}
+        {!me && !framed && (
           <button type="button" className="az-board__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن تختهٔ ${name}` : `باز کردن تختهٔ ${name}`}>
             {open ? '▴' : '▾'}
           </button>
@@ -260,9 +281,9 @@ function BoardFrame({ s, b, me, turn, place, name, scorePop, floor, children }: 
       </div>
       {open ? (
         <>
-          <ScoreTrack score={b.score} s={s} />
+          {!framed && <ScoreTrack score={b.score} s={s} />}
           <div className="az-pb">{children}{floor}</div>
-          {me && <div className="az-board__foot"><BonusKey wall={b.wall} /></div>}
+          {me && !framed && <div className="az-board__foot"><BonusKey wall={b.wall} /></div>}
         </>
       ) : (
         <p className="az-board__sum">

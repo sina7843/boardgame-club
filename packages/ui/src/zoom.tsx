@@ -113,7 +113,7 @@ export function ZoomBoard({ label, children, className }: { label: string; child
         <button type="button" onClick={() => step(-1)} disabled={v.s <= MIN} aria-label="کوچک‌نمایی" title="کوچک‌نمایی">−</button>
         <button type="button" onClick={() => setV({ s: 1, x: 0, y: 0 })} disabled={v.s === 1} aria-label="اندازه اصلی" title="اندازه اصلی">⟲</button>
       </div>
-      {v.s > 1 && <p className="zb__tip" aria-hidden="true">برای جابه‌جایی بکشید · دو بار ضربه برای اندازه اصلی</p>}
+      {v.s > 1 && <p className="zb__tip" aria-hidden="true">برای جابه‌جایی بکشید، دو بار ضربه برای اندازه اصلی</p>}
     </div>
   );
 }

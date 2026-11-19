@@ -18,14 +18,14 @@
 .jp-card__n { font-size: 0.68rem; font-weight: 800; }
 
 .jp__tokens { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
-.jp-stack { position: relative; display: inline-grid; grid-template-columns: auto auto; align-items: center; gap: 0.15rem 0.25rem; padding: 0.25rem 0.5rem; border-radius: 999px;
-  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 60%, white 40%), var(--c) 60%, var(--c2)); color: #fff; box-shadow: inset 0 0 0 2px rgb(255 230 170 / 0.6), 0 3px 6px -3px #000; }
-.jp-c--silver.jp-stack, .jp-c--gold.jp-stack { color: var(--ink); }
+/* Goods tokens (QA round 2): the coin art carries the value; the count sits under it, never on top. */
+.jp-stack { display: inline-grid; justify-items: center; gap: 0.15rem; color: var(--felt-muted); }
 .jp-stack img { inline-size: 1.6rem; block-size: 1.6rem; object-fit: contain; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.4)); }
 .jp-stack b { font-size: 1rem; font-weight: 900; }
-.jp-stack small { position: absolute; inset-block-start: -0.4rem; inset-inline-end: -0.3rem; padding: 0 0.3rem; border-radius: 999px; background: var(--ink); color: #f6ead6; font-size: 0.62rem; }
+.jp-stack small { font-size: 0.7rem; line-height: 1; }
 .jp-stack--out { filter: grayscale(1) brightness(0.6); }
-.jp-stack--bonus { --c: #6b4a2b; --c2: #3a2414; display: inline-flex; font-size: 0.72rem; }
+.jp-stack--first-bonus { padding-inline-start: var(--space-3); border-inline-start: 1px solid var(--felt-line); }
+img.jp-coin { object-fit: contain; border-radius: 50%; }
 
 .jp-stall { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; justify-content: center; padding: 0.45rem 0.7rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); font-size: 0.85rem; }
 .jp-stall__name { font-weight: 800; }
@@ -34,9 +34,8 @@
 .jp-stall__coins { color: #ffe1a0; font-weight: 800; }
 
 .jp__market { display: grid; gap: 0.3rem; justify-items: center; }
-.jp__carpet { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; padding: 0.7rem 0.6rem; border-radius: 14px;
-  background: radial-gradient(circle at 50% 50%, #9c2f2a 0 30%, transparent 31%), repeating-linear-gradient(45deg, #7a1f1f 0 10px, #6a1919 10px 20px);
-  box-shadow: inset 0 0 0 4px #1f2f5a, inset 0 0 0 7px #e3b96a, 0 6px 14px -8px #000; }
+.jp__carpet { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; padding: 0.7rem 0.6rem; border-radius: var(--radius-md);
+  box-shadow: var(--shadow-ring-felt); }
 .jp__deck { font-size: 0.75rem; color: #d8c6a4; }
 .jp-pick { padding: 0; border: 0; background: transparent; border-radius: 10px; line-height: 0; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
 .jp-pick:disabled { cursor: default; }
@@ -45,15 +44,20 @@
 .jp__last { margin: 0; justify-self: center; padding: 0.3rem 0.9rem; border-radius: 999px; background: rgb(0 0 0 / 0.3); font-size: 0.85rem; animation: jp-drop 0.35s ease-out both; }
 .jp__results { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.2rem; font-size: 0.82rem; color: #e3d2b2; }
 
-.jp__me { display: grid; gap: 0.55rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(227 185 106 / 0.4); }
-.jp__hand { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; min-block-size: 3rem; }
+.jp__me { display: grid; gap: 0.55rem; justify-items: center; padding-block: 0.5rem 0.2rem; }
+/* Hand: one overlapping fan; picked cards rise (QA round 2). */
+.jp__hand { --w: 3.6rem; display: flex; justify-content: center; inline-size: 100%; min-block-size: 3rem; padding-block-start: 0.6rem; }
+.jp__hand > .jp-pick { position: relative; flex: none; }
+.jp__hand > .jp-pick + .jp-pick { margin-inline-start: min(0.3rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+.jp__hand > .jp-pick--on { z-index: 1; }
 .jp__empty { align-self: center; color: #c9b693; font-size: 0.85rem; }
 .jp__herd { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; justify-content: center; font-size: 0.85rem; }
 .jp__camgive { display: inline-flex; gap: 0.3rem; align-items: center; }
 .jp__camgive button { inline-size: 1.8rem; block-size: 1.8rem; border-radius: 50%; border: 1px solid #e3b96a; background: rgb(0 0 0 / 0.3); color: inherit; font: inherit; font-weight: 900; cursor: pointer; }
 .jp__camgive button:disabled { opacity: 0.4; cursor: default; }
 .jp__earn b { color: #ffe1a0; }
-.jp__actions { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; min-block-size: 2.4rem; }
+.jp__actions { order: -1; display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; justify-content: center; min-block-size: 2.4rem; }
+.jp__summary { font-size: 0.85rem; font-weight: 700; color: var(--felt-ink); }
 .jp-hint { animation: jp-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a; }
 
 @keyframes jp-drop { from { opacity: 0; transform: translateY(-6px); } }
@@ -67,3 +71,52 @@
 .jp-card img, .jp-card--md img, .jp-card--sm img { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; filter: none; }
 .jp-card__n { position: relative; inline-size: 100%; padding: 0.05rem 0; background: rgb(0 0 0 / 0.55); color: #fff; text-align: center; }
 .jp-coin { display: inline-block; inline-size: 2rem; block-size: 2rem; border-radius: 50%; background-size: 2400% 100%; background-repeat: no-repeat; box-shadow: 0 1px 3px rgb(0 0 0 / 0.5); }
+
+/* Inside the shared table frame: 44px touch targets for market/hand cards and camel stepper. */
+.jp-pick { min-block-size: 2.75rem; min-inline-size: 2.75rem; }
+.jp__camgive button { min-block-size: 2.75rem; min-inline-size: 2.75rem; }
+
+.jp__deck { display: inline-flex; align-items: center; gap: 0.4rem; }
+.jp__deck img { inline-size: 2.2rem; block-size: auto; border-radius: 4px; }
+
+/* QA round 3: printed cards at about 95 x 135 with the name band, white rectangular mode tokens (amber when picked), and
+   «تأیید» on one line. Phones keep a smaller card so the market fits. */
+.jp-card--md { inline-size: 4.2rem; block-size: 6rem; }
+.jp__hand { --w: 4.2rem; }
+@media (min-width: 900px) { .jp-card--md { inline-size: 5.9rem; block-size: 8.4rem; } .jp-card__n { font-size: 0.8rem; } .jp__hand { --w: 5.9rem; } }
+.jp-mode { min-block-size: 2.25rem; padding-inline: var(--space-3); border: 1.5px solid var(--ink-btn); border-radius: var(--radius-sm); background: var(--surface); color: var(--text);
+  box-shadow: var(--shadow-tile-sm); font: inherit; font-size: 0.85rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: transform var(--dur-fast) var(--ease-out); }
+@media (hover: hover) { .jp-mode:hover:not(:disabled) { transform: translateY(-1px); } }
+.jp-mode:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.jp-mode[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); border-color: var(--ink-btn-primary); }
+.jp-mode:disabled { cursor: default; background: var(--surface-sunken); color: var(--text-muted); border-color: transparent; box-shadow: none; }
+.jp-mode:focus-visible { outline: 2px solid var(--focus-on-felt); outline-offset: 2px; }
+.jp-confirm { white-space: nowrap; flex: none; }
+@media (pointer: coarse) { .jp-mode { min-block-size: 44px; } }
+
+/* QA round 4: a card is its picture (372:516) with the name band under it, so the band is never cut (the pick's
+   line-height: 0 had collapsed it); the hand always overlaps; the deck sits beside the market (under it on phones,
+   where the five market cards stay in one row). */
+.jp-card--md { display: grid; grid-template-rows: auto auto; align-content: start; block-size: auto; overflow: hidden; }
+.jp-card--md img { position: static; inline-size: 100%; block-size: auto; aspect-ratio: 372 / 516; object-fit: cover; }
+.jp-card--md .jp-card__n { line-height: 1.5; padding-block: 0.1rem; }
+.jp__hand > .jp-pick + .jp-pick { margin-inline-start: min(-1.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+.jp__market { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-3); }
+.jp__deck { flex-direction: column; color: var(--felt-muted); }
+.jp__deck img { inline-size: 4.2rem; border-radius: 6px; }
+@media (min-width: 900px) { .jp__deck img { inline-size: 5.9rem; } }
+@media (max-width: 600px) {
+  .jp-card--md { inline-size: 3.6rem; }
+  .jp__carpet { flex-wrap: nowrap; gap: 0.25rem; padding: 0.4rem; }
+  .jp__carpet > .jp-pick { min-inline-size: 0; }
+  .jp__hand { --w: 3.6rem; }
+  .jp__deck { flex-direction: row; }
+  .jp__deck img { inline-size: 2.4rem; }
+}
+
+/* QA round 5: in the overlapping hand each card keeps its reading-start side visible, so the name sits on that side of the
+   band. Mode tokens use the fixed card stock: --surface is dark on the felt. */
+.jp__hand .jp-card__n { box-sizing: border-box; padding-inline: 0.25rem 0; text-align: start; white-space: nowrap; overflow: hidden; }
+@media (max-width: 600px) { .jp__hand .jp-card__n { font-size: 0.62rem; } }
+.jp-mode { background: var(--felt-ink); color: var(--brand-ink); }
+.jp-mode:disabled { background: var(--felt-muted); color: var(--brand-ink); }

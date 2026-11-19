@@ -1,40 +1,50 @@
 /* کندو: bakelite hex tiles with painted bugs on the felt; the view follows the hive. Geometry LTR. */
 .hv { display: grid; gap: 0.7rem; text-align: center; color: #f6efe2; inline-size: 100%; }
 .hv > :first-child { justify-self: center; }
-.hv-board { display: block; inline-size: 100%; max-inline-size: 760px; min-block-size: 280px; max-block-size: 70vh; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
+.hv-board { display: block; inline-size: 100%; max-inline-size: min(760px, var(--gf-b, 760px)); min-block-size: 280px; max-block-size: 70vh; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
 .hv-cell { outline: none; }
 .hv-cell--mine { cursor: pointer; }
-.hv-cell--sel polygon:not(.hv-under) { stroke: #ffd27a; stroke-width: 6px; }
-.hv-cell--hint polygon:not(.hv-under) { stroke-width: 6px; animation: hv-hint 1s ease-in-out infinite; }
-.hv-cell:focus-visible polygon:not(.hv-under) { stroke: #ffd27a; stroke-width: 6px; }
-.hv-cell--trapped polygon:not(.hv-under) { stroke: #ff6b5b; stroke-width: 7px; animation: hv-hint 0.8s ease-in-out infinite; }
-.hv-under--w { fill: #cfc4ad; }
-.hv-under--b { fill: #22201d; }
-.hv-height { font: 900 20px/1 var(--font, sans-serif); fill: #ffd27a; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 4px; }
+.hv-cell--sel .hv-tile { filter: brightness(1.12) drop-shadow(0 0 6px var(--focus, currentColor)); }
+.hv-cell--hint .hv-tile { animation: hv-hint 1s ease-in-out infinite; }
+.hv-cell:focus-visible .hv-tile { filter: drop-shadow(0 0 6px var(--focus, currentColor)); }
+.hv-cell--trapped .hv-tile { filter: drop-shadow(0 0 7px var(--danger, currentColor)); animation: hv-hint 0.8s ease-in-out infinite; }
+.hv-under { opacity: 0.85; pointer-events: none; }
+/* Tile art is larger than its hexagon, so only the hexagon takes taps; a neighbour's transparent margin never steals one. */
+.hv-tile image { pointer-events: none; }
+.hv-hit { fill: transparent; }
+.hv-height { font: 900 20px/1 var(--font-fa); fill: #ffd27a; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 4px; }
 .hv-target { cursor: pointer; outline: none; }
-.hv-target polygon { fill: rgb(255 210 122 / 0.18); stroke: #ffd27a; stroke-width: 3px; stroke-dasharray: 8 6; animation: hv-march 1.1s linear infinite; }
-.hv-target:hover polygon, .hv-target:focus-visible polygon { fill: rgb(255 210 122 / 0.4); }
-.hv-target--hint polygon { fill: rgb(255 210 122 / 0.45); }
+.hv-target:hover image, .hv-target:focus-visible image { filter: brightness(1.4); }
+.hv-target--hint image { animation: hv-hint 1s ease-in-out infinite; }
 
-.hv-reserve { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
-.hv-reserve__item { position: relative; display: grid; place-items: center; inline-size: 3.6rem; block-size: 3.6rem; padding: 0; border-radius: 12px; border: 1px solid rgb(255 255 255 / 0.12);
-  background: rgb(0 0 0 / 0.25); color: inherit; font: inherit; }
+.hv-reserve { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; padding: 0.4rem 0.5rem; }
+.hv-reserve__item { position: relative; display: grid; place-items: center; inline-size: 2.75rem; block-size: 2.75rem; padding: 0; border: 0; border-radius: var(--radius-sm, 8px);
+  background: none; color: inherit; font: inherit; overflow: visible; }
 button.hv-reserve__item { cursor: pointer; }
 button.hv-reserve__item:disabled { opacity: 0.35; cursor: not-allowed; }
-button.hv-reserve__item[aria-pressed="true"] { background: rgb(201 164 106 / 0.35); box-shadow: 0 0 0 2px #ffd27a; }
+button.hv-reserve__item[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--focus-on-felt, #ffd27a); }
 .hv-reserve__item--hint { animation: hv-pulse 1s ease-in-out infinite; }
-.hv-reserve__item svg { inline-size: 2.9rem; block-size: 2.9rem; }
-.hv-reserve__n { position: absolute; inset-block-end: 2px; inset-inline-end: 4px; font-size: 0.75rem; font-weight: 900; color: #ffd27a; }
-.hv-reserve--small .hv-reserve__item { inline-size: 2.6rem; block-size: 2.6rem; }
-.hv-reserve--small .hv-reserve__item svg { inline-size: 2rem; block-size: 2rem; }
+.hv-reserve__item svg { inline-size: 100%; block-size: 100%; overflow: hidden; }
+.hv-reserve__n { position: absolute; inset-block-end: -4px; inset-inline-start: -4px; min-inline-size: 1.2rem; block-size: 1.2rem; padding-inline: 3px; border-radius: var(--radius-pill);
+  background: var(--felt, #234156); color: var(--felt-ink, #fff); box-shadow: 0 0 0 1.5px var(--felt-muted, currentColor); font-size: 0.75rem; font-weight: 900; line-height: 1.2rem; text-align: center; }
+.hv-reserve--small .hv-reserve__item { inline-size: 2rem; block-size: 2rem; }
 .hv__note { margin: 0; color: #ffd27a; }
-@media (max-width: 480px) { .hv-reserve__item { inline-size: 3rem; block-size: 3rem; } .hv-reserve__item svg { inline-size: 2.4rem; block-size: 2.4rem; } .hv-reserve { gap: 0.3rem; } }
 .hv__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
-@keyframes hv-march { to { stroke-dashoffset: -28; } }
-@keyframes hv-hint { 50% { stroke: #ffd27a; } }
+@keyframes hv-hint { 50% { opacity: 0.55; } }
 @keyframes hv-pulse { 50% { box-shadow: 0 0 0 3px #ffd27a; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .hv-target polygon, .hv-cell--hint polygon, .hv-cell--trapped polygon, .hv-reserve__item--hint { animation: none; }
+  .hv-target--hint image, .hv-cell--hint .hv-tile, .hv-cell--trapped .hv-tile, .hv-reserve__item--hint { animation: none; }
 }
+
+/* Inside the shared table frame the board fills the felt width. */
+.hv > :first-child { justify-self: stretch; }
+
+/* Rail (shared frame, desktop): both reserves in the guide card, as the reference «ذخیرهٔ شما / حریف» rows. */
+.hv-rres { display: grid; gap: var(--space-2); border-block-start: 1px solid var(--line); padding-block-start: var(--space-2); }
+.hv-rres__row { display: grid; gap: var(--space-1); }
+.hv-rres__lab { font-size: 13.5px; color: var(--text-muted); }
+.hv-rres__lab b { color: var(--heading); }
+.hv-rres .hv-reserve { justify-content: flex-start; padding-inline: 0; }
+.hv-rres button.hv-reserve__item[aria-pressed="true"] { box-shadow: none; outline: 3px solid var(--selected); outline-offset: 2px; }

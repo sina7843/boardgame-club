@@ -8,17 +8,24 @@ const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/site/bots/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'bot flow runs at 360 and 1440');
 
-/** Wide HUD cards say «ربات، سطح …»; the phone strip (mini cards) only lists the players as named buttons. */
+/** The offer lives on the create-table page: game page → «میز بساز» → the «تمرین با ربات» mode. */
+async function openBotOffer(p: Page, gameId: string) {
+  await p.goto(`/games/${gameId}`);
+  await p.getByRole('link', { name: 'میز بساز' }).first().click();
+  await p.getByRole('radio', { name: /تمرین با ربات/ }).click();
+}
+
+/** Every opponent above the board is a bot; on phones each one carries the «ربات» badge. */
 async function expectBots(p: Page, bots: number, timeout = 10_000) {
-  const hud = p.getByRole('region', { name: 'بازیکنان' }).first();
-  if ((p.viewportSize()?.width ?? 1440) < 600) await expect(hud.getByRole('button')).toHaveCount(bots + 1, { timeout });
-  else await expect(hud.getByText(/ربات، سطح/)).toHaveCount(bots, { timeout });
+  const top = p.locator('.gf-top');
+  await expect(top.locator('.gf-bar, .gf-seat')).toHaveCount(bots, { timeout });
+  if ((p.viewportSize()?.width ?? 1440) < 900) await expect(top.getByText('ربات', { exact: true })).toHaveCount(bots, { timeout });
 }
 
 test('play «دوز» against a hard bot to the result', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'بازیکن تنها');
-  await p.goto('/games/line-three');
+  await openBotOffer(p, 'line-three');
   await expect(p.getByText('حریف ربات است و با نشان ربات دیده می‌شود', { exact: false })).toBeVisible();
   await p.getByRole('radio', { name: 'سخت' }).click();
   await p.screenshot({ path: shot(info.project.name, 'offer'), fullPage: true });
@@ -28,8 +35,8 @@ test('play «دوز» against a hard bot to the result', async ({ browser }, inf
 
   for (let n = 0; n < 12; n++) {
     if (await p.getByRole('heading', { name: RESULT }).count()) break;
-    // My turn shows the «tap an empty cell» prompt; otherwise the bot is thinking (it answers within ~2 s).
-    if (await p.getByText('یک خانه خالی را بزنید').count()) await p.getByRole('button', { name: /: خالی$/ }).first().click();
+    // My turn shows in the status line; otherwise the bot is thinking (it answers within ~2 s).
+    if (await p.getByText('حرکت با شماست', { exact: true }).first().isVisible()) await p.getByRole('button', { name: /: خالی$/ }).first().click();
     await p.waitForTimeout(1500);
   }
   await expect(p.getByRole('heading', { name: RESULT })).toBeVisible({ timeout: 15_000 });
@@ -44,7 +51,7 @@ test('«مسابقهٔ شترها» with two bots: the bots take their turns bet
   only(info.project.name);
   test.setTimeout(240_000);
   const p = await player(browser, info.project.use.viewport ?? null, 'شترسوار');
-  await p.goto('/games/camel-up');
+  await openBotOffer(p, 'camel-up');
   await p.getByRole('radio', { name: 'آسان' }).click();
   await p.getByLabel('تعداد بازیکن (شما و ربات‌ها)').selectOption('3');
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
@@ -66,7 +73,7 @@ test('«نه، ممنون!» against a bot: the bot answers each of my moves', a
   only(info.project.name);
   test.setTimeout(180_000);
   const p = await player(browser, info.project.use.viewport ?? null, 'بی‌ژتون');
-  await p.goto('/games/no-thanks');
+  await openBotOffer(p, 'no-thanks');
   await p.getByRole('radio', { name: 'متوسط' }).click();
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
   await expect(p.locator('.nt-card--big')).toBeVisible();

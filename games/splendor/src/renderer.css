@@ -137,6 +137,61 @@
 .sp-card__art { background-size: 600% 600%; background-repeat: no-repeat; }
 .sp-card::after { background: linear-gradient(180deg, transparent 40%, rgb(0 0 0 / 0.45)); }
 .sp-noble__face { display: block; inline-size: 3.2rem; block-size: 3.2rem; border-radius: 6px; background-size: 500% 300%; background-repeat: no-repeat; }
-.sp-deck.sp-l--1 { background: url("./art/back-1.webp") center / cover; }
-.sp-deck.sp-l--2 { background: url("./art/back-2.webp") center / cover; }
-.sp-deck.sp-l--3 { background: url("./art/back-3.webp") center / cover; }
+.sp-deck.sp-l--1 { background: url("./art/splendor-back-1.png") center / cover; }
+.sp-deck.sp-l--2 { background: url("./art/splendor-back-2.png") center / cover; }
+.sp-deck.sp-l--3 { background: url("./art/splendor-back-3.png") center / cover; }
+
+/* Inside the shared table frame the felt is the table: no velvet panel of our own. */
+.sp--framed { background: none; box-shadow: none; padding: 0; }
+
+/* Layout: gem bank as a vertical column beside the market; smaller market cards; deck count sits at the foot of the card back, clear of the logo. */
+.sp__table { display: flex; gap: var(--space-3); align-items: flex-start; justify-content: center; min-inline-size: 0; }
+.sp__table > .sp__bank { flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: var(--space-1); padding: var(--space-2); border-radius: var(--radius-lg); inline-size: auto; }
+.sp__table > .sp__market { inline-size: min(100%, 24rem); flex: 0 1 24rem; min-inline-size: 0; }
+.sp-chip--md img { inline-size: 2rem; block-size: 2rem; }
+.sp-deck { align-content: end; padding-block-end: 0.2rem; }
+.sp-deck:not(.sp-deck--sm) span { display: none; }
+.sp-deck b { font-size: 0.8rem; }
+@media (max-width: 520px) { .sp__table { gap: var(--space-2); } .sp__table > .sp__bank { padding: var(--space-1); } .sp-chip--md img { inline-size: 1.6rem; block-size: 1.6rem; } }
+
+/* Round 2 (reference §1, not mirrored): rivals' ledgers | bank column | market rows with the deck at the inline end
+   (left), read left → right like the printed layout. The bank sits on a felt plate (no velvet panel); noble
+   requirements are round gem pips. */
+.sp__table { direction: ltr; }
+.sp__table > * { direction: rtl; }
+.sp__row { direction: ltr; }
+.sp__table > .sp__bank { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.sp__players--side { display: grid; grid-template-columns: 1fr; gap: var(--space-2); inline-size: 12rem; flex: 0 0 auto; }
+.sp--framed .sp-pl { background: var(--felt-plate); border: 0; box-shadow: var(--shadow-ring-felt); }
+.sp--framed .sp-pl--turn { outline: 2px solid var(--felt-gold); }
+.sp-req { border-radius: var(--radius-pill); }
+
+
+/* Round 3: ledgers as round gems — card bonus discs over the token art (the old gem-*.webp files never existed),
+   with «کارت / ژتون» row labels; your panel on a felt plate (no amber tint); bigger market cards so four cost pips
+   fit inside the card. */
+.sp-pl__grid { grid-template-columns: auto repeat(6, minmax(0, 1fr)); align-items: center; }
+.sp-col--lbl { justify-items: start; gap: var(--space-2); }
+.sp-col--lbl small { font-size: 11px; color: var(--felt-muted); line-height: 1.6rem; }
+.sp-col__bonus { inline-size: 1.6rem; block-size: 1.6rem; max-inline-size: none; padding: 0; display: grid; place-items: center; border-radius: var(--radius-pill); }
+.sp-t--w .sp-col__tok { background-image: url('./art/splendor-token-w.png'); } .sp-t--u .sp-col__tok { background-image: url('./art/splendor-token-u.png'); }
+.sp-t--g .sp-col__tok { background-image: url('./art/splendor-token-g.png'); } .sp-t--r .sp-col__tok { background-image: url('./art/splendor-token-r.png'); }
+.sp-t--k .sp-col__tok { background-image: url('./art/splendor-token-k.png'); } .sp-t--o .sp-col__tok { background-image: url('./art/splendor-token-gold.png'); }
+.sp-col__tok { inline-size: 1.7rem; block-size: 1.7rem; }
+.sp--framed .sp-pl--me { background: var(--felt-plate); border: 0; box-shadow: var(--shadow-ring-felt); }
+.sp--framed .sp-pl--turn { border: 0; box-shadow: var(--shadow-ring-felt); }
+.sp--framed .sp__table > .sp__market { inline-size: min(100%, 28rem); flex-basis: 28rem; }
+.sp--framed .sp-card--md .sp-cost { inline-size: 0.9rem; block-size: 0.9rem; font-size: 0.55rem; }
+.sp--framed .sp-card--md .sp-card__cost { gap: 1px; padding: 0.15rem 0.2rem 0.25rem; }
+/* Round 4: no amber frame on any ledger (amber = main action / turn pill only); compact ledger with gold in the same row. */
+.sp--framed .sp-pl--turn, .sp--framed .sp-pl--me { outline: 0; }
+.sp-pl__grid { grid-template-columns: auto repeat(6, auto); justify-content: start; gap: 2px var(--space-1); }
+.sp-col__bonus { inline-size: 1.35rem; block-size: 1.35rem; font-size: 0.72rem; }
+.sp-col__tok { inline-size: 1.45rem; block-size: 1.45rem; font-size: 0.72rem; }
+.sp-col--lbl small { line-height: 1.4rem; }
+
+/* Round 5: the rival ledger fits its 12rem column, gold token included. */
+.sp__players--side .sp-pl { padding: var(--space-2); min-inline-size: 0; }
+.sp__players--side .sp-pl__grid { gap: 2px; }
+.sp__players--side .sp-col__bonus, .sp__players--side .sp-col__tok { inline-size: 1.15rem; block-size: 1.15rem; font-size: 0.62rem; }
+.sp__players--side .sp-col--lbl small { font-size: 10px; line-height: 1.15rem; }

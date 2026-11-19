@@ -45,7 +45,7 @@
 .sx-dm__head { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-block-end: 1px solid var(--line); min-block-size: 64px; }
 .sx-dm__head .bgv-identity, .sx-dm__head h2 { flex: 1; min-inline-size: 0; }
 .sx-dm__head h2 { margin: 0; display: flex; align-items: center; gap: var(--space-2); }
-.sx-dm__back { display: none; }
+.sx-dm__back { display: none; order: -1; }
 .sx-dm__empty { display: grid; place-items: center; padding: var(--space-6); }
 @media (max-width: 899px) {
   .sx-dm { grid-template-columns: minmax(0, 1fr); block-size: clamp(440px, 80dvh, 640px); }
@@ -77,3 +77,7 @@
 
 .chat-invite { max-inline-size: 320px; }
 .chat-invite--mine { margin-inline-start: auto; }
+
+/* Person and club names: bold navy plain text link (amber is reserved for the main action). */
+.bgv a.sx-namelink { color: var(--heading); font-weight: 700; text-decoration: none; }
+.bgv a.sx-namelink:hover { text-decoration: underline; }

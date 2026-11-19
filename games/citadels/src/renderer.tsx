@@ -3,26 +3,42 @@
 // its own small panel during your character's turn.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CHARACTERS, DISTRICTS, type CitadelsView } from './rules.ts';
-// Paintings are cut from a generated sheet (see DECISIONS.md).
-import assassin from './art/ch-assassin.webp';
-import thief from './art/ch-thief.webp';
-import magician from './art/ch-magician.webp';
-import king from './art/ch-king.webp';
-import bishop from './art/ch-bishop.webp';
-import merchant from './art/ch-merchant.webp';
-import architect from './art/ch-architect.webp';
-import warlord from './art/ch-warlord.webp';
-import yellow from './art/d-yellow.webp';
-import blue from './art/d-blue.webp';
-import green from './art/d-green.webp';
-import red from './art/d-red.webp';
-import crown from './art/crown.webp';
-import coin from './art/coin.webp';
+// Handoff art: characters (cit-c-1..8) and district cards are full printed faces (cost and name included).
+import c1 from './art/cit-c-1.png';
+import c2 from './art/cit-c-2.png';
+import c3 from './art/cit-c-3.png';
+import c4 from './art/cit-c-4.png';
+import c5 from './art/cit-c-5.png';
+import c6 from './art/cit-c-6.png';
+import c7 from './art/cit-c-7.png';
+import c8 from './art/cit-c-8.png';
+import crown from './art/cit-crown.png';
+import coin from './art/cit-coin.png';
+import dB1 from './art/cit-d-b1.png';
+import dB2 from './art/cit-d-b2.png';
+import dB3 from './art/cit-d-b3.png';
+import dB5 from './art/cit-d-b5.png';
+import dG1 from './art/cit-d-g1.png';
+import dG2a from './art/cit-d-g2a.png';
+import dG2b from './art/cit-d-g2b.png';
+import dG3 from './art/cit-d-g3.png';
+import dG4 from './art/cit-d-g4.png';
+import dG5 from './art/cit-d-g5.png';
+import dR1 from './art/cit-d-r1.png';
+import dR2 from './art/cit-d-r2.png';
+import dR3 from './art/cit-d-r3.png';
+import dR5 from './art/cit-d-r5.png';
+import dY3 from './art/cit-d-y3.png';
+import dY4 from './art/cit-d-y4.png';
+import dY5 from './art/cit-d-y5.png';
 
-const PORTRAIT = [assassin, thief, magician, king, bishop, merchant, architect, warlord]; // CHARACTERS index 1..8
-const DISTRICT_ART: Record<string, string> = { yellow, blue, green, red };
+const PORTRAIT = [c1, c2, c3, c4, c5, c6, c7, c8]; // CHARACTERS index 1..8
+const DISTRICT_ART: Record<string, string> = {
+  'عمارت': dY3, 'قصر کوچک': dY4, 'کاخ': dY5, 'معبد': dB1, 'کلیسا': dB2, 'صومعه': dB3, 'جامع': dB5, 'کاروانسرا': dG1, 'بازارچه': dG2a, 'تیمچه': dG2b,
+  'اسکله': dG3, 'بندر': dG4, 'دارالحکومه': dG5, 'برج دیده‌بانی': dR1, 'زندان': dR2, 'میدان نبرد': dR3, 'دژ': dR5
+};
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 
@@ -30,9 +46,7 @@ export function DistrictCard({ id, size = 'md', from, exit }: { id: number; size
   const d = DISTRICTS[id]!;
   return (
     <span className={`ct2-d ct2-d--${size} ct2-c--${d.color}`} data-flip={from ? `d-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={`${d.name}، ${fa(d.cost)} طلا`}>
-      <b className="ct2-d__cost">{fa(d.cost)}</b>
-      <img className="ct2-d__art" src={DISTRICT_ART[d.color]} alt="" draggable={false} />
-      <span className="ct2-d__name">{d.name}</span>
+      <img className="ct2-d__face" src={DISTRICT_ART[d.name]} alt="" draggable={false} />
     </span>
   );
 }
@@ -40,7 +54,7 @@ export function DistrictCard({ id, size = 'md', from, exit }: { id: number; size
 const Thumb = ({ c }: { c: number }) => <img className="ct2-thumb" src={PORTRAIT[c - 1]} alt="" draggable={false} />;
 
 export function CharToken({ c, state, from }: { c: number; state?: string; from?: string }) {
-  return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`} data-flip={from ? `pk-${c}` : undefined} data-flip-from={from}><img className="ct2-ch__art" src={PORTRAIT[c - 1]} alt="" draggable={false} /><b>{fa(c)}</b><small>{CHARACTERS[c]}</small></span>;
+  return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`} data-flip={from ? `pk-${c}` : undefined} data-flip-from={from}><img className="ct2-ch__art" src={PORTRAIT[c - 1]} alt={`${CHARACTERS[c]}، رتبه ${fa(c)}`} draggable={false} /></span>;
 }
 
 export default function CitadelsRenderer({ view: real, legalActions: realLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CitadelsView>) {
@@ -62,6 +76,7 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
   useFlip(root, `${view.seq}|${q?.type ?? ''}`);
   const hint = expected as unknown as { type: string; take?: string; card?: number; char?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
+  const framed = useInFrame() !== null; // the shell draws seats, scores, turn and events
   const others = view.cities.map((_, k) => k).filter((k) => k !== me);
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
@@ -75,10 +90,17 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
 
   return (
     <div className="ct2" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className="ct2__round" data-flip-anchor="deck">دور {fa(view.round)}، تاج: <bdi>{who(view.crown)}</bdi>، دسته: {fa(view.deckCount)}</p>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>دور {fa(view.round)}<span className="bgv-sep" /> تاج: <bdi>{who(view.crown)}</bdi><span className="bgv-sep" /> دسته: {fa(view.deckCount)}. هر محله به اندازهٔ قیمتش امتیاز دارد؛ با ساختن هشتمین محله بازی در پایان همین دور تمام می‌شود.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      <p className={framed ? 'visually-hidden' : 'ct2__round'} data-flip-anchor="deck">دور {fa(view.round)}، تاج: <bdi>{who(view.crown)}</bdi>، دسته: {fa(view.deckCount)}</p>
 
-      <section className="ct2__track" aria-label="شخصیت‌ها">
+      {/* While you pick, the pool is the character strip; showing the full 1–8 track too duplicated it. */}
+      {!(pick && view.pool) && <section className="ct2__track" aria-label="شخصیت‌ها">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((c) => (
           <span key={c} className={c === view.killed ? 'ct2-slot bg-hit' : 'ct2-slot'}>
             <CharToken c={c} state={charState(c)} />
@@ -86,7 +108,7 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
             {view.robbed?.char === c && <small className="ct2-slot__tag">دزدیده</small>}
           </span>
         ))}
-      </section>
+      </section>}
 
       {pick && view.pool && (
         <div className="ct2__pool" data-flip-anchor="pool" role="group" aria-label="انتخاب شخصیت">
@@ -125,9 +147,9 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
             <div className="ct2-city__head">
               {view.crown === s && <img className="ct2-crown" src={crown} alt="تاج" title="تاج" />}
               <bdi className="ct2-city__name">{who(s)}</bdi>
-              <Pop n={view.gold[s]!} className="ct2-gold"><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</Pop>
-              <Pop n={view.handCount[s]!}>{fa(view.handCount[s]!)} کارت</Pop>
-              <Pop n={view.scores[s]!} className="ct2-score">{fa(view.scores[s]!)} امتیاز</Pop>
+              {!framed && <Pop n={view.gold[s]!} className="ct2-gold"><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</Pop>}
+              {!framed && <Pop n={view.handCount[s]!}>{fa(view.handCount[s]!)} کارت</Pop>}
+              {!framed && <Pop n={view.scores[s]!} className="ct2-score">{fa(view.scores[s]!)} امتیاز</Pop>}
               <span>{fa(view.cities[s]!.length)}/۸</span>
             </div>
             <div className="ct2-city__row">{view.cities[s]!.map((id) => <DistrictCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} exit="drop" />)}{!view.cities[s]!.length && <small>هنوز محله‌ای نیست</small>}</div>

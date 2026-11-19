@@ -360,8 +360,7 @@ export function playError(s: TmState, seat: number, id: string): string | null {
     if (!s.players.some((q, k) => q.prod[res] + (k === seat ? c.prod?.[res] ?? 0 : 0) - n >= minProd(res))) return 'NO_TARGET';
   }
   if (c.canPlay && !c.canPlay(g)) return 'CANNOT_PLAY';
-  // A card whose land tile cannot be placed may not be played (oceans beyond 9 are simply skipped).
-  for (const t of c.tiles ?? []) if (t.kind !== 'ocean' && !legalSpaces(s, seat, t.rule ?? defaultRule(t.kind)).length) return 'NO_SPACE';
+  // Rulebook p.10 (RULES.md E1): a tile without a legal space is simply not placed; it never blocks the card.
   const reserve = Object.fromEntries(RES.map((r) => [r, -(c.gain?.[r] ?? 0)])) as Amounts;
   if (maxPay(s, seat, { steel: c.tags.includes('building'), titanium: c.tags.includes('space'), reserve }) < cardCost(s, seat, c)) return 'CANNOT_AFFORD';
   return null;

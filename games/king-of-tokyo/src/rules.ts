@@ -1,4 +1,4 @@
-// King of Tokyo («غول‌های شهر»), 2–6 players, base rules with a single Tokyo spot at every player count (no Tokyo
+﻿// King of Tokyo («غول‌های شهر»), 2–6 players, base rules with a single Tokyo spot at every player count (no Tokyo
 // Bay). 10 health, 0 VP. A turn: roll six dice up to three times keeping any; resolve: three of a number scores that
 // number (+1 per extra die), hearts heal (not in Tokyo), bolts give energy, claws hit Tokyo (from outside) or everyone
 // outside (from Tokyo). A hit Tokyo monster may yield and the attacker enters. An empty Tokyo is taken by the active
@@ -63,6 +63,8 @@ export interface KotState {
   attacked: boolean;
   enteredBy: number | null;
   last: { seat: number; kind: string; detail?: string } | null;
+  /** Public move list for the table frame (every entry is visible to all seats). */
+  log?: { seat: number; text: string }[];
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
@@ -249,6 +251,11 @@ export const kotModule: GameModule<KotState, KotAction, KotView> = {
       case 'sweep': s.energy[seat]! -= 2; s.deck.push(...s.market); s.market = []; refill(s); s.last = { seat, kind: 'sweep' }; break;
       case 'end': nextTurn(s); break;
     }
+    if (s.last) {
+      const l = s.last;
+      const text = ({ roll: 'تاس ریخت', resolve: 'تاس‌ها را حل کرد', leave: 'از توکیو بیرون رفت', stay: 'در توکیو ماند', buy: `خرید ${POWERS[Number(l.detail)]?.nameFa ?? 'کارت'}`, sweep: 'کارت‌های تازه', end: 'پایان نوبت' } as Record<string, string>)[l.kind];
+      if (text) s.log = [...(s.log ?? []), { seat: l.seat, text: text.slice(0, 40) }].slice(-40);
+    }
     return finish(s, [{ type: a.type, seat }]);
   },
 
@@ -304,6 +311,7 @@ export const kotModule: GameModule<KotState, KotAction, KotView> = {
         badges: s.tokyo === seat ? [{ key: 'tokyo', label: 'در توکیو', tone: 'warning' as const }] : [],
         ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : !s.alive[seat] ? { status: 'out' as const } : {})
       })),
+      moves: s.log ?? [],
       shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }],
       ...(s.vp.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.vp.indexOf(top) } : {})
     };

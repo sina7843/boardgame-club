@@ -1567,3 +1567,26 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Local: Windows reserved port 5434 (WinNAT range 5433–5532); the dev DB runs as boardgame-dev-postgres-alt on 127.0.0.1:55434 until `net stop winnat && net start winnat` is run as admin.
 - 2026-11-13 owner: short table links approved without a backup (no live tables yet). Migration 0026: game_tables.code by trigger (4 chars, no look-alikes); GET /api/t/:code (private tables only for their players); /t/:code route and «کد میز داری؟» forms. Invite links of private tables stay /tables/<id>?invite=… (a code alone never opens a private table).
 - 2026-11-13 owner: game page content wanted. Migration 0027: game_contents (validated JSON per game, admin editor on the admin game page, audited) and game_reviews (one per player per game after a finished non-tutorial table; author edits/deletes; moderators hide, audited). Screenshots are site paths (/games/<id>/… or /covers/…), no external images.
+
+
+## Group A–D frame and QA round 1 (2026-11-17/18)
+- Tests follow the frame: renderer player panels are hidden in the frame, so e2e reads `.gf-seat`, `.gf-stage--mine` and `.gf-stage[data-rev]` instead; dock buttons (`DockSlot`) render outside the renderer root, so tests look them up page-wide or in `.tbl-dock`.
+- RULES fixes applied (BGA/rulebook beats engine): cockroach-poker two-player limit 5 of a kind (tutorial deal now gives the rival four stink bugs and copy says «پنجمین»); bohnanza three players start with three fields and cannot buy; space-base buying drops credits to income.
+- Skull E1 (challenger starts the next round) NOT applied: the tutorial runtime plays one bot reply per step and the new rule makes the rival start round 2, so the approved tutorial would stall. Owner question: new tutorial copy, or keep the old starter rule for the tutorial only.
+- Game bar meta adds «N بازیکن» (group QA: every group asked for the player count).
+- Unmapped or missing art is listed in docs/reports/2026-11-18-groups-a-d.md §8; nothing was drawn.
+
+## Owner decisions 2026-11-18
+- Skull E1 applied (BGA: a challenger who is still in starts the next round; the skull's owner only when the challenger is out). The tutorial was re-scripted: the rival, still in after hitting the learner's skull, opens round 2; the learner then wins by raising to 3 after the rival passes. To support it, `TutorialStep.then?: Action[]` (game-sdk) lists further scripted seat-1 actions; `packages/play` applies them in order after `reply` while seat 1 is still to act.
+- The Crew keeps the long name «کرو: در جستجوی سیارهٔ نهم» (overrides the «کرو» line at the top of design/GAME_NAMES.md).
+- Missing art: placeholders for now (owner). A placeholder always names the piece (text on the piece's shape) so it is never mistaken for final art; replaced 1:1 when the file arrives.
+
+## BGA-style tables in the shell (2026-11-19)
+- The five handoff tables (Gaia, TM, Brass, Ark Nova, Blood Rage) are the `CONFIRMS_IN_RENDERER` set; the shell gives them: no chat column (chat sheet from the game bar), a 360px rail (300px for Gaia/Ark Nova/Blood Rage per their references), a frame-less felt, no shared chips or shell dock (except tutorials), no shell phone strip (renderers draw compact chips), and the turn pill portaled into the renderer's `[data-shell-clock]`.
+- Player panels: the renderer's own panels are hidden inside the shell; the shell rail shows seat cards built by each game's `*SeatCard(seat, turn)` from the new optional public `summary.seats[].detail` (SDK `object`, contracts `z.custom<object>`). Never hidden information.
+- `<RailSlot>` now works in the table view too (desktop rail); `.rail-top` content goes above the player cards.
+
+## Group A–D frame on phones (2026-11-19)
+- The page scrolls on phones (no inner felt scroller); the game bar and the dock area (game actions, own bar, گفت‌وگو / رویدادها / گزینه‌ها) are sticky. «گزینه‌ها» opens the rules and leave sheet.
+- QA from round 6 fails a table only for blockers; small size differences are polish.
+- Game CSS is global, so class prefixes must be unique per game (`.sb`, `.cr`, `.tm` collided; group C renamed its side).

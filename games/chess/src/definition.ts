@@ -16,12 +16,16 @@ export const chess = defineGame({
     }, {
       key: 'clock', labelFa: 'کنترل زمان (بازی زنده)',
       descriptionFa: 'ساعت شطرنج: هر بازیکن یک بانک زمان دارد که فقط در نوبت خودش کم می‌شود؛ عدد دوم ثانیهٔ هدیه پس از هر حرکت است. با تمام شدن زمان، بازی را می‌بازید (اگر حریف نتواند مات کند، مساوی). در بازی نوبتی همان مهلت هر حرکت می‌ماند.',
+      // design/games/chess/data/time-controls.json: main row 1/3/5/10 without increment; «زمان‌های بیشتر» 1+1, 3+2, 5+3,
+      // 10+5 (friend games and tournaments); the rest only for tournaments created by admins (kept valid for old tables).
       choices: [{ value: 'none', labelFa: 'مهلت هر حرکت' },
-        { value: '1+0', labelFa: '۱+۰ گلوله‌ای' }, { value: '2+1', labelFa: '۲+۱ برق‌آسا' }, { value: '3+0', labelFa: '۳+۰ برق‌آسا' },
-        { value: '3+2', labelFa: '۳+۲ برق‌آسا' }, { value: '5+0', labelFa: '۵+۰ برق‌آسا' }, { value: '5+3', labelFa: '۵+۳ برق‌آسا' },
-        { value: '10+0', labelFa: '۱۰+۰ سریع' }, { value: '10+5', labelFa: '۱۰+۵ سریع' }, { value: '15+10', labelFa: '۱۵+۱۰ سریع' },
-        { value: '30+0', labelFa: '۳۰+۰ سریع' }, { value: '45+15', labelFa: '۴۵+۱۵ کلاسیک' }, { value: '60+30', labelFa: '۶۰+۳۰ کلاسیک' },
-        { value: '90+30', labelFa: '۹۰+۳۰ کلاسیک' }],
+        { value: '1+0', labelFa: '۱ دقیقه، بولت' }, { value: '3+0', labelFa: '۳ دقیقه، بلیتس' },
+        { value: '5+0', labelFa: '۵ دقیقه، بلیتس' }, { value: '10+0', labelFa: '۱۰ دقیقه، رپید' },
+        { value: '1+1', labelFa: '۱ + ۱، بولت' }, { value: '3+2', labelFa: '۳ + ۲، بلیتس' },
+        { value: '5+3', labelFa: '۵ + ۳، بلیتس' }, { value: '10+5', labelFa: '۱۰ + ۵، رپید' },
+        { value: '2+1', labelFa: '۲ + ۱، بلیتس (مسابقه)' }, { value: '15+10', labelFa: '۱۵ + ۱۰، رپید (مسابقه)' },
+        { value: '30+0', labelFa: '۳۰ دقیقه، رپید (مسابقه)' }, { value: '45+15', labelFa: '۴۵ + ۱۵، کلاسیک (مسابقه)' },
+        { value: '60+30', labelFa: '۶۰ + ۳۰، کلاسیک (مسابقه)' }, { value: '90+30', labelFa: '۹۰ + ۳۰، کلاسیک (مسابقه)' }],
       default: 'none'
     }, {
       key: 'minDrawMove', labelFa: 'حداقل حرکت برای تساوی با توافق',

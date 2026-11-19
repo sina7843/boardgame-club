@@ -1,0 +1,596 @@
+{
+ "enclosures/enclosure-1-empty": {
+  "w": 270,
+  "h": 234,
+  "mode": "flat",
+  "cells": [
+   [
+    0,
+    -0.1
+   ]
+  ]
+ },
+ "enclosures/enclosure-1-occupied": {
+  "w": 270,
+  "h": 234,
+  "mode": "flat",
+  "cells": [
+   [
+    0,
+    -0.1
+   ]
+  ]
+ },
+ "enclosures/enclosure-2-empty": {
+  "w": 270,
+  "h": 471,
+  "mode": "flat",
+  "cells": [
+   [
+    0,
+    -118.6
+   ],
+   [
+    0,
+    115.2
+   ]
+  ]
+ },
+ "enclosures/enclosure-2-occupied": {
+  "w": 270,
+  "h": 471,
+  "mode": "flat",
+  "cells": [
+   [
+    0,
+    -118.6
+   ],
+   [
+    0,
+    115.2
+   ]
+  ]
+ },
+ "enclosures/enclosure-3-empty": {
+  "w": 474,
+  "h": 471,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -118.6
+   ],
+   [
+    -102,
+    115.2
+   ],
+   [
+    100.5,
+    -1.7
+   ]
+  ]
+ },
+ "enclosures/enclosure-3-occupied": {
+  "w": 474,
+  "h": 471,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -118.6
+   ],
+   [
+    -102,
+    115.2
+   ],
+   [
+    100.5,
+    -1.7
+   ]
+  ]
+ },
+ "enclosures/enclosure-4-empty": {
+  "w": 474,
+  "h": 588,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -177.1
+   ],
+   [
+    -102,
+    56.7
+   ],
+   [
+    100.5,
+    -60.2
+   ],
+   [
+    100.5,
+    173.6
+   ]
+  ]
+ },
+ "enclosures/enclosure-4-occupied": {
+  "w": 474,
+  "h": 588,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -177.1
+   ],
+   [
+    -102,
+    56.7
+   ],
+   [
+    100.5,
+    -60.2
+   ],
+   [
+    100.5,
+    173.6
+   ]
+  ]
+ },
+ "enclosures/enclosure-5-empty": {
+  "w": 474,
+  "h": 705,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -118.7
+   ],
+   [
+    -102,
+    115.1
+   ],
+   [
+    100.5,
+    -235.6
+   ],
+   [
+    100.5,
+    -1.8
+   ],
+   [
+    100.5,
+    232
+   ]
+  ]
+ },
+ "enclosures/enclosure-5-occupied": {
+  "w": 474,
+  "h": 705,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -118.7
+   ],
+   [
+    -102,
+    115.1
+   ],
+   [
+    100.5,
+    -235.6
+   ],
+   [
+    100.5,
+    -1.8
+   ],
+   [
+    100.5,
+    232
+   ]
+  ]
+ },
+ "special-buildings/kiosk": {
+  "w": 270,
+  "h": 234,
+  "mode": "flat",
+  "cells": [
+   [
+    0,
+    -0.1
+   ]
+  ]
+ },
+ "special-buildings/large-bird-aviary": {
+  "w": 678,
+  "h": 588,
+  "mode": "flat",
+  "cells": [
+   [
+    -204,
+    -177.1
+   ],
+   [
+    -204,
+    56.7
+   ],
+   [
+    -1.5,
+    -60.2
+   ],
+   [
+    -1.5,
+    173.6
+   ],
+   [
+    201,
+    -177.1
+   ]
+  ]
+ },
+ "special-buildings/pavilion": {
+  "w": 270,
+  "h": 234,
+  "mode": "flat",
+  "cells": [
+   [
+    0,
+    -0.1
+   ]
+  ]
+ },
+ "special-buildings/petting-zoo": {
+  "w": 474,
+  "h": 588,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -60.2
+   ],
+   [
+    -102,
+    173.6
+   ],
+   [
+    100.5,
+    -177.1
+   ]
+  ]
+ },
+ "special-buildings/reptile-house": {
+  "w": 678,
+  "h": 471,
+  "mode": "flat",
+  "cells": [
+   [
+    -204,
+    -118.6
+   ],
+   [
+    -204,
+    115.2
+   ],
+   [
+    -1.5,
+    -1.7
+   ],
+   [
+    201,
+    -118.6
+   ],
+   [
+    201,
+    115.2
+   ]
+  ]
+ },
+ "unique-buildings/unique-adventure-playground": {
+  "w": 270,
+  "h": 471,
+  "mode": "flat",
+  "cells": [
+   [
+    0,
+    -118.6
+   ],
+   [
+    0,
+    115.2
+   ]
+  ]
+ },
+ "unique-buildings/unique-aquarium": {
+  "w": 678,
+  "h": 588,
+  "mode": "flat",
+  "cells": [
+   [
+    -204,
+    -60.2
+   ],
+   [
+    -1.5,
+    -177.1
+   ],
+   [
+    201,
+    -60.2
+   ],
+   [
+    201,
+    173.6
+   ]
+  ]
+ },
+ "unique-buildings/unique-baboon-rock": {
+  "w": 474,
+  "h": 705,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    115.1
+   ],
+   [
+    100.5,
+    -235.6
+   ],
+   [
+    100.5,
+    -1.8
+   ],
+   [
+    100.5,
+    232
+   ]
+  ]
+ },
+ "unique-buildings/unique-barred-owl-hut": {
+  "w": 705,
+  "h": 270,
+  "mode": "pointy",
+  "cells": [
+   [
+    -235.6,
+    0
+   ],
+   [
+    -1.8,
+    0
+   ],
+   [
+    232,
+    0
+   ]
+  ]
+ },
+ "unique-buildings/unique-cable-car": {
+  "w": 270,
+  "h": 942,
+  "mode": "flat",
+  "cells": [
+   [
+    0,
+    -354.1
+   ],
+   [
+    0,
+    -120.3
+   ],
+   [
+    0,
+    113.5
+   ],
+   [
+    0,
+    347.4
+   ]
+  ]
+ },
+ "unique-buildings/unique-meerkat-den": {
+  "w": 678,
+  "h": 351,
+  "mode": "flat",
+  "cells": [
+   [
+    -204,
+    58.3
+   ],
+   [
+    -1.5,
+    -58.6
+   ],
+   [
+    201,
+    58.3
+   ]
+  ]
+ },
+ "unique-buildings/unique-okapi-stable": {
+  "w": 882,
+  "h": 351,
+  "mode": "flat",
+  "cells": [
+   [
+    -306,
+    -58.6
+   ],
+   [
+    -103.5,
+    58.3
+   ],
+   [
+    99,
+    -58.6
+   ],
+   [
+    301.5,
+    58.3
+   ]
+  ]
+ },
+ "unique-buildings/unique-penguin-pool": {
+  "w": 678,
+  "h": 471,
+  "mode": "flat",
+  "cells": [
+   [
+    -204,
+    -118.6
+   ],
+   [
+    -1.5,
+    -1.7
+   ],
+   [
+    201,
+    -118.6
+   ],
+   [
+    201,
+    115.2
+   ]
+  ]
+ },
+ "unique-buildings/unique-polar-bear-exhibit": {
+  "w": 882,
+  "h": 351,
+  "mode": "flat",
+  "cells": [
+   [
+    -306,
+    58.3
+   ],
+   [
+    -103.5,
+    -58.6
+   ],
+   [
+    99,
+    58.3
+   ],
+   [
+    301.5,
+    -58.6
+   ]
+  ]
+ },
+ "unique-buildings/unique-rhesus-monkey-park": {
+  "w": 822,
+  "h": 474,
+  "mode": "pointy",
+  "cells": [
+   [
+    -294.1,
+    100.5
+   ],
+   [
+    -177.2,
+    -102
+   ],
+   [
+    56.6,
+    -102
+   ],
+   [
+    290.5,
+    -102
+   ]
+  ]
+ },
+ "unique-buildings/unique-sea-turtle-tank": {
+  "w": 678,
+  "h": 588,
+  "mode": "flat",
+  "cells": [
+   [
+    -204,
+    173.6
+   ],
+   [
+    -1.5,
+    -177.1
+   ],
+   [
+    -1.5,
+    56.7
+   ],
+   [
+    201,
+    173.6
+   ]
+  ]
+ },
+ "unique-buildings/unique-side-entrance": {
+  "w": 474,
+  "h": 351,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -58.6
+   ],
+   [
+    100.5,
+    58.3
+   ]
+  ]
+ },
+ "unique-buildings/unique-spotted-hyena-compound": {
+  "w": 822,
+  "h": 474,
+  "mode": "pointy",
+  "cells": [
+   [
+    -294.1,
+    -102
+   ],
+   [
+    -177.2,
+    100.5
+   ],
+   [
+    56.6,
+    100.5
+   ],
+   [
+    290.5,
+    100.5
+   ]
+  ]
+ },
+ "unique-buildings/unique-water-playground": {
+  "w": 474,
+  "h": 351,
+  "mode": "flat",
+  "cells": [
+   [
+    -102,
+    -58.6
+   ],
+   [
+    100.5,
+    58.3
+   ]
+  ]
+ },
+ "unique-buildings/unique-zoo-school": {
+  "w": 351,
+  "h": 678,
+  "mode": "pointy",
+  "cells": [
+   [
+    -58.6,
+    -204
+   ],
+   [
+    -58.6,
+    201
+   ],
+   [
+    58.3,
+    -1.5
+   ]
+  ]
+ }
+}

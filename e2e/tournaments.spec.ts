@@ -57,7 +57,12 @@ test('admin creates a tournament, players register, the worker seats them at rou
   await watcher.goto(tournamentUrl);
   await expect(watcher.getByRole('link', { name: 'تماشا', exact: true }).first()).toBeVisible({ timeout: 30_000 });
   await watcher.getByRole('link', { name: 'تماشا', exact: true }).first().click();
-  await expect(watcher.getByRole('button', { name: 'ترک تماشا' })).toBeVisible({ timeout: 30_000 });
+  // Desktop: in the rail. Phone: in the «گزینه‌ها» sheet of the table dock.
+  const options = watcher.getByRole('navigation', { name: 'میز' }).getByRole('button', { name: 'گزینه‌ها' });
+  await expect(watcher.getByRole('button', { name: 'ترک تماشا' }).or(options).first()).toBeVisible({ timeout: 30_000 });
+  if (await options.isVisible()) await options.click();
+  await expect(watcher.getByRole('button', { name: 'ترک تماشا' }).filter({ visible: true }).first()).toBeVisible();
+  if (await options.isVisible()) await watcher.keyboard.press('Escape');
   await expect(watcher.getByLabel('متن پیام')).toHaveCount(0); // spectators may read the table chat, never post
   await watcher.screenshot({ path: shot(info.project.name, 'spectator'), fullPage: true });
   await watcher.goto('/tables');

@@ -4,19 +4,36 @@
 // per camel, the secret overall bets and the spectators' purses follow.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, motionOff, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
-import camelBlue from './art/camel-blue.webp';
-import camelGreen from './art/camel-green.webp';
-import camelOrange from './art/camel-orange.webp';
-import camelYellow from './art/camel-yellow.webp';
-import camelWhite from './art/camel-white.webp';
-import pyramid from './art/pyramid.webp';
+import { Button, Icon, MOTION, RailSlot, TurnIndicator, useInFrame, motionOff, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import camelBlue from './art/camel-up-camel-blue.png';
+import camelGreen from './art/camel-up-camel-green.png';
+import camelOrange from './art/camel-up-camel-orange.png';
+import camelYellow from './art/camel-up-camel-yellow.png';
+import camelWhite from './art/camel-up-camel-white.png';
+import pyramid from './art/camel-up-pyramid.png';
+import oasisArt from './art/camel-up-oasis.png';
+import mirageArt from './art/camel-up-mirage.png';
+import dieBlue1 from './art/camel-up-die-blue-1.png';
+import dieBlue2 from './art/camel-up-die-blue-2.png';
+import dieBlue3 from './art/camel-up-die-blue-3.png';
+import bet_blue_3 from './art/camel-up-bet-blue-3.png';
+import bet_blue_5 from './art/camel-up-bet-blue-5.png';
+import bet_green_2 from './art/camel-up-bet-green-2.png';
+import bet_green_3 from './art/camel-up-bet-green-3.png';
+import bet_green_5 from './art/camel-up-bet-green-5.png';
+import bet_orange_3 from './art/camel-up-bet-orange-3.png';
+import bet_orange_5 from './art/camel-up-bet-orange-5.png';
+import bet_white_5 from './art/camel-up-bet-white-5.png';
+import bet_yellow_5 from './art/camel-up-bet-yellow-5.png';
+
+// Leg-bet tile art exists only for these colour/value pairs; the rest keep the CSS tile.
+const BET_ART: Record<string, string> = { 'blue-3': bet_blue_3, 'blue-5': bet_blue_5, 'green-2': bet_green_2, 'green-3': bet_green_3, 'green-5': bet_green_5, 'orange-3': bet_orange_3, 'orange-5': bet_orange_5, 'white-5': bet_white_5, 'yellow-5': bet_yellow_5 };
+const DIE_BLUE: Record<number, string> = { 1: dieBlue1, 2: dieBlue2, 3: dieBlue3 };
 import { CAMELS, TRACK, type Camel, type CamelView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CAMEL_FA: Record<Camel, string> = { blue: 'آبی', green: 'سبز', orange: 'نارنجی', yellow: 'زرد', white: 'سفید' };
 
-// Painted camels and pyramid are cut from a generated sheet (see DECISIONS.md).
 const CAMEL_ART: Record<Camel, string> = { blue: camelBlue, green: camelGreen, orange: camelOrange, yellow: camelYellow, white: camelWhite };
 
 export function CamelIcon({ c, size = 1.6, walk }: { c: Camel; size?: number; walk?: boolean }) {
@@ -33,6 +50,7 @@ function cell(sp: number): [number, number] {
 
 const PIPS: Record<number, [number, number][]> = { 1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]] };
 function Die({ c, v, roll }: { c: Camel | null; v?: number; roll?: boolean }) {
+  if (c === 'blue' && v) return <img src={DIE_BLUE[v]} alt="" draggable={false} className={`cu-die cu-die--art ${roll ? 'bg-roll' : ''}`} aria-hidden="true" />;
   return (
     <svg className={c ? `cu-die cu-c--${c} ${v ? '' : 'cu-die--in'} ${roll ? 'bg-roll' : ''}` : 'cu-die cu-die--pending bg-tumble'} viewBox="-12 -12 24 24" aria-hidden="true">
       <rect x="-11" y="-11" width="22" height="22" rx="5" className="cu-die__body" />
@@ -105,12 +123,19 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spacesSig]);
+  const framed = useInFrame() !== null;
   const myTurn = legalActions.some((a) => a.type === 'roll');
   const legs = new Map(legalActions.filter((a) => a.type === 'leg').map((a) => [a.camel as Camel, a.value as number]));
   const desert = legalActions.find((a) => a.type === 'desert') as { spaces: number[] } | undefined;
   const overall = legalActions.find((a) => a.type === 'overall') as { cards: Camel[] } | undefined;
   const [placing, setPlacing] = useState<null | 'oasis' | 'mirage'>(null);
-  useEffect(() => { setPlacing(null); }, [view.seq]);
+  const [ovWhich, setOvWhich] = useState<null | 'win' | 'lose'>(null);
+  // Phone: the bar shows three buttons; «کاشی» and «شرط نهایی» open their choices in a row under them.
+  const [phoneOpen, setPhoneOpen] = useState<null | 'desert' | 'final'>(null);
+  useEffect(() => { setPlacing(null); setOvWhich(null); setPhoneOpen(null); }, [view.seq]);
+  const togglePhone = (g: 'desert' | 'final') => { setPhoneOpen(phoneOpen === g ? null : g); setPlacing(null); setOvWhich(null); };
+  // Race order, leader first: furthest space, and on a stack the top camel (last in the list) leads.
+  const order = Object.entries(view.spaces).sort(([a], [b]) => Number(b) - Number(a)).flatMap(([, st]) => st.slice().reverse());
   const hint = expected as unknown as { type: string; camel?: Camel; which?: string } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const status = view.outcome ? null
@@ -127,7 +152,22 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
 
   return (
     <div className="cu" data-seq={view.seq} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <section className="cu-rail" aria-label="این مرحله">
+            <h3>این مرحله<span className="cu-rail__note">{fa(view.diceLeft)} تاس در هرم</span></h3>
+            <div className="cu-rail__rank"><span>ترتیب:</span>{order.map((c) => <CamelIcon key={c} c={c} size={1.8} />)}</div>
+            <div className="cu-rail__pills">
+              <span className="bgv-chip">شرط نهایی برنده: {fa(view.winnerCount)}</span>
+              <span className="bgv-chip">بازنده: {fa(view.loserCount)}</span>
+            </div>
+          </section>
+          <p className="cu-rail__tip"><Icon name="book" size={18} />
+            <span>{placing ? 'واحه یک خانه جلو می‌برد و سراب یک خانه عقب؛ کاشی فقط روی خانه‌های خط‌چین می‌نشیند.' : 'هر تاس هرم شتر همان رنگ را ۱ تا ۳ خانه جلو می‌برد و شترهای روی پشتش را هم می‌برد. آخر مرحله کارت شتر اول عددش را می‌دهد، شتر دوم ۱ سکه و بقیه ۱ سکه جریمه دارند.'}</span>
+          </p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="cu__track" aria-label="مسیر مسابقه">
         {Array.from({ length: TRACK }, (_, i) => i + 1).map((sp) => {
@@ -135,11 +175,12 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
           const tile = view.desert.findIndex((d) => d?.space === sp);
           const can = !!placing && !!desert?.spaces.includes(sp) && !busy;
           const [col, row] = cell(sp);
-          const cls = ['cu-sp', can ? 'cu-sp--can' : '', sp === TRACK ? 'cu-sp--last' : '', sp === 1 ? 'cu-sp--first' : ''].join(' ');
+          const legal = myTurn && !queued && !placing && !!desert?.spaces.includes(sp);
+          const cls = ['cu-sp', can ? 'cu-sp--can' : '', legal ? 'cu-sp--legal' : '', sp === TRACK ? 'cu-sp--last' : '', sp === 1 ? 'cu-sp--first' : ''].join(' ');
           const inner = (
             <>
               <small className="cu-sp__n">{fa(sp)}</small>
-              {tile >= 0 && <span data-flip={`tile-${tile}`} data-flip-from={`seat-${tile}`} data-flip-exit={`seat-${tile}`} className={`cu-tile ${view.desert[tile]!.oasis ? 'cu-tile--oasis' : 'cu-tile--mirage'}`} title={who(tile)}>{view.desert[tile]!.oasis ? '+۱' : '−۱'}</span>}
+              {tile >= 0 && <span data-flip={`tile-${tile}`} data-flip-from={`seat-${tile}`} data-flip-exit={`seat-${tile}`} className={`cu-tile ${view.desert[tile]!.oasis ? 'cu-tile--oasis' : 'cu-tile--mirage'}`} title={who(tile)}><img src={view.desert[tile]!.oasis ? oasisArt : mirageArt} alt={view.desert[tile]!.oasis ? 'واحه +۱' : 'سراب −۱'} draggable={false} /></span>}
               <span className="cu-stack" style={{ ['--n' as string]: stack.length }}>{stack.slice().reverse().map((c) => <CamelIcon key={c} c={c} walk />)}</span>
             </>
           );
@@ -149,9 +190,8 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
             : <div key={sp} data-sp={sp} className={cls} style={style}>{inner}</div>;
         })}
         <div className="cu-centre">
-          <img src={pyramid} alt="" className="cu-centre__pyr" draggable={false} />
           <div className="cu-centre__dice" aria-label={`تاس‌های مانده در هرم: ${fa(view.diceLeft)}`}>
-            {CAMELS.map((c) => { const fresh = freshRoll && last?.camel === c; return <Die key={fresh ? `${c}-${view.seq}` : c} c={c} v={rolled.get(c)} roll={fresh} />; })}
+            {CAMELS.filter((c) => rolled.has(c)).map((c) => { const fresh = freshRoll && last?.camel === c; return <Die key={fresh ? `${c}-${view.seq}` : c} c={c} v={rolled.get(c)} roll={fresh} />; })}
             {rollPending && <Die c={null} />}
           </div>
           {lastRoll && !rollPending && (
@@ -159,49 +199,95 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
               {last?.kind === 'roll' ? <bdi>{who(last.seat)}</bdi> : 'آخرین تاس'} <CamelIcon c={lastRoll.camel} size={1.2} /> <b>{fa(lastRoll.value)}</b>
             </p>
           )}
-          <small className="cu-centre__leg">مرحلهٔ {fa(view.leg)}</small>
+          {!framed && <small className="cu-centre__leg">مرحلهٔ {fa(view.leg)}</small>}
+          {myTurn && <span className="cu-centre__left">تاس در هرم {fa(view.diceLeft)}</span>}
         </div>
       </section>
 
-      {!view.outcome && (
-        <section className="cu__bets" aria-label="شرط مرحله">
-          {CAMELS.map((c) => {
-            const v = view.legTiles[c][0];
-            const left = view.legTiles[c].length;
-            return (
-              <button key={c} type="button" data-flip-anchor={`leg-${c}`} className={['cu-legtile', `cu-c--${c}`, hint?.type === 'leg' && hint.camel === c ? 'cu-hint' : ''].join(' ')} style={{ ['--left' as string]: left }}
-                disabled={!legs.has(c) || busy} onClick={() => onAction({ type: 'leg', camel: c })} aria-label={`شرط مرحله روی ${CAMEL_FA[c]}${v ? `، ${fa(v)} سکه` : '، تمام شده'}`}>
-                <CamelIcon c={c} size={1.9} /><b>{v ? fa(v) : '—'}</b>
-              </button>
-            );
-          })}
-        </section>
-      )}
-
-      {myTurn && (
-        <div className="cu__actions">
-          <DockSlot><Button size="sm" disabled={busy} className={['cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم (+۱ سکه)</Button></DockSlot>
-          {desert && <Button size="sm" variant="secondary" className={placing === 'oasis' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'oasis' ? null : 'oasis')}>واحه +۱</Button>}
-          {desert && <Button size="sm" variant="secondary" className={placing === 'mirage' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'mirage' ? null : 'mirage')}>سراب −۱</Button>}
-        </div>
-      )}
-
-      {myTurn && overall && (
-        <section className="cu__overall" aria-label="شرط نهایی">
-          <h3>شرط مخفی نهایی <small>برنده {fa(view.winnerCount)} · بازنده {fa(view.loserCount)}</small></h3>
-          <div className="cu__ovlist">
-            {overall.cards.filter((c) => !(q?.type === 'overall' && q.camel === c)).map((c) => (
-              <span key={c} className={`cu-ov cu-c--${c}`}>
-                <CamelIcon c={c} size={1.5} />
-                <button type="button" className={hint?.type === 'overall' && hint.camel === c && hint.which === 'win' ? 'cu-hint' : ''} disabled={busy} onClick={() => onAction({ type: 'overall', camel: c, which: 'win' })}>برنده</button>
-                <button type="button" disabled={busy} onClick={() => onAction({ type: 'overall', camel: c, which: 'lose' })}>بازنده</button>
-              </span>
-            ))}
+      {(() => {
+        // One action bar (design §1/§3): leg bet | desert tile | pyramid die | final bet; in the frame it is the dock row.
+        // The final bet picks «برنده»/«بازنده» first, then one of your camel cards (§4).
+        const ovOpen = myTurn && overall ? (ovWhich ?? (hint?.type === 'overall' ? (hint.which as 'win' | 'lose') : null)) : null;
+        const bar = (
+          <div className={framed ? 'cu__bar cu__bar--framed' : 'cu__bar'} data-open={phoneOpen ?? undefined} role="group" aria-label="کارهای نوبت">
+            {!view.outcome && (
+              <section className="cu__bets cu__grp" aria-label="شرط مرحله">
+                <h3 className="cu__cap">شرط مرحله</h3>
+                <div className="cu__grpbody">
+                  {CAMELS.map((c) => {
+                    const v = view.legTiles[c][0];
+                    const left = view.legTiles[c].length;
+                    return (
+                      <button key={c} type="button" data-flip-anchor={`leg-${c}`} className={['cu-legtile', `cu-c--${c}`, hint?.type === 'leg' && hint.camel === c ? 'cu-hint' : ''].join(' ')} style={{ ['--left' as string]: left }}
+                        disabled={!legs.has(c) || busy} onClick={() => onAction({ type: 'leg', camel: c })} aria-label={`شرط مرحله روی ${CAMEL_FA[c]}${v ? `، ${fa(v)} سکه` : '، تمام شده'}`}>
+                        <span className="cu-legtile__face">
+                          {v && BET_ART[`${c}-${v}`] ? <img src={BET_ART[`${c}-${v}`]} alt="" className="cu-legtile__art" draggable={false} /> : <><CamelIcon c={c} size={1.5} /><b>{v ? fa(v) : '—'}</b></>}
+                        </span>
+                        <small className="cu-legtile__left">{fa(left)} مانده</small>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+            {myTurn && framed && (
+              <div className="cu__phonebtns">
+                <Button size="sm" variant="secondary" aria-expanded={phoneOpen === 'desert'} disabled={!desert} className={phoneOpen === 'desert' ? 'cu-on' : ''} onClick={() => togglePhone('desert')}><img src={oasisArt} alt="" className="cu-pyramid" draggable={false} />کاشی</Button>
+                <Button size="sm" variant="secondary" disabled={busy} aria-label="تاس از هرم (+۱ سکه)" onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم</Button>
+                <Button size="sm" variant="secondary" aria-expanded={phoneOpen === 'final'} disabled={!overall} className={phoneOpen === 'final' ? 'cu-on' : ''} onClick={() => togglePhone('final')}><CamelIcon c={order[0] ?? 'green'} size={1.3} />شرط نهایی</Button>
+              </div>
+            )}
+            {myTurn && (
+              <>
+                <section className="cu__actions cu__grp" aria-label="کاشی بیابان">
+                  <h3 className="cu__cap">کاشی بیابان</h3>
+                  <div className="cu__grpbody">
+                    {desert && <Button size="sm" variant="secondary" aria-pressed={placing === 'oasis'} className={placing === 'oasis' ? 'cu-tilebtn cu-on' : 'cu-tilebtn'} onClick={() => setPlacing(placing === 'oasis' ? null : 'oasis')}><img src={oasisArt} alt="" className="cu-pyramid" draggable={false} />واحه +۱</Button>}
+                    {desert && <Button size="sm" variant="secondary" aria-pressed={placing === 'mirage'} className={placing === 'mirage' ? 'cu-tilebtn cu-on' : 'cu-tilebtn'} onClick={() => setPlacing(placing === 'mirage' ? null : 'mirage')}><img src={mirageArt} alt="" className="cu-pyramid" draggable={false} />سراب −۱</Button>}
+                    {!desert && <small>کاشی شما روی مسیر است</small>}
+                  </div>
+                </section>
+                <section className="cu__grp cu__rollgrp" aria-label="تاس از هرم">
+                  <h3 className="cu__cap">تاس از هرم <small>{fa(view.diceLeft)} مانده</small></h3>
+                  <div className="cu__grpbody">
+                    <Button size="sm" variant="secondary" disabled={busy} aria-label="تاس از هرم (+۱ سکه)" className={['cu-tilebtn', 'cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />+۱ سکه</Button>
+                  </div>
+                </section>
+                {overall && (
+                  <section className="cu__overall cu__grp" aria-label="شرط نهایی">
+                    <h3 className="cu__cap">شرط نهایی</h3>
+                    <div className="cu__grpbody">
+                      <Button size="sm" variant="secondary" icon="crown" aria-pressed={ovOpen === 'win'} className={ovOpen === 'win' ? 'cu-tilebtn cu-on' : 'cu-tilebtn'} disabled={busy} onClick={() => setOvWhich(ovOpen === 'win' ? null : 'win')}>برنده</Button>
+                      <Button size="sm" variant="secondary" aria-pressed={ovOpen === 'lose'} className={ovOpen === 'lose' ? 'cu-tilebtn cu-on' : 'cu-tilebtn'} disabled={busy} onClick={() => setOvWhich(ovOpen === 'lose' ? null : 'lose')}>بازنده</Button>
+                    </div>
+                  </section>
+                )}
+              </>
+            )}
           </div>
-        </section>
-      )}
+        );
+        const pick = ovOpen && overall ? (
+              <section className="cu__ovpick" aria-label={`کارت شتر برای شرط ${ovOpen === 'win' ? 'برنده' : 'بازنده'}`}>
+                <p className="cu__cap">کارت شتر را برای شرط {ovOpen === 'win' ? 'برندهٔ' : 'بازندهٔ'} نهایی انتخاب کنید <small>برنده {fa(view.winnerCount)} مانده، بازنده {fa(view.loserCount)} مانده</small></p>
+                <div className="cu__ovlist">
+                  {CAMELS.map((c) => {
+                    const ok = overall.cards.includes(c) && !(q?.type === 'overall' && q.camel === c);
+                    return (
+                      <span key={c} className={`cu-ov cu-c--${c}`}>
+                        <button type="button" className={hint?.type === 'overall' && hint.camel === c && hint.which === ovOpen ? 'cu-hint' : ''} disabled={busy || !ok}
+                          onClick={() => { setOvWhich(null); onAction({ type: 'overall', camel: c, which: ovOpen }); }} aria-label={`شتر ${CAMEL_FA[c]}${ok ? '' : '، کارت مصرف شده'}`}>
+                          <CamelIcon c={c} size={1.8} />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              </section>
+        ) : null;
+        return framed ? (myTurn || !view.outcome ? <DockSlot>{bar}{pick}</DockSlot> : null) : <>{bar}{pick}</>;
+      })()}
 
-      <ul className="cu__players" aria-label="تماشاگران">
+      {!framed && <ul className="cu__players" aria-label="تماشاگران">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['cu-pl', view.current === s && !view.outcome ? 'cu-pl--turn' : '', s === me ? 'cu-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'cu-pl--win' : ''].join(' ')}>
             <bdi className="cu-pl__name">{who(s)}</bdi>
@@ -212,9 +298,9 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
             </span>
           </li>
         ))}
-      </ul>
+      </ul>}
       {view.myOverall.length > 0 && !view.outcome && <p className="cu__mine">شرط‌های نهایی شما: {view.myOverall.map((b) => `${CAMEL_FA[b.camel]} (${b.which === 'win' ? 'برنده' : 'بازنده'})`).join('، ')}</p>}
-      {view.log.length > 0 && <p className="cu__log">آخرین مرحله: {view.log.at(-1)!.gains.map((g, k) => `${who(k)} ${g >= 0 ? '+' : '−'}${fa(Math.abs(g))}`).join('، ')}</p>}
+      {!framed && view.log.length > 0 && <p className="cu__log">آخرین مرحله: {view.log.at(-1)!.gains.map((g, k) => <span key={k}>{k > 0 && '، '}<bdi>{who(k)}</bdi> {g >= 0 ? '+' : '−'}{fa(Math.abs(g))}</span>)}</p>}
     </div>
   );
 }

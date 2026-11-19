@@ -3,14 +3,14 @@
    see DECISIONS.md). */
 .bs { --paper: #efe2c2; --paper-ink: #6b4a22; --sea-1: #1d5d82; --sea-2: #0d3550; --steel: #9aa7b2; --steel-d: #4f5a66;
   --flame: #ff7a2a; display: grid; gap: 0.6rem; inline-size: 100%; color: #eef3f6; text-align: center; }
-.bs > :first-child { justify-self: center; }
 
 .bs-report { margin: 0; justify-self: center; padding: 0.3rem 0.9rem; border-radius: 999px; font-size: 0.85rem; font-weight: 800; background: rgb(255 255 255 / 0.08);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15); animation: bs-rise 0.35s ease-out both; }
 .bs-report.is-hit { background: color-mix(in srgb, var(--flame) 30%, transparent); box-shadow: inset 0 0 0 1px var(--flame); }
 .bs-report.is-sunk { background: #b8322a; box-shadow: 0 0 18px -4px #ff5a3a; animation: bs-rise 0.35s ease-out both, bs-shake 0.5s 0.1s ease-in-out; }
 
-.bs-seas { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); align-items: start; }
+.bs-seas { margin-inline: auto; inline-size: 100%; max-inline-size: 64rem; display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); align-items: start; }
+.bs-seas > :only-child { max-inline-size: 30rem; justify-self: center; inline-size: 100%; }
 .bs-chart { display: grid; gap: 0.35rem; }
 .bs-chart__head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; padding-inline: 0.2rem; }
 .bs-chart__head b { font-size: 0.95rem; }
@@ -18,28 +18,13 @@
 .bs-chart--enemy .bs-chart__head b { color: #ffd6b0; }
 
 /* The chart: parchment border with coordinates, a hairline inner rule, compass-rose corner. */
-.bs-chart__frame { display: grid; grid-template-columns: 1.4rem repeat(10, minmax(0, 1fr)); grid-template-rows: 1.3rem repeat(10, auto);
-  padding: 0.35rem 0.45rem 0.45rem; border-radius: 10px; color: var(--paper-ink);
-  background: radial-gradient(120% 90% at 30% 20%, #f6ecd2, var(--paper) 60%, #d9c79c);
-  box-shadow: inset 0 0 0 1.5px #b89a62, inset 0 0 0 4px var(--paper), inset 0 0 0 5px #b89a62, inset 0 0 26px rgb(120 80 30 / 0.35), 0 16px 30px -18px #000; }
-.bs-corner { grid-row: 1; grid-column: 1; background: radial-gradient(circle, #b8322a 0 2px, transparent 3px), conic-gradient(from 45deg, var(--paper-ink) 0 25%, transparent 0 50%, var(--paper-ink) 0 75%, transparent 0) center / 70% 70% no-repeat; border-radius: 50%; opacity: 0.7; }
-.bs-coord { display: grid; place-items: center; font-size: 0.62rem; font-weight: 800; font-family: var(--type-display, inherit); }
-.bs-coord--col { grid-row: 1; }
-.bs-coord--row { grid-column: 1; }
-.bs-sea { position: relative; aspect-ratio: 1; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1.5px var(--paper-ink); }
+.bs-chart__frame { position: relative; aspect-ratio: 532 / 527; background-size: 100% 100%; }
+.bs-sea { position: absolute; inset-block: 5.7% 2.6%; inset-inline: 6.6% 2.6%; }
 .bs-sea__art { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
-.bs-sea { background: radial-gradient(120% 120% at 30% 25%, var(--sea-1), var(--sea-2)); }
 .bs-grid { stroke: rgb(220 240 250 / 0.22); stroke-width: 0.25; }
 
-.bs-hull__body { fill: var(--steel); stroke: #26303a; stroke-width: 0.35; }
-.bs-hull__deck { stroke: var(--steel-d); stroke-width: 0.8; stroke-linecap: round; }
-.bs-hull__gun { fill: var(--steel-d); stroke: #1c242c; stroke-width: 0.3; }
-.bs-hull__barrel { stroke: #1c242c; stroke-width: 0.7; stroke-linecap: round; }
-.bs-hull__tower { fill: #c9d3db; stroke: #26303a; stroke-width: 0.3; }
 .bs-hull { animation: bs-launch 0.4s ease-out both; }
-.bs-hull.is-sunk { opacity: 0.75; filter: grayscale(0.6) brightness(0.55); }
-.bs-hull.is-sunk .bs-hull__body { fill: #5a4a46; }
-
+.bs-hull.is-sunk { filter: saturate(0.6) brightness(0.85); }
 .bs-fx { transform-box: fill-box; transform-origin: center; animation: bs-burst 0.45s cubic-bezier(.3,1.6,.5,1) both; pointer-events: none; }
 .bs-fx--hit { filter: drop-shadow(0 0 0.6px rgb(255 122 42 / 0.8)); }
 .bs-ghost { fill: rgb(126 231 160 / 0.35); stroke: #7ee7a0; stroke-width: 0.5; }
@@ -59,6 +44,7 @@ button.bs-cell:hover, button.bs-cell:focus-visible { background: rgb(255 210 122
 .bs-tray__ship.is-on { box-shadow: inset 0 0 0 2px #ffd27a, 0 0 12px -4px #ffd27a; }
 .bs-tray__ship.is-placed:not(.is-on) { opacity: 0.6; }
 .bs-tray__ship small { font-size: 0.68rem; }
+.bs-tray__art { block-size: auto; max-block-size: 2.2rem; object-fit: contain; display: block; }
 .bs-tray__len { display: flex; gap: 2px; }
 .bs-tray__len i { inline-size: 0.8rem; block-size: 0.55rem; border-radius: 2px; background: var(--steel); box-shadow: inset 0 -1.5px 0 var(--steel-d); }
 .bs-tray__len i:last-child { border-start-end-radius: 6px; border-end-end-radius: 6px; }
@@ -94,3 +80,29 @@ button.bs-cell:hover, button.bs-cell:focus-visible { background: rgb(255 210 122
 @keyframes bs-flash { 25% { opacity: 1; } }
 @keyframes bs-flash2 { 25% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .bs-shell.is-spent { display: none; } }
+
+/* Shared frame (QA round 2): the charts fit the stage height (desktop stage is a size container; on phones cqb falls back
+   to the viewport and the width wins), so the fleet tray and the fleets row stay inside the felt. The header sits
+   right above its own chart: title, then the afloat count beside it. */
+.bs-chart { inline-size: 100%; max-inline-size: var(--bs-w, none); justify-self: center; }
+.bs-chart__head { justify-content: flex-start; }
+.bs[data-phase="place"] .bs-chart { --bs-w: max(16rem, calc(100cqb - 11rem)); }
+.bs[data-phase="fire"] .bs-seas { align-items: center; }
+.bs[data-phase="fire"] .bs-chart--enemy { --bs-w: max(16rem, calc(100cqb - 9rem)); }
+.bs[data-phase="fire"] .bs-chart--mine { --bs-w: max(12rem, calc((100cqb - 9rem) * 0.6)); }
+@media (min-width: 900px) {
+  .bs[data-phase="fire"] .bs-seas { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+}
+/* Round 3: one row of five ships under the chart (the buttons are in the dock). */
+.bs-tray__ships { flex-wrap: nowrap; overflow-x: auto; justify-content: safe center; scrollbar-width: none; }
+.bs-tray__ship { flex: none; min-block-size: 44px; padding: 0.3rem 0.45rem; }
+.bs-tray__bar { align-items: center; }
+.bs[data-phase="place"] .bs-chart { --bs-w: max(15rem, calc(100cqb - 8.5rem)); }
+/* The phone page scrolls: charts take the full width, no height-derived cap. */
+@media (max-width: 899px) {
+  .bs[data-phase="place"] .bs-chart, .bs[data-phase="fire"] .bs-chart--enemy, .bs[data-phase="fire"] .bs-chart--mine { --bs-w: none; }
+}
+
+/* QA round 6: the placement buttons wrap inside the felt on phones. */
+.bs-tray__bar { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); max-inline-size: 100%; min-inline-size: 0; }
+@media (max-width: 899px) { .bs-tray__ships { flex-wrap: wrap; overflow: visible; justify-content: center; } .bs-tray { padding-block-end: var(--space-3); } } /* all five ships stay reachable on phones */

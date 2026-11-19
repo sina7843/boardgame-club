@@ -78,7 +78,7 @@ describe('chess games', () => {
     expect(rec).toMatchObject({ extension: 'pgn' });
     expect(rec!.text).toBe([
       '[Event "جام \\"ملی\\""]', '[Site "boardgameverse.ir"]', '[Date "2026.10.21"]', '[Round "3"]', '[White "علی"]', '[Black "Sara"]', '[Result "0-1"]',
-      '[TimeControl "600+5"]', '[Termination "normal"]', '', '1. f3 e5 2. g4 Qh4# 0-1', ''
+      '[TimeControl "600+5"]', '[Termination "Sara won by checkmate"]', '', '1. f3 e5 2. g4 Qh4# 0-1', ''
     ].join('\n'));
     expect(chessModule.exportRecord!(st(game()), { event: 'x', site: 'x', date: 'x', round: null, players: [], timeControl: null })).toBeNull(); // no moves yet
   });
@@ -107,7 +107,7 @@ describe('chess games', () => {
     expect(st(play(game('4k3/8/8/8/8/8/8/R3K3 w - - 99 80'), 'a1a2')).end).toEqual({ kind: 'draw', draw: 'fiftyMove' });
     let offer = applyAction(m, game(), p(0), { type: 'move', from: 'e2', to: 'e4', offerDraw: true }, 0) as StepResult;
     expect(st(offer.snapshot).drawOffer).toBe(0);
-    expect(reject(offer.snapshot, 0, { type: 'acceptDraw' })).toBe('NOT_YOUR_TURN');
+    expect(reject(offer.snapshot, 0, { type: 'acceptDraw' })).toBe('NO_DRAW_OFFER'); // D7: offers any time; only the other side may accept
     offer = applyAction(m, offer.snapshot, p(1), { type: 'acceptDraw' }, 0) as StepResult;
     expect(st(offer.snapshot).end).toEqual({ kind: 'draw', draw: 'agreement' });
     // An offer lapses when the receiver moves instead.
@@ -241,6 +241,6 @@ describe('chess table rules: draw offers, FIDE claims, Armageddon', () => {
     const s = move(s0, 'e1d1'); // king and knight against king: insufficient material
     expect(st(s).end).toEqual({ kind: 'draw', draw: 'material' });
     expect(st(s).outcome).toEqual({ reason: 'win', placements: [{ seat: 1, place: 1 }, { seat: 0, place: 2 }] });
-    expect(chessModule.exportRecord!(st(s), { event: 'e', site: 's', date: 'd', round: null, players: ['a', 'b'], timeControl: null })!.text).toContain('[Result "0-1"]');
+    expect(chessModule.exportRecord!(st(s), { event: 'e', site: 's', date: 'd', round: null, players: ['a', 'b'], timeControl: null })!.text).toContain('[Result "1/2-1/2"]'); // N4: the record stays a draw; the table result is Black's win
   });
 });

@@ -5,7 +5,7 @@
    #0f7f86 (girih), pomegranate #9b1c31 (title), saffron #e2a53b (selection / turn). Ownership is a coloured ribbon plus
    the owner's name in every label and deed — never colour alone. */
 .am { --am-ink: #1f1a14; --am-turq: #0f7f86; --am-anar: #9b1c31; --am-saffron: #e2a53b; --am-paper: #fffaf0;
-  display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
+  display: grid; gap: var(--sp-4); min-inline-size: 0; inline-size: 100%; container-type: inline-size; }
 .am-main { display: grid; gap: var(--sp-4); }
 @container (min-width: 900px) { .am-main { grid-template-columns: minmax(0, 660px) minmax(280px, 1fr); align-items: start; } }
 .am-boardcol { display: grid; gap: var(--sp-3); min-inline-size: 0; }
@@ -44,7 +44,7 @@
 
 /* squares */
 .amb-sq { cursor: pointer; }
-.amb-sq__bg { fill: transparent; stroke: var(--am-ink); stroke-width: 2; transition: fill var(--dur, 160ms) var(--ease, ease); }
+.amb-sq__bg { fill: transparent; stroke: transparent; stroke-width: 2; transition: fill var(--dur, 160ms) var(--ease, ease); }
 .amb-sq:hover .amb-sq__bg, .amb-sq:focus-visible .amb-sq__bg { fill: rgb(226 165 59 / 0.18); }
 .amb-sq:focus-visible { outline: none; }
 .amb-sq:focus-visible .amb-sq__bg, .amb-sq--sel .amb-sq__bg { fill: rgb(226 165 59 / 0.28); stroke: var(--am-saffron); stroke-width: 6; }
@@ -78,7 +78,11 @@
 @keyframes amb-bob { 50% { translate: 0 -4px; } }
 
 /* ---------- panels ---------- */
-.am-panel { display: grid; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--surface-2); }
+.am-panel { display: grid; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+/* the roll button is portalled into the dock: don't leave an empty framed panel behind */
+.am-panel--decide:not(:has(h3, p, label, article, button)) { display: none; }
+
+
 .am-panel h3 { margin: 0; font-size: var(--fs-md); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .am-panel p { margin: 0; }
 .am-panel summary { cursor: pointer; font-weight: 800; min-block-size: var(--touch, 44px); display: flex; align-items: center; }
@@ -164,6 +168,8 @@
 .am-tradeside legend { font-weight: 800; padding: 0 4px; }
 .am-check { display: flex; align-items: center; gap: var(--sp-2); min-block-size: 36px; font-size: var(--fs-sm); }
 .am-check input { inline-size: 18px; block-size: 18px; }
+@media (pointer: coarse) { .am-check { min-block-size: 44px; } }
+.am--framed > .am-extras { margin-block-start: var(--space-3); }
 .am-rents { margin: 0; padding-inline-start: var(--sp-4); display: grid; gap: 2px; font-size: var(--fs-sm); }
 .am-log summary { cursor: pointer; font-weight: 700; min-block-size: var(--touch, 44px); display: flex; align-items: center; }
 .am-log ol { margin: 0; padding-inline-start: var(--sp-5); color: var(--text-2); display: grid; gap: 2px; font-size: var(--fs-sm); list-style-type: persian; }
@@ -181,3 +187,50 @@
 }
 
 .am-wallet__cash b { display: inline-block; }
+
+/* ---------- shared frame (design/games/group-b Amlak §1, §3) ----------
+   Board fits the stage height (ZoomBoard cap); the deed of the square sits beside it; the turn card and your deed fan
+   render in the dock row (DockSlot); «دارایی شما», management and trade go into the rail on desktop. */
+.am--framed { gap: 0; }
+.am--framed .am-main { grid-template-columns: minmax(0, 1fr); align-items: center; }
+@container (min-width: 560px) {
+  .am--framed .am-main:has(.am-side > *) { grid-template-columns: minmax(0, 1fr) minmax(150px, 210px); }
+}
+.am--framed .am-side .am-deed { max-inline-size: 210px; }
+.am-sidedeed { margin: 0; display: grid; gap: var(--space-2); justify-items: center; }
+.am-sidedeed figcaption { font-size: 13px; font-weight: 700; color: var(--felt-ink); text-align: center; }
+
+.am-assets { display: grid; gap: var(--space-2); }
+.am-assets h3 { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); font-size: 15px; color: var(--heading); }
+.am-assets__note { margin-inline-start: auto; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.am-pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.am-tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.am-tip > .bgv-icon, .am-tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+
+.am-turn { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3);
+  inline-size: min(100%, 700px); padding: var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt);
+  color: var(--felt-ink); box-sizing: border-box; border: 0; animation: none; }
+.am-turn__text { display: grid; gap: 2px; min-inline-size: 0; }
+.am-turn__text b { font-size: 15px; color: var(--felt-ink); }
+.am-turn__text small { font-size: 13px; color: var(--felt-muted); }
+.am-turn .am-rents, .am-turn .am-field, .am-turn .am-help { color: var(--felt-ink); }
+.am-turn .am-row { align-items: end; }
+.am-extras { display: grid; gap: var(--space-2); inline-size: 100%; }
+.am-extras:empty { display: none; }
+
+.am-fan { display: flex; justify-content: center; inline-size: 100%; block-size: 92px; overflow: hidden; padding-block-start: var(--space-2); box-sizing: border-box; }
+.am-fan__card { flex: 0 0 128px; margin-inline-start: -36px; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 12px; transition: translate var(--dur-fast, 120ms) var(--ease-out, ease); }
+.am-fan__card:first-child { margin-inline-start: 0; }
+.am-fan__card:nth-child(odd) { rotate: -3deg; }
+.am-fan__card:nth-child(even) { rotate: 2deg; }
+.am-fan__card[aria-pressed="true"] { translate: 0 calc(-1 * var(--space-2)); }
+@media (hover: hover) { .am-fan__card:hover { translate: 0 calc(-1 * var(--space-2)); } }
+.am-fan__card:focus-visible { outline: 2px solid var(--focus-on-felt); outline-offset: 2px; }
+.am-fan__card .am-deed { max-inline-size: none; font-size: 11px; }
+.am-fan__card .am-deed__name { font-size: 0.95rem; }
+@media (prefers-reduced-motion: reduce) { .am-fan__card { transition: none; } }
+.am-assets h3 { font-weight: 800; }
+/* Phones: the deed fan's full width used to stretch the whole table past the screen. It now takes the row's width and scrolls. */
+@media (max-width: 899px) {
+  .am-fan { inline-size: 0; min-inline-size: 100%; justify-content: safe center; overflow-x: auto; overflow-y: hidden; }
+}

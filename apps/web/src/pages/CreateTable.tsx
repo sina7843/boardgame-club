@@ -122,7 +122,7 @@ export function CreateTable() {
                 <div className="pg-stack">
                   <div className="bgv-row"><span className="bgv-label" style={{ flex: 1 }}>صندلی‌ها</span>
                     {counts.length > 1 && (counts.length <= 6
-                      ? <Segmented label="تعداد بازیکن" value={String(capacity)} onChange={(v) => { setCapacity(Number(v)); setInvite(invite.slice(0, Number(v) - 1)); }} options={counts.map((n) => ({ value: String(n), label: `${faNum(n)} نفر` }))} />
+                      ? <div className="bgv-scroll-x"><Segmented label="تعداد بازیکن" value={String(capacity)} onChange={(v) => { setCapacity(Number(v)); setInvite(invite.slice(0, Number(v) - 1)); }} options={counts.map((n) => ({ value: String(n), label: `${faNum(n)} نفر` }))} /></div>
                       : <Select aria-label="تعداد بازیکن" value={String(capacity)} onChange={(e) => setCapacity(Number(e.target.value))} options={counts.map((n) => ({ value: String(n), label: `${faNum(n)} نفر` }))} />)}</div>
                   <ul className="pg-seats">
                     {me && <li><Identity {...userIdentity(me, { size: 'md', you: true, sub: 'میزبان' })} /></li>}

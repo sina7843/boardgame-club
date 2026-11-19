@@ -7,19 +7,20 @@ import { userIdentity } from '../lib/bgv.tsx';
 import { AVATAR_FA, faNum, jalaliDate } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { ProfileEditor } from './ProfileEditor.tsx';
 import { InviteCard } from '../social/InviteCard.tsx';
 import { ProfilePage } from './People.tsx';
 
 /** Copies the public profile URL; if the clipboard is blocked, the toast shows the link so it can be copied by hand. */
-export function CopyProfileLink({ userId, size = 'md' }: { userId: string; size?: 'sm' | 'md' }) {
+export function CopyProfileLink({ userId, size = 'md', iconOnly = false }: { userId: string; size?: 'sm' | 'md'; iconOnly?: boolean }) {
   const toast = useToast();
   const copy = async () => {
     const url = `${location.origin}/users/${userId}`;
     try { await navigator.clipboard.writeText(url); toast('success', 'لینک پروفایل کپی شد.'); }
     catch { toast('error', `کپی ممکن نشد؛ این لینک را دستی کپی کنید: ${url}`); }
   };
-  return <Button variant="secondary" size={size} icon="link" onClick={copy}>کپی لینک پروفایل</Button>;
+  return iconOnly
+    ? <Button variant="secondary" size={size} iconOnly icon="share-2" onClick={copy}>اشتراک‌گذاری پروفایل</Button>
+    : <Button variant="secondary" size={size} icon="link" onClick={copy}>کپی لینک پروفایل</Button>;
 }
 
 function ProfileForm({ me }: { me: Me }) {
@@ -106,7 +107,7 @@ function OwnExtras({ me }: { me: Me }) {
   );
 }
 
-/** My profile (Profile-Own-Desktop): the public profile as others see it, plus completeness and shortcuts; editing below. */
+/** My profile (Profile-Own-Desktop): the public profile as others see it, plus completeness and shortcuts; customisation is in Studio. */
 export function MyProfile() {
   usePageTitle('پروفایل من');
   const { me, status } = useSession();
@@ -115,11 +116,10 @@ export function MyProfile() {
   return (
     <>
       <ProfilePage userId={me.id} own extra={<OwnExtras me={me} />} />
-      <section id="profile-edit" className="bgv-stack" aria-labelledby="edit-h">
-        <h2 id="edit-h" className="pf-h2">ویرایش پروفایل</h2>
+      {/* Customisation lives in Studio; only the display name and the invite link stay here. */}
+      <section id="profile-edit" className="bgv-stack" aria-label="حساب و دعوت">
         <Card title="نام و آواتار" aria-label="نام و آواتار"><ProfileForm me={me} /></Card>
         <InviteCard />
-        <ProfileEditor me={me} />
       </section>
     </>
   );

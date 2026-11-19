@@ -7,7 +7,7 @@ import { z } from 'zod';
 import type { Actor, EngineRng, GameModule, Outcome, Transition } from '@bg/game-sdk';
 import { risk } from './definition.ts';
 import {
-  ADJ, CARD_COUNT, CONTINENTS, CONTINENT_OF, MAJORITY, STARTING_ARMIES, T, TERRITORY_IDS, cardTerritory, isSet, setValue,
+  ADJ, CARD_COUNT, TERRITORY_FA, CONTINENTS, CONTINENT_OF, MAJORITY, STARTING_ARMIES, T, TERRITORY_IDS, cardTerritory, isSet, setValue,
   type ContinentId, type TerritoryId
 } from './board.ts';
 
@@ -652,7 +652,25 @@ export const riskModule: GameModule<RiskState, RiskAction, RiskView> = {
     s.owner.forEach((o, t) => { if (o >= 0 && o < s.players) { terr[o]! += 1; troops[o]! += s.armies[t]!; } });
     const top = Math.max(...terr);
     const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    const fa = (n: number) => n.toLocaleString('fa-IR');
+    const tn = (t: number) => TERRITORY_FA[TERRITORY_IDS[t]!];
     return {
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        switch (e.t) {
+          case 'setup': return [{ seat: e.seat, text: `${fa(e.armies)} ارتش آغازین` }];
+          case 'turn': return [{ seat: e.seat, text: `نوبت ${fa(e.turn)}، ${fa(e.income)} ارتش کمکی` }];
+          case 'trade': return [{ seat: e.seat, text: `معاوضه کارت، ${fa(e.value)} ارتش` }];
+          case 'place': return [{ seat: e.seat, text: `${fa(e.armies)} ارتش چید` }];
+          case 'battle': return [{ seat: e.seat, text: `${tn(e.from)} به ${tn(e.to)}${e.conquered ? '، فتح' : ''}` }];
+          case 'occupy': return [{ seat: e.seat, text: `${fa(e.armies)} ارتش به ${tn(e.to)}` }];
+          case 'eliminate': return [{ seat: e.by, text: 'بازیکنی را حذف کرد' }];
+          case 'fortify': return [{ seat: e.seat, text: `${tn(e.from)} به ${tn(e.to)}` }];
+          case 'timeout': return [{ seat: e.seat, text: 'زمانش تمام شد' }];
+          case 'left': return [{ seat: e.seat, text: 'کنار رفت' }];
+          case 'win': return [{ seat: e.seat, text: 'برد' }];
+          default: return [];
+        }
+      }).slice(-40),
       seats: Array.from({ length: s.players }, (_, seat) => ({
         seat,
         primary: { label: 'قلمرو', value: terr[seat]! },

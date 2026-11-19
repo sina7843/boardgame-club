@@ -210,6 +210,11 @@ export const onitamaModule: GameModule<OnitamaState, OnitamaAction, OnitamaView>
       ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {}),
       strikes: s.timeouts[seat]!
     })),
+    moves: s.history.slice(-40).map((h) => {
+      const sqn = (i: number) => `${'abcde'[i % 5]}${Math.floor(i / 5) + 1}`;
+      const en = cardById(h.card).nameEn;
+      return { seat: h.seat, text: h.from === null || h.to === null ? `${en} (عوض کردن)` : `${en} ${sqn(h.from)}${h.captured ? 'x' : '-'}${sqn(h.to)}` };
+    }),
     strikesMax: MAX_TIMEOUTS
   }),
 

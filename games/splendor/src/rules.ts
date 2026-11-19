@@ -311,6 +311,7 @@ export const splendorModule: GameModule<SplendorState, SplendorAction, SplendorV
         ...(s.visited[seat]!.length ? { badges: [{ key: 'nobles', label: `اشراف ${s.visited[seat]!.length}`, tone: 'premium' as const }] } : {}),
         ...(winners.has(seat) ? { status: 'winner' as const } : {})
       })),
+      moves: s.last ? [{ seat: s.last.seat, text: ({ take: 'گوهر برداشت', return: 'گوهر پس داد', reserve: 'کارت رزرو کرد', buy: 'کارت خرید', pass: 'نوبت را رد کرد' } as Record<string, string>)[s.last.kind] ?? 'حرکت کرد' }] : [],
       ...(pts.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: pts.indexOf(top) } : {})
     };
   },

@@ -184,9 +184,11 @@ export const noThanksModule: GameModule<NoThanksState, NoThanksAction, NoThanksV
     seats: s.cards.map((cs, seat) => ({
       seat,
       primary: { label: 'کارت', value: cs.length },
+      stats: [{ key: 'pts', label: 'امتیاز کارت‌ها', value: cardPoints(cs) }],
       ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : !s.active[seat] ? { status: 'out' as const } : {})
     })),
-    shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'pot', label: 'سکه وسط', value: s.pot }]
+    shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'pot', label: 'سکه وسط', value: s.pot }],
+    moves: s.log.slice(-40).map((e) => ({ seat: e.seat, text: e.t === 'take' ? `${(e.card ?? 0).toLocaleString('fa-IR')} را برداشت` : e.t === 'pass' ? 'نه، مرسی!' : e.t === 'timeout' ? 'زمانش تمام شد' : 'کنار رفت' }))
   }),
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),

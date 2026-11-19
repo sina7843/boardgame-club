@@ -2,8 +2,9 @@
 // the show in the ring belongs to its owner; your hand keeps its order. Show: tap the first and last card of a run
 // of neighbours. Scout: tap an end card of the ring's show (flip it if you like), then the gap where it goes.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { ART } from './art.ts';
 import { down, type HandCard, type ScoutView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -11,11 +12,12 @@ const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export function Act({ c, size = 'md', flipped, flip, flipFrom, exit }: { c: HandCard; size?: 'sm' | 'md'; flipped?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
   const top = flipped ? down(c) : c.up;
   const bot = flipped ? c.up : down(c);
+  const img = ART[`scout-${Math.min(top, bot)}-${Math.max(top, bot)}-up${top}`];
+  const label = `${fa(top)} (پشت: ${fa(bot)})`;
+  // Only the faces in design/games/group-c/art/scout exist as images; any other face is a plain numbered placeholder.
   return (
-    <span className={`sc-card sc-card--${size} sc-v--${top}`} aria-label={`${fa(top)} (پشت: ${fa(bot)})`} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
-      <b className="sc-card__top">{fa(top)}</b>
-      <span className="sc-card__star" aria-hidden="true">★</span>
-      <small className="sc-card__bot">{fa(bot)}</small>
+    <span className={`sc-card sc-card--${size}${img ? '' : ` sc-card--ph sc-t--${top} sc-b--${bot}`}`} aria-label={label} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
+      {img ? <img src={img} alt="" draggable={false} /> : <><b className="sc-card__top">{fa(top)}</b><small className="sc-card__bot">{fa(bot)}</small></>}
     </span>
   );
 }
@@ -23,6 +25,7 @@ export function Act({ c, size = 'md', flipped, flip, flipFrom, exit }: { c: Hand
 export default function ScoutRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<ScoutView>) {
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
+  const framed = useInFrame() !== null;
   const isQueued = !!queued;
   const busy = sending || isQueued;
   const orient = legalActions.some((a) => a.type === 'orient');
@@ -71,11 +74,17 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
   const hintRange = (i: number) => hint?.type === 'show' && !range && i >= hint.from! && i < hint.from! + hint.count!;
 
   return (
-    <div className="sc" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className="sc__round">دست {fa(view.round)} از {fa(view.rounds)}</p>
+    <div className={`sc${framed ? ' sc--framed' : ''}`} ref={root} data-seq={view.seq} data-phase={view.phase}>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>ترتیب کارت‌های دست عوض نمی‌شود. کارت دیدبانی‌شده را هر جای دست می‌گذارید و می‌توانید وارونه‌اش کنید. هر کارتی که آخر دست بماند ۱ امتیاز منفی است.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && <p className="sc__round">دست {fa(view.round)} از {fa(view.rounds)}</p>}
 
-      <ul className="sc__players" aria-label="بازیکنان">
+      {!framed && <ul className="sc__players" aria-label="بازیکنان">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : order).map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['sc-pl', view.current === s && view.phase !== 'orient' && !view.outcome ? 'sc-pl--turn' : '', s === mySeat ? 'sc-pl--me' : '', view.outcome?.placements.find((x) => x.seat === s)?.place === 1 ? 'sc-pl--win' : ''].join(' ')}>
             <bdi className="sc-pl__name">{who(s)}</bdi>
@@ -86,7 +95,7 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
             {!view.usedSS[s] && <span className="sc-pl__ss" title="دیدبانی و نمایش هنوز مانده">د+ن</span>}
           </li>
         ))}
-      </ul>
+      </ul>}
 
       {!view.outcome && (
         <section className="sc__ring" data-flip-anchor="deck" aria-label="نمایش وسط">
@@ -109,25 +118,33 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
       )}
 
       {myTurn && end && (
-        <div className="sc__bar">
+        <DockSlot><div className="sc__bar">
           <Button size="sm" variant="secondary" onClick={() => setFlip(!flip)}>برگرداندن کارت ⇅</Button>
           {scoutHint?.canShow && <label className="sc__ss"><input type="checkbox" checked={andShow} onChange={(e) => setAndShow(e.target.checked)} /> دیدبانی و نمایش</label>}
           <Button size="sm" variant="secondary" onClick={() => setEnd(null)}>لغو</Button>
-        </div>
+        </div></DockSlot>
       )}
 
       {view.hand && !view.outcome && (
         <section className="sc__me" aria-label="دست شما">
           {orient && (
             <div className="sc__orient">
-              <div className="sc__hand">{hand.map((c, i) => <Act key={i} c={c} />)}</div>
-              <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'orient' && hint.flip === false ? 'sc-hint' : ''} onClick={() => onAction({ type: 'orient', flip: false })}>همین‌طور</Button>
-              <div className="sc__hand">{hand.slice().reverse().map((c, i) => <Act key={i} c={c} flipped />)}</div>
-              <Button size="sm" disabled={busy} className={hint?.type === 'orient' && hint.flip ? 'sc-hint' : ''} onClick={() => onAction({ type: 'orient', flip: true })}>برگرداندن دست</Button>
+              {/* Both orientations as one-row fans; the two choices sit in the dock row so they stay above the own plate (QA round 2). */}
+              <div className="sc__hand" style={{ '--n': hand.length } as CSSProperties} role="group" aria-label="همین‌طور">{hand.map((c, i) => <Act key={i} c={c} />)}</div>
+              <div className="sc__hand" style={{ '--n': hand.length } as CSSProperties} role="group" aria-label="برگردانده">{hand.slice().reverse().map((c, i) => <Act key={i} c={c} flipped />)}</div>
+              {(() => {
+                const btns = (
+                  <>
+                    <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'orient' && hint.flip === false ? 'sc-hint' : ''} onClick={() => onAction({ type: 'orient', flip: false })}>همین‌طور</Button>
+                    <Button size="sm" disabled={busy} className={hint?.type === 'orient' && hint.flip ? 'sc-hint' : ''} onClick={() => onAction({ type: 'orient', flip: true })}>برگرداندن دست</Button>
+                  </>
+                );
+                return framed ? <DockSlot>{btns}</DockSlot> : <div className="sc__bar">{btns}</div>;
+              })()}
             </div>
           )}
           {!orient && (
-            <div className="sc__hand sc__hand--play" role="group" aria-label="کارت‌های دست" data-shows={showHint ? showHint.options.map((o) => `${o.from}:${o.count}`).join(' ') : undefined}>
+            <div className={`sc__hand sc__hand--play${end ? ' sc__hand--gaps' : ''}`} style={{ '--n': hand.length } as CSSProperties} role="group" aria-label="کارت‌های دست" data-shows={showHint ? showHint.options.map((o) => `${o.from}:${o.count}`).join(' ') : undefined}>
               {hand.map((c, i) => (
                 <span key={`${c.id}`} className="sc-slot">
                   {end && <button type="button" className="sc-gap" disabled={busy} onClick={() => onAction({ type: 'scout', end, flip, at: i, ...(andShow ? { andShow: true } : {}) })} aria-label={`گذاشتن قبل از کارت ${fa(i + 1)}`}>+</button>}
@@ -138,17 +155,18 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
             </div>
           )}
           {showHint && !end && !orient && (
-            <Button size="sm" disabled={!showOk || busy} className={hint?.type === 'show' && showOk ? 'sc-hint' : ''} onClick={() => sel && onAction({ type: 'show', from: sel.from, count: sel.count })}>
+            <DockSlot><Button size="sm" disabled={!showOk || busy} className={hint?.type === 'show' && showOk ? 'sc-hint' : ''} onClick={() => sel && onAction({ type: 'show', from: sel.from, count: sel.count })}>
               نمایش {sel ? fa(sel.count) : ''} کارت
-            </Button>
+            </Button></DockSlot>
           )}
         </section>
       )}
 
-      {view.roundLog.length > 0 && (
+      {!framed && view.roundLog.length > 0 && (
         <table className="sc__log"><thead><tr><th scope="col">دست</th>{view.scores.map((_, k) => <th key={k} scope="col"><bdi>{who(k)}</bdi></th>)}</tr></thead>
           <tbody>{view.roundLog.map((r, i) => <tr key={i}><th scope="row">{fa(i + 1)}</th>{r.map((v, k) => <td key={k}>{fa(v)}</td>)}</tr>)}</tbody></table>
       )}
     </div>
   );
 }
+

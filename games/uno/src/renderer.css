@@ -36,14 +36,9 @@
 
 /* Mat with the two piles; the halo and the ring show the active colour */
 .uno-table { --lgw: clamp(78px, 22vw, 108px); position: relative; display: flex; justify-content: center; align-items: center; gap: clamp(24px, 8vw, 72px);
-  padding: clamp(24px, 6vw, 44px) var(--sp-4) clamp(20px, 5vw, 36px); border-radius: var(--r-lg); isolation: isolate; overflow: hidden;
-  background:
-    radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1.4px) 0 0 / 14px 14px,
-    radial-gradient(70% 90% at 50% 45%, color-mix(in srgb, var(--halo) 22%, #2a1f5c), #1b1540 62%, #0f0b26);
-  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.08), inset 0 0 0 7px rgb(0 0 0 / 0.25), inset 0 0 0 8px rgb(255 255 255 / 0.07), inset 0 10px 40px rgb(0 0 0 / 0.5), var(--shadow);
-  --halo: #8f86c9; transition: background var(--dur-slow) var(--ease); }
-.uno-table::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.5;
-  background: repeating-conic-gradient(from 0deg at 62% 50%, rgb(255 255 255 / 0.05) 0 6deg, transparent 6deg 15deg); }
+  padding: clamp(24px, 6vw, 44px) var(--sp-4) clamp(20px, 5vw, 36px); border-radius: var(--r-lg); isolation: isolate;
+  background: none; box-shadow: none;
+  --halo: #8f86c9; }
 .uno-table--r { --halo: var(--uno-r); } .uno-table--y { --halo: var(--uno-y); } .uno-table--g { --halo: var(--uno-g); } .uno-table--b { --halo: var(--uno-b); }
 .uno-pile { position: relative; display: grid; justify-items: center; gap: var(--sp-2); }
 .uno-pile--draw { z-index: 1; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; border-radius: var(--r-md); }
@@ -56,8 +51,8 @@
   box-shadow: 0 2px 4px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.25); }
 .uno-pile__cta { font-weight: 800; color: var(--gold); }
 .uno-pile__label { font-size: var(--fs-sm); font-weight: 800; color: var(--uno-cream); padding: 2px 12px; border-radius: 999px; background: rgb(0 0 0 / 0.35); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--halo) 70%, transparent); }
-.uno-halo { position: absolute; inset-inline: -34px; inset-block: -30px 0; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--halo) 55%, transparent), transparent 85%); transition: background var(--dur-slow) var(--ease); }
+/* Active colour: a solid ring round the discard pile (no gradient). */
+.uno-halo { position: absolute; inset-inline: -12px; inset-block: -12px; border-radius: var(--radius-lg, 20px); pointer-events: none; border: 3px solid var(--halo); }
 .uno-ring { position: absolute; inset-inline: 0; margin-inline: auto; inline-size: calc(var(--lgw) * 2.3); aspect-ratio: 1; inset-block-start: calc(var(--lgw) * 0.74 - var(--lgw) * 1.15); pointer-events: none; display: block; }
 .uno-ring--rev { scale: -1 1; }
 .uno-ring__spin { inline-size: 100%; block-size: 100%; overflow: visible; animation: uno-spin 28s linear infinite; }
@@ -92,7 +87,7 @@
 .uno-card--g { --c: var(--uno-g); --cd: #1b6e34; } .uno-card--b { --c: var(--uno-b); --cd: #174f9e; }
 .uno-card--wild { --c: #17131f; }
 /* Card back: painted flame art cut from a generated sheet (see DECISIONS.md). */
-.uno-card--back, .uno-opp__back, .uno-stack > span { background: var(--uno-back) url('./art/uno-back.webp') center / cover no-repeat; }
+.uno-card--back, .uno-opp__back, .uno-stack > span { background: var(--uno-back) url('./art/uno-back.png') center / cover no-repeat; }
 .uno-card__oval { position: absolute; inset: 14% 6%; border-radius: 50%; transform: rotate(-28deg);
   background: radial-gradient(ellipse at 35% 28%, #fff, #f1ede2 70%, #e4dfd0);
   box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.22), 0 1px 0 rgb(255 255 255 / 0.5), 0 0 0 1px rgb(0 0 0 / 0.12);
@@ -120,19 +115,19 @@
 .uno-card__oval--act { background: radial-gradient(ellipse at 35% 28%, color-mix(in srgb, var(--c) 78%, #fff), var(--c) 70%); box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.4); }
 
 /* Hand: overlapping fan, playable cards lift */
-.uno-hand { display: grid; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: var(--shadow);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, #fff 5%), color-mix(in srgb, var(--surface) 88%, #1b1540));
-  position: sticky; inset-block-end: calc(var(--sp-2) + env(safe-area-inset-bottom)); z-index: 2; }
+/* Hand: a framed board panel (flat row, playable cards lift) */
+.uno-hand { display: grid; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-lg); background: var(--surface); color: var(--text); border: 1px solid var(--line); box-shadow: var(--shadow-card);
+  position: sticky; inset-block-end: calc(var(--space-2) + env(safe-area-inset-bottom)); z-index: 2; }
 .uno-hand__bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
 .uno-hand__bar > strong { margin-inline-end: auto; }
 .uno-hand__tip { margin: 0; color: var(--gold); font-weight: 700; font-size: var(--fs-sm); }
 .uno-hand__cards { display: flex; gap: 6px; overflow-x: auto; padding: 24px 18px 10px; scroll-snap-type: x proximity; }
-.uno-hand__cards > .uno-card { scroll-snap-align: center; cursor: pointer; rotate: calc(var(--fan, 0) * 1deg); translate: 0 calc(var(--arc, 0) * 1px); transform-origin: 50% 130%; }
+.uno-hand__cards > .uno-card { scroll-snap-align: center; cursor: pointer; }
 .uno-hand__cards > .uno-card + .uno-card { margin-inline-start: -16px; }
 @media (max-width: 599px) { .uno { --card-w: 58px; } }
 @media (min-width: 900px) { .uno { --card-w: 74px; } .uno-hand__cards { flex-wrap: wrap; overflow: visible; justify-content: center; row-gap: 14px; } }
 .uno-card--playable { transform: translateY(-10px); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.28), 0 0 0 2px color-mix(in srgb, var(--gold) 70%, transparent), 0 12px 20px rgb(0 0 0 / 0.4); }
-.uno-card--selected { rotate: 0deg; transform: translateY(-18px) scale(1.08); box-shadow: 0 0 0 3px var(--gold), 0 18px 26px rgb(0 0 0 / 0.5); z-index: 3; }
+.uno-card--selected { transform: translateY(-18px) scale(1.08); box-shadow: 0 0 0 3px var(--gold), 0 18px 26px rgb(0 0 0 / 0.5); z-index: 3; }
 .uno-card--dim { filter: saturate(0.55) brightness(0.72); cursor: not-allowed; }
 .uno-card--hint { outline: 3px dashed var(--gold); outline-offset: 3px; }
 button.uno-card:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; z-index: 4; }
@@ -186,3 +181,26 @@ button.uno-card:focus-visible { outline: 3px solid var(--focus); outline-offset:
 :root[data-motion='reduce'] .uno-pile__top, :root[data-motion='reduce'] .uno-hand__cards > .uno-card { animation: none; }
 :root[data-motion='reduce'] .uno-card { transition: none; }
 :root[data-motion='reduce'] .uno-ring__spin { animation: none; }
+
+/* Delivered card art: the picture is the whole card. */
+.uno-card--img { background: none; border: 0; box-shadow: none; overflow: visible; }
+.uno-card--img .uno-face { inline-size: 100%; block-size: 100%; object-fit: contain; pointer-events: none; filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.4)); }
+.uno-card--img.uno-card--playable, .uno-card--img.uno-card--selected { box-shadow: 0 0 0 3px var(--felt-gold); border-radius: calc(var(--w) * 0.1); }
+
+/* Phone (QA round 2): no direction arc around the discard (it overflowed and covered the pile; the «جهت بازی» pill keeps the
+   direction), and the hand is one overlapping fan that fits the width instead of a scroller that clipped the first card. */
+@media (max-width: 899px) {
+  .uno-ring { display: none; }
+  .uno-hand__cards { overflow: visible; padding-inline: 0; justify-content: center; }
+  .uno-hand__cards > .uno-card { position: relative; }
+  .uno-hand__cards > .uno-card + .uno-card { margin-inline-start: min(-16px, calc((100% - var(--card-w)) / max(var(--n) - 1, 1) - var(--card-w))); }
+}
+
+/* QA round 3: no arc at any width (a small ↻ in the colour pill shows the direction); inside the frame the hand panel is
+   not sticky, so on phones it no longer slides over the colour pill (the frame's own bar is sticky already). */
+.uno-ring { display: none; }
+.uno-pile__label { display: inline-flex; align-items: center; gap: 6px; position: relative; z-index: 1; white-space: nowrap; }
+.uno--framed .uno-hand { position: static; }
+
+/* QA round 6: the reference has no stack of blank cards behind the discard pile. */
+.uno-under { display: none; }

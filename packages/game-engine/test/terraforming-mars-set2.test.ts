@@ -162,7 +162,7 @@ describe('terraforming-mars set2: effects', () => {
     for (let i = 3; i <= 63; i += 2) st(full).tiles[String(i).padStart(2, '0')] = { kind: 'greenery', owner: 1 };
     st(full).players[0]!.hand = ['044'];
     expect(legalSpaces(st(full), 0, 'isolated')).toEqual([]);
-    refused(full, { type: 'play', card: '044' }, 'NO_SPACE');
+    expect(reject(full, 0, { type: 'play', card: '044' })).toBe('ACCEPTED'); // RULES.md E1
   });
 
   it('Lake Marineris: 2 oceans with TR; only the remaining one near the cap', () => {
@@ -257,7 +257,7 @@ describe('terraforming-mars set2: effects', () => {
   it('Mining Area: needs an own adjacent tile on a steel/titanium area', () => {
     const none = clean();
     st(none).players[0]!.hand = ['064'];
-    refused(none, { type: 'play', card: '064' }, 'NO_SPACE');
+    expect(reject(none, 0, { type: 'play', card: '064' })).toBe('ACCEPTED'); // RULES.md E1
 
     let snap = clean();
     st(snap).tiles['53'] = { kind: 'greenery', owner: 0 };

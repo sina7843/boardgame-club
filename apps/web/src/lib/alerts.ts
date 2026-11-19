@@ -79,7 +79,7 @@ export function useTurnAlerts(tableId: string, mySeat: number | null): void {
         const p = getAlertPrefs();
         toast('turn', 'نوبت شماست', p.sound && p.turnSound ? undefined : 'صدا خاموش است');
       }
-      const { warningLeft, criticalLeft } = turnThresholds(e.pace, e.turnSeconds);
+      const { warningLeft, criticalLeft } = turnThresholds(e.pace, e.turnSeconds, e.clockBaseSeconds);
       // Server time offset keeps timers right when the device clock is off.
       const due = Date.parse(e.dueAt) - (Date.parse(e.serverTime) - Date.now());
       for (const [kind, left] of [['warning', warningLeft], ['critical', criticalLeft]] as const) {

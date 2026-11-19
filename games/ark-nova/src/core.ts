@@ -38,7 +38,8 @@ export const MAX_X = 5;
 /** The Conservation track ends at 41 (FAQ). */
 export const MAX_CP = 41;
 /** Break track length per player count (start space to the last space). */
-export const BREAK_MAX: Record<number, number> = { 2: 15, 3: 12, 4: 10 };
+// Break track length from the printed board and rulebook p. 4, 7 (RULES.md E1): 2p 9, 3p 12, 4p 15.
+export const BREAK_MAX: Record<number, number> = { 2: 9, 3: 12, 4: 15 };
 export const SPECIAL_CAP: Record<string, number> = { pz: 3, rh: 5, ba: 5 };
 /** Reputation at which display folders 1..6 come into reputation range. */
 const FOLDER_STARTS = [0, 2, 4, 7, 10, 13];
@@ -97,7 +98,10 @@ export function shuffle<T>(rng: EngineRng, a: T[]): T[] {
   return a;
 }
 /** Seats in turn order starting with `from`. */
-export const seatsFrom = (s: State, from: number) => Array.from({ length: s.n }, (_, k) => (from + k) % s.n);
+/** Seats in turn order from `from`, skipping resigned seats (RULES.md E6). */
+export const seatsFrom = (s: State, from: number) => Array.from({ length: s.n }, (_, k) => (from + k) % s.n).filter((k) => !s.out?.includes(k));
+/** Seats still playing. */
+export const activeCount = (s: State) => s.n - (s.out?.length ?? 0);
 
 // ---------------- Step buffer (prompts asked during one resolution are inserted before older ones) ----------------
 let BUF: Step[] = [];
@@ -227,6 +231,13 @@ export function appealIncome(a: number): number {
 }
 /** Folders within reputation range (1..6). */
 export const range = (p: Player) => FOLDER_STARTS.filter((m) => p.rep >= m).length;
+/** Venom (glossary p. 3): while an un-played Venom token is pending this turn, the last 2 money are reserved for it
+ * (you may not spend your way out of Venom), so every "can afford" check uses this instead of `money` (RULES.md E2). */
+export const venomPending = (c: Ctx) => {
+  const s = c.s;
+  return s.stage === 'play' && c.seat === s.current && !s.venomCleared && ACTION_KEYS.some((k) => P(c).tok[k].venom > 0);
+};
+export const spendable = (c: Ctx) => Math.max(0, P(c).money - (venomPending(c) ? 2 : 0));
 export const handLimit = (c: Ctx) => (P(c).unis.includes('hand') ? 5 : 3) + qsum(c, 'handLimit');
 
 const mark = (p: Player, k: string) => { if (p.marks.includes(k)) return false; p.marks.push(k); return true; };
@@ -257,6 +268,14 @@ export function gain(c: Ctx, k: TrackKey, n: number) {
       }
     }
   }
+}
+/** Would gaining `cp` and `rep` now reach an unmarked milestone that asks this player something? */
+export function rewardHitsDecision(p: Player, cp: number, rep: number): boolean {
+  const cap = p.up.cards ? 15 : 9;
+  const steps = Math.max(0, Math.min(cap, p.rep + rep) - p.rep);
+  const reps = Array.from({ length: steps }, (_, i) => p.rep + 1 + i).filter((r) => !p.marks.includes(`r${r}`));
+  const cpTo = p.cp + cp + reps.filter((r) => r === 11 || r === 14).length;
+  return reps.some((r) => r === 5 || r === 13) || [2, 5, 8].some((m) => p.cp < m && cpTo >= m && !p.marks.includes(`c${m}`));
 }
 function repMilestone(c: Ctx, r: number) {
   const p = P(c);
@@ -536,7 +555,7 @@ export function homesFor(c: Ctx, a: AnimalData): (number | null)[] {
 export function animalError(c: Ctx, a: AnimalData, up: boolean, folder = 0): string | null {
   if (qany(c, 'forbidAnimal', a)) return 'ANIMAL_FORBIDDEN';
   if (missing(c, a, up) > qsum(c, 'ignoreConditions', a)) return 'CONDITIONS';
-  if (P(c).money < animalCost(c, a, folder)) return 'CANNOT_AFFORD';
+  if (spendable(c) < animalCost(c, a, folder)) return 'CANNOT_AFFORD';
   if (!homesFor(c, a).length) return 'NO_ENCLOSURE';
   return null;
 }
@@ -571,17 +590,55 @@ export function playAnimal(c: Ctx, o: AnimalOpt) {
   log(c, 'animal', { card: a.id });
   if (s.act && s.act.seat === c.seat) { s.act.count += 1; if (!small(a)) s.act.small = false; }
   const cc = { ...c, card: a.id };
+  // RULES.md E3: the player orders simultaneous effects. Ask only when it changes who an interactive ability affects
+  // (its targets without vs with this card's appeal, conservation and reputation); otherwise keep the fixed order.
+  if (animalOrderMatters(cc, a)) {
+    emit(s, c.rng, { t: 'icons', seat: c.seat, card: a.id, icons: cardIcons(a.id), source: 'animal' });
+    emit(s, c.rng, { t: 'animal', seat: c.seat, card: a.id, building: o.home });
+    def(a.id)?.onPlay?.(cc);
+    ask.option(cc, {
+      options: [
+        { value: 'ability', label: `اول توانایی ${nameOf(a.id)}، بعد جذابیت، حفاظت و اعتبار کارت` },
+        { value: 'gains', label: `اول جذابیت، حفاظت و اعتبار کارت، بعد توانایی ${nameOf(a.id)}` }
+      ],
+      label: 'اول کدام اثر؟', fx: 'core:animalOrder', data: { card: a.id }
+    });
+    return;
+  }
   gain(cc, 'rep', a.rep);
   gain(cc, 'cp', a.cp);
   emit(s, c.rng, { t: 'icons', seat: c.seat, card: a.id, icons: cardIcons(a.id), source: 'animal' });
   emit(s, c.rng, { t: 'animal', seat: c.seat, card: a.id, building: o.home });
   def(a.id)?.onPlay?.(cc);
+  animalAbilities(cc, a);
+  gain(cc, 'appeal', a.appeal);
+}
+function animalAbilities(cc: Ctx, a: AnimalData) {
   for (const [k, v] of a.ab) {
     const impl = REG.abilities[k];
     impl?.now?.(cc, v);
     if (impl?.after) afterAction(cc, 'core:abilityAfter', { k, v });
   }
-  gain(cc, 'appeal', a.appeal);
+}
+/** Does gaining this card's appeal / conservation / reputation first change the seats its interactive abilities affect? */
+export function animalOrderMatters(cc: Ctx, a: AnimalData): boolean {
+  const inter = a.ab.filter(([k]) => REG.abilities[k]?.affects);
+  if (!inter.length || !(a.appeal || a.cp || a.rep)) return false;
+  const p = P(cc);
+  const sig = () => JSON.stringify(inter.map(([k, v]) => REG.abilities[k]!.affects!(cc, v)));
+  const before = sig();
+  p.appeal += a.appeal; p.cp += a.cp; p.rep += a.rep; // comparison only, undone below
+  const after = sig();
+  p.appeal -= a.appeal; p.cp -= a.cp; p.rep -= a.rep;
+  return before !== after;
+}
+/** Continuation of «اول کدام اثر؟» (the icons / animal events and onPlay already ran). */
+export function animalEffects(cc: Ctx, id: number, abilityFirst: boolean) {
+  const a = ANIMAL[id]!;
+  const gains = () => { gain(cc, 'rep', a.rep); gain(cc, 'cp', a.cp); gain(cc, 'appeal', a.appeal); };
+  if (!abilityFirst) gains();
+  animalAbilities(cc, a);
+  if (abilityFirst) gains();
 }
 /**
  * Flip back the smallest occupied standard enclosure that meets all of the animal's requirements (size incl. map
@@ -673,7 +730,7 @@ export function projectOptions(c: Ctx, display: boolean): ProjectOpt[] {
     const toks = s.ptoks[id] ?? [null, null, null];
     const mine = toks.includes(c.seat) || s.extraSupports.some((x) => x.project === id && x.seat === c.seat);
     if (mine && !(pr.kind === 'release' && qany(c, 'repeatRelease'))) return;
-    if (p.money < folder) return;
+    if (spendable(c) < folder) return;
     pr.slots.forEach((sl, k) => {
       if (toks[k] !== null && toks[k] !== undefined) return;
       if (pr.kind === 'icons') {
@@ -725,9 +782,15 @@ export function supportProject(c: Ctx, o: ProjectOpt) {
   p.supported += 1;
   log(c, 'project', { card: o.project, slot: o.slot });
   const sl = pr.slots[o.slot]!;
-  gain(c, 'cp', sl.cp);
-  gain(c, 'rep', sl.rep);
-  later(c, 'core:leftToken');
+  // RULES.md E3 (rulebook p. 15): the left-edge bonus may come before or after the project reward. That changes the
+  // result only when the reward reaches a milestone with its own decision (conservation 2/5/8, reputation 5/13, or a
+  // reputation step that gives conservation): then the left-token prompt offers both orders and the reward waits.
+  if (p.left.some(Boolean) && rewardHitsDecision(p, sl.cp, sl.rep)) later(c, 'core:leftToken', { defer: { cp: sl.cp, rep: sl.rep } });
+  else {
+    gain(c, 'cp', sl.cp);
+    gain(c, 'rep', sl.rep);
+    later(c, 'core:leftToken');
+  }
   emit(s, c.rng, { t: 'project', seat: c.seat, project: o.project, slot: o.slot, ...(o.animal ? { released: o.animal } : {}) });
 }
 /** Donation cost now (12 once every printed space is covered). In 2-player games the left column is blocked. */

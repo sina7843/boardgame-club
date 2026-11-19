@@ -200,6 +200,7 @@ describe('ark nova sponsors 203-228, 230-232', () => {
     const wild = opts.find((o) => o.project === 103 && o.wild === 215)!;
     expect(wild).toBeTruthy();
     expect(opts.some((o) => o.project === 103 && core.PROJECT[103]!.slots[o.slot]!.need! > 2)).toBe(false);
+    p.left.fill(false); // no left-edge token: the reward is paid at once (no RULES.md E3 order choice)
     core.supportProject(c0(s), wild);
     flow.settle(s, rng);
     expect(p.data[215]).toMatchObject({ wild: 1 });

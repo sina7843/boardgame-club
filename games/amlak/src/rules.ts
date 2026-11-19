@@ -456,8 +456,8 @@ function validateAction(s: AmlakState, seat: number, a: AmlakAction): string | n
     case 'bid': return s.phase !== 'auction' ? 'WRONG_PHASE' : a.amount <= s.auction!.high ? 'BID_TOO_LOW' : a.amount > p.cash ? 'NOT_ENOUGH_CASH' : null;
     case 'pass': return s.phase === 'auction' ? null : 'WRONG_PHASE';
     case 'build': return own ? canBuild(s, seat, a.sq) : 'WRONG_PHASE';
-    case 'sell': return own || s.phase === 'debt' ? canSell(s, seat, a.sq) : 'WRONG_PHASE';
-    case 'mortgage': return own || s.phase === 'debt' ? canMortgage(s, seat, a.sq) : 'WRONG_PHASE';
+    case 'sell': return own || s.phase === 'buy' || s.phase === 'debt' ? canSell(s, seat, a.sq) : 'WRONG_PHASE';
+    case 'mortgage': return own || s.phase === 'buy' || s.phase === 'debt' ? canMortgage(s, seat, a.sq) : 'WRONG_PHASE';
     case 'unmortgage': return own ? canUnmortgage(s, seat, a.sq) : 'WRONG_PHASE';
     case 'offer': return own ? checkTrade(s, { from: seat, to: a.to, give: a.give, get: a.get }) : 'WRONG_PHASE';
     case 'bankrupt': return s.phase === 'debt' ? null : 'WRONG_PHASE';
@@ -735,7 +735,25 @@ export const amlakModule: GameModule<AmlakState, AmlakAction, AmlakView> = {
     const worth = Array.from({ length: s.players }, (_, seat) => netWorth(s, seat));
     const top = Math.max(...worth.filter((_, seat) => !s.p[seat]!.bankrupt));
     const leaders = worth.map((w, seat) => (!s.p[seat]!.bankrupt && w === top ? seat : -1)).filter((x) => x >= 0);
+    const fa = (n: number) => n.toLocaleString('fa-IR');
+    const sqn = (i: number) => BOARD[i]!.nameFa;
     return {
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        switch (e.t) {
+          case 'roll': return [{ seat: e.seat, text: `تاس ${fa(e.dice[0])} و ${fa(e.dice[1])}` }];
+          case 'move': return [{ seat: e.seat, text: sqn(e.to) }];
+          case 'buy': return [{ seat: e.seat, text: `خرید ${sqn(e.sq)}` }];
+          case 'decline': return [{ seat: e.seat, text: 'نخرید' }];
+          case 'auctionWon': return e.seat === null ? [] : [{ seat: e.seat, text: `مزایده ${sqn(e.sq)}` }];
+          case 'jail': return [{ seat: e.seat, text: 'به زندان رفت' }];
+          case 'leaveJail': return [{ seat: e.seat, text: 'از زندان آزاد شد' }];
+          case 'build': return [{ seat: e.seat, text: `ساخت در ${sqn(e.sq)}` }];
+          case 'mortgage': return [{ seat: e.seat, text: `${e.on ? 'رهن' : 'فک رهن'} ${sqn(e.sq)}` }];
+          case 'bankrupt': return [{ seat: e.seat, text: 'ورشکست شد' }];
+          case 'timeout': return [{ seat: e.seat, text: 'زمانش تمام شد' }];
+          default: return [];
+        }
+      }).slice(-40),
       seats: Array.from({ length: s.players }, (_, seat) => ({
         seat,
         primary: { label: 'نقد', value: s.p[seat]!.cash },

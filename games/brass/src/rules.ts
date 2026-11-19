@@ -113,6 +113,10 @@ export interface BrassState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Income shortfall waiting for tile choices (seats in turn order); absent in states saved before RULES E1. */
+  shortfall?: { seats: number[]; eraOver: boolean } | null;
+  /** Public move log, newest last, at most 40 (publicSummary.moves → shell rail log). Absent in older states. */
+  log?: { seat: number; text: string }[];
 }
 
 export interface BrassView extends Omit<BrassState, 'deck' | 'hands' | 'discards' | 'facedown' | 'timeouts'> {
@@ -131,17 +135,22 @@ export interface BrassView extends Omit<BrassState, 'deck' | 'hands' | 'discards
 const ind = z.enum(INDUSTRIES);
 const card = z.number().int().min(0).max(999);
 const locId = z.string().min(1).max(40);
+const src = z.strictObject({ loc: locId, slot: z.number().int().min(0).max(7) });
+const beerSrc = z.union([src, z.strictObject({ merchant: z.literal(true) })]);
 export const brassAction = z.discriminatedUnion('type', [
-  z.strictObject({ type: z.literal('build'), card, industry: ind, loc: locId, slot: z.number().int().min(0).max(7) }),
-  z.strictObject({ type: z.literal('network'), card, links: z.array(z.string().min(1).max(90)).min(1).max(2) }),
-  z.strictObject({ type: z.literal('develop'), card, industries: z.array(ind).min(1).max(2) }),
-  z.strictObject({ type: z.literal('sell'), card, sales: z.array(z.strictObject({ loc: locId, slot: z.number().int().min(0).max(7), merchant: locId.optional(), develop: ind.optional() })).min(1).max(20) }),
+  z.strictObject({ type: z.literal('build'), card, industry: ind, loc: locId, slot: z.number().int().min(0).max(7), coal: z.array(src).max(4).optional(), iron: z.array(src).max(4).optional() }),
+  z.strictObject({ type: z.literal('network'), card, links: z.array(z.string().min(1).max(90)).min(1).max(2), coal: z.array(src).max(2).optional(), beer: z.array(src).max(1).optional() }),
+  z.strictObject({ type: z.literal('develop'), card, industries: z.array(ind).min(1).max(2), iron: z.array(src).max(2).optional() }),
+  z.strictObject({ type: z.literal('sell'), card, sales: z.array(z.strictObject({ loc: locId, slot: z.number().int().min(0).max(7), merchant: locId.optional(), develop: ind.optional(), beer: z.array(beerSrc).max(2).optional() })).min(1).max(20) }),
   z.strictObject({ type: z.literal('loan'), card }),
   z.strictObject({ type: z.literal('scout'), cards: z.array(card).length(3) }),
   z.strictObject({ type: z.literal('pass'), card }),
+  z.strictObject({ type: z.literal('shortfall'), tiles: z.array(z.strictObject({ loc: locId, slot: z.number().int().min(0).max(7) })).max(60) }),
   z.strictObject({ type: z.literal('resign') })
 ]);
 export type BrassAction = z.infer<typeof brassAction>;
+
+type TurnAction = Exclude<BrassAction, { type: 'resign' | 'shortfall' }>;
 
 class BrassError extends Error {
   code: string;
@@ -156,7 +165,7 @@ function shuffle<T>(rng: EngineRng, xs: T[]) {
   for (let i = a.length - 1; i > 0; i--) { const j = rng.nextInt(i + 1); [a[i], a[j]] = [a[j]!, a[i]!]; }
   return a;
 }
-export const currentSeat = (s: BrassState): number | null => (s.outcome ? null : s.order[s.turn] ?? null);
+export const currentSeat = (s: BrassState): number | null => (s.outcome ? null : s.shortfall?.seats[0] ?? s.order[s.turn] ?? null);
 export const nextTile = (s: Pick<BrassState, 'mat'>, seat: number, industry: Industry): IndustryTileDef | null => STACK[industry][s.mat[seat]![industry]] ?? null;
 const produceOf = (t: IndustryTileDef, era: BrassState['era']) => (typeof t.produce === 'number' ? t.produce : t.produce[era]);
 
@@ -196,55 +205,87 @@ function flip(s: BrassState, t: Tile) {
   s.income[t.owner] = Math.min(99, s.income[t.owner]! + tileDef(t.industry, t.level).income);
 }
 
-/** Consume `n` coal for a build/link at `from`: closest connected coal mine first, then the market (needs a merchant connection). */
-function takeCoal(s: BrassState, seat: number, from: readonly string[], n: number) {
+/** A resource source the player picked (RULES E2): a tile on the board, or the merchant's barrel when selling. */
+export type Source = { loc: string; slot: number } | { merchant: true };
+type Choice = { loc: string; slot: number; owner: number };
+const tileAt = (s: BrassState, p: { loc: string; slot: number }): Tile | null => s.board[p.loc]?.[p.slot] ?? null;
+function take(s: BrassState, t: Tile) { t.cubes -= 1; if (t.cubes === 0) flip(s, t); }
+const lexLess = (a: number[], b: number[]) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i]! < b[i]!; return false; };
+const isIn = (xs: Choice[], p: Source): p is { loc: string; slot: number } => 'loc' in p && xs.some((x) => x.loc === p.loc && x.slot === p.slot);
+
+/** Coal mines a build/link at `from` may use now: unflipped connected mines at the shortest distance (RULES A3–A4). */
+export function coalChoices(s: BrassState, from: readonly string[]): Choice[] {
+  const dist = distances(s, from);
+  const all: (Choice & { d: number })[] = [];
+  eachTile(s, (t, loc, slot) => { if (t.industry === 'coal' && !t.flipped && t.cubes > 0 && dist.has(loc)) all.push({ loc, slot, owner: t.owner, d: dist.get(loc)! }); });
+  const d = Math.min(...all.map((x) => x.d));
+  return all.filter((x) => x.d === d).map(({ loc, slot, owner }) => ({ loc, slot, owner }));
+}
+/** Iron works anyone may use (no connection needed, RULES A6). */
+export function ironChoices(s: BrassState): Choice[] {
+  const out: Choice[] = [];
+  eachTile(s, (t, loc, slot) => { if (t.industry === 'iron' && !t.flipped && t.cubes > 0) out.push({ loc, slot, owner: t.owner }); });
+  return out;
+}
+/** Breweries a seat may drink from at `at`: own anywhere, opponents' only when connected (RULES A8). */
+export function beerChoices(s: BrassState, seat: number, at: readonly string[]): Choice[] {
+  const dist = distances(s, at);
+  const out: Choice[] = [];
+  eachTile(s, (t, loc, slot) => { if (t.industry === 'brewery' && !t.flipped && t.cubes > 0 && (t.owner === seat || dist.has(loc))) out.push({ loc, slot, owner: t.owner }); });
+  return out;
+}
+
+/** Consume `n` coal at `from`: a closest connected mine (the player's pick from `pref`, else own first, then board order), then the market (needs a merchant connection). */
+function takeCoal(s: BrassState, seat: number, from: readonly string[], n: number, pref: Source[] = []) {
   for (let i = 0; i < n; i++) {
-    const dist = distances(s, from);
-    let best: { t: Tile; key: number[] } | null = null;
-    eachTile(s, (t, loc, slot) => {
-      if (t.industry !== 'coal' || t.flipped || t.cubes <= 0 || !dist.has(loc)) return;
-      const key = [dist.get(loc)!, t.owner === seat ? 0 : 1, LOC_INDEX.get(loc)!, slot];
-      if (!best || lexLess(key, best.key)) best = { t, key };
-    });
-    const b = best as { t: Tile } | null;
-    if (b) { b.t.cubes -= 1; if (b.t.cubes === 0) flip(s, b.t); continue; }
+    const choices = coalChoices(s, from);
+    const p = pref.shift();
+    if (p && !isIn(choices, p)) fail('BAD_SOURCE');
+    if (choices.length) {
+      const own = (x: Choice) => (x.owner === seat ? 0 : 1);
+      const c = p && 'loc' in p ? p : [...choices].sort((x, y) => own(x) - own(y) || LOC_INDEX.get(x.loc)! - LOC_INDEX.get(y.loc)! || x.slot - y.slot)[0]!;
+      take(s, tileAt(s, c)!);
+      continue;
+    }
     if (!connectedToMerchant(s, from)) fail('NO_COAL');
     pay(s, seat, buyPrice('coal', s.coal));
     if (s.coal > 0) s.coal -= 1;
   }
 }
-const lexLess = (a: number[], b: number[]) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i]! < b[i]!; return false; };
 
-/** Consume `n` iron: any unflipped iron works (own first, then board order; no connection needed), then the market. */
-function takeIron(s: BrassState, seat: number, n: number) {
+/** Consume `n` iron: any unflipped iron works (the player's pick, else own first, then board order), then the market. */
+function takeIron(s: BrassState, seat: number, n: number, pref: Source[] = []) {
   for (let i = 0; i < n; i++) {
-    let best: Tile | null = null;
-    eachTile(s, (t) => { if (t.industry === 'iron' && !t.flipped && t.cubes > 0 && (!best || (best.owner !== seat && t.owner === seat))) best = t; });
-    const b = best as Tile | null;
-    if (b) { b.cubes -= 1; if (b.cubes === 0) flip(s, b); continue; }
+    const choices = ironChoices(s);
+    const p = pref.shift();
+    if (p && !isIn(choices, p)) fail('BAD_SOURCE');
+    if (choices.length) { take(s, tileAt(s, p && 'loc' in p ? p : (choices.find((x) => x.owner === seat) ?? choices[0]!))!); continue; }
     pay(s, seat, buyPrice('iron', s.iron));
     if (s.iron > 0) s.iron -= 1;
   }
 }
 
-/** Consume `n` beer at `at`: the merchant's barrel (if given and full, earns its bonus), own breweries anywhere, then connected opponents' breweries. */
-function takeBeer(s: BrassState, seat: number, at: readonly string[], n: number, merchant: { loc: string; space: number } | null): boolean {
+/**
+ * Consume `n` beer at `at`. Default: the merchant's barrel (if given and full; earns its bonus), own breweries anywhere, then
+ * connected opponents' breweries, closest first. `pref` holds the player's picks, unit by unit (RULES E2).
+ */
+function takeBeer(s: BrassState, seat: number, at: readonly string[], n: number, merchant: { loc: string; space: number } | null, pref: Source[] = []): boolean {
   let bonus = false;
   for (let i = 0; i < n; i++) {
-    const m = merchant && s.merchants[merchant.loc];
-    if (m && m.beer[merchant.space]) { m.beer[merchant.space] = false; bonus = true; continue; }
+    const m = merchant ? s.merchants[merchant.loc] : undefined;
+    const full = !!m && !!merchant && m.beer[merchant.space] === true;
+    const p = pref.shift();
+    if ((p && !('loc' in p)) || (!p && full)) {
+      if (!full) fail('BAD_SOURCE');
+      m!.beer[merchant!.space] = false; bonus = true; continue;
+    }
+    const choices = beerChoices(s, seat, at);
+    if (p && !isIn(choices, p)) fail('BAD_SOURCE');
+    if (!choices.length) fail('NO_BEER');
     const dist = distances(s, at);
-    let best: { t: Tile; key: number[] } | null = null;
-    eachTile(s, (t, loc, slot) => {
-      if (t.industry !== 'brewery' || t.flipped || t.cubes <= 0) return;
-      if (t.owner !== seat && !dist.has(loc)) return;
-      const key = [t.owner === seat ? 0 : 1 + dist.get(loc)!, LOC_INDEX.get(loc)!, slot];
-      if (!best || lexLess(key, best.key)) best = { t, key };
-    });
-    const b = best as { t: Tile } | null;
-    if (!b) fail('NO_BEER');
-    b!.t.cubes -= 1;
-    if (b!.t.cubes === 0) flip(s, b!.t);
+    const key = (x: Choice) => [x.owner === seat ? 0 : 1 + dist.get(x.loc)!, LOC_INDEX.get(x.loc)!, x.slot];
+    const c = p && 'loc' in p ? p : [...choices].sort((x, y) => (lexLess(key(x), key(y)) ? -1 : 1))[0]!;
+    take(s, tileAt(s, c)!);
   }
   return bonus;
 }
@@ -274,11 +315,11 @@ const resourceLeft = (s: BrassState, kind: 'coal' | 'iron') => {
   return any;
 };
 
-function develop(s: BrassState, seat: number, industry: Industry, iron: boolean) {
+function develop(s: BrassState, seat: number, industry: Industry, iron: boolean, pref: Source[] = []) {
   const t = nextTile(s, seat, industry);
   if (!t) fail('NO_TILES_LEFT');
   if (t!.noDevelop) fail('CANNOT_DEVELOP');
-  if (iron) takeIron(s, seat, 1);
+  if (iron) takeIron(s, seat, 1, pref);
   s.mat[seat]![industry] += 1;
 }
 
@@ -314,8 +355,8 @@ function build(s: BrassState, seat: number, a: Extract<BrassAction, { type: 'bui
   } else if (accepts.length > 1 && loc.slots.some((sl, i) => !row[i] && sl.length === 1 && sl[0] === a.industry)) fail('USE_SINGLE_SLOT');
   if (s.era === 'canal' && row.some((t, i) => i !== a.slot && t?.owner === seat)) fail('ONE_TILE_PER_TOWN');
   pay(s, seat, def.cost);
-  takeCoal(s, seat, [loc.id], def.coal);
-  takeIron(s, seat, def.iron);
+  takeCoal(s, seat, [loc.id], def.coal, [...(a.coal ?? [])]);
+  takeIron(s, seat, def.iron, [...(a.iron ?? [])]);
   if (s.money[seat]! < 0) fail('NO_MONEY');
   useCard(s, seat, a.card);
   s.mat[seat]![a.industry] += 1;
@@ -334,6 +375,7 @@ function buildNetwork(s: BrassState, seat: number, a: Extract<BrassAction, { typ
   const owned = Object.values(s.links).filter((o) => o === seat).length;
   if (owned + a.links.length > LINK_TILES) fail('NO_LINKS_LEFT');
   pay(s, seat, s.era === 'canal' ? 3 : a.links.length === 1 ? 5 : 15);
+  const coal: Source[] = [...(a.coal ?? [])];
   for (const id of a.links) {
     const l = LINK.get(id);
     if (!l) return fail('BAD_LINK');
@@ -343,9 +385,9 @@ function buildNetwork(s: BrassState, seat: number, a: Extract<BrassAction, { typ
     const net = network(s, seat);
     if (hasPresence(s, seat) && !linkNodes(l).some((n) => net.has(n))) fail('NOT_IN_NETWORK');
     s.links[id] = seat;
-    if (s.era === 'rail') takeCoal(s, seat, linkNodes(l), 1);
+    if (s.era === 'rail') takeCoal(s, seat, linkNodes(l), 1, coal);
   }
-  if (a.links.length === 2) takeBeer(s, seat, linkNodes(LINK.get(a.links[1]!)!), 1, null);
+  if (a.links.length === 2) takeBeer(s, seat, linkNodes(LINK.get(a.links[1]!)!), 1, null, [...(a.beer ?? [])]);
   if (s.money[seat]! < 0) fail('NO_MONEY');
   useCard(s, seat, a.card);
 }
@@ -364,7 +406,7 @@ function sell(s: BrassState, seat: number, a: Extract<BrassAction, { type: 'sell
     const to = spaces.find((x) => x.beer) ?? spaces[0];
     if (!to) return fail('NO_MERCHANT');
     const def = tileDef(t.industry, t.level);
-    const got = takeBeer(s, seat, [sale.loc], def.beer, to);
+    const got = takeBeer(s, seat, [sale.loc], def.beer, to, [...(sale.beer ?? [])]);
     flip(s, t);
     if (got) bonus(s, seat, LOC.get(to.loc)!.merchant!.bonus, sale.develop);
     else if (sale.develop) fail('NO_DEVELOP_BONUS');
@@ -372,14 +414,15 @@ function sell(s: BrassState, seat: number, a: Extract<BrassAction, { type: 'sell
   useCard(s, seat, a.card);
 }
 
-function perform(s: BrassState, seat: number, a: Exclude<BrassAction, { type: 'resign' }>, rng: EngineRng) {
+/** `flow` = false stops before the end-of-turn refill / round / era steps (dry runs: they never fail and hide the cost). */
+function perform(s: BrassState, seat: number, a: TurnAction, rng: EngineRng, flow = true) {
   const cards = a.type === 'scout' ? a.cards : [a.card];
   switch (a.type) {
     case 'build': build(s, seat, a); break;
     case 'network': buildNetwork(s, seat, a); break;
     case 'sell': sell(s, seat, a); break;
     case 'develop':
-      for (const x of a.industries) develop(s, seat, x, true);
+      { const iron: Source[] = [...(a.iron ?? [])]; for (const x of a.industries) develop(s, seat, x, true, iron); }
       if (s.money[seat]! < 0) fail('NO_MONEY');
       useCard(s, seat, a.card);
       break;
@@ -409,8 +452,22 @@ function perform(s: BrassState, seat: number, a: Exclude<BrassAction, { type: 'r
     ...(a.type === 'develop' ? { industries: a.industries } : {}),
     ...(a.type === 'sell' ? { sales: a.sales.map((x) => ({ loc: x.loc, slot: x.slot, merchant: x.merchant ?? '' })) } : {})
   };
+  if (flow) s.log = [...(s.log ?? []), { seat, text: moveText(s.last) }].slice(-40);
   s.actionsLeft -= 1;
-  if (s.actionsLeft <= 0 || s.hands[seat]!.length === 0) endTurn(s, rng);
+  if (flow && (s.actionsLeft <= 0 || s.hands[seat]!.length === 0)) endTurn(s, rng);
+}
+
+const IND_SHORT: Record<Industry, string> = { cotton: 'پنبه', manufacturer: 'تولیدی', pottery: 'سفال', coal: 'زغال', iron: 'آهن', brewery: 'آبجو' };
+const ACT_SHORT: Record<string, string> = { build: 'ساخت', network: 'مسیر', develop: 'توسعه', sell: 'فروش', loan: 'وام', scout: 'پیشاهنگ', pass: 'رد کردن' };
+const locFa = (id: string) => LOC.get(id)?.nameFa ?? id;
+/** One public log line (≤ 40 characters, the summary contract). */
+function moveText(l: LastAction): string {
+  const t = l.type === 'build' ? `ساخت ${IND_SHORT[l.industry!]} در ${locFa(l.loc!)}`
+    : l.type === 'network' ? `مسیر ${(l.links ?? []).map((id) => linkNodes(LINK.get(id)!).slice(0, 2).map(locFa).join('–')).join('، ')}`
+    : l.type === 'develop' ? `توسعه ${(l.industries ?? []).map((x) => IND_SHORT[x]).join(' و ')}`
+    : l.type === 'sell' ? `فروش به ${[...new Set((l.sales ?? []).map((x) => locFa(x.merchant)))].join('، ')}`
+    : ACT_SHORT[l.type] ?? l.type;
+  return t.length > 40 ? `${t.slice(0, 39)}…` : t;
 }
 
 // ---------- turn / round / era flow ----------
@@ -429,10 +486,20 @@ function endTurn(s: BrassState, rng: EngineRng) {
   startTurn(s, rng);
 }
 
-function payIncome(s: BrassState, seat: number) {
+const ownTiles = (s: BrassState, seat: number) => { let n = 0; eachTile(s, (t) => { if (t.owner === seat) n += 1; }); return n; };
+
+/** Income of one seat; true when it leaves a shortfall the player must cover by choosing tiles (RULES T13, E1). */
+function payIncome(s: BrassState, seat: number): boolean {
   s.money[seat]! += incomeLevel(s.income[seat]!);
-  if (s.money[seat]! >= 0) return;
-  // Shortfall: remove own industry tiles (cheapest first) for half their cost, rounded down, until covered.
+  if (s.money[seat]! >= 0) return false;
+  if (ownTiles(s, seat)) return true;
+  s.vp[seat] = Math.max(0, s.vp[seat]! + s.money[seat]!);
+  s.money[seat] = 0;
+  return false;
+}
+
+/** Time-out fallback of a shortfall: own industry tiles cheapest first for half their cost (rounded down) until covered, then VP. */
+function autoShortfall(s: BrassState, seat: number) {
   const own: { loc: string; slot: number; cost: number }[] = [];
   eachTile(s, (t, loc, slot) => { if (t.owner === seat) own.push({ loc, slot, cost: tileDef(t.industry, t.level).cost }); });
   own.sort((x, y) => x.cost - y.cost);
@@ -448,11 +515,51 @@ function endRound(s: BrassState, rng: EngineRng) {
   const eraOver = s.deck.length === 0 && s.hands.every((h) => h.length === 0);
   s.order = [...s.order].sort((a, b) => s.spent[a]! - s.spent[b]!); // stable: equal spenders keep their order
   s.spent = s.spent.map(() => 0);
-  if (!(eraOver && s.era === 'rail')) for (let p = 0; p < s.players; p++) payIncome(s, p);
+  const short = !(eraOver && s.era === 'rail') ? s.order.filter((p) => payIncome(s, p)) : [];
   s.turn = 0;
+  if (short.length) { s.shortfall = { seats: short, eraOver }; return; } // wait for each player's tile choice
+  afterIncome(s, rng, eraOver);
+}
+
+function afterIncome(s: BrassState, rng: EngineRng, eraOver: boolean) {
   if (eraOver) return endEra(s, rng);
   s.round += 1;
   startTurn(s, rng);
+}
+
+/** Money still owed by a seat in a shortfall (positive), and its tiles with the half-cost they return. */
+export function shortfallOptions(s: Pick<BrassState, 'board' | 'money'>, seat: number) {
+  const options: { loc: string; slot: number; industry: Industry; level: number; value: number }[] = [];
+  for (const l of LOCATIONS) s.board[l.id]?.forEach((t, slot) => { if (t?.owner === seat) options.push({ loc: l.id, slot, industry: t.industry, level: t.level, value: Math.floor(tileDef(t.industry, t.level).cost / 2) }); });
+  return { owed: Math.max(0, -s.money[seat]!), options };
+}
+
+/** The player removes tiles in the chosen order and must stop as soon as the shortfall is covered (RULES T13). */
+function resolveShortfall(s: BrassState, seat: number, tiles: { loc: string; slot: number }[], rng: EngineRng) {
+  const pending = s.shortfall;
+  if (!pending || pending.seats[0] !== seat) return fail('NO_SHORTFALL');
+  if (new Set(tiles.map((x) => `${x.loc}:${x.slot}`)).size !== tiles.length) fail('BAD_TILE');
+  for (const x of tiles) {
+    if (s.money[seat]! >= 0) fail('SHORTFALL_COVERED');
+    const t = s.board[x.loc]?.[x.slot];
+    if (!t || t.owner !== seat) return fail('BAD_TILE');
+    s.board[x.loc]![x.slot] = null;
+    s.money[seat]! += Math.floor(tileDef(t.industry, t.level).cost / 2);
+  }
+  if (s.money[seat]! < 0) {
+    if (ownTiles(s, seat)) fail('SHORTFALL_NOT_COVERED');
+    s.vp[seat] = Math.max(0, s.vp[seat]! + s.money[seat]!);
+    s.money[seat] = 0;
+  }
+  s.seq += 1;
+  finishShortfall(s, rng);
+}
+function finishShortfall(s: BrassState, rng: EngineRng) {
+  const p = s.shortfall!;
+  p.seats.shift();
+  if (p.seats.length) return;
+  s.shortfall = null;
+  afterIncome(s, rng, p.eraOver);
 }
 
 /** Link VP icons at a location: merchants have printed icons, towns/farms sum their flipped tiles. */
@@ -497,8 +604,74 @@ const finish = (s: BrassState, events: Events): Transition<BrassState> =>
   ({ nextState: s, internalEvents: events, scheduleChanges: [{ kind: s.outcome ? 'clear' : 'set', deadlineKey: 'turn' }] });
 const NO_RNG: EngineRng = { nextInt: () => 0 }; // validation never depends on the shuffle result
 
-function check(s: BrassState, seat: number, a: Exclude<BrassAction, { type: 'resign' }>): string | null {
-  try { perform(structuredClone(s), seat, a, NO_RNG); return null; } catch (e) { if (e instanceof BrassError) return e.code; throw e; }
+/** Dry run of one action on a copy: the error code, or the state right after the action (before the turn flow). */
+function trial(s: BrassState, seat: number, a: TurnAction): { code: string } | { next: BrassState } {
+  const next = structuredClone(s);
+  try { perform(next, seat, a, NO_RNG, false); return { next }; } catch (e) { if (e instanceof BrassError) return { code: e.code }; throw e; }
+}
+function check(s: BrassState, seat: number, a: TurnAction): string | null {
+  const r = trial(s, seat, a);
+  return 'code' in r ? r.code : null;
+}
+
+type PlacedTile = { loc: string; slot: number; owner: number; industry: Industry };
+/** What one action consumes and gives (HANDOFF «هزینهٔ اقدام‌ها»; shape of data/mock-state.json main.hints[].cost). */
+export interface ActionCost {
+  money: number; spent: number; coalMarket: number; ironMarket: number; income: number; incomeLevel: number; vp: number;
+  /** Coal / iron / beer taken from tiles on the board (owner = whose tile), n cubes or barrels. */
+  from: (PlacedTile & { n: number })[];
+  flipped: (PlacedTile & { level: number })[];
+  beerMerchant: { merchant: string; space: number }[];
+  built?: Tile & { loc: string; slot: number };
+}
+export function costOf(b: BrassState, c: BrassState, seat: number): ActionCost {
+  const d: ActionCost = {
+    money: c.money[seat]! - b.money[seat]!, spent: c.spent[seat]! - b.spent[seat]!, coalMarket: c.coal - b.coal, ironMarket: c.iron - b.iron,
+    income: c.income[seat]! - b.income[seat]!, incomeLevel: incomeLevel(c.income[seat]!) - incomeLevel(b.income[seat]!), vp: c.vp[seat]! - b.vp[seat]!,
+    from: [], flipped: [], beerMerchant: []
+  };
+  for (const [loc, row] of Object.entries(b.board)) row.forEach((t, slot) => {
+    const u = c.board[loc]![slot];
+    const same = !!t && !!u && t.owner === u.owner && t.industry === u.industry && t.level === u.level;
+    if (t && u && same && u.cubes < t.cubes) d.from.push({ loc, slot, owner: t.owner, industry: t.industry, n: t.cubes - u.cubes });
+    if (t && u && same && !t.flipped && u.flipped) d.flipped.push({ loc, slot, owner: t.owner, industry: t.industry, level: t.level });
+    if (u && !same) d.built = { loc, slot, ...u };
+  });
+  for (const [m, st] of Object.entries(b.merchants)) st.beer.forEach((x, i) => { if (x && !c.merchants[m]!.beer[i]) d.beerMerchant.push({ merchant: m, space: i }); });
+  return d;
+}
+/**
+ * Resource sources the player may pick for an action when there is a real choice (RULES E2): only lists with 2+ options
+ * (sell beer: the merchant barrel counts as one option). Sent with the hint; the default stays the engine's rule.
+ */
+function choicesFor(s: BrassState, seat: number, a: TurnAction): Record<string, Choice[] | boolean> | undefined {
+  const out: Record<string, Choice[] | boolean> = {};
+  if (a.type === 'build') {
+    const def = nextTile(s, seat, a.industry);
+    if (def?.coal) { const c = coalChoices(s, [a.loc]); if (c.length > 1) out.coal = c; }
+    if (def?.iron) { const c = ironChoices(s); if (c.length > 1) out.iron = c; }
+  } else if (a.type === 'develop') {
+    const c = ironChoices(s); if (c.length > 1) out.iron = c;
+  } else if (a.type === 'network' && s.era === 'rail' && a.links.length === 1) {
+    const c = coalChoices(s, linkNodes(LINK.get(a.links[0]!)!)); if (c.length > 1) out.coal = c;
+  } else if (a.type === 'sell') {
+    const sale = a.sales[0]!;
+    const t = s.board[sale.loc]?.[sale.slot];
+    if (t && tileDef(t.industry, t.level).beer > 0) {
+      const c = beerChoices(s, seat, [sale.loc]);
+      const barrel = !!sale.merchant && (s.merchants[sale.merchant]?.beer ?? []).some((x, i) => x && !!s.merchants[sale.merchant!]!.tiles[i] && MERCHANT_TILE.get(s.merchants[sale.merchant!]!.tiles[i]!)!.goods.includes(t.industry));
+      if (c.length + (barrel ? 1 : 0) > 1) { out.beer = c; out.barrel = barrel; }
+    }
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** Hint plus the cost of its dry run (`next` is the state after the action), or nothing when the action is illegal. */
+function costed(s: BrassState, seat: number, a: TurnAction, hint: ActionHint): ActionHint | null {
+  const r = trial(s, seat, a);
+  if ('code' in r) return null;
+  const choices = choicesFor(s, seat, a);
+  return { ...hint, cost: costOf(s, r.next, seat), ...(choices ? { choices } : {}) };
 }
 
 export function setupState(playerCount: number, rng: EngineRng): BrassState {
@@ -522,6 +695,27 @@ export function setupState(playerCount: number, rng: EngineRng): BrassState {
     last: null, seq: 0, timeouts: seats.map(() => 0), outcome: null
   };
   return s;
+}
+
+/** Seat colour of the publisher pieces, code seat 0..3 (layout.json seatColors). */
+export const SEAT_COLOR_NAMES = ['red', 'yellow', 'purple', 'grey'] as const;
+
+/** Public panel data of one seat beyond the four DS stats (COMPONENTS.md §11). */
+export function seatDetail(s: BrassState, seat: number) {
+  let tilesOnBoard = 0;
+  eachTile(s, (t) => { if (t.owner === seat) tilesOnBoard += 1; });
+  return {
+    incomeSpace: s.income[seat]!,
+    linksLeft: LINK_TILES - Object.values(s.links).filter((o) => o === seat).length,
+    tilesOnBoard,
+    discardTop: s.discards[seat]!.at(-1) ?? null,
+    nextTiles: Object.fromEntries(INDUSTRIES.map((x) => {
+      const t = nextTile(s, seat, x);
+      return [x, t ? { level: t.level, left: STACK[x].slice(s.mat[seat]![x]).filter((u) => u.level === t.level).length } : null];
+    })) as Record<Industry, { level: number; left: number } | null>,
+    character: SEAT_COLOR_NAMES[seat]!,
+    era: s.era
+  };
 }
 
 // ---------- tutorial (tutorial tables only) ----------
@@ -577,6 +771,11 @@ export const brassModule: GameModule<BrassState, BrassAction, BrassView> = {
     if (actor.kind !== 'player' || actor.seat < 0 || actor.seat >= s.players) return { ok: false, errorCode: 'NOT_A_PLAYER' };
     if (a.type === 'resign') return { ok: true };
     if (currentSeat(s) !== actor.seat) return { ok: false, errorCode: 'NOT_YOUR_TURN' };
+    if (a.type === 'shortfall' || s.shortfall?.seats.length) {
+      if (a.type !== 'shortfall') return { ok: false, errorCode: 'SHORTFALL_PENDING' };
+      try { resolveShortfall(structuredClone(s), actor.seat, a.tiles, NO_RNG); } catch (e) { if (e instanceof BrassError) return { ok: false, errorCode: e.code }; throw e; }
+      return { ok: true };
+    }
     const code = check(s, actor.seat, a);
     return code ? { ok: false, errorCode: code } : { ok: true };
   },
@@ -588,7 +787,8 @@ export const brassModule: GameModule<BrassState, BrassAction, BrassView> = {
       return finish(s, [{ type: 'resigned', seat }]);
     }
     s.timeouts[seat] = 0;
-    perform(s, seat, a, ctx.rng);
+    if (a.type === 'shortfall') resolveShortfall(s, seat, a.tiles, ctx.rng);
+    else perform(s, seat, a, ctx.rng);
     return finish(s, [{ type: a.type, seat }]);
   },
 
@@ -618,6 +818,7 @@ export const brassModule: GameModule<BrassState, BrassAction, BrassView> = {
     const seat = currentSeat(s);
     if (seat === null) return { nextState: s, internalEvents: [], scheduleChanges: [] };
     const missed = s.timeouts[seat]! + 1;
+    if (s.shortfall?.seats[0] === seat) { autoShortfall(s, seat); s.seq += 1; finishShortfall(s, ctx.rng); s.timeouts[seat] = missed; return finish(s, [{ type: 'timed-out', seat }]); }
     // Pass every remaining action of the turn, discarding the first card of the hand each time.
     for (let n = s.actionsLeft; n > 0 && !s.outcome && currentSeat(s) === seat && s.hands[seat]!.length; n--) perform(s, seat, { type: 'pass', card: s.hands[seat]![0]! }, ctx.rng);
     s.timeouts[seat] = missed;
@@ -635,15 +836,24 @@ export const brassModule: GameModule<BrassState, BrassAction, BrassView> = {
         stats: [
           { key: 'money', label: 'پول', value: s.money[seat]!, icon: 'coins' },
           { key: 'income', label: 'درآمد', value: incomeLevel(s.income[seat]!), icon: 'gem' },
+          { key: 'spent', label: 'خرج این دور', value: s.spent[seat]!, icon: 'coins' },
           { key: 'cards', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' }
         ],
+        turnOrder: s.order.indexOf(seat) + 1,
+        // Extra panel data (HANDOFF «HUD و publicSummary»); spread so the DS contract shape stays as declared.
+        ...{ detail: seatDetail(s, seat) },
         ...(won === seat ? { status: 'winner' as const } : {})
       })),
       shared: [
-        { key: 'era', label: 'عصر', value: s.era === 'canal' ? 'کانال' : 'راه‌آهن' },
+        { key: 'era', label: 'دوره', value: s.era === 'canal' ? 'کانال' : 'راه‌آهن' },
         { key: 'round', label: 'دور', value: s.round },
-        { key: 'deck', label: 'دسته', value: s.deck.length }
+        { key: 'deck', label: 'دسته', value: s.deck.length },
+        { key: 'coalPrice', label: 'زغال', value: buyPrice('coal', s.coal) },
+        { key: 'ironPrice', label: 'آهن', value: buyPrice('iron', s.iron) },
+        { key: 'wildLocation', label: 'شهر آزاد', value: s.wild.location },
+        { key: 'wildIndustry', label: 'صنعت آزاد', value: s.wild.industry }
       ],
+      ...(s.log?.length ? { moves: s.log } : {}),
       ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
     };
   },
@@ -664,47 +874,48 @@ export const brassModule: GameModule<BrassState, BrassAction, BrassView> = {
   }
 };
 
-/** Every legal action of `seat` as hints. Builds list the hand cards that may pay for them. */
+/** Every legal action of `seat` as hints, each with the `cost` of its dry run. Builds list the hand cards that may pay for them. */
 export function legalFor(s: BrassState, seat: number): ActionHint[] {
   if (s.outcome || currentSeat(s) !== seat) return [];
+  if (s.shortfall?.seats.length) return [{ type: 'shortfall', ...shortfallOptions(s, seat) }];
   const hand = s.hands[seat]!;
   const any = hand[0];
   if (any === undefined) return [];
   const out: ActionHint[] = [];
+  const add = (h: ActionHint | null) => { if (h) out.push(h); return !!h; };
   for (const loc of LOCATIONS) {
     loc.slots?.forEach((accepts, slot) => {
       for (const industry of accepts) {
         const cards = hand.filter((c, i) => hand.indexOf(c) === i && cardAllows(s, seat, c, industry, loc));
-        if (cards.length && !check(s, seat, { type: 'build', card: cards[0]!, industry, loc: loc.id, slot })) out.push({ type: 'build', industry, loc: loc.id, slot, cards });
+        if (cards.length) add(costed(s, seat, { type: 'build', card: cards[0]!, industry, loc: loc.id, slot }, { type: 'build', industry, loc: loc.id, slot, cards }));
       }
     });
   }
-  const singles = [...LINK.keys()].filter((id) => !check(s, seat, { type: 'network', card: any, links: [id] }));
-  for (const id of singles) out.push({ type: 'network', links: [id] });
+  const singles = [...LINK.keys()].filter((id) => add(costed(s, seat, { type: 'network', card: any, links: [id] }, { type: 'network', links: [id] })));
   if (s.era === 'rail' && s.money[seat]! >= 15) {
     const net = network(s, seat);
     for (const a of singles) {
       const near = new Set([...net, ...linkNodes(LINK.get(a)!)]);
       for (const [b, l] of LINK) {
         if (a === b || !l.rail || s.links[b] !== undefined || !linkNodes(l).some((x) => near.has(x))) continue; // cheap pre-filter
-        if (!check(s, seat, { type: 'network', card: any, links: [a, b] })) out.push({ type: 'network', links: [a, b] });
+        add(costed(s, seat, { type: 'network', card: any, links: [a, b] }, { type: 'network', links: [a, b] }));
       }
     }
   }
   for (let i = 0; i < INDUSTRIES.length; i++) {
     const a = INDUSTRIES[i]!;
-    if (!check(s, seat, { type: 'develop', card: any, industries: [a] })) out.push({ type: 'develop', industries: [a] });
+    add(costed(s, seat, { type: 'develop', card: any, industries: [a] }, { type: 'develop', industries: [a] }));
     for (let j = i; j < INDUSTRIES.length; j++) {
       const b = INDUSTRIES[j]!;
-      if (!check(s, seat, { type: 'develop', card: any, industries: [a, b] })) out.push({ type: 'develop', industries: [a, b] });
+      add(costed(s, seat, { type: 'develop', card: any, industries: [a, b] }, { type: 'develop', industries: [a, b] }));
     }
   }
   eachTile(s, (t, loc, slot) => {
     if (t.owner !== seat || t.flipped || !GOODS.includes(t.industry)) return;
-    for (const m of Object.keys(s.merchants)) if (!check(s, seat, { type: 'sell', card: any, sales: [{ loc, slot, merchant: m }] })) out.push({ type: 'sell', loc, slot, merchant: m });
+    for (const m of Object.keys(s.merchants)) add(costed(s, seat, { type: 'sell', card: any, sales: [{ loc, slot, merchant: m }] }, { type: 'sell', loc, slot, merchant: m }));
   });
-  if (!check(s, seat, { type: 'loan', card: any })) out.push({ type: 'loan' });
-  if (hand.length >= 3 && !check(s, seat, { type: 'scout', cards: hand.slice(0, 3) })) out.push({ type: 'scout' });
-  out.push({ type: 'pass' });
+  add(costed(s, seat, { type: 'loan', card: any }, { type: 'loan' }));
+  if (hand.length >= 3) add(costed(s, seat, { type: 'scout', cards: hand.slice(0, 3) }, { type: 'scout' }));
+  add(costed(s, seat, { type: 'pass', card: any }, { type: 'pass' }));
   return out;
 }

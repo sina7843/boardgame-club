@@ -57,3 +57,14 @@ button.ra-gem { min-inline-size: 1.7rem; block-size: 1.7rem; cursor: pointer; fo
 
 /* v2: essences are the BGA Res Arcana tokens (transparent shapes) */
 .ra-gem { border-radius: 0; background-color: transparent; background-size: contain; box-shadow: none; filter: drop-shadow(0 0 1px rgb(255 240 210 / 0.7)); }
+
+.ra-me__head--framed > bdi, .ra-me__head--framed > .ra-vp { display: none; }
+
+/* Round 2: inside the frame the felt is the table — no walnut/maroon panels; the shelf, rivals and your area sit on
+   felt plates. Cards stay text cards: the engine's cards are not the printed ones (RULES E1), so printed art would
+   show effects the engine does not play. */
+.ra--framed { background: none; padding: 0; color: var(--felt-ink); }
+.ra--framed .ra-shelf { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.ra--framed .ra-rival { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.ra--framed .ra-rival.is-now { outline: 2px solid var(--felt-gold); }
+.ra--framed .ra-shelf__left, .ra--framed .ra-none { color: var(--felt-muted); }

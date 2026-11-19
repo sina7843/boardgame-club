@@ -4,37 +4,46 @@
 // (WebP cut from a generated sheet, see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
-import carpet from './art/bd-carpet.webp';
-import dieArt from './art/die.webp';
-import pawnRed from './art/pawn-red.webp';
-import pawnGreen from './art/pawn-green.webp';
-import pawnYellow from './art/pawn-yellow.webp';
-import pawnBlue from './art/pawn-blue.webp';
-import { TRACK, trackSquare, type LogEntry, type LudoView } from './rules.ts';
+import { Button, Icon, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import board from './art/board.png';
+import dieArt from './art/die-6.png';
+import pawnRed from './art/pawn-red.png';
+import pawnGreen from './art/pawn-green.png';
+import pawnYellow from './art/pawn-yellow.png';
+import pawnBlue from './art/pawn-blue.png';
+import { FINAL, TRACK, trackSquare, type LogEntry, type LudoView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const C = 50;
 export const SLOT_COLORS = ['#d62f35', '#23843f', '#e0a400', '#1c63c9'];
 const PAWN_ART = [pawnRed, pawnGreen, pawnYellow, pawnBlue]; // same order as SLOT_COLORS
 export const SLOT_FA = ['قرمز', 'سبز', 'زرد', 'آبی'];
+// 15x15 BGA board (art/board.png): 52-square loop, clockwise from red's start; slot s starts at index 13·s.
 const TRACK_XY: [number, number][] = [
-  [0, 4], [1, 4], [2, 4], [3, 4], [4, 4], [4, 3], [4, 2], [4, 1], [4, 0], [5, 0],
-  [6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [7, 4], [8, 4], [9, 4], [10, 4], [10, 5],
-  [10, 6], [9, 6], [8, 6], [7, 6], [6, 6], [6, 7], [6, 8], [6, 9], [6, 10], [5, 10],
-  [4, 10], [4, 9], [4, 8], [4, 7], [4, 6], [3, 6], [2, 6], [1, 6], [0, 6], [0, 5]
+  [6, 13], [6, 12], [6, 11], [6, 10], [6, 9], [5, 8], [4, 8], [3, 8], [2, 8], [1, 8], [0, 8], [0, 7],
+  [0, 6], [1, 6], [2, 6], [3, 6], [4, 6], [5, 6], [6, 5], [6, 4], [6, 3], [6, 2], [6, 1], [6, 0],
+  [7, 0], [8, 0], [8, 1], [8, 2], [8, 3], [8, 4], [8, 5], [9, 6], [10, 6], [11, 6], [12, 6], [13, 6],
+  [14, 6], [14, 7], [14, 8], [13, 8], [12, 8], [11, 8], [10, 8], [9, 8], [8, 9], [8, 10], [8, 11], [8, 12],
+  [8, 13], [8, 14], [7, 14], [6, 14]
 ];
 const GOAL_XY: [number, number][][] = [
-  [[1, 5], [2, 5], [3, 5], [4, 5]], [[5, 1], [5, 2], [5, 3], [5, 4]], [[9, 5], [8, 5], [7, 5], [6, 5]], [[5, 9], [5, 8], [5, 7], [5, 6]]
+  [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]], [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
+  [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]], [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]]
 ];
 const YARD_XY: [number, number][][] = [
-  [[0, 0], [1, 0], [0, 1], [1, 1]], [[9, 0], [10, 0], [9, 1], [10, 1]], [[9, 9], [10, 9], [9, 10], [10, 10]], [[0, 9], [1, 9], [0, 10], [1, 10]]
+  [[2, 11], [3, 11], [2, 12], [3, 12]], [[2, 2], [3, 2], [2, 3], [3, 3]], [[11, 2], [12, 2], [11, 3], [12, 3]], [[11, 11], [12, 11], [11, 12], [12, 12]]
+];
+// pieces that reached the centre sit in their own corner of the middle triangle
+const CENTRE_XY: [number, number][][] = [
+  [[6.7, 7.6], [7.1, 7.9], [6.7, 7.9], [7.1, 7.6]], [[6.4, 6.7], [6.4, 7.1], [6.7, 6.9], [6.4, 7.3]],
+  [[7.6, 6.4], [7.2, 6.4], [7.4, 6.7], [7.8, 6.4]], [[7.9, 7.3], [7.9, 6.9], [7.6, 7.3], [7.9, 7.6]]
 ];
 const px = ([x, y]: [number, number]): [number, number] => [x * C + C / 2, y * C + C / 2];
 
 /** Board position of a piece. */
 function where(slot: number, piece: number, progress: number): [number, number] {
   if (progress < 0) return px(YARD_XY[slot]![piece]!);
+  if (progress >= FINAL) return px(CENTRE_XY[slot]![piece]!);
   if (progress >= TRACK) return px(GOAL_XY[slot]![progress - TRACK]!);
   return px(TRACK_XY[trackSquare(slot, progress)]!);
 }
@@ -47,12 +56,12 @@ function path(slot: number, piece: number, from: number, to: number): [number, n
   for (let p = from; p !== to + d; p += d) pts.push(where(slot, piece, p));
   return pts;
 }
-const placeFa = (p: number) => (p < 0 ? 'در لانه' : p >= TRACK ? `در خانه (${fa(p - TRACK + 1)})` : `${fa(p + 1)} خانه از شروع`);
+const placeFa = (p: number) => (p < 0 ? 'در لانه' : p >= FINAL ? 'در خانهٔ مرکزی' : p >= TRACK ? `در ستون خانه (${fa(p - TRACK + 1)})` : `${fa(p + 1)} خانه از شروع`);
 
 function describe(e: LogEntry, name: (s: number) => string) {
   switch (e.t) {
     case 'roll': return `${name(e.seat)} ${fa(e.die)} آورد.`;
-    case 'move': return `${name(e.seat)} مهره ${fa(e.piece + 1)} را ${e.from < 0 ? 'از لانه بیرون آورد' : e.to >= TRACK ? 'به خانه برد' : 'جلو برد'}${e.captured ? ` و مهره ${name(e.captured.seat)} را زد!` : ''}.`;
+    case 'move': return `${name(e.seat)} مهره ${fa(e.piece + 1)} را ${e.from < 0 ? 'از لانه بیرون آورد' : e.to >= FINAL ? 'به خانهٔ مرکزی برد' : e.to >= TRACK ? 'وارد ستون خانه کرد' : 'جلو برد'}${e.captured ? ` و مهره ${name(e.captured.seat)} را زد!` : ''}.`;
     case 'noMove': return `${name(e.seat)} حرکتی نداشت.`;
     case 'again': return `${name(e.seat)} ۶ آورد و دوباره تاس می‌ریزد.`;
     case 'finished': return `${name(e.seat)} همه مهره‌هایش را به خانه رساند!`;
@@ -81,26 +90,15 @@ function Die({ value, rolling, pending }: { value: number | null; rolling?: bool
   );
 }
 
-const CELL = 19;
-const ROT = [0, 90, 180, 270];
-const STAR = '0,-9 2.6,-2.6 9,0 2.6,2.6 0,9 -2.6,2.6 -9,0 -2.6,-2.6';
-const HOME = 28;
-
-/** One bevelled printed square; `tint` marks start and goal squares in the player's colour. */
-function Cell({ xy, tint }: { xy: [number, number]; tint?: string }) {
-  const [x, y] = px(xy);
-  return (
-    <g>
-      <rect x={x - CELL} y={y - CELL} width={CELL * 2} height={CELL * 2} rx="8" className="ld-cell" fill="url(#ldg-cell)" />
-      {tint && <rect x={x - CELL} y={y - CELL} width={CELL * 2} height={CELL * 2} rx="8" className="ld-cell__tint" fill={tint} />}
-      <rect x={x - CELL + 2} y={y - CELL + 2} width={CELL * 2 - 4} height={CELL * 2 - 4} rx="6" className="ld-cell__hi" />
-    </g>
-  );
-}
-
 /** Painted pawn, centred on the origin (aria-hidden: the piece group carries the label). */
 function Pawn({ slot }: { slot: number }) {
-  return <image className="ld-pawn" href={PAWN_ART[slot]} x="-24" y="-26" width="48" height="48" aria-hidden="true" />;
+  // Plain disc (~30px) in a dark ring, as the design shows; the piece number stays in the accessible label only.
+  return (
+    <g className="ld-pawn" aria-hidden="true">
+      <image href={PAWN_ART[slot]} x="-20" y="-20" width="40" height="40" />
+      <circle r="18.5" className="ld-pawn__ring" />
+    </g>
+  );
 }
 
 export default function LudoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LudoView>) {
@@ -142,6 +140,8 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shownSig]);
 
+  const framed = useInFrame() !== null;
+  const dieNow = view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null);
   const mine = mySeat !== null ? view.slots[mySeat]! : null;
   const status = view.outcome ? null : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' } : canRoll
     ? { tone: 'mine' as const, text: view.tries > 1 ? `نوبت شماست: تاس بریزید (${fa(view.tries)} فرصت برای ۶)` : 'نوبت شماست: تاس بریزید' }
@@ -151,70 +151,36 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
   return (
     <div className="ld" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {mySeat !== null && mine !== null && (
+            <section className="ld-rail" aria-label="مهره‌های شما">
+              <h3>مهره‌های شما<span className="ld-rail__note">{SLOT_FA[mine]}</span></h3>
+              <div className="ld-rail__pills">
+                <span className="bgv-chip">در خانه: {fa(view.pieces[mySeat]!.filter((p) => p >= FINAL).length)} از ۴</span>
+                <span className="bgv-chip">در لانه: {fa(view.pieces[mySeat]!.filter((p) => p < 0).length)}</span>
+                {moves.length > 0 && <span className="bgv-chip">{fa(moves.length)} حرکت ممکن</span>}
+              </div>
+            </section>
+          )}
+          <p className="ld-rail__tip"><Icon name="book" size={18} />
+            <span>{moves.length ? 'مهرهٔ روی صفحه یا یکی از دکمه‌ها را بزنید؛ اگر دقیقاً روی مهرهٔ حریف بنشینید، به لانه‌اش برمی‌گردد.' : 'مهرهٔ لانه فقط با ۶ بیرون می‌آید و ۶ یک تاس جایزه دارد.'} ورود به ستون خانه با عدد دقیق است.</span>
+          </p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="ld-main">
         <ZoomBoard label="صفحه منچ">
-        <svg className="ld-board" viewBox="-16 -16 582 582" role="group" aria-label="صفحه منچ" style={{ direction: 'ltr' }}>
-          <defs>
-            <linearGradient id="ldg-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#a8754a" /><stop offset="0.5" stopColor="#8a5a32" /><stop offset="1" stopColor="#5e3a1e" /></linearGradient>
-            <pattern id="ldg-grain" width="90" height="9" patternUnits="userSpaceOnUse">
-              <path d="M0 2 Q22 0 45 2 T90 2 M0 6 Q30 8 60 6 T90 6" fill="none" stroke="#2a1608" strokeOpacity="0.18" strokeWidth="0.8" />
-              <path d="M0 4 H90" stroke="#fff" strokeOpacity="0.05" strokeWidth="0.8" />
-            </pattern>
-            <pattern id="ldg-linen" width="6" height="6" patternUnits="userSpaceOnUse">
-              <path d="M0 0 H6 M0 3 H6" stroke="#8a6a3a" strokeOpacity="0.07" strokeWidth="0.6" /><path d="M0 0 V6 M3 0 V6" stroke="#8a6a3a" strokeOpacity="0.05" strokeWidth="0.6" />
-            </pattern>
-            <linearGradient id="ldg-paper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fffaf0" /><stop offset="1" stopColor="#f2e6c8" /></linearGradient>
-            <linearGradient id="ldg-edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.55" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="0.5" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.55" /></linearGradient>
-            <linearGradient id="ldg-inner" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#000" stopOpacity="0.5" /><stop offset="0.5" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#fff" stopOpacity="0.5" /></linearGradient>
-            <linearGradient id="ldg-cell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor="#e6dbc0" /></linearGradient>
-            <linearGradient id="ldg-well" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#b3a487" /><stop offset="1" stopColor="#fffdf7" /></linearGradient>
-            <linearGradient id="ldg-tri" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.4" /><stop offset="1" stopColor="#000" stopOpacity="0.3" /></linearGradient>
-            <radialGradient id="ldg-gold" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stopColor="#fff2b0" /><stop offset="1" stopColor="#b8860b" /></radialGradient>
-            <filter id="ldg-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" /></filter>
-          </defs>
-          {/* wooden frame, bevelled, with grain */}
-          <g aria-hidden="true">
-            <rect x="-16" y="-16" width="582" height="582" rx="22" fill="url(#ldg-wood)" />
-            <rect x="-16" y="-16" width="582" height="582" rx="22" fill="url(#ldg-grain)" />
-            <rect x="-15" y="-15" width="580" height="580" rx="21" fill="none" stroke="url(#ldg-edge)" strokeWidth="2.5" />
-            {/* printed card board inset into the frame */}
-            <image href={carpet} width="550" height="550" preserveAspectRatio="xMidYMid slice" />
-            <rect width="550" height="550" rx="6" className="ld-board__bg" fill="url(#ldg-paper)" fillOpacity="0.6" />
-            <rect width="550" height="550" rx="6" fill="url(#ldg-linen)" />
-            <rect x="-1" y="-1" width="552" height="552" rx="7" fill="none" stroke="url(#ldg-inner)" strokeWidth="3" />
-          </g>
-          {YARD_XY.map((cells, slot) => {
-            const x = Math.min(...cells.map((c) => c[0])) * C + 2, y = Math.min(...cells.map((c) => c[1])) * C + 2;
-            const inGame = view.slots.includes(slot);
+        <svg className="ld-board" viewBox="0 0 750 750" role="group" aria-label="صفحه منچ" style={{ direction: 'ltr' }}>
+          {/* The printed board art has transparent track cells: they sit on white card stock, as the design shows. */}
+          <rect width="750" height="750" fill="#fff" aria-hidden="true" />
+          <image href={board} width="750" height="750" aria-hidden="true" />
+          {YARD_XY.map((_, slot) => {
             const turn = !view.outcome && view.slots[view.current] === slot;
-            return (
-              <g key={slot} className={turn ? 'ld-yard ld-yard--turn' : 'ld-yard'} style={{ color: SLOT_COLORS[slot] }} opacity={inGame ? 1 : 0.45} aria-hidden="true">
-                <rect x={x} y={y} width={2 * C - 4} height={2 * C - 4} rx="14" fill={SLOT_COLORS[slot]} />
-                <rect x={x} y={y} width={2 * C - 4} height={2 * C - 4} rx="14" fill="url(#ldg-tri)" />
-                <rect x={x + 8} y={y + 8} width={2 * C - 20} height={2 * C - 20} rx="10" fill="#fffaf0" fillOpacity="0.88" />
-                <rect x={x + 8} y={y + 8} width={2 * C - 20} height={2 * C - 20} rx="10" fill="none" stroke="url(#ldg-inner)" strokeWidth="2.5" />
-                <rect x={x} y={y} width={2 * C - 4} height={2 * C - 4} rx="14" fill="none" stroke="#000" strokeOpacity="0.35" strokeWidth="1.5" />
-              </g>
-            );
+            const [x, y] = px(YARD_XY[slot]![0]!);
+            return turn ? <rect key={slot} x={x - C / 2 - 3} y={y - C / 2 - 3} width={2 * C + 6} height={2 * C + 6} className="ld-yard ld-yard--turn" aria-hidden="true" /> : null;
           })}
-          <g className="ld-track" aria-hidden="true">
-            {TRACK_XY.map((xy, i) => <Cell key={i} xy={xy} {...(i % 10 === 0 ? { tint: SLOT_COLORS[i / 10]! } : {})} />)}
-            {GOAL_XY.map((cells, slot) => cells.map((xy, i) => <Cell key={`${slot}${i}`} xy={xy} tint={SLOT_COLORS[slot]!} />))}
-          </g>
-          <g aria-hidden="true">
-            {TRACK_XY.map((xy, i) => { if (i % 10) return null; const [x, y] = px(xy); return <polygon key={`s${i}`} points={STAR} transform={`translate(${x} ${y})`} className="ld-start" />; })}
-            {GOAL_XY.map((cells, slot) => cells.map((xy, i) => { const [x, y] = px(xy); return <g key={`a${slot}${i}`} transform={`translate(${x} ${y}) rotate(${ROT[slot]})`}><polyline points="-5,-7 4,0 -5,7" className="ld-arrow ld-arrow--under" /><polyline points="-5,-7 4,0 -5,7" className="ld-arrow" /></g>; }))}
-            {SLOT_COLORS.map((color, slot) => {
-              const [cx, cy] = px([5, 5]), h = HOME;
-              const pts = [[[-h, -h], [-h, h]], [[-h, -h], [h, -h]], [[h, -h], [h, h]], [[-h, h], [h, h]]][slot]!;
-              const d = `${cx},${cy} ${cx + pts[0]![0]!},${cy + pts[0]![1]!} ${cx + pts[1]![0]!},${cy + pts[1]![1]!}`;
-              return <g key={`h${slot}`}><polygon points={d} fill={color} /><polygon points={d} fill="url(#ldg-tri)" stroke="#3a2a1a" strokeWidth="1.5" strokeLinejoin="round" /></g>;
-            })}
-            <g transform="translate(275 275)"><circle r="10" fill="url(#ldg-gold)" stroke="#3a2a1a" strokeWidth="1.5" /><polygon points={STAR} transform="scale(0.55)" fill="#fff" fillOpacity="0.9" /></g>
-            {YARD_XY.map((cells, slot) => cells.map((xy, i) => { const [x, y] = px(xy); return <circle key={`y${slot}${i}`} cx={x} cy={y} r="17" className="ld-cell ld-cell--yard" fill="url(#ldg-well)" />; }))}
-          </g>
-          {!pendingMove && moves.map((m) => { const [x, y] = where(mine!, m.piece, m.to); return <circle key={`t${m.piece}`} cx={x} cy={y} r="23" className="ld-target" />; })}
+          {!pendingMove && moves.map((m) => { const [x, y] = where(mine!, m.piece, m.to); return <circle key={`t${m.piece}`} cx={x} cy={y} r="22" className="ld-target" />; })}
           {view.pieces.flatMap((ps, seat) => !view.active[seat] ? [] : ps.map((p, i) => {
             const slot = view.slots[seat]!;
             const [x, y] = where(slot, i, shown[seat]![i]!);
@@ -225,10 +191,8 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
             return (
               <g key={`${seat}-${i}`} style={{ transform: `translate(${x}px, ${y}px)` }}><g data-pawn={`${seat}-${i}`} className={['ld-piece', move ? 'ld-piece--movable' : '', hint ? 'ld-piece--hint' : ''].join(' ')}
                 {...(move ? { role: 'button', tabIndex: 0, 'aria-label': label, onClick: act, onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } } } : { role: 'img', 'aria-label': label })}>
-                <circle r="22" className="ld-piece__ring" />
-                <ellipse cx="2.5" cy="5.5" rx="16" ry="12" className="ld-piece__shadow" filter="url(#ldg-blur)" aria-hidden="true" />
+                <circle r="24" className="ld-piece__ring" />
                 <Pawn slot={slot} />
-                <text y="6" aria-hidden="true">{fa(i + 1)}</text>
               </g></g>
             );
           }))}
@@ -236,30 +200,51 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
         </ZoomBoard>
 
         <div className="ld-side">
-          <div className="ld-roll">
-            {rollPending
-              ? <Die key="pending" value={null} pending />
-              : <Die key={lastRoll?.seq} value={view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null)} rolling={!!lastRoll && lastRoll.seq !== firstRoll.current} />}
-            {canRoll && <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button></DockSlot>}
-          </div>
-          {moves.length > 0 && (
-            <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">
-              {moves.map((m) => <Button key={m.piece} variant="secondary" disabled={busy} onClick={() => onAction({ type: 'move', piece: m.piece })}>مهره {fa(m.piece + 1)}: {placeFa(view.pieces[mySeat!]![m.piece]!)} ← {placeFa(m.to)}</Button>)}
+          {framed ? (
+            // Frame: one turn card in the dock row (die, what to do, roll or the movable pieces); no blank die before a roll.
+            (rollPending || canRoll || moves.length > 0 || !!dieNow) && (
+              <DockSlot>
+                <div className="ld-turn">
+                  {rollPending ? <Die key="pending" value={null} pending />
+                    : dieNow ? <Die key={lastRoll?.seq} value={dieNow} rolling={!!lastRoll && lastRoll.seq !== firstRoll.current} /> : null}
+                  <p className="ld-turn__t">{status?.text ?? (lastRoll ? describe(lastRoll, seatName) : '')}</p>
+                  {canRoll && <Button disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>}
+                  {moves.length > 0 && (
+                    <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">
+                      {moves.map((m) => <Button key={m.piece} variant="secondary" disabled={busy} onClick={() => onAction({ type: 'move', piece: m.piece })}>مهره {fa(m.piece + 1)}: {placeFa(view.pieces[mySeat!]![m.piece]!)} ← {placeFa(m.to)}</Button>)}
+                    </div>
+                  )}
+                </div>
+              </DockSlot>
+            )
+          ) : (
+            <>
+            <div className="ld-roll">
+              {rollPending
+                ? <Die key="pending" value={null} pending />
+                : <Die key={lastRoll?.seq} value={view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null)} rolling={!!lastRoll && lastRoll.seq !== firstRoll.current} />}
+              {canRoll && <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button></DockSlot>}
             </div>
+            {moves.length > 0 && (
+              <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">
+                {moves.map((m) => <Button key={m.piece} variant="secondary" disabled={busy} onClick={() => onAction({ type: 'move', piece: m.piece })}>مهره {fa(m.piece + 1)}: {placeFa(view.pieces[mySeat!]![m.piece]!)} ← {placeFa(m.to)}</Button>)}
+              </div>
+            )}
+            </>
           )}
-          <ul className="ld-players" aria-label="بازیکنان">
+          {!framed && <ul className="ld-players" aria-label="بازیکنان">
             {view.slots.map((slot, seat) => (
               <li key={seat} className={[view.current === seat && !view.outcome ? 'ld-player--turn' : '', view.active[seat] ? '' : 'ld-player--out'].join(' ')}>
                 <span className="ld-dot" style={{ background: SLOT_COLORS[slot] }} aria-hidden="true" />
                 <bdi>{seatName(seat)}</bdi>{seat === mySeat ? ' (شما)' : ''}
-                <span className="ld-players__info">{SLOT_FA[slot]} · در خانه {fa(view.pieces[seat]!.filter((p) => p >= TRACK).length)}/۴{view.active[seat] ? '' : ' · بیرون'}</span>
+                <span className="ld-players__info">{SLOT_FA[slot]}، در خانه {fa(view.pieces[seat]!.filter((p) => p >= FINAL).length)}/۴{view.active[seat] ? '' : '، بیرون'}</span>
               </li>
             ))}
-          </ul>
-          <details className="ld-log" open>
+          </ul>}
+          {!framed && <details className="ld-log" open>
             <summary>رویدادها</summary>
             <ol>{view.log.slice(-6).reverse().map((e) => <li key={e.seq}>{describe(e, seatName)}</li>)}</ol>
-          </details>
+          </details>}
         </div>
       </div>
     </div>

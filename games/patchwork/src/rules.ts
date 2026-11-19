@@ -241,6 +241,7 @@ export const patchworkModule: GameModule<PatchworkState, PatchworkAction, Patchw
   publicSummary: (s) => {
     const sc = s.buttons.map((_, k) => score(s, k));
     return {
+      moves: s.last ? [{ seat: s.last.seat, text: s.last.kind === 'buy' ? 'تکه خرید' : s.last.kind === 'leather' ? 'تکهٔ چرمی گذاشت' : 'جلو رفت' }] : [],
       seats: sc.map((v, seat) => ({
         seat,
         primary: { label: 'امتیاز', value: v },

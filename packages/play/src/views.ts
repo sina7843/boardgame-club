@@ -4,9 +4,10 @@ import { AppError, botPersona, ratingModeOf, type League, type TurnStartedEvent,
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
 import type { BotLevel, Viewer } from '@bg/game-sdk';
-import { clockControl, loadSnapshot } from './runtime.ts';
+import { clockControl, firstMovePending, loadSnapshot } from './runtime.ts';
 import { rematchOf } from './rematch.ts';
 import { seatCosmeticsOf } from './cosmetics.ts';
+import { displayRating } from './rating.ts';
 
 const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables, ratingHistory, tableWatchers, leaguePlacements, seasons } = schema;
 
@@ -88,7 +89,8 @@ export function turnStartedEvent(registry: GameRegistry, ctx: TableContext, revi
   const seats = registry.resolve(table.gameId, version.rulesVersion).pendingSeats(snap.state);
   if (!seats.length) return null;
   return { tableId: table.id, revision, seats, dueAt: turnDue.toISOString(), turnSeconds: (table.settings as { turnSeconds: number }).turnSeconds,
-    pace: table.pace as 'live' | 'turn', serverTime: new Date().toISOString() };
+    pace: table.pace as 'live' | 'turn', serverTime: new Date().toISOString(),
+    ...(clockControl(table) ? { clockBaseSeconds: clockControl(table)!.initialMs / 1000 } : {}) };
 }
 
 /** Builds the authorized snapshot for one viewer, enforcing table access (private, tutorial, invite). */
@@ -99,6 +101,21 @@ async function seatLeagues(db: Db, gameId: string, mode: string, ids: string[]):
     .innerJoin(seasons, eq(seasons.id, leaguePlacements.seasonId))
     .where(and(eq(seasons.status, 'active'), eq(leaguePlacements.gameId, gameId), eq(leaguePlacements.mode, mode), inArray(leaguePlacements.userId, ids)));
   return new Map(rows.map((r) => [r.userId, r.league as League]));
+}
+
+/** Current rating per player in this game and mode (players who never played it rated have none). */
+async function seatRatings(db: Db, gameId: string, mode: string, ids: string[]): Promise<Map<string, number>> {
+  if (!ids.length) return new Map();
+  const rows = await db.select({ userId: schema.ratings.userId, mu: schema.ratings.mu, sigma: schema.ratings.sigma }).from(schema.ratings)
+    .where(and(eq(schema.ratings.gameId, gameId), eq(schema.ratings.mode, mode), inArray(schema.ratings.userId, ids)));
+  return new Map(rows.map((r) => [r.userId, displayRating(r)]));
+}
+
+/** Players with a live table socket right now (a row per subscribed socket, refreshed by its heartbeat). */
+async function connectedUsers(db: Db, tableId: string): Promise<Set<string>> {
+  const rows = await db.selectDistinct({ userId: tableWatchers.userId }).from(tableWatchers)
+    .where(and(eq(tableWatchers.tableId, tableId), sql`${tableWatchers.seenAt} > now() - interval '150 seconds'`));
+  return new Set(rows.map((r) => r.userId));
 }
 
 /** Distinct signed-in watchers seen by a socket heartbeat in the last 150 s (players never count). */
@@ -132,7 +149,10 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     const { nameFa, avatarKey, style } = botPersona(botCfg?.personas, seats.filter((x) => x.p.kind === 'bot' && x.p.seat < seat).length);
     return { level: botCfg!.level, nameFa, avatarKey, style };
   };
-  const leagues = await seatLeagues(db, table.gameId, ratingModeOf(table.pace, (table.settings as { options?: { clock?: unknown } }).options), seats.flatMap(({ u }) => (u ? [u.id] : [])));
+  const seatMode = ratingModeOf(table.pace, (table.settings as { options?: { clock?: unknown } }).options);
+  const seatIds = seats.flatMap(({ u }) => (u ? [u.id] : []));
+  const [leagues, ratingsBy, online] = await Promise.all([seatLeagues(db, table.gameId, seatMode, seatIds), seatRatings(db, table.gameId, seatMode, seatIds),
+    table.status === 'active' ? connectedUsers(db, table.id) : Promise.resolve(null)]);
   const lobby: TableLobby = {
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, gameNameOriginal: game.nameOriginal,
     status: table.status as TableLobby['status'], pace: table.pace as TableLobby['pace'],
@@ -142,7 +162,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     isTutorial: table.isTutorial, isMatchmade: table.isMatchmade, readyDeadline: null, hostId: table.hostId,
     seats: seats.map(({ p, u }) => ({
       seat: p.seat, kind: p.kind as 'human' | 'script' | 'bot', ready: p.ready,
-      ...(u ? { titleKey: u.titleKey, league: leagues.get(u.id) ?? null } : {}),
+      ...(u ? { titleKey: u.titleKey, league: leagues.get(u.id) ?? null, rating: ratingsBy.get(u.id) ?? null, ...(online ? { connected: online.has(u.id) } : {}) } : {}),
       user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null,
       // equipped comes with the seats' users row (no extra query on the move path).
       ...(u && seatCosmeticsOf(u.equipped) ? { cosmetics: seatCosmeticsOf(u.equipped)! } : {}),
@@ -173,10 +193,11 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       view,
       legalActions: table.status === 'active' ? legalActions : [],
       pendingSeats: table.status === 'active' ? module.pendingSeats(snap.state) : [],
-      summary: module.publicSummary ? module.publicSummary(snap.state) : null,
+      summary: module.publicSummary ? clampSummary(module.publicSummary(snap.state)) : null,
       deadline: turnDue ? { dueAt: turnDue.toISOString(), frozen: !!incident } : null,
       clocks: table.clock && clockControl(table) ? { left: table.clock.left, since: new Date(table.clock.since).toISOString(),
-        running: table.status === 'active' ? table.clock.seat : null, initialMs: clockControl(table)!.initialMs } : null,
+        running: table.status === 'active' ? table.clock.seat : null, initialMs: clockControl(table)!.initialMs,
+        ...(firstMovePending(table) ? { first: true } : {}), ...(table.clock.aborted ? { aborted: true } : {}) } : null,
       result: (result as GameView['result'] | null) ?? null,
       tutorial: table.isTutorial ? {
         step: table.tutorialStep, total: t.steps.length, introFa: t.introFa,
@@ -319,4 +340,10 @@ export function toNotificationItem(n: typeof notifications.$inferSelect): Notifi
 export async function markNotificationsRead(db: Db, userId: string, id?: string): Promise<void> {
   await db.update(notifications).set({ readAt: sql`now()` })
     .where(and(eq(notifications.userId, userId), isNull(notifications.readAt), id ? eq(notifications.id, id) : undefined));
+}
+
+/** The snapshot contract caps a move-log line at 40 characters; a longer line from a game would fail the whole response. */
+function clampSummary<T extends { moves?: { seat: number; text: string }[] } | null>(s: T): T {
+  if (!s?.moves?.some((m) => m.text.length > 40)) return s;
+  return { ...s, moves: s.moves.map((m) => (m.text.length > 40 ? { ...m, text: `${m.text.slice(0, 39)}…` } : m)) };
 }

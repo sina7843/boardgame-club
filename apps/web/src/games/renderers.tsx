@@ -58,11 +58,11 @@ import ElDoradoRenderer from '@bg/game-el-dorado/renderer';
 import ResArcanaRenderer from '@bg/game-res-arcana/renderer';
 import RaceGalaxyRenderer from '@bg/game-race-galaxy/renderer';
 import BattleshipRenderer from '@bg/game-battleship/renderer';
-import ArkNovaRenderer from '@bg/game-ark-nova/renderer';
-import BrassRenderer from '@bg/game-brass/renderer';
+import ArkNovaRenderer, { arkSeatCard } from '@bg/game-ark-nova/renderer';
+import BrassRenderer, { brassSeatCard } from '@bg/game-brass/renderer';
 import GaiaProjectRenderer, { gaiaSeatCard } from '@bg/game-gaia-project/renderer';
-import TerraformingMarsRenderer from '@bg/game-terraforming-mars/renderer';
-import BloodRageRenderer from '@bg/game-blood-rage/renderer';
+import TerraformingMarsRenderer, { tmSeatCard } from '@bg/game-terraforming-mars/renderer';
+import BloodRageRenderer, { bloodRageSeatCard } from '@bg/game-blood-rage/renderer';
 import HeatRenderer from '@bg/game-heat/renderer';
 import CryptidRenderer from '@bg/game-cryptid/renderer';
 import SetRenderer from '@bg/game-set/renderer';
@@ -152,8 +152,33 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
  * clock and states). Same keys as RENDERERS.
  */
 /** Renderers with their own «تأیید» step: their moves skip the shell's undo window (undo happens before confirm). */
-export const CONFIRMS_IN_RENDERER = new Set(['gaia-project@1.0.0']);
+export const CONFIRMS_IN_RENDERER = new Set(['gaia-project@1.0.0', 'terraforming-mars@1.0.0', 'brass@1.0.0', 'ark-nova@1.0.0', 'blood-rage@1.0.0']);
+/** Games that draw their own table frame (design/games/chess): the shell passes `frame` and keeps only the game bar and chat. */
+export const OWN_FRAME = new Set(['chess@1.0.0']);
 
 export const SEAT_CARDS: Record<string, (seat: PublicSummaryView['seats'][number], turn: boolean) => Partial<PlayerCardProps>> = {
-  'gaia-project@1.0.0': gaiaSeatCard
+  'gaia-project@1.0.0': gaiaSeatCard,
+  'brass@1.0.0': (seat) => brassSeatCard(seat as Parameters<typeof brassSeatCard>[0]),
+  'terraforming-mars@1.0.0': (seat, turn) => tmSeatCard(seat, turn),
+  'ark-nova@1.0.0': (seat, turn) => arkSeatCard(seat as Parameters<typeof arkSeatCard>[0], turn),
+  'blood-rage@1.0.0': (seat, turn) => bloodRageSeatCard(seat as Parameters<typeof bloodRageSeatCard>[0], turn)
+};
+
+/**
+ * Games on the shared table frame of design/games/group-a…d (Table.tsx FrameView), keyed by game id (= folder slug).
+ * 'duel' = two player bars around the board (two-player board games); 'seats' = opponent seat strip on top. A 'duel'
+ * game at a table with more than two seats (Quoridor for four) falls back to 'seats'. To put a game on the frame, add
+ * its id here; its renderer then keeps only the game's own area (see `useInFrame`, `RailSlot` in @bg/ui).
+ */
+const GROUP_A = ['abalone', 'backgammon', 'checkers', 'go', 'hive', 'line-three', 'onitama', 'othello', 'quoridor', 'santorini', 'tak'];
+const GROUP_BCD = [
+  'amlak', 'battleship', 'camel-up', 'ludo', 'risk', 'snakes-ladders', 'yahtzee',
+  'bohnanza', 'cockroach-poker', 'coup', 'crew-deep-sea', 'for-sale', 'hanabi', 'high-society', 'jaipur', 'lost-cities', 'love-letter', 'no-thanks', 'point-salad',
+  'scout', 'sea-salt-paper', 'sealed-bids', 'set', 'six-nimmt', 'skull', 'sushi-go', 'the-crew', 'the-mind', 'uno',
+  'azul', 'carcassonne', 'catan', 'century', 'citadels', 'cryptid', 'dice-throne', 'dominion', 'el-dorado', 'heat', 'king-of-tokyo', 'kingdomino', 'machi-koro',
+  'patchwork', 'race-galaxy', 'res-arcana', 'space-base', 'splendor', 'star-realms', 'ticket-to-ride', 'unmatched', 'wonders-duel'
+];
+export const GROUP_FRAME: Record<string, 'duel' | 'seats'> = {
+  ...Object.fromEntries(GROUP_A.map((id) => [id, 'duel' as const])),
+  ...Object.fromEntries(GROUP_BCD.map((id) => [id, 'seats' as const]))
 };

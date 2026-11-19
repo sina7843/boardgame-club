@@ -87,21 +87,27 @@ describe('clock: lag compensation and move times', () => {
     await new Promise((r) => setTimeout(r, 60));
     const mv = (u: User, rev: number, action: object, lagMs?: number) =>
       call(ctx, 'POST', `/api/tables/${t.tableId}/commands`, u, { commandId: randomUUID(), expectedRevision: rev, action, ...(lagMs !== undefined ? { lagMs } : {}) });
-    s = (await mv(white, s.game.revision, { type: 'move', from: 'e2', to: 'e4' }, 1000)).json().snapshot;
+    // First moves run on the first-move countdown: the banks do not start until each side has moved once (ENGINE.md P1).
+    s = (await mv(white, s.game.revision, { type: 'move', from: 'e2', to: 'e4' })).json().snapshot;
+    s = (await mv(black, s.game.revision, { type: 'move', from: 'e7', to: 'e5' })).json().snapshot;
     await new Promise((r) => setTimeout(r, 60));
-    s = (await mv(black, s.game.revision, { type: 'move', from: 'e7', to: 'e5' })).json().snapshot; // no lag reported: charged in full
+    s = (await mv(white, s.game.revision, { type: 'move', from: 'g1', to: 'f3' }, 1000)).json().snapshot;
+    await new Promise((r) => setTimeout(r, 60));
+    s = (await mv(black, s.game.revision, { type: 'move', from: 'b8', to: 'c6' })).json().snapshot; // no lag reported: charged in full
     const rows = await ctx.db.select().from(moveTimes).where(eq(moveTimes.tableId, t.tableId)).orderBy(moveTimes.revision);
-    expect(rows).toHaveLength(2);
+    expect(rows).toHaveLength(4);
+    expect(rows[0]).toMatchObject({ seat: 0, actionType: 'move', leftMs: 600_000, lagMs: 0 });
+    expect(rows[1]).toMatchObject({ seat: 1, actionType: 'move', leftMs: 600_000, lagMs: 0 });
     // White: the whole 60+ ms is forgiven (quota 1500), so the clock still shows the full bank.
-    expect(rows[0]).toMatchObject({ seat: 0, actionType: 'move', leftMs: 600_000 });
-    expect(rows[0]!.lagMs).toBe(rows[0]!.spentMs);
-    expect(rows[1]).toMatchObject({ seat: 1, lagMs: 0 });
-    expect(rows[1]!.leftMs!).toBeLessThan(600_000);
-    expect(rows[1]!.spentMs).toBeGreaterThanOrEqual(50);
+    expect(rows[2]).toMatchObject({ seat: 0, actionType: 'move', leftMs: 600_000 });
+    expect(rows[2]!.lagMs).toBe(rows[2]!.spentMs);
+    expect(rows[3]).toMatchObject({ seat: 1, lagMs: 0 });
+    expect(rows[3]!.leftMs!).toBeLessThan(600_000);
+    expect(rows[3]!.spentMs).toBeGreaterThanOrEqual(50);
     // The credit is capped by the quota: 5000 reported ms never gives back more than the time used.
     await mv(white, s.game.revision, { type: 'resign' });
     const pgn = (await call(ctx, 'GET', `/api/tables/${t.tableId}/record`, black)).body as string;
-    expect(pgn).toMatch(/1\. e4 \{\[%clk 0:10:00\]\} 1\.\.\. e5 \{\[%clk 0:09:\d\d\]\}/);
+    expect(pgn).toMatch(/1\. e4 \{\[%clk 0:10:00\]\}\s1\.\.\. e5 \{\[%clk 0:10:00\]\}\s2\. Nf3 \{\[%clk 0:10:00\]\}\s2\.\.\.\sNc6 \{\[%clk 0:09:\d\d\]\}/);
   });
 });
 

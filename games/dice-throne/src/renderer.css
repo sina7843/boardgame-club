@@ -1,113 +1,57 @@
-/* نبرد تاس: an arena — stone floor, hero colours (mountain bronze, shadow violet, fire orange, light gold), chunky dice. */
-.dt { display: grid; gap: 0.55rem; inline-size: 100%; color: #f4ecdf; text-align: center; padding: 0.5rem; border-radius: 16px;
-  background: radial-gradient(circle at 50% 50%, #4a3b2e, #1f1812 80%); }
-.dt > :first-child { justify-self: center; }
-.dt-h--warrior { --h: #c8843c; } .dt-h--shadow { --h: #8a5ad6; } .dt-h--pyro { --h: #ff6a2a; } .dt-h--paladin { --h: #e8c25a; }
+/* دایس ترون: printed hero boards (design/games/group-d/art/dice-throne) with ability hotspots; dice are art where it exists. */
+.dt { display: grid; gap: var(--space-3); inline-size: 100%; color: var(--felt-ink); text-align: center; justify-items: center; }
+.dt-board { display: grid; justify-items: center; inline-size: 100%; }
+.dt-side { display: flex; gap: 10px; align-items: center; direction: ltr; max-inline-size: 100%; }
+.dt-b { --bw: 340px; position: relative; inline-size: min(var(--bw), 100%); flex: 0 1 auto; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-piece); }
+.dt-b--opp { --bw: 260px; }
+.dt-b > img:first-child { display: block; inline-size: 100%; block-size: auto; }
+.dt-box { position: absolute; box-sizing: border-box; padding: 0; border: 0; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--felt-gold) 14%, transparent); outline: 3px solid var(--felt-gold); outline-offset: -3px; }
+.dt-box.is-pick { outline-color: var(--felt-ink); }
+button.dt-box { cursor: pointer; }
+button.dt-box:disabled { cursor: default; }
+.dt-box b { position: absolute; inset-block-end: 4px; inset-inline-start: 6px; padding: 1px 8px; border-radius: var(--radius-pill); background: var(--felt-gold); color: var(--brand-ink); font-size: 12px; direction: rtl; white-space: nowrap; }
+.dt-stats { display: grid; gap: 6px; justify-items: center; inline-size: 84px; direction: rtl; color: var(--felt-ink); }
+.dt-hp { display: grid; justify-items: center; align-content: center; inline-size: 72px; block-size: 72px; border-radius: 50%; background: var(--felt-plate); outline: 4px solid var(--danger); outline-offset: -4px; }
+.dt-hp b { font-size: 26px; line-height: 1; } .dt-hp small, .dt-cp small { font-size: 11px; color: var(--felt-muted); }
+.dt-cp { display: grid; justify-items: center; } .dt-cp b { font-size: 18px; line-height: 1.1; }
+.dt-st { display: flex; gap: 4px; }
+.dt-st span { display: inline-flex; align-items: center; gap: 1px; font-size: 12px; font-weight: 800; }
+.dt-st img { inline-size: 16px; block-size: auto; } .dt-st .is-zero { opacity: 0.35; }
 
-/* hero board: one carved-stone mat (art) tinted by the hero colour; everything on it is HTML/SVG. */
-.dt-board { border-radius: 14px; text-align: start; color: #f4ecdf;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--h, #777) 30%, transparent), rgb(20 15 10 / 0.35)), url('./art/mat-arena.webp') center / cover, #2a2119;
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--h, #777) 75%, #000), 0 6px 14px -8px #000; transition: box-shadow 0.25s; }
-.dt-banner--now { box-shadow: inset 0 0 0 3px var(--h, #ffd27a), 0 0 20px -6px var(--h, #ffd27a); }
-.dt-board__plate { display: grid; gap: 0.6rem; padding: 0.7rem; grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem; grid-template-areas: 'id abil dials'; align-items: start; }
-.dt-board__id { grid-area: id; display: grid; gap: 0.25rem; justify-items: center; text-align: center; font-size: 0.82rem; }
-.dt-portrait { inline-size: 2.4rem; block-size: 2.4rem; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--h, #777); }
-.dt-board__id .dt-portrait { inline-size: 5.2rem; block-size: 5.2rem; border-radius: 12px; box-shadow: 0 0 0 3px var(--h, #777), 0 4px 10px #000; }
-.dt-portrait--lg { inline-size: 5rem; block-size: 5rem; justify-self: center; border-radius: 14px; }
-.dt-banner__name { font-weight: 900; font-size: 0.95rem; text-shadow: 0 1px 2px #000; }
-.dt-banner__hero { color: var(--h); font-weight: 800; text-shadow: 0 1px 2px #000; }
-.dt-defense { display: grid; gap: 0.1rem; inline-size: 100%; padding: 0.35rem 0.4rem; border-radius: 8px; font-size: 0.68rem; color: #2a1d10;
-  background: url('./art/mat-parchment.webp') center / cover, #e8d6b0; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--h, #777) 70%, #2a1d10); }
-.dt-defense i { font-style: normal; }
-
-.dt-abilities { grid-area: abil; list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.dt-abilities li:last-child { grid-column: 1 / -1; }
-.dt-ab { inline-size: 100%; block-size: 100%; display: grid; gap: 0.12rem; align-content: start; padding: 0.4rem 0.55rem; border: 0; border-radius: 8px; font: inherit; text-align: start; color: #2a1d10;
-  background: url('./art/mat-parchment.webp') center / cover, #e8d6b0; box-shadow: inset 0 0 0 1.5px rgb(42 29 16 / 0.45), 0 2px 4px rgb(0 0 0 / 0.5); }
-.dt-ab b { font-size: 0.9rem; }
-.dt-ab__chips { display: flex; gap: 2px; flex-wrap: wrap; }
-.dt-ab__chips i { display: inline-grid; place-items: center; inline-size: 1.35rem; block-size: 1.35rem; border-radius: 4px; font-style: normal; font-size: 0.7rem; font-weight: 900;
-  background: #fbf3e4; box-shadow: inset 0 0 0 1.5px var(--h, #777), 0 1px 0 #8a7a62; }
-.dt-ab__need { font-size: 0.76rem; font-weight: 800; color: #6a3a10; }
-.dt-ab small { font-size: 0.74rem; color: #3b2a18; }
-.dt-ab__ok { justify-self: start; padding: 0 0.35rem; border-radius: 5px; background: #2f7a45; color: #fff; font-size: 0.62rem; font-weight: 800; }
-.dt-ab--met { box-shadow: inset 0 0 0 2.5px #2f9a55, 0 0 10px rgb(111 211 138 / 0.6); }
-.dt-ab--can { cursor: pointer; }
-.dt-ab--can:hover, .dt-ab--can:focus-visible { transform: translateY(-2px); outline: 3px solid #ffd27a; outline-offset: 1px; }
-.dt-ab--ult { box-shadow: inset 0 0 0 2px #b8501c, 0 2px 4px rgb(0 0 0 / 0.5); background: linear-gradient(90deg, rgb(255 106 42 / 0.3), transparent 60%), url('./art/mat-parchment.webp') center / cover; }
-.dt-ab--ult.dt-ab--met { box-shadow: inset 0 0 0 2.5px #2f9a55, 0 0 12px rgb(255 106 42 / 0.7); }
-button.dt-ab:disabled { cursor: default; }
-
-.dt-board__dials { grid-area: dials; display: grid; gap: 0.4rem; justify-items: center; }
-.dt-dial { position: relative; display: grid; place-items: center; inline-size: 6rem; block-size: 6rem; }
-.dt-dial svg { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; filter: drop-shadow(0 3px 4px #000); }
-.dt-dial__track { fill: #1a120c; stroke: #3a2a1c; stroke-width: 8; }
-.dt-dial__fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray 0.6s cubic-bezier(.3,1.3,.5,1); }
-.dt-dial--hp .dt-dial__fill { stroke: #e0482f; } .dt-dial--cp .dt-dial__fill { stroke: #3fb6d9; }
-.dt-dial__tick { stroke: #d8c39a; stroke-width: 1.4; }
-.dt-dial__n { position: relative; display: inline-block; font-size: 1.7rem; font-weight: 900; line-height: 1; text-shadow: 0 2px 3px #000; }
-.dt-dial__label { position: absolute; inset-block-end: 1.15rem; font-size: 0.62rem; font-weight: 800; color: #e8dcc4; }
-.dt-status { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.2rem; inline-size: 100%; }
-.dt-token { position: relative; display: grid; justify-items: center; gap: 0; padding: 0.15rem 0; border-radius: 50%; aspect-ratio: 1; align-content: center; font-size: 0.55rem;
-  background: rgb(0 0 0 / 0.45); box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.15); opacity: 0.5; }
-.dt-token i { font-style: normal; font-size: 0.9rem; line-height: 1; }
-.dt-token b { position: absolute; inset-block-start: -0.3rem; inset-inline-end: -0.3rem; padding: 0 0.25rem; border-radius: 999px; background: #a8201a; font-size: 0.6rem; }
-.dt-token.is-on { opacity: 1; animation: dt-pop 0.35s ease-out; }
-.dt-token--wound.is-on { background: #6a1410; box-shadow: inset 0 0 0 2px #e0482f; }
-.dt-token--stun.is-on { background: #3a2f7a; box-shadow: inset 0 0 0 2px #9a8aff; }
-.dt-token--shield.is-on { background: #1f4a7a; box-shadow: inset 0 0 0 2px #6aaaff; }
-
-/* opponent: same board, compact; a folded summary with the dials' values on phones */
-.dt-fold > summary { display: flex; flex-wrap: wrap; gap: 0.2rem 0.6rem; align-items: center; justify-content: center; padding: 0.45rem 0.6rem; cursor: pointer; font-size: 0.85rem; font-weight: 800; text-shadow: 0 1px 2px #000; }
-.dt-fold > summary:focus-visible { outline: 3px solid #ffd27a; outline-offset: -3px; border-radius: 12px; }
-.dt-glance { font-size: 0.78rem; font-weight: 700; color: #f4ecdf; }
-.dt-board--opp .dt-board__plate { padding-block-start: 0; grid-template-columns: 7rem minmax(0, 1fr) 5.5rem; gap: 0.45rem; }
-.dt-board--opp .dt-board__id .dt-portrait { inline-size: 3.4rem; block-size: 3.4rem; }
-.dt-board--opp .dt-ab { padding: 0.25rem 0.4rem; }
-.dt-board--opp .dt-ab small { font-size: 0.6rem; }
-.dt-board--opp .dt-dial { inline-size: 4.4rem; block-size: 4.4rem; }
-.dt-board--opp .dt-dial__n { font-size: 1.2rem; }
-.dt-board--opp .dt-dial__label { inset-block-end: 0.7rem; font-size: 0.52rem; }
-
-@media (max-width: 640px) {
-  .dt-board__plate, .dt-board--opp .dt-board__plate { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: 'id dials' 'abil abil'; padding: 0.5rem; }
-  .dt-board__dials { grid-template-columns: repeat(2, auto); justify-content: center; }
-  .dt-status { grid-column: 1 / -1; }
-  .dt-dial, .dt-board--opp .dt-dial { inline-size: 4.6rem; block-size: 4.6rem; }
-  .dt-dial__n { font-size: 1.3rem; }
-  .dt-dial__label { inset-block-end: 0.75rem; font-size: 0.55rem; }
-  .dt-board__id .dt-portrait { inline-size: 3.6rem; block-size: 3.6rem; }
-  .dt-abilities { gap: 0.25rem; }
-  .dt-ab { padding: 0.3rem 0.4rem; }
-}
-
-.dt-heroes { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.4rem; }
-.dt-hero { display: grid; gap: 0.25rem; padding: 0.6rem; border: 0; border-radius: 12px; color: inherit; font: inherit; cursor: pointer;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--h) 45%, #1f1812), #1f1812); box-shadow: inset 0 0 0 1.5px var(--h); transition: transform 0.18s; }
-.dt-hero:hover:not(:disabled) { transform: translateY(-3px); }
+.dt-heroes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; inline-size: 100%; max-inline-size: 640px; }
+.dt-hero { position: relative; display: block; padding: 0; border: 0; border-radius: var(--radius-sm); overflow: hidden; background: none; cursor: pointer; min-block-size: 44px; }
+.dt-hero img { display: block; inline-size: 100%; }
 .dt-hero:disabled { cursor: default; }
-.dt-hero.is-taken { opacity: 0.35; }
-.dt-hero b { color: var(--h); }
-.dt-hero__faces { font-size: 1.2rem; }
-.dt-hero small { font-size: 0.6rem; color: #d8cbb4; }
+.dt-hero:hover:not(:disabled) { outline: 3px solid var(--felt-gold); }
+.dt-hero.is-taken img { filter: grayscale(1); opacity: 0.5; }
+.dt-hero b { position: absolute; inset-block-end: 8px; inset-inline-end: 8px; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--felt-plate); color: var(--felt-ink); font-size: 12px; }
 
-.dt-tray { display: grid; gap: 0.45rem; justify-items: center; padding: 0.55rem; border-radius: 14px; background: rgb(0 0 0 / 0.3); }
-.dt-dice { display: flex; gap: 0.4rem; }
-.dt-dbtn { padding: 0; border: 0; background: none; border-radius: 12px; cursor: pointer; }
-.dt-die { display: grid; place-items: center; inline-size: 3rem; block-size: 3rem; border-radius: 12px; line-height: 1;
-  background: linear-gradient(145deg, #fbf3e4, #d9ccb4); color: #2a1d10; box-shadow: inset 0 0 0 2px var(--h), 0 4px 0 #8a7a62; transition: transform 0.18s; }
-.dt-die b { font-size: 1.3rem; }
-.dt-die small { font-size: 0.55rem; opacity: 0.6; }
-.dt-die.is-kept { transform: translateY(-6px); box-shadow: inset 0 0 0 3px #ffd27a, 0 0 12px #ffd27a, 0 4px 0 #8a7a62; }
-.dt-rolls { color: #d8cbb4; font-size: 0.72rem; }
-.dt-defdice { display: flex; gap: 0.3rem; align-items: center; }
-.dt-defdice .dt-die { inline-size: 2.2rem; block-size: 2.2rem; }
-.dt-bar { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
-.dt-log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.1rem; font-size: 0.72rem; color: #d8cbb4; }
-.dt-log li { animation: dt-pop 0.35s ease-out both; }
-.dt-hint { animation: dt-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+.dt-tray { display: grid; gap: var(--space-2); justify-items: center; }
+.dt-dice { display: flex; gap: 10px; align-items: center; justify-content: center; direction: ltr; }
+.dt-dslot { display: inline-flex; }
+.dt-dbtn { padding: 0; border: 0; background: none; border-radius: var(--radius-md); cursor: pointer; min-inline-size: 44px; min-block-size: 44px; }
+.dt-die { position: relative; display: grid; place-items: center; inline-size: 60px; block-size: 60px; border-radius: var(--radius-md); }
+.dt-die img { display: block; inline-size: 60px; block-size: 60px; }
+.dt-die.is-lock img { outline: 3px solid var(--felt-gold); outline-offset: 2px; border-radius: var(--radius-md); }
+.dt-die:not(:has(img)) { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); } /* placeholder face: pyro / paladin / shadow 4 art is pending */
+.dt-die:not(:has(img)).is-kept { outline: 3px solid var(--felt-gold); }
+.dt-die b { font-size: 26px; line-height: 1; } .dt-die small { position: absolute; inset-block-end: 2px; inset-inline-end: 5px; font-size: 10px; color: var(--felt-muted); }
+.dt-rolls { color: var(--felt-muted); font-size: 13px; }
+.dt-defdice { display: flex; gap: 6px; align-items: center; direction: ltr; }
+.dt-defdice small { direction: rtl; color: var(--felt-muted); }
+.dt-defdice .dt-die, .dt-defdice .dt-die img { inline-size: 44px; block-size: 44px; }
+.dt-bar { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+.dt-log { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 12.5px; color: var(--felt-muted); }
+.dt-hint { animation: dt-pulse 1s ease-in-out infinite; }
+.dt-hint:not(.dt-box) { outline: 3px solid var(--felt-gold); }
+@keyframes dt-pulse { 50% { opacity: 0.7; } }
 
-@media (max-width: 480px) { .dt-die { inline-size: 2.6rem; block-size: 2.6rem; } .dt-die b { font-size: 1.1rem; } }
-@keyframes dt-pop { from { opacity: 0; transform: scale(0.8); } }
-@keyframes dt-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (max-width: 480px) {
+  .dt-side { flex-direction: column; gap: 4px; }
+  .dt-stats { display: flex; inline-size: auto; gap: 10px; align-items: center; }
+  .dt-hp { inline-size: auto; block-size: auto; border-radius: var(--radius-pill); padding: 2px 12px; display: flex; gap: 4px; align-items: baseline; outline-width: 2px; outline-offset: -2px; }
+  .dt-hp b { font-size: 16px; } .dt-cp { display: flex; gap: 4px; align-items: baseline; } .dt-cp b { font-size: 14px; }
+  .dt-box b { font-size: 10px; padding: 0 5px; inset-block-end: 2px; }
+  .dt-dice { gap: 6px; } .dt-die, .dt-die img { inline-size: 52px; block-size: 52px; }
+}
 @media (prefers-reduced-motion: reduce) { .dt * { animation: none !important; transition: none !important; } }

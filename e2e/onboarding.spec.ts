@@ -23,8 +23,13 @@ test('welcome tour, verified profile walkthrough, skip and hints', async ({ brow
   await expect(card.getByRole('heading', { name: 'شخصی‌سازی کنید' })).toBeVisible();
   await card.getByRole('button', { name: 'انجام دادم، بررسی کن' }).click();
   await expect(page.getByText('هنوز انجام نشده است', { exact: false })).toBeVisible();
+  // The editor lives in the Studio, opened from the profile head; the guide card stays with the player.
+  await page.locator('#main').getByRole('link', { name: 'ویرایش پروفایل' }).first().click();
+  await expect(page).toHaveURL(/\/me\/studio/);
+  await page.getByRole('tab', { name: /معرفی و لقب/ }).click();
   await page.getByLabel('معرفی کوتاه').fill('عاشق بازی‌های رومیزی');
-  await page.getByRole('button', { name: 'ذخیرهٔ همه' }).click();
+  // desktop: «ذخیرهٔ همه» in the page head; phone: the pinned «ذخیرهٔ تغییرات» bar
+  await page.getByRole('button', { name: /^ذخیرهٔ (همه|تغییرات)$/ }).locator('visible=true').first().click();
   await expect(page.getByText('آموزش «پروفایل شما» کامل شد.')).toBeVisible({ timeout: 10_000 });
   await page.screenshot({ path: `test-results/onboarding-${info.project.name}-profile.png` });
 

@@ -9,7 +9,7 @@
 .kt-art { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
 
 .kt__arena { position: relative; display: grid; place-items: center; min-block-size: 8.2rem; border-radius: 14px; overflow: hidden;
-  background: linear-gradient(rgb(18 12 42 / 0.4), rgb(18 12 42 / 0.65)), url('./art/bd-city.webp') center / cover #120c2a; box-shadow: 0 0 0 3px var(--ink), 0 0 0 4px rgb(255 255 255 / 0.2), 4px 5px 0 4px #000; }
+  background: url('./art/kot-board.png') center / cover #120c2a; box-shadow: 0 0 0 3px var(--ink), 0 0 0 4px rgb(255 255 255 / 0.2), 4px 5px 0 4px #000; }
 .kt-bolt { inline-size: 1.05rem; block-size: 1.05rem; flex: none; }
 .kt-badge--en .kt-bolt { color: #ffe45e; } .kt-card__cost .kt-bolt { inline-size: 0.85rem; block-size: 0.85rem; color: #ffe45e; }
 .kt__king { position: relative; display: grid; justify-items: center; gap: 0.1rem; padding: 0.3rem 1rem 0.4rem; font-size: 0.82rem; text-shadow: 0 2px 0 var(--ink); }
@@ -106,3 +106,68 @@
 
 /* v2: BGA monster figures are cut-outs; give them a coloured backdrop */
 .kt-art { object-fit: contain; background: radial-gradient(circle at 50% 40%, hsl(var(--h, 30) 70% 78%), hsl(var(--h, 30) 45% 32%)); }
+
+/* Design dice art: the PNG is the whole face. */
+.kt .kt-die[class*='kt-f--'], .kt .kt-die.bg-tumble { background: none; box-shadow: none; }
+.kt .kt-glyph { inline-size: 100%; block-size: 100%; object-fit: contain; }
+.kt .kt-bolt { inline-size: 1.1em; block-size: 1.1em; object-fit: contain; vertical-align: -0.2em; }
+.kt__kept { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; font-size: 12.5px; color: var(--felt-muted); }
+.kt__kept small { padding: 2px 8px; border-radius: var(--radius-pill); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+
+/* Tokyo board art (handoff) as the arena: square, sized to the stage; the king's figure stands on it. */
+.kt__arena { aspect-ratio: 1; inline-size: min(100%, 22rem); min-block-size: 0; justify-self: center; align-content: end; padding-block-end: var(--space-3); }
+@media (min-width: 900px) { .kt__arena { inline-size: min(100%, 24rem, max(14rem, calc(var(--gf-b, 24rem) - 220px))); } }
+.kt__empty { padding: 0.2rem 0.7rem; border-radius: var(--radius-sm); background: var(--ink); color: #fff; font-weight: 800; }
+.kt-art--fig { background: none; object-fit: contain; border-radius: 0; box-shadow: none; }
+.kt__king .kt-art--king.kt-art--fig { inline-size: 6rem; block-size: 6rem; border-radius: 0; box-shadow: none; }
+
+/* Round 2 (reference §1): no violet panel inside the frame (the felt is the table), the Tokyo board at the reference
+   size (~300px), the «شهر خالی است» label in the middle of the board (it covered the printed bay tokens at the bottom),
+   and the face-down draw pile with its count beside the power market. */
+.kt--framed { background: none; padding: 0; }
+@media (min-width: 900px) { .kt--framed .kt__arena { inline-size: min(100%, 19rem, max(13rem, calc(var(--gf-b, 24rem) - 260px))); } }
+.kt--framed .kt__arena { align-content: center; padding-block-end: 0; box-shadow: var(--shadow-piece); }
+.kt__market { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; inline-size: min(100%, 36rem); }
+.kt__pile { position: relative; display: grid; align-self: center; inline-size: 3.6rem; line-height: 0; }
+.kt__pile img { inline-size: 100%; block-size: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-piece); }
+.kt__pile b { position: absolute; inset-block-end: -8px; inset-inline-start: 50%; translate: -50% 0; min-inline-size: 22px; block-size: 22px; padding-inline: 4px; box-sizing: border-box; display: grid; place-items: center; border-radius: var(--radius-pill); background: var(--felt-plate); color: var(--felt-ink); font-size: 12px; line-height: 1; box-shadow: var(--shadow-ring-felt); }
+@media (max-width: 480px) { .kt__pile { inline-size: 2.6rem; } }
+
+/* Round 3 (reference §1): Tokyo board at ~300px, power cards upright and in full colour (only the buyable ones get
+   the green frame), and the dice tray shown before the first roll. */
+@media (min-width: 900px) { .kt--framed .kt__arena { inline-size: min(100%, 19rem); } }
+.kt--framed .kt__market { grid-template-columns: repeat(3, 6.4rem) auto; inline-size: auto; justify-content: center; }
+.kt--framed .kt-card { min-block-size: 8.8rem; padding-block-start: 1.4rem; }
+.kt--framed .kt-buy:disabled { opacity: 1; }
+.kt--framed .kt-buy:not(:disabled) .kt-card { outline: 3px solid var(--success); }
+.kt-die--blank { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.kt__dice--idle .kt-keep { cursor: default; }
+
+/* Round 4 (reference §1), desktop frame: Tokyo board with the power market as a column beside it (draw pile at the
+   foot), your monster board (portrait art + dials + energy) under them, dice tray below. Phones: the market wraps under
+   the board and the draw pile is never clipped. */
+.kt__mine { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.kt__mine-pic { display: block; inline-size: 3.6rem; block-size: 3.6rem; border-radius: var(--radius-pill); overflow: hidden; box-shadow: var(--shadow-ring-felt); }
+.kt__mine-name { color: var(--felt-ink); }
+.kt__mine .kt-dial { inline-size: 3.4rem; }
+@media (min-width: 900px) {
+  .kt--framed { grid-template-columns: auto auto; justify-content: center; align-items: start; column-gap: var(--space-5); }
+  .kt--framed > * { grid-column: 1 / -1; }
+  .kt--framed > .kt__arena { grid-column: 1; grid-row: 1; }
+  .kt--framed > .kt__market { grid-column: 2; grid-row: 1; grid-template-columns: repeat(2, 5.6rem); inline-size: auto; padding: 0; justify-items: center; align-items: center; }
+  .kt--framed .kt-card { min-block-size: 7.4rem; padding-block-start: 1.2rem; }
+  .kt--framed .kt__market { gap: var(--space-2); }
+  .kt--framed .kt__pile { inline-size: 2.6rem; }
+}
+@media (max-width: 899px) {
+  .kt--framed .kt__market { grid-template-columns: repeat(3, minmax(0, 1fr)) 2.6rem; inline-size: 100%; padding-block-end: var(--space-3); }
+}
+
+/* Round 5: the board has a fixed 300px at desktop (a percentage of the auto column collapsed it to 135px); the market
+   is an even 2 x 2 with the draw pile as the fourth card. */
+@media (min-width: 900px) {
+  .kt--framed .kt__arena { inline-size: 19rem; }
+  .kt--framed > .kt__market { justify-items: stretch; }
+  .kt--framed .kt-buy { inline-size: 100%; }
+  .kt--framed .kt__pile { inline-size: 4.9rem; justify-self: center; }
+}

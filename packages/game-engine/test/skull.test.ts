@@ -58,7 +58,7 @@ describe('skull rules', () => {
     snap = act(snap, st(snap).current, { type: 'pass' });
     snap = act(snap, c, { type: 'flip', seat: victim });
     expect(st(snap).owned[c]).toBe(3);
-    expect(st(snap).current).toBe(victim); // the skull's owner starts
+    expect(st(snap).current).toBe(c); // RULES E1: the challenger, still in, starts the next round
     const mine = projectFor(m, snap, p(c)).view as SkullView;
     const theirs = projectFor(m, snap, p(victim)).view as SkullView;
     expect(mine.lostLast).not.toBeNull();
@@ -88,6 +88,7 @@ describe('skull rules', () => {
     for (const step of t.steps) {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
+      for (const a of step.then ?? []) snap = act(snap, 1, a);
     }
     expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 2 }, { seat: 1, place: 2, score: 1 }]);
     expect(st(snap).owned).toEqual([4, 3]);

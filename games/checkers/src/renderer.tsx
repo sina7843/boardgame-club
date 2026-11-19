@@ -1,15 +1,15 @@
 // چکرز renderer: an inlaid maple/walnut board (SVG, LTR geometry), seen from the viewer's side. Tap a ringed piece;
 // if it has one move it plays at once, otherwise tap the highlighted squares (jump by jump) until the move is unique.
 import './renderer.css';
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFresh, usePop, type GameRendererProps } from '@bg/ui';
-import manD from './art/man-d.webp';
-import kingD from './art/king-d.webp';
-import manL from './art/man-l.webp';
-import kingL from './art/king-l.webp';
-import texWalnut from './art/tex-walnut.webp';
-import texMaple from './art/tex-maple.webp';
-import { colOf, rowOf, type CheckersView, type Color, type Move, type Piece } from './rules.ts';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Button, DockSlot, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFresh, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button as DsButton } from '@bg/ui/bgv';
+import manD from './art/checkers-black-man.png';
+import kingD from './art/checkers-black-king.png';
+import manL from './art/checkers-white-man.png';
+import kingL from './art/checkers-white-king.png';
+import boardArt from './art/checkers-board.png';
+import { colOf, notation, rowOf, type CheckersView, type Color, type Move, type Piece } from './rules.ts';
 
 /** My queued move applied locally (undo window): the path is mine, captures are the pieces jumped, a man ending on the last row crowns. */
 function previewMove(v: CheckersView, path: number[]): { board: (Piece | null)[]; last: Move } | null {
@@ -29,9 +29,13 @@ function previewMove(v: CheckersView, path: number[]): { board: (Piece | null)[]
   return { board, last: { path, captured, crowned } };
 }
 const HOP = 380;
+/** Desktop (≥900): game buttons sit in the rail; on phones the rail is folded away, so they go to the dock. */
+const WIDE = '(min-width: 900px)';
+const useWide = () => useSyncExternalStore((f) => { const q = matchMedia(WIDE); q.addEventListener('change', f); return () => q.removeEventListener('change', f); }, () => matchMedia(WIDE).matches, () => true);
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-const S = 100, M = 34, SIZE = 8 * S + 2 * M;
+// The board PNG has a 2.67 % frame; 8 squares of S fill the rest (SIZE = 8·S / (1 − 2·0.0267)).
+const S = 100, M = 22.5, SIZE = 8 * S + 2 * M;
 // Pieces and board woods are cut from a generated sheet (see DECISIONS.md).
 const PIECE: Record<Piece, string> = { d: manD, D: kingD, l: manL, L: kingL };
 const FILES = 'abcdefgh';
@@ -48,8 +52,9 @@ function Stat({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 export default function CheckersRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CheckersView>) {
+  const framed = useInFrame() !== null; // the shell draws players, piece counts, turn and the move list
+  const wide = useWide();
   const myColor: Color = mySeat === null ? 'd' : view.colors[mySeat]!;
-  const uid = useId().replace(/:/g, '');
   const flip = myColor === 'l';
   const xy = (i: number) => {
     const c = flip ? 7 - colOf(i) : colOf(i);
@@ -134,34 +139,55 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
     draw: view.end.draw === 'repetition' ? 'تکرار سه‌باره — مساوی' : view.end.draw === 'quiet' ? '۴۰ حرکت بدون زدن — مساوی' : 'توافق — مساوی'
   }[view.end.kind];
 
+  // Draw offer travels with my next move (the engine has no stand-alone offer), so «مساوی» is a toggle.
+  const drawBtn = myTurn && !busy && !view.outcome
+    ? <DsButton key="draw" className="ck-drawbtn" variant="secondary" icon="handshake" pressed={offer} onClick={() => setOffer(!offer)}>{offer ? 'مساوی با حرکت بعد' : 'مساوی'}</DsButton>
+    : view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome ? <span key="draw" className="ck-ml__note">پیشنهاد مساوی شما ارسال شد</span> : null;
+  const acceptBtn = legalActions.some((a) => a.type === 'acceptDraw') ? <DsButton key="acc" disabled={busy} icon="handshake" onClick={() => onAction({ type: 'acceptDraw' })}>پذیرفتن مساوی</DsButton> : null;
+  const redoBtn = prefix.length > 0 && !busy ? <DsButton key="redo" variant="ghost" onClick={() => setPrefix([])}>انتخاب دوباره</DsButton> : null;
+
   return (
     <div className="ck" data-moves={moveCount}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <div className="ck__bar">
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>{view.variant === 'brazilian' ? <><b>قوانین برزیلی:</b> مهره و شاه به عقب هم می‌زنند و شاه پرنده است؛ زدن بیشترین مهره اجباری است.</> : <><b>قوانین انگلیسی: گرفتن اجباری است.</b> مهره فقط به جلو و مورب می‌رود. مهره‌ای که به ردیف آخر برسد شاه می‌شود و نوبت تمام می‌شود.</>}</p>
+          <section className="ck-ml" aria-label="حرکت‌ها">
+            <h3>حرکت‌ها<span className="ck-ml__note">شمارهٔ خانه‌ها ۱ تا ۳۲</span></h3>
+            <div className="ck-ml__grid" role="list">
+              <span className="ck-ml__h">#</span><span className="ck-ml__h">سیاه</span><span className="ck-ml__h">سفید</span>
+              {Array.from({ length: Math.ceil(moveCount / 2) }, (_, r) => [
+                <span key={`n${r}`} className="ck-ml__n">{fa(r + 1)}.</span>,
+                ...[0, 1].map((k) => { const h = view.history[r * 2 + k]; return <bdi key={`${r}-${k}`} role="listitem" dir="ltr" className={r * 2 + k === moveCount - 1 ? 'ck-ml__m is-cur' : 'ck-ml__m'}>{h ? notation(h) : ''}</bdi>; })
+              ]).flat().slice(-90)}
+            </div>
+            {!moveCount && <p className="ck-ml__note">هنوز حرکتی ثبت نشده است.</p>}
+          </section>
+          {wide && drawBtn}
+        </RailSlot>
+      )}
+      {framed && (!wide ? <DockSlot>{drawBtn}{acceptBtn}{redoBtn}</DockSlot> : <DockSlot>{acceptBtn}{redoBtn}</DockSlot>)}
+      {!framed && <div className="ck__bar">
         {(['d', 'l'] as Color[]).map((c) => (
           <div key={c} className={['ck-side', view.turn === c && !view.outcome ? 'ck-side--turn' : ''].join(' ')}>
             <span className={`ck-side__chip ck-side__chip--${c}`} aria-hidden="true" />
             <bdi className="ck-side__name">{who(c)}</bdi>
-            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? ` · ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} شاه` : ''}</Stat>
+            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? `، ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} شاه` : ''}</Stat>
             <span className="ck-side__caps" aria-label={`${fa(captured[c === 'd' ? 'l' : 'd'])} مهره زده`}>
               <Caps n={captured[c === 'd' ? 'l' : 'd']} color={c === 'd' ? 'l' : 'd'} />
             </span>
           </div>
         ))}
         <span className="ck__variant">{view.variant === 'brazilian' ? 'قوانین برزیلی' : 'قوانین انگلیسی'}</span>
-      </div>
+      </div>}
 
       <ZoomBoard label="صفحه چکرز">
         <svg ref={svg} className="ck-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه چکرز" style={{ direction: 'ltr' }}>
           <defs>
-            <linearGradient id="ck-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6b4223" /><stop offset=".5" stopColor="#3f2511" /><stop offset="1" stopColor="#5d3a1d" /></linearGradient>
-            {([['walnut', texWalnut], ['maple', texMaple]] as const).map(([id, src]) => (
-              <pattern key={id} id={`ck-${id}-${uid}`} x={M} y={M} width={S * 2} height={S * 2} patternUnits="userSpaceOnUse"><image href={src} width={S * 2} height={S * 2} preserveAspectRatio="xMidYMid slice" /></pattern>
-            ))}
             <filter id="ck-shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".5" /></filter>
           </defs>
-          <rect width={SIZE} height={SIZE} rx="20" fill="url(#ck-frame)" />
-          <rect x={M - 6} y={M - 6} width={8 * S + 12} height={8 * S + 12} rx="6" fill="none" stroke="#c9a46a" strokeWidth="3" />
+          <image href={boardArt} width={SIZE} height={SIZE} />
 
           {Array.from({ length: 64 }, (_, i) => {
             const { x, y } = xy(i);
@@ -175,20 +201,20 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
                 tabIndex={dark && (isMovable || isNext) ? 0 : -1}
                 className={['ck-sq', isMovable ? 'ck-sq--movable' : '', isNext ? 'ck-sq--next' : '', prefix.includes(i) ? 'ck-sq--path' : '', isHint ? 'ck-sq--hint' : ''].join(' ')}
                 onClick={() => dark && tap(i)} onKeyDown={(e) => { if (dark && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tap(i); } }}>
-                <rect x={x - S / 2} y={y - S / 2} width={S} height={S} fill={`url(#ck-${dark ? 'walnut' : 'maple'}-${uid})`} />
+                <rect x={x - S / 2} y={y - S / 2} width={S} height={S} fill="transparent" />
                 {isLast && <rect x={x - S / 2} y={y - S / 2} width={S} height={S} className="ck-last" />}
-                {isNext && <circle cx={x} cy={y} r={S * 0.2} className="ck-dot" />}
+                {isNext && <circle cx={x} cy={y} r={S * 0.15} className="ck-dot" />}
               </g>
             );
           })}
           {/* Coordinates on the frame. */}
-          {Array.from({ length: 8 }, (_, k) => {
+          {!framed && Array.from({ length: 8 }, (_, k) => {
             const file = flip ? 7 - k : k;
             const rank = flip ? k + 1 : 8 - k;
             return (
               <g key={k} className="ck-coord">
-                <text x={M + k * S + S / 2} y={SIZE - 10}>{FILES[file]}</text>
-                <text x={16} y={M + k * S + S / 2 + 6}>{rank}</text>
+                <text x={M + k * S + S / 2} y={SIZE - 6}>{FILES[file]}</text>
+                <text x={6} y={M + k * S + S / 2 + 6}>{rank}</text>
               </g>
             );
           })}
@@ -217,20 +243,20 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
         </svg>
       </ZoomBoard>
 
-      <div className="ck__actions">
+      {!framed && <div className="ck__actions">
         {myTurn && !busy && (
           <label className="ck-offer"><input type="checkbox" checked={offer} onChange={(e) => setOffer(e.target.checked)} /> پیشنهاد تساوی همراه حرکت</label>
         )}
         {legalActions.some((a) => a.type === 'acceptDraw') && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'acceptDraw' })}>پذیرفتن تساوی</Button>}
         {view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome && <span className="ck__note">پیشنهاد تساوی شما ارسال شد</span>}
         {prefix.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={() => setPrefix([])}>انتخاب دوباره</Button>}
-      </div>
-      {endText && <p className="ck__end" role="status">{endText}</p>}
-      <ol className="ck__history" aria-label="حرکت‌ها">
+      </div>}
+      {!framed && endText && <p className="ck__end" role="status">{endText}</p>}
+      {!framed && <ol className="ck__history" aria-label="حرکت‌ها">
         {view.history.slice(-8).map((h, k) => (
           <li key={view.history.length - 8 + k}><bdi dir="ltr">{h.path.map(name).join(h.captured.length ? '×' : '-')}{h.crowned ? ' ♛' : ''}</bdi></li>
         ))}
-      </ol>
+      </ol>}
     </div>
   );
 }
@@ -238,7 +264,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
 const pieceFa = (p: Piece, mine: Color) => `${(p.toLowerCase() === mine) ? 'مهره شما' : 'مهره حریف'}${p === 'D' || p === 'L' ? ' (شاه)' : ''}`;
 
 function Disc({ x, y, p }: { x: number; y: number; p: Piece }) {
-  const w = S * 0.84;
+  const w = S * 0.82;
   return (
     <g filter="url(#ck-shadow)">
       <image href={PIECE[p]} x={x - w / 2} y={y - w / 2} width={w} height={w} className={p === 'D' || p === 'L' ? 'ck-crown' : undefined} />

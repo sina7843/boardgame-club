@@ -3,9 +3,47 @@
 // where its corner goes (a preview shows if it fits), then «بدوز».
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, motionOff, useFlip, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, motionOff, useFlip, useInFrame, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
+import boardBlue from './art/patchwork-board-blue.png';
+import boardRed from './art/patchwork-board-red.png';
+import pa1 from './art/patchwork-p1.png';
+import pa3 from './art/patchwork-p3.png';
+import pa5 from './art/patchwork-p5.png';
+import pa8 from './art/patchwork-p8.png';
+import pa9 from './art/patchwork-p9.png';
+import pa12 from './art/patchwork-p12.png';
+import pa14 from './art/patchwork-p14.png';
+import pa18 from './art/patchwork-p18.png';
+import pa19 from './art/patchwork-p19.png';
+import pa20 from './art/patchwork-p20.png';
+import pa25 from './art/patchwork-p25.png';
+import pa28 from './art/patchwork-p28.png';
+import pa31 from './art/patchwork-p31.png';
+import pa33 from './art/patchwork-p33.png';
+import timeBoard from './art/patchwork-time.png';
+import pawnArt from './art/patchwork-pawn.png';
+import bonusArt from './art/patchwork-bonus.png';
+import leatherArt from './art/patchwork-leather.png';
+import markerBlue from './art/patchwork-marker-blue.png';
+import markerRed from './art/patchwork-marker-red.png';
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
+// Time track: 8×8 spiral printed on patchwork-time.png (square size 63 of 600 px, origin 48). Index 0 is the start strip, 53 the centre star.
+const SPIRAL: [number, number][] = [];
+for (let r = 7; r >= 0; r--) SPIRAL.push([r, 0]);
+for (let c = 1; c <= 7; c++) SPIRAL.push([0, c]);
+for (let r = 1; r <= 6; r++) SPIRAL.push([r, 7]);
+for (let c = 6; c >= 1; c--) SPIRAL.push([6, c]);
+for (let r = 5; r >= 1; r--) SPIRAL.push([r, 1]);
+for (let c = 2; c <= 6; c++) SPIRAL.push([1, c]);
+for (let r = 2; r <= 5; r++) SPIRAL.push([r, 6]);
+for (let c = 5; c >= 2; c--) SPIRAL.push([5, c]);
+for (let r = 4; r >= 2; r--) SPIRAL.push([r, 2]);
+for (let c = 3; c <= 5; c++) SPIRAL.push([2, c]);
+for (let r = 3; r <= 4; r++) SPIRAL.push([r, 5]);
+SPIRAL.push([3.5, 3.5]);
+// Engine patch id -> printed patch face (only where shape matches the engine patch unambiguously; others keep the cloth shape).
+const PATCH_ART: Record<number, string> = { 0: pa1, 1: pa3, 6: pa5, 4: pa8, 3: pa9, 13: pa12, 8: pa14, 10: pa18, 31: pa19, 23: pa20, 17: pa25, 21: pa28, 20: pa31, 27: pa33 };
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 // Fabrics are cut from the BGA Patchwork client art (see DECISIONS.md): fabrics.webp holds one 64 px square from each
 // of its 33 patch pictures (11 × 3); patch id n uses square n, so every cell of a patch shows the same printed cloth.
@@ -23,9 +61,9 @@ export function Shape({ id, rot = 0, flip = false, cell = 0.7 }: { id: number; r
   );
 }
 
-function Quilt({ q, was, big, preview, ok, onCell, hintCell, anchor }: { q: (number | null)[][]; was?: (number | null)[][]; big?: boolean; anchor?: string; preview?: Set<string>; ok?: boolean; onCell?: (r: number, c: number) => void; hintCell?: [number, number] | null }) {
+function Quilt({ board, q, was, big, preview, ok, onCell, hintCell, anchor }: { board?: string; q: (number | null)[][]; was?: (number | null)[][]; big?: boolean; anchor?: string; preview?: Set<string>; ok?: boolean; onCell?: (r: number, c: number) => void; hintCell?: [number, number] | null }) {
   return (
-    <div data-flip-anchor={anchor} className={`pw-quilt ${big ? 'pw-quilt--big' : ''}`} role={onCell ? 'grid' : undefined} aria-label="لحاف">
+    <div data-flip-anchor={anchor} style={board ? { backgroundImage: `url(${board})` } : undefined} className={`pw-quilt ${big ? 'pw-quilt--big' : ''}`} role={onCell ? 'grid' : undefined} aria-label="لحاف">
       {q.map((row, r) => row.map((id, c) => {
         const k = `${r},${c}`;
         const fresh = !!was && id !== null && was[r]![c] === null;
@@ -87,6 +125,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
   const hint = expected as unknown as { type: string; patch?: number; row?: number; col?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const q = view.quilts[me]!;
+  const framed = useInFrame() !== null; // the shell draws seat strip, scores, buttons and whose turn
   const cells = pick !== null ? orient(PATCHES[pick]!.cells, rot, flip) : null;
   const preview = useMemo(() => (cells && at ? new Set(cells.map(([r, c]) => `${at[0] + r},${at[1] + c}`)) : undefined), [cells, at]);
   const fitsHere = !!(cells && at && fits(q, cells, at[0], at[1]));
@@ -108,20 +147,26 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
   };
 
   return (
-    <div className="pw" data-seq={view.seq} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+    <div className={framed ? 'pw pw--framed' : 'pw'} data-seq={view.seq} ref={root}>
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>یک تکه از سه تکهٔ بعد از مهرهٔ خنثی بخرید یا جلوتر از حریف بروید. خانهٔ خالی در پایان ۲ امتیاز کم می‌کند.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <section className="pw-track" aria-label="مسیر زمان">
-        {Array.from({ length: END + 1 }, (_, i) => (
-          <span key={i} className={['pw-track__sq', INCOME.includes(i) ? 'pw-track__sq--inc' : '', view.leatherLeft.includes(i) ? 'pw-track__sq--lea' : ''].join(' ')}>
-            {view.pos[me] === i && <span data-pawn={me} className="pw-pawn-slot"><i className="pw-pawn pw-pawn--me" title="شما" /></span>}
-            {view.pos[opp] === i && <span data-pawn={opp} className="pw-pawn-slot"><i className="pw-pawn pw-pawn--opp" title={who(opp)} /></span>}
-          </span>
-        ))}
+      <section className="pw-track" aria-label="مسیر زمان" style={{ backgroundImage: `url(${timeBoard})` }}>
+        {Array.from({ length: END + 1 }, (_, i) => {
+          const [r, c] = SPIRAL[i] ?? [0, 0];
+          return (
+            <span key={i} className={['pw-track__sq', view.leatherLeft.includes(i) ? 'pw-track__sq--lea' : ''].join(' ')} style={{ left: `${(48 + 63 * (c + 0.5)) / 6}%`, top: `${(48 + 63 * (r + 0.5)) / 6}%` }}>
+              {view.leatherLeft.includes(i) && <img className="pw-leather" src={leatherArt} alt="تکهٔ چرمی" draggable={false} />}
+              {view.pos[me] === i && <span data-pawn={me} className="pw-pawn-slot"><img className="pw-marker" src={markerBlue} alt="شما" draggable={false} /></span>}
+              {view.pos[opp] === i && <span data-pawn={opp} className="pw-pawn-slot"><img className="pw-marker pw-marker--opp" src={markerRed} alt={who(opp)} draggable={false} /></span>}
+            </span>
+          );
+        })}
       </section>
 
       {!view.outcome && (
         <section className="pw__market" aria-label="تکه‌ها">
+          {framed && <img className="pw-neutral" src={pawnArt} alt="مهرهٔ خنثی" draggable={false} />}
           {upcoming.map((id) => {
             const p = PATCHES[id]!;
             const can = buyable.has(id) && !busy;
@@ -129,8 +174,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
               <button key={id} type="button" data-flip={`patch-${id}`} data-flip-exit={view.current === me ? 'quilt-me' : 'quilt-opp'} disabled={!can} aria-pressed={pick === id} onClick={() => { setPick(pick === id ? null : id); setRot(0); setFlip(false); setAt(null); }}
                 className={['pw-patch', offer.has(id) ? 'pw-patch--offer' : '', pick === id ? 'pw-patch--on' : '', hint?.type === 'buy' && hint.patch === id && pick !== id ? 'pw-hint' : ''].join(' ')}
                 aria-label={`تکه: ${fa(p.cost)} دکمه، ${fa(p.time)} زمان، درآمد ${fa(p.buttons)}`}>
-                <Shape id={id} />
-                <span className="pw-patch__meta"><span><b className="pw-btn" />{fa(p.cost)}</span><span>⌛{fa(p.time)}</span></span>
+                {PATCH_ART[id] ? <img className="pw-patch__art" src={PATCH_ART[id]} alt="" draggable={false} /> : <><Shape id={id} /><span className="pw-patch__meta"><span><b className="pw-btn" />{fa(p.cost)}</span><span>{fa(p.time)} زمان</span></span></>}
               </button>
             );
           })}
@@ -141,19 +185,20 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
       {pick !== null && (
         <div className="pw__tools">
           <span className="pw__preview"><Shape id={pick} rot={rot} flip={flip} cell={1} /></span>
-          <Button size="sm" variant="secondary" onClick={() => { setRot((rot + 1) % 4); setAt(null); }}>چرخش ↻</Button>
-          <Button size="sm" variant="secondary" onClick={() => { setFlip(!flip); setAt(null); }}>برگرداندن ⇋</Button>
-          <Button size="sm" disabled={!fitsHere || busy} className={hint?.type === 'buy' && fitsHere ? 'pw-hint' : ''} onClick={() => at && onAction({ type: 'buy', patch: pick, rot, flip, row: at[0], col: at[1] })}>بدوز</Button>
+          <Button size="sm" variant="secondary" onClick={() => { setRot((rot + 1) % 4); setAt(null); }}>چرخاندن</Button>
+          <Button size="sm" variant="secondary" onClick={() => { setFlip(!flip); setAt(null); }}>برعکس کردن</Button>
+          <DockSlot><Button size="sm" disabled={!fitsHere || busy} className={hint?.type === 'buy' && fitsHere ? 'pw-hint' : ''} onClick={() => at && onAction({ type: 'buy', patch: pick, rot, flip, row: at[0], col: at[1] })}>بدوز</Button></DockSlot>
         </div>
       )}
 
+      {framed && <span className={['pw-bonus', view.bonus7 !== null ? 'pw-bonus--gone' : ''].join(' ')} title={view.bonus7 === null ? 'کاشی ۷×۷ هنوز آزاد است' : 'کاشی ۷×۷ گرفته شد'}><img src={bonusArt} alt="کاشی ۷×۷" draggable={false} /><small>{view.bonus7 === null ? '۷×۷ آزاد، +۷' : view.bonus7 === me ? '۷×۷ مال شما' : '۷×۷ گرفته شد'}</small></span>}
       <div className="pw__quilts">
         <QuiltBoard view={view} k={me} me name={who(me)} buttonsPop={!!beforeBtns && beforeBtns[me] !== view.buttons[me]}>
-          <Quilt q={q} was={before?.[me]} anchor="quilt-me" big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
+          <Quilt board={boardBlue} q={q} was={before?.[me]} anchor="quilt-me" big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
             hintCell={hint?.type === 'buy' && pick !== null && !at && hint.row !== undefined ? [hint.row, hint.col!] : null} />
         </QuiltBoard>
         <QuiltBoard view={view} k={opp} name={who(opp)} buttonsPop={!!beforeBtns && beforeBtns[opp] !== view.buttons[opp]}>
-          <Quilt q={view.quilts[opp]!} was={before?.[opp]} anchor="quilt-opp" />
+          <Quilt board={boardRed} q={view.quilts[opp]!} was={before?.[opp]} anchor="quilt-opp" />
         </QuiltBoard>
       </div>
 
@@ -198,7 +243,9 @@ function Pop({ n, className, children }: { n: number; className: string; childre
 /** A player's quilt board as on the table: the 9×9 board with its button pocket — buttons, button income, time, the 7×7 tile. */
 function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: PatchworkView; k: number; me?: boolean; name: string; buttonsPop: boolean; children: ReactNode }) {
   // The opponent's board starts folded on phones (tap to open); its pocket stays readable.
-  const [open, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
+  const framed = useInFrame() !== null;
+  const [open0, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
+  const open = open0 || framed;
   const turn = view.current === k && !view.outcome;
   const win = view.outcome?.placements[0]?.seat === k;
   const empty = emptyCount(view.quilts[k]!);
@@ -207,16 +254,16 @@ function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: Patchwo
   const inc = view.income[k]!;
   return (
     <section className={['pw-board', me ? 'pw-board--me' : 'pw-board--opp', turn ? 'pw-board--turn' : '', win ? 'pw-board--win' : ''].join(' ')} aria-label={`لحاف ${name}`}>
-      <header className="pw-board__head">
+      {!framed && <header className="pw-board__head">
         <i className={`pw-pawn ${me ? 'pw-pawn--me' : 'pw-pawn--opp'}`} aria-hidden="true" />
         <bdi className="pw-board__name">{name}</bdi>
         {turn && <span className="pw-board__turn">در نوبت</span>}
         <Pop n={score(view, k)} className="pw-board__score">امتیاز <bdi dir="ltr">{score(view, k) < 0 ? `−${fa(-score(view, k))}` : fa(score(view, k))}</bdi></Pop>
         {!me && <button type="button" className="pw-board__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن لحاف ${name}` : `باز کردن لحاف ${name}`}>{open ? '▴' : '▾'}</button>}
-      </header>
+      </header>}
       <div className="pw-board__body">
         {open && <div className="pw-board__quilt">{children}</div>}
-        <ul className="pw-pocket" aria-label="جیب دکمه">
+        {!framed && <ul className="pw-pocket" aria-label="جیب دکمه">
           <li className="pw-pocket__btns" title="دکمه‌های در دست"><b className="pw-btn pw-btn--big" aria-hidden="true" /><span className={buttonsPop ? 'bg-pop' : ''} key={view.buttons[k]}>{fa(view.buttons[k]!)}</span><small>دکمه</small></li>
           <li className="pw-pocket__inc" title="درآمد دکمه‌ای لحاف در هر خانهٔ درآمد">
             <small>درآمد</small>
@@ -233,7 +280,7 @@ function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: Patchwo
             title={view.bonus7 === k ? 'کاشی ۷×۷: +۷' : view.bonus7 !== null ? 'کاشی ۷×۷ را حریف گرفت' : 'کاشی ۷×۷ هنوز آزاد است'}>
             <b>۷×۷</b><small>{view.bonus7 === k ? '+۷' : view.bonus7 !== null ? 'رفت' : 'آزاد'}</small>
           </li>
-        </ul>
+        </ul>}
       </div>
     </section>
   );
