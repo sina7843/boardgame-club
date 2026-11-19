@@ -33,6 +33,7 @@ function policy(acts: Hint[], prompt: { kind: string; min?: number; cards?: stri
   if (h('convertHeat')) return { type: 'convertHeat' };
   if (h('convertPlants')) return { type: 'convertPlants' };
   for (const pr of ['asteroid', 'aquifer', 'greenery']) if (acts.some((a) => a.type === 'project' && a.project === pr)) return { type: 'project', project: pr };
+  if (h('endTurn')) return { type: 'endTurn' };
   if (h('pass')) return { type: 'pass' };
   return null;
 }

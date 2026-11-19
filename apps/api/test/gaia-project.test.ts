@@ -41,7 +41,7 @@ describe('gaia-project through the platform', () => {
         const action = pick(me.game.legalActions as Act[], v.round as number);
         if (!action) continue;
         const r = await command(ctx, u, t.tableId, me.game.revision, action);
-        expect(r.json().status, JSON.stringify(action)).toBe('accepted');
+        expect(r.json().status, `${JSON.stringify(action)} ${r.body}`).toBe('accepted');
         acted = true;
         break;
       }

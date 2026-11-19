@@ -193,7 +193,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       view,
       legalActions: table.status === 'active' ? legalActions : [],
       pendingSeats: table.status === 'active' ? module.pendingSeats(snap.state) : [],
-      summary: module.publicSummary ? module.publicSummary(snap.state) : null,
+      summary: module.publicSummary ? clampSummary(module.publicSummary(snap.state)) : null,
       deadline: turnDue ? { dueAt: turnDue.toISOString(), frozen: !!incident } : null,
       clocks: table.clock && clockControl(table) ? { left: table.clock.left, since: new Date(table.clock.since).toISOString(),
         running: table.status === 'active' ? table.clock.seat : null, initialMs: clockControl(table)!.initialMs,
@@ -340,4 +340,10 @@ export function toNotificationItem(n: typeof notifications.$inferSelect): Notifi
 export async function markNotificationsRead(db: Db, userId: string, id?: string): Promise<void> {
   await db.update(notifications).set({ readAt: sql`now()` })
     .where(and(eq(notifications.userId, userId), isNull(notifications.readAt), id ? eq(notifications.id, id) : undefined));
+}
+
+/** The snapshot contract caps a move-log line at 40 characters; a longer line from a game would fail the whole response. */
+function clampSummary<T extends { moves?: { seat: number; text: string }[] } | null>(s: T): T {
+  if (!s?.moves?.some((m) => m.text.length > 40)) return s;
+  return { ...s, moves: s.moves.map((m) => (m.text.length > 40 ? { ...m, text: `${m.text.slice(0, 39)}…` } : m)) };
 }
