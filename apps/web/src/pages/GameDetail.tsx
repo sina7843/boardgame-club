@@ -13,6 +13,7 @@ import { useSession } from '../lib/session.tsx';
 import { userIdentity } from '../lib/bgv.tsx';
 import { DIFFICULTY_FA, durationFa, faNum, jalaliDateTime, PACE_FA } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { gameDocTitle } from '../lib/seoTitles.ts';
 import { ShelfCard } from './Dashboard.tsx';
 import { TableCodeForm } from '../games/TableCode.tsx';
 import { AboutBody, InfoCard, Moves, ReviewsCard, SpecCard, TagsCard } from '../games/GameContent.tsx';
@@ -91,7 +92,7 @@ function LiveTile({ t, gameId, member }: { t: { id: string; players: string[]; t
 export function GameDetailPage() {
   const { id = '' } = useParams();
   const { data: g, error, loading, reload } = useApi<GameDetail>(`/games/${encodeURIComponent(id)}`);
-  usePageTitle(g?.nameFa ?? 'صفحه بازی');
+  usePageTitle(g?.nameFa ?? 'صفحه بازی', g ? `${gameDocTitle(g.nameFa, g.nameOriginal)} | بردگیم‌ورس` : undefined);
   const { me } = useSession();
   const member = !!me;
   const navigate = useNavigate();
