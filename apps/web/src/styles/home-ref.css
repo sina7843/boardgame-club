@@ -1227,11 +1227,13 @@
 .cx-catalog .gh-a__art {position:relative;block-size:440px;margin-inline-end:-16px}
 .cx-catalog .gh-a__lamp {position:absolute;inset:4% 16% 10%;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--brand-gold) 34%,transparent),color-mix(in srgb,var(--brand-gold) 8%,transparent) 62%,transparent)}
 .cx-catalog .gh-a__floor {position:absolute;inset-inline:18%;inset-block-end:40px;block-size:46px;border-radius:50%;background:color-mix(in srgb,var(--bg) 55%,transparent);filter:blur(16px)}
-.cx-catalog .gh-a__box {position:absolute;display:block}
-.cx-catalog .gh-a__box img {display:block;inline-size:100%;block-size:auto;border-radius:var(--radius-box);filter:var(--bgv-box-shadow-lg)}
-.cx-catalog .gh-a__box--main {inline-size:330px;inset-inline-start:calc(50% - 165px);inset-block-start:34px;transform:rotate(-4deg);z-index:calc(var(--z-felt) + 2)}
-.cx-catalog .gh-a__box--b1 {inline-size:210px;inset-inline-start:2%;inset-block-start:100px;transform:rotate(9deg);z-index:calc(var(--z-felt) + 1)}
-.cx-catalog .gh-a__box--b2 {inline-size:190px;inset-inline-end:5%;inset-block-start:120px;transform:rotate(-10deg);z-index:calc(var(--z-felt) + 1)}
+/* Each box is a definite frame inside the 440px art area (tilt included): the image is fitted (whole box, own ratio,
+   bottom-centred) and never grows into the rail below. */
+.cx-catalog .gh-a__box {position:absolute;display:grid;grid-template:minmax(0,1fr)/minmax(0,1fr);place-items:end center}
+.cx-catalog .gh-a__box img {display:block;inline-size:auto;block-size:auto;max-inline-size:100%;max-block-size:100%;border-radius:var(--radius-box);filter:var(--bgv-box-shadow-lg)}
+.cx-catalog .gh-a__box--main {inline-size:330px;block-size:370px;inset-inline-start:calc(50% - 165px);inset-block-start:34px;transform:rotate(-4deg);z-index:calc(var(--z-felt) + 2)}
+.cx-catalog .gh-a__box--b1 {inline-size:210px;block-size:290px;inset-inline-start:2%;inset-block-start:100px;transform:rotate(9deg);z-index:calc(var(--z-felt) + 1)}
+.cx-catalog .gh-a__box--b2 {inline-size:190px;block-size:270px;inset-inline-end:5%;inset-block-start:120px;transform:rotate(-10deg);z-index:calc(var(--z-felt) + 1)}
 .cx-catalog .gh-a__box--b1 img, .cx-catalog .gh-a__box--b2 img {filter:brightness(.78) saturate(.9)}
 .cx-catalog .gh-a__proof {inset-block-end:34px!important;inset-inline-start:auto!important;inset-inline-end:calc(50% - 130px);z-index:calc(var(--z-felt) + 3)!important}
 .cx-catalog .gh-a__rail {list-style:none;margin:0 -40px;padding:16px 40px 20px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;background:linear-gradient(color-mix(in srgb,var(--bg) 18%,transparent),color-mix(in srgb,var(--bg) 42%,transparent));border-block-start:1px solid color-mix(in srgb,var(--brand-cream) 10%,transparent);position:relative;z-index:calc(var(--z-felt) + 1)}
@@ -1266,9 +1268,9 @@
   .cx-catalog .gh-a__head p, .cx-catalog .gh-a__nav {display:none}
   .cx-catalog .gh-a__stage {grid-template-columns:minmax(0,1fr);gap:0;min-block-size:0}
   .cx-catalog .gh-a__art {order:-1;block-size:250px;margin-inline-end:0}
-  .cx-catalog .gh-a__box--main {inline-size:176px;inset-inline-start:calc(50% - 88px);inset-block-start:18px}
-  .cx-catalog .gh-a__box--b1 {inline-size:112px;inset-inline-start:2%;inset-block-start:58px}
-  .cx-catalog .gh-a__box--b2 {inline-size:104px;inset-inline-end:2%;inset-block-start:66px}
+  .cx-catalog .gh-a__box--main {inline-size:176px;block-size:206px;inset-inline-start:calc(50% - 88px);inset-block-start:18px}
+  .cx-catalog .gh-a__box--b1 {inline-size:112px;block-size:160px;inset-inline-start:2%;inset-block-start:58px}
+  .cx-catalog .gh-a__box--b2 {inline-size:104px;block-size:150px;inset-inline-end:2%;inset-block-start:66px}
   .cx-catalog .gh-a__floor {inset-block-end:14px}
   .cx-catalog .gh-a__proof {inset-block-end:0!important;inset-inline-end:calc(50% - 112px)}
   .cx-catalog .gh-a__info {gap:14px;padding-block:14px 18px;justify-items:stretch}
