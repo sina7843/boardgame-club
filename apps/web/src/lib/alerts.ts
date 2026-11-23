@@ -77,7 +77,9 @@ export function useTurnAlerts(tableId: string, mySeat: number | null): void {
       if (!was) {
         playAlert('turn');
         const p = getAlertPrefs();
-        toast('turn', 'نوبت شماست', p.sound && p.turnSound ? undefined : 'صدا خاموش است');
+        // On the open table the turn pill and the prompt (live regions) already say it; a toast there covered the
+        // opponent's bar and clock on phones every turn. It still shows when the player comes back from another tab.
+        if (document.visibilityState !== 'visible') toast('turn', 'نوبت شماست', p.sound && p.turnSound ? undefined : 'صدا خاموش است');
       }
       const { warningLeft, criticalLeft } = turnThresholds(e.pace, e.turnSeconds, e.clockBaseSeconds);
       // Server time offset keeps timers right when the device clock is off.

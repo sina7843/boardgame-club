@@ -51,7 +51,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const seq = useRef(0);
   const push = useCallback((tone: Toast['tone'], text: string, sub?: string) => {
     const id = ++seq.current;
-    setItems((x) => [...x.slice(-2), { id, tone, text, ...(sub ? { sub } : {}) }]);
+    // The same message again (e.g. «نوبت شماست» on every turn) replaces the old one instead of stacking.
+    setItems((x) => [...x.filter((t) => t.tone !== tone || t.text !== text).slice(-2), { id, tone, text, ...(sub ? { sub } : {}) }]);
     setTimeout(() => setItems((x) => x.filter((t) => t.id !== id)), 6000);
   }, []);
   return (
