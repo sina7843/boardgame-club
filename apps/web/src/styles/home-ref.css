@@ -1194,7 +1194,7 @@
 .cx-catalog .cx-tabs {gap:28px}
 .cx-catalog .cx-tabs .bgv-tab {text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .cx-catalog .gh-main {gap:28px}
-.cx-catalog .gh-tabs {margin-block-end:-8px}
+.cx-catalog .gh-tabs {margin-block:var(--space-4) 0}
 .cx-catalog .gh-hero {position:relative;isolation:isolate;color:var(--felt-ink)}
 .cx-catalog .gh-hero::before {content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(55% 75% at 92% 0%,color-mix(in srgb,var(--felt-gold) 14%,transparent),transparent 62%),radial-gradient(45% 60% at 0% 100%,color-mix(in srgb,var(--seat-6) 10%,transparent),transparent 60%)}
 .cx-catalog .gh-kick {margin:0;display:inline-flex;align-items:center;gap:10px;font-size:17px;font-weight:800;line-height:1.5;color:var(--felt-ink)}
@@ -1237,8 +1237,8 @@
 .cx-catalog .gh-a__rail {list-style:none;margin:0 -40px;padding:16px 40px 20px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;background:linear-gradient(color-mix(in srgb,var(--bg) 18%,transparent),color-mix(in srgb,var(--bg) 42%,transparent));border-block-start:1px solid color-mix(in srgb,var(--brand-cream) 10%,transparent);position:relative;z-index:calc(var(--z-felt) + 1)}
 .cx-catalog .gh-thumb {position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);align-items:center;gap:12px;padding:8px 10px;border-radius:var(--radius-md);text-decoration:none;color:var(--felt-ink)}
 .cx-catalog .gh-thumb:hover {background:color-mix(in srgb,var(--brand-cream) 6%,transparent)}
-.cx-catalog .gh-thumb__box {inline-size:56px;block-size:56px;display:grid;place-items:center}
-.cx-catalog .gh-thumb__box img {display:block;max-inline-size:100%;max-block-size:100%;border-radius:var(--radius-xs);filter:var(--bgv-box-shadow-sm)}
+.cx-catalog .gh-thumb__box {inline-size:56px;block-size:56px;display:grid;grid-template:minmax(0,1fr)/minmax(0,1fr);place-items:center}
+.cx-catalog .gh-thumb__box img {display:block;inline-size:auto;block-size:auto;max-inline-size:100%;max-block-size:100%;object-fit:contain;border-radius:var(--radius-xs);filter:var(--bgv-box-shadow-sm)}
 .cx-catalog .gh-thumb__t {display:grid;gap:1px;min-width:0}
 .cx-catalog .gh-thumb b {font-size:15px;font-weight:800;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cx-catalog .gh-thumb small {font-family:var(--font-latin);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--felt-muted);direction:ltr;unicode-bidi:isolate;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;justify-self:start;max-inline-size:100%}
@@ -1383,9 +1383,9 @@
   .cx-gamepage .T-join input {flex:1 1 140px}
 }
 .cx-gamepage .gd-main {gap:28px}
-.cx-gamepage .gd-crumbs {margin-block-end:-12px}
-.cx-gamepage .gd-box {display:grid;place-items:center;flex:none}
-.cx-gamepage .gd-box img {display:block;max-inline-size:100%;max-block-size:100%;inline-size:auto;block-size:auto;border-radius:var(--radius-box);filter:var(--bgv-box-shadow-lg)}
+.cx-gamepage .gd-crumbs {margin-block-end:0}
+.cx-gamepage .gd-box {display:grid;grid-template:minmax(0,1fr)/minmax(0,1fr);place-items:center;flex:none;overflow:visible}
+.cx-gamepage .gd-box img {display:block;max-inline-size:100%;max-block-size:100%;inline-size:auto;block-size:auto;object-fit:contain;border-radius:var(--radius-box);filter:var(--bgv-box-shadow-lg)}
 .cx-gamepage .gd-name {margin:0;display:grid;gap:6px;justify-items:start;font-size:44px;font-weight:900;line-height:1.2;color:var(--heading)}
 .cx-gamepage .gd-name small {font-family:var(--font-latin);font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--link);direction:ltr;unicode-bidi:isolate;line-height:1.4}
 [data-theme="dark"] .cx-gamepage .gd-name small {color:var(--felt-gold)}
@@ -1472,7 +1472,7 @@
 .cx-gamepage .gd-a__acts {display:grid;gap:10px;align-content:center}
 .cx-gamepage .gd-a__acts .bgv-btn {justify-content:center;inline-size:100%}
 .cx-gamepage .gd-a__acts .gd-tlink {justify-content:center}
-.cx-gamepage .gd-tabsbar {position:sticky;inset-block-start:72px;z-index:var(--z-sticky);display:flex;align-items:center;gap:16px;padding:6px 8px 0;margin-block:-8px;background:var(--bg);border-block-end:1px solid var(--line)}
+.cx-gamepage .gd-tabsbar {position:sticky;inset-block-start:72px;z-index:var(--z-sticky);display:flex;align-items:center;gap:16px;padding:6px 8px 0;margin-block:0;background:var(--bg);border-block-end:1px solid var(--line)}
 .cx-gamepage .gd-tabsbar .bgv-tabs {gap:28px;border:0;flex:1}
 .cx-gamepage .gd-tabsbar .bgv-tab {text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .cx-gamepage .gd-tabsbar .bgv-tab .gd-count {font-size:12px;font-weight:800;color:var(--text-muted)}
@@ -1666,3 +1666,21 @@
   .cx-gamepage .gd-info--2 {column-gap:0}
   .cx-gamepage .gd-opens--4,.cx-gamepage .gd-lives--3 {gap:12px}
 }
+
+/* Anchored sections clear the sticky header (72px) + the game tab bar (~52px). */
+.cx-gamepage [id] {scroll-margin-block-start:calc(72px + 52px + var(--space-4))}
+@media (max-width:899px) {.cx-gamepage [id] {scroll-margin-block-start:calc(56px + 48px + var(--space-4))}}
+/* Section rhythm of the game page: real gaps instead of negative margins (crumbs, hero, tab bar, bands). */
+.cx-gamepage {display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4)}
+.cx-gamepage > .gd-band {margin-block-start:var(--space-6)}
+.cx-gamepage > .gd-tabsbar + .gd-band {margin-block-start:var(--space-4)}
+/* Game-page thumbnails and «بازی‌های بیشتر» shelves: the image FILLS its slot (contain, own ratio, touches the frame on one axis);
+   drop-shadow may spill. The category pill lives in the margin above the slot, never over the art. */
+.cx-gamepage .gd-similar .cx-shelf {padding:0;margin:var(--space-10) var(--space-4) var(--space-3)}
+.cx-gamepage .gd-similar .cx-shelf>img {inset:0;inline-size:100%;block-size:100%;object-fit:contain}
+.cx-gamepage .gd-similar .cx-shelf>.gd-why {inset-block-start:calc(var(--space-10) * -1 + var(--space-1));inset-inline-start:calc(var(--space-2) * -1)}
+.cx-gamepage .cx-b-thumb, .cx-gamepage .gd-live .cx-b-thumb {overflow:visible}
+.cx-gamepage .cx-b-thumb>img, .cx-gamepage .cx-b-thumb--sm>img, .cx-gamepage .gd-live .cx-b-thumb>img {inline-size:100%;block-size:100%;object-fit:contain}
+/* Long Latin titles wrap (2 lines max) instead of running into the meta row. */
+.cx-gamepage .cx-card__body {grid-template-columns:minmax(0,1fr)}
+.cx-gamepage .cx-card__name small {display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;white-space:normal;overflow-wrap:anywhere;overflow:hidden}

@@ -24,13 +24,13 @@ const sortGames = (items: GameSummary[], sort: string) => {
 };
 
 /** The six category tiles under the hero (Catalog-Desktop): a tag (or «دونفره»), its icon on a seat colour, a peeking box. */
-const CATS: { label: string; icon: string; seat: number; set: Record<string, string>; match: (g: GameSummary) => boolean }[] = [
-  { label: 'استراتژیک', icon: 'map', seat: 6, set: { tags: 'strategy' }, match: (g) => g.tags.includes('strategy') },
-  { label: 'خانوادگی', icon: 'house', seat: 2, set: { tags: 'family' }, match: (g) => g.tags.includes('family') },
-  { label: 'کارتی', icon: 'layers', seat: 3, set: { tags: 'card' }, match: (g) => g.tags.includes('card') },
-  { label: 'کلاسیک', icon: 'crown', seat: 9, set: { tags: 'classic' }, match: (g) => g.tags.includes('classic') },
-  { label: 'دورهمی', icon: 'sparkles', seat: 7, set: { tags: 'party' }, match: (g) => g.tags.includes('party') },
-  { label: 'دونفره', icon: 'swords', seat: 1, set: { players: '2' }, match: (g) => g.minPlayers <= 2 && g.maxPlayers >= 2 }
+const CATS: { label: string; box: string; icon: string; seat: number; set: Record<string, string>; match: (g: GameSummary) => boolean }[] = [
+  { label: 'استراتژیک', box: 'gaia-project', icon: 'map', seat: 6, set: { tags: 'strategy' }, match: (g) => g.tags.includes('strategy') },
+  { label: 'خانوادگی', box: 'ticket-to-ride', icon: 'house', seat: 2, set: { tags: 'family' }, match: (g) => g.tags.includes('family') },
+  { label: 'کارتی', box: 'uno', icon: 'layers', seat: 3, set: { tags: 'card' }, match: (g) => g.tags.includes('card') },
+  { label: 'کلاسیک', box: 'chess', icon: 'crown', seat: 9, set: { tags: 'classic' }, match: (g) => g.tags.includes('classic') },
+  { label: 'دورهمی', box: 'coup', icon: 'sparkles', seat: 7, set: { tags: 'party' }, match: (g) => g.tags.includes('party') },
+  { label: 'دونفره', box: 'jaipur', icon: 'swords', seat: 1, set: { players: '2' }, match: (g) => g.minPlayers <= 2 && g.maxPlayers >= 2 }
 ];
 const span = (a: number, b: number) => (a === b ? faNum(a) : `${faNum(a)} تا ${faNum(b)}`);
 
@@ -168,7 +168,7 @@ export function Catalog() {
                 onClick={(e) => { e.preventDefault(); setShown(PAGE); setParams(new URLSearchParams(c.set), { replace: true }); setQ(''); }}>
                 <span className={`gh-cat__ic seat-${c.seat}`}><Icon name={c.icon} /></span>
                 <span className="gh-cat__t"><b>{c.label}</b><small>{faNum(list.length)} بازی</small></span>
-                {list[0] && <img className="gh-cat__peek" src={`/covers/box/${list[0].id}.webp`} alt="" loading="lazy" />}
+                <img className="gh-cat__peek" src={`/covers/box/${c.box}.webp`} alt="" loading="lazy" />
               </a>
             );
           })}

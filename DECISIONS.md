@@ -1590,3 +1590,11 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - The page scrolls on phones (no inner felt scroller); the game bar and the dock area (game actions, own bar, گفت‌وگو / رویدادها / گزینه‌ها) are sticky. «گزینه‌ها» opens the rules and leave sheet.
 - QA from round 6 fails a table only for blockers; small size differences are polish.
 - Game CSS is global, so class prefixes must be unique per game (`.sb`, `.cr`, `.tm` collided; group C renamed its side).
+
+## Live-site fixes (1 Azar 1405 / 2026-11-22, branch fix/live-2026-11-22)
+- Scroll on navigation: the app owns it (`history.scrollRestoration = 'manual'`). A new navigation goes to the top or to `#hash`; Back/Forward restores the position saved per history entry in sessionStorage, retrying for about 2s while async content loads. In-page tab changes don't scroll. Focus moves use `preventScroll`.
+- Header inbox: the chat icon is removed. One bell «پیام‌ها و اعلان‌ها» shows the summed unread badge and opens an inbox with DS `Tabs` (پیام‌ها / اعلان‌ها). DS `SiteHeader` has no merged-inbox prop, so SiteChrome portals the bell into a slot inside `.bgv-siteheader__actions`, before the avatar. Workaround: replace it with a DS prop when the design system gets one (design/system is read-only here).
+- Box images: game box art is contain-fit in a definite slot. It shows the whole box at its own ratio and touches the frame on one axis. The rule is applied in the app layer (home-ref.css), not in the DS `.bgv-box`. The small 56px thumbs keep a 5px inset for the drop shadow.
+- Category peeks on /games use one box per category (strategic gaia-project, family ticket-to-ride, card uno, classic chess, party coup, two-player jaipur), 82px wide, rotate(-14deg).
+- Turn toast: «نوبت شماست» is shown only when the tab is hidden (the turn pill and prompt already announce it on the open table; on phones the toast covered the opponent's clock). The ToastProvider drops an identical earlier toast instead of stacking it. This applies to every game.
+- Favicon set v244 (navy #142B3B tile, #F2B13C figures), cache-busted with `?v=244`; the same files are in design/brand/favicon-production.

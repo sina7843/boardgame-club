@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Outlet, useLocation, useNavigate, useNavigationType } from 'react-router';
 import type { MyTableItem, NotificationItem, Progression } from '@bg/contracts';
 import { useOnline, useToast } from '@bg/ui';
 import { AppShell, Badge, Banner, Button, Coin, Icon, SiteHeader, StateBlock, TopBar } from '@bg/ui/bgv';
@@ -13,7 +13,7 @@ import { lastPageTitle, PAGE_TITLE_EVENT } from '../lib/usePageTitle.ts';
 import { Celebration } from './Celebration.tsx';
 import { WelcomeGift } from './WelcomeGift.tsx';
 import { OnboardingProvider } from './Onboarding.tsx';
-import { AccountPopover, hasFooter, HeaderSearch, PublicFooter } from './SiteChrome.tsx';
+import { AccountPopover, hasFooter, HeaderSearch, InboxButton, InboxPanel, PublicFooter } from './SiteChrome.tsx';
 import { TermsGate } from './Account.tsx';
 import { PAGE_GROUPS } from './PageTabs.tsx';
 
@@ -53,6 +53,7 @@ export function Layout() {
   const { prefs, update } = usePrefs();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
   const online = useOnline();
   // Connection back after an outage: one «دوباره وصل شدید» toast (states spec, offline).
   const toast = useToast();
@@ -61,7 +62,40 @@ export function Layout() {
     if (!online) wasOffline.current = true;
     else if (wasOffline.current) { wasOffline.current = false; toast('success', 'دوباره وصل شدید.'); }
   }, [online, toast]);
-  const { pathname } = useLocation();
+  const { pathname, hash, key } = useLocation();
+  // A new page opens at the top; a #hash scrolls to its element; hash/search-only changes (page tabs) never reach here.
+  // Back/Forward restore the saved position, retrying while the page's data loads and makes it tall enough.
+  const navType = useNavigationType();
+  useEffect(() => { history.scrollRestoration = 'manual'; }, []);
+  useEffect(() => {
+    // A shorter document clamps scrollY on its own (the next page is still loading): that is not the reader's position.
+    let height = document.documentElement.scrollHeight;
+    const save = () => {
+      const h = document.documentElement.scrollHeight, clamped = h < height;
+      height = h;
+      if (!clamped) sessionStorage.setItem(`bg.scroll.${key}`, String(scrollY));
+    };
+    addEventListener('scroll', save, { passive: true });
+    return () => { removeEventListener('scroll', save); };
+  }, [key]);
+  useEffect(() => {
+    if (navType === 'POP') {
+      const y = Number(sessionStorage.getItem(`bg.scroll.${key}`) ?? 0);
+      if (!y) { window.scrollTo({ top: 0, behavior: 'instant' }); return; }
+      let stop = false, frames = 0;
+      const halt = () => { stop = true; };
+      addEventListener('wheel', halt, { once: true, passive: true }); addEventListener('touchstart', halt, { once: true, passive: true });
+      const step = () => {
+        if (stop || frames++ > 120) return; // ~2s
+        window.scrollTo({ top: y, behavior: 'instant' });
+        if (Math.abs(scrollY - y) > 2) requestAnimationFrame(step);
+      };
+      step();
+      return () => { stop = true; removeEventListener('wheel', halt); removeEventListener('touchstart', halt); };
+    }
+    const target = hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+    if (target) target.scrollIntoView(); else window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   const onPhone = useSyncExternalStore(subscribePhone, () => matchMedia(phoneMq).matches, () => false);
   const route = useLinkRouting();
   const title = usePageTitleText();
@@ -72,7 +106,14 @@ export function Layout() {
   const coins = useCoins(signedIn);
   const progression = useApi<Progression>(signedIn ? '/me/progression' : null);
 
-  useEffect(() => setMenuOpen(false), [pathname]);
+  useEffect(() => { setMenuOpen(false); setInboxOpen(false); }, [pathname]);
+  useEffect(() => {
+    if (!inboxOpen) return;
+    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setInboxOpen(false); };
+    const away = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest('.app-inbox, .app-inboxbtn')) setInboxOpen(false); };
+    document.addEventListener('keydown', onEsc); document.addEventListener('mousedown', away);
+    return () => { document.removeEventListener('keydown', onEsc); document.removeEventListener('mousedown', away); };
+  }, [inboxOpen]);
   useEffect(() => {
     if (!menuOpen) return;
     const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
@@ -84,7 +125,7 @@ export function Layout() {
   useEffect(() => {
     const tag = (sel: string, target: string) => document.querySelector(sel)?.setAttribute('data-tour', target);
     tag('.bgv-sitenav a[href="/"]', 'nav-home'); tag('.bgv-sitenav a[href="/games"]', 'nav-games'); tag('.bgv-sitenav a[href="/tables"]', 'nav-tables');
-    tag('.bgv-siteheader__actions a[href="/messages"]', 'nav-messages'); tag('.bgv-avatarbtn', 'nav-profile');
+    tag('.bgv-avatarbtn', 'nav-profile');
   }, [pathname, signedIn, status]);
 
   const at = (to: string, group?: Group) => (group ? inGroup(group, pathname) : pathname === to);
@@ -132,9 +173,10 @@ export function Layout() {
   const header = (
     <SiteHeader logo={{ src: LOGO.src, srcDark: LOGO.srcDark }} nav={nav} themeToggle={themeToggle} guest={!signedIn} search={<HeaderSearch />}
       quickPlay={pathname === '/' || pathname === '/games' || /^\/games\/[^/]+$/.test(pathname) ? false : { href: '/play' }} loginHref={loginHref}
-      {...(me ? { user: { initials, name: me.displayName, current: menuOpen || inGroup('progress', pathname) || pathname.startsWith('/me/') }, onAvatar: () => setMenuOpen((o) => !o), menuOpen } : {})}
-      messages={{ href: '/messages', count: unread, current: inGroup('social', pathname) }}
-      notifications={{ href: '/notifications', count: notifications, current: pathname === '/notifications' }}>
+      {...(me ? { user: { initials, name: me.displayName, current: menuOpen || inGroup('progress', pathname) || pathname.startsWith('/me/') }, onAvatar: () => { setInboxOpen(false); setMenuOpen((o) => !o); }, menuOpen } : {})}
+      messages={false} notifications={false}>
+      {me && <InboxButton count={unread + notifications} open={inboxOpen} onToggle={() => { setMenuOpen(false); setInboxOpen((o) => !o); }} />}
+      {inboxOpen && me && <InboxPanel unreadMessages={unread} unreadNotifications={notifications} onClose={() => setInboxOpen(false)} />}
       {menuOpen && me && (
         <AccountPopover name={me.displayName} {...(level ? { sub: level } : {})} initials={initials}
           {...(coins.data ? { coins: coins.data.balance } : {})} unreadMessages={unread} admin={me.roles.includes('admin')} staff={staff}
