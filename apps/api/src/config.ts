@@ -36,6 +36,8 @@ const envSchema = z.object({
   METRICS_TOKEN: z.string().min(24).optional(),
   /** Reverse-proxy hops in front of the API in production (Caddy = 1; Caddy behind Coolify/Traefik = 2). */
   TRUST_PROXY_HOPS: z.coerce.number().int().min(1).max(5).default(1),
+  /** Web Push VAPID public key served by GET /push/key; unset = push disabled (the worker holds the private key). */
+  WEB_PUSH_PUBLIC_KEY: z.string().min(40).optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info')
 });
 
@@ -98,6 +100,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     webOrigins: c.WEB_ORIGINS,
     logLevel: c.LOG_LEVEL,
     metricsToken: c.METRICS_TOKEN ?? null,
+    webPushPublicKey: c.WEB_PUSH_PUBLIC_KEY ?? null,
     trustProxyHops: c.TRUST_PROXY_HOPS,
     otp: {
       hashSecret: c.OTP_HASH_SECRET,

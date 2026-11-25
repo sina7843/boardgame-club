@@ -7,6 +7,7 @@ import { userIdentity } from '../lib/bgv.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 import { playAlert } from '../lib/alerts.ts';
+import { notifyFailFa } from '../lib/push.ts';
 import { saveAlertPrefs, useAlertPrefs, usePrefs, type Prefs } from '../lib/prefs.tsx';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -172,7 +173,7 @@ function PrivacyForm({ only }: { only: 'privacy' | 'notify' }) {
           <div className="ac-row">
             <span className="ac-tile"><Icon name="bell-off" /></span>
             <div className="ac-row__text"><b id="perm-h">اعلان مرورگر هنوز اجازه ندارد</b><span>بدون آن، نوبت‌ها را فقط وقتی برگه باز است می‌بینید. مرورگر از شما می‌پرسد.</span></div>
-            <Button variant="primary" icon="bell-ring" onClick={async () => { const ok = await setBrowserNotifications(true); setBrowser(ok); if (!ok) toast('error', 'مرورگر اجازه اعلان نداد.'); }}>اجازه‌ی اعلان</Button>
+            <Button variant="primary" icon="bell-ring" onClick={async () => { const ok = await setBrowserNotifications(true); setBrowser(ok); if (!ok) toast('error', notifyFailFa()); }}>اجازه‌ی اعلان</Button>
           </div>
         </Card>
       )}
@@ -186,7 +187,7 @@ function PrivacyForm({ only }: { only: 'privacy' | 'notify' }) {
           <Switch aria-label="اعلان مرورگر" checked={browser} onChange={async (v) => {
             const ok = await setBrowserNotifications(v);
             setBrowser(v && ok);
-            if (v && !ok) toast('error', 'مرورگر اجازه اعلان نداد یا پشتیبانی نمی‌کند.');
+            if (v && !ok) toast('error', notifyFailFa());
           }} />
         </div>
         <p className="ac-cap ac-pad"><Icon name="info" size="sm" /> اعلان‌ها هیچ اطلاعات پنهان بازی یا متن پیام را نشان نمی‌دهند.</p>

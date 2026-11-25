@@ -9,7 +9,7 @@ import { usePrefs } from '../lib/prefs.tsx';
 import { useCoins } from '../lib/coins.tsx';
 import { useLinkRouting } from '../lib/bgv.tsx';
 import { faNum } from '../lib/format.ts';
-import { lastPageTitle, PAGE_TITLE_EVENT } from '../lib/usePageTitle.ts';
+import { lastPageTitle, PAGE_TITLE_EVENT, setTurnBadge } from '../lib/usePageTitle.ts';
 import { Celebration } from './Celebration.tsx';
 import { WelcomeGift } from './WelcomeGift.tsx';
 import { OnboardingProvider } from './Onboarding.tsx';
@@ -103,6 +103,7 @@ export function Layout() {
   const unread = useUnreadMessages(signedIn);
   const notifications = useUnreadNotifications(signedIn);
   const turns = useTurns(signedIn, pathname);
+  useEffect(() => { setTurnBadge(turns); }, [turns]);
   const coins = useCoins(signedIn);
   const progression = useApi<Progression>(signedIn ? '/me/progression' : null);
 

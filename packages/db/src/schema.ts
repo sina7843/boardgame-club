@@ -851,6 +851,18 @@ export const notifications = pgTable('notifications', {
   readAt: tsz()
 }, (t) => [index('notifications_user_idx').on(t.userId, t.createdAt)]);
 
+/** Web Push endpoints per browser (VAPID). A 404/410 from the push service deletes the row. */
+export const pushSubscriptions = pgTable('push_subscriptions', {
+  id: id(),
+  userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  endpoint: text().notNull().unique(),
+  p256dh: text().notNull(),
+  auth: text().notNull(),
+  userAgent: text(),
+  createdAt: createdAt(),
+  lastSuccessAt: tsz()
+}, (t) => [index('push_subscriptions_user_idx').on(t.userId)]);
+
 export const outboxEvents = pgTable('outbox_events', {
   id: bigserial({ mode: 'number' }).primaryKey(),
   topic: text().notNull(),

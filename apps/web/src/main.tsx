@@ -12,6 +12,7 @@ import { Catalog } from './pages/Catalog.tsx';
 import { Login } from './pages/Login.tsx';
 import { NotFound } from './pages/NotFound.tsx';
 import { RealtimeProvider } from './lib/realtime.tsx';
+import { registerServiceWorker } from './lib/push.ts';
 import { SITE_LINKS, SitePage } from './pages/SitePage.tsx';
 
 /** The design showcase is an internal tool: admins only (the server enforces nothing here; the page holds no data). */
@@ -120,6 +121,7 @@ const router = createBrowserRouter([
   }
 ]);
 
+registerServiceWorker();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <PrefsProvider>

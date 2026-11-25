@@ -5,6 +5,7 @@ import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
 import { applyRating, rewardMatch, rewardTutorial, type FinishedEvent } from './progression.ts';
 import { fireDeadline } from './runtime.ts';
+import { deliverPush } from './push.ts';
 
 const { scheduledDeadlines, outboxEvents, notifications, platformIncidents, games, auditLog, userSettings, userMutes, blocks, users, behaviorSignals } = schema;
 
@@ -50,8 +51,10 @@ async function notify(db: Db, userIds: unknown, kind: Kind, dedupe: (u: string) 
       if (muted.length || blocked.length) continue;
     }
     const [n] = await db.insert(notifications).values({ userId, kind, payload, dedupeKey: dedupe(userId) })
-      .onConflictDoNothing({ target: notifications.dedupeKey }).returning({ id: notifications.id });
-    if (n) await db.execute(sql`select pg_notify('notification_created', ${n.id})`);
+      .onConflictDoNothing({ target: notifications.dedupeKey }).returning();
+    if (!n) continue;
+    await db.execute(sql`select pg_notify('notification_created', ${n.id})`);
+    await deliverPush(db, n); // never throws; quiet hours skip the push only
   }
 }
 

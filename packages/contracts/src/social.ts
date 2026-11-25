@@ -213,6 +213,30 @@ export const DEFAULT_ALERT_PREFS: AlertPrefs = {
   sound: true, volume: 70, vibration: true, quietHours: { enabled: false, startHour: 23, endHour: 7 }, warningSound: 'chime', criticalSound: 'pulse', turnSound: true, criticalTick: true
 };
 
+/**
+ * Web Push subscription (PushSubscription.toJSON()). The worker POSTs to the endpoint, so only https endpoints on
+ * the browser push services are accepted (no server-side request to arbitrary hosts).
+ */
+const PUSH_HOSTS = /(^|\.)(fcm\.googleapis\.com|android\.googleapis\.com|push\.services\.mozilla\.com|push\.apple\.com|notify\.windows\.com)$/;
+export const isPushEndpoint = (s: string): boolean => {
+  // Host directly after https:// up to the first «/»: no port, no user-info.
+  const host = /^https:\/\/([a-z0-9-]+(?:\.[a-z0-9-]+)+)\//i.exec(s)?.[1];
+  return !!host && PUSH_HOSTS.test(host.toLowerCase());
+};
+const pushEndpoint = z.string().max(1024).refine(isPushEndpoint, 'not a browser push service endpoint');
+export const pushSubscriptionBody = z.object({
+  endpoint: pushEndpoint,
+  keys: z.object({ p256dh: z.string().min(16).max(256), auth: z.string().min(8).max(64) })
+});
+export const pushUnsubscribeBody = z.object({ endpoint: z.string().max(1024) });
+
+/** Quiet hours are Tehran time (UTC+3:30, no DST). A window like 23-07 wraps midnight. Shared by the web alerts and Web Push. */
+export function inQuietHours(q: AlertPrefs['quietHours'], now = new Date()): boolean {
+  if (!q.enabled || q.startHour === q.endHour) return false;
+  const h = new Date(now.getTime() + 3.5 * 3600_000).getUTCHours();
+  return q.startHour < q.endHour ? h >= q.startHour && h < q.endHour : h >= q.startHour || h < q.endHour;
+}
+
 // ---------- Moderation ----------
 export const reportBody = z.strictObject({
   targetType: z.enum(['user', 'display_name', 'bio', 'message', 'table']),

@@ -13,7 +13,7 @@ import { AppError } from '../../http/errors.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
 import { termsVersion } from '../site/routes.ts';
 
-const { users, userPrivate, games, userAchievements, achievementDefinitions, sessions, userRoles, friendships, userSettings, participants, gameTables, auditLog, matchmakingTickets, tournamentEntries, tournaments, userSanctions } = schema;
+const { users, userPrivate, games, userAchievements, achievementDefinitions, sessions, userRoles, friendships, userSettings, participants, gameTables, auditLog, matchmakingTickets, tournamentEntries, tournaments, userSanctions, pushSubscriptions } = schema;
 
 /** Public projection: an explicit allow-list so private columns can never leak by addition. */
 export function toPublicProfile(u: typeof users.$inferSelect): PublicProfile {
@@ -49,6 +49,7 @@ export async function closeAccount(db: Db, userId: string, actorId: string, acti
     await tx.delete(userPrivate).where(eq(userPrivate.userId, userId));
     await tx.delete(friendships).where(or(eq(friendships.userLow, userId), eq(friendships.userHigh, userId)));
     await tx.delete(userSettings).where(eq(userSettings.userId, userId));
+    await tx.delete(pushSubscriptions).where(eq(pushSubscriptions.userId, userId));
     await tx.update(matchmakingTickets).set({ status: 'cancelled', updatedAt: sql`now()` }).where(and(eq(matchmakingTickets.userId, userId), eq(matchmakingTickets.status, 'queued')));
     await tx.update(sessions).set({ revokedAt: sql`now()` }).where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)));
     await tx.insert(auditLog).values({ actorId, action, targetType: 'user', targetId: userId, metadata, requestId });

@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { z } from 'zod';
 import { createDb } from '@bg/db';
 import { createDefaultRegistry } from '@bg/game-engine';
-import { defaultMatchConfig, expireSubscriptions, fakeGateway, zarinpalGateway, reconcilePayments, runDueDeadlines, runMatchmaking, runOutbox, runTournaments, type BillingConfig } from '@bg/play';
+import { configureWebPush, defaultMatchConfig, expireSubscriptions, fakeGateway, zarinpalGateway, reconcilePayments, runDueDeadlines, runMatchmaking, runOutbox, runTournaments, type BillingConfig } from '@bg/play';
 import { runMaintenance } from './maintenance.ts';
 
 const env = z.object({
@@ -17,7 +17,11 @@ const env = z.object({
   ZARINPAL_SANDBOX: z.enum(['true', 'false']).default('false'),
   ALLOW_TEST_PROVIDERS: z.enum(['true', 'false']).default('false'),
   WEB_ORIGINS: z.string().default('http://localhost:5173'),
-  PUBLIC_WEB_URL: z.url().optional()
+  PUBLIC_WEB_URL: z.url().optional(),
+  /** Web Push (VAPID). All three set = push on; any missing = push off (logged at start). */
+  WEB_PUSH_PUBLIC_KEY: z.string().min(40).optional(),
+  WEB_PUSH_PRIVATE_KEY: z.string().min(20).optional(),
+  WEB_PUSH_SUBJECT: z.string().regex(/^(mailto:|https:\/\/)/, 'must be a mailto: or https:// URL').optional()
 }).parse(Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== '')));
 
 const { db, close } = createDb(env.DATABASE_URL, { max: 4 });
@@ -88,7 +92,8 @@ if (env.WORKER_HEALTH_PORT) {
   }).listen(env.WORKER_HEALTH_PORT, '127.0.0.1');
 }
 
-log('worker started', { deadlinePollMs: env.DEADLINE_POLL_MS, maintenanceSeconds: env.WORKER_INTERVAL_SECONDS });
+const webPush = configureWebPush({ publicKey: env.WEB_PUSH_PUBLIC_KEY, privateKey: env.WEB_PUSH_PRIVATE_KEY, subject: env.WEB_PUSH_SUBJECT });
+log('worker started', { deadlinePollMs: env.DEADLINE_POLL_MS, maintenanceSeconds: env.WORKER_INTERVAL_SECONDS, webPush: webPush ? 'on' : 'disabled (WEB_PUSH_* not set)' });
 loop('deadlines', env.DEADLINE_POLL_MS, () => runDueDeadlines(db, registry));
 // Outbox in small claims under a time budget: when many games end together (each costs ~80 statements of rewards,
 // ratings and notifications) the backlog drains over a few ticks instead of holding the database busy and slowing

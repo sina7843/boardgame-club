@@ -7,6 +7,7 @@ import { saveAlertPrefs, useAlertPrefs } from '../lib/prefs.tsx';
 import { jalaliDate, jalaliDateTime, faNum } from '../lib/format.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { notifyFailFa } from '../lib/push.ts';
 
 type Kind = NotificationItem['kind'];
 type Cat = 'all' | 'turn' | 'invite' | 'message' | 'result' | 'social';
@@ -113,7 +114,7 @@ export function NotificationsPage() {
               checked={browser} onChange={async (v) => {
                 const ok = await setBrowserNotifications(v);
                 setBrowser(v && ok);
-                if (v && !ok) toast('error', 'مرورگر اجازه اعلان نداد یا پشتیبانی نمی‌کند.');
+                if (v && !ok) toast('error', notifyFailFa());
               }} />
             {settings.data && <Switch label="یادآوری مهلت نوبتی" hint="نوبت و یادآوری پیش از پایان مهلت" checked={settings.data.notify.turn}
               onChange={(turn: boolean) => void saveSettings({ ...settings.data!, notify: { ...settings.data!.notify, turn } })} />}
