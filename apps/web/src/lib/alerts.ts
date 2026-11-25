@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useToast } from '@bg/ui';
-import { ServerEvents, turnThresholds, type AlertPrefs, type TurnAutoMovedEvent, type TurnStartedEvent } from '@bg/contracts';
+import { inQuietHours, ServerEvents, turnThresholds, type AlertPrefs, type TurnAutoMovedEvent, type TurnStartedEvent } from '@bg/contracts';
 import { getAlertPrefs, loadAlertPrefs, readPrefs } from './prefs.tsx';
 import { useRealtime } from './realtime.tsx';
 
@@ -15,13 +15,6 @@ const TONES: Record<Tone, [number, number, number][]> = {
   tick: [[1200, 0, 0.05]]
 };
 const VIBRATE: Record<Kind, number[]> = { turn: [80], warning: [], critical: [200, 100, 200, 100, 200], timeout: [400], tick: [] };
-
-/** Quiet hours are Tehran time (UTC+3:30, no DST). A window like 23-07 wraps midnight. */
-export function inQuietHours(q: AlertPrefs['quietHours'], now = new Date()): boolean {
-  if (!q.enabled || q.startHour === q.endHour) return false;
-  const h = new Date(now.getTime() + 3.5 * 3600_000).getUTCHours();
-  return q.startHour < q.endHour ? h >= q.startHour && h < q.endHour : h >= q.startHour || h < q.endHour;
-}
 
 let audio: AudioContext | undefined;
 function beep(tone: Tone, volume: number): void {

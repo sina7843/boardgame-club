@@ -344,8 +344,12 @@ const drawOutcome = (s: ChessState): Outcome =>
 
 /** Draw by agreement allowed now? (`plies` = moves made so far, including the one being played when offering.) */
 const agreementAllowed = (s: ChessState, plies: number) => !optsOf(s).armageddon && Math.floor(plies / 2) >= optsOf(s).minDrawMove;
-const offerAllowed = (s: ChessState, seat: number, plies = s.history.length + 1) =>
-  agreementAllowed(s, plies) && (optsOf(s).offerEvery === 0 || s.history.length - (s.lastOffer?.[seat] ?? NEVER) >= optsOf(s).offerEvery * 2);
+const offerAllowed = (s: ChessState, seat: number, plies = s.history.length + 1) => {
+  // Snapshots saved before configurable draw limits have no offerEvery.
+  const offerEvery = optsOf(s).offerEvery ?? 0;
+  return agreementAllowed(s, plies) &&
+    (offerEvery === 0 || s.history.length - (s.lastOffer?.[seat] ?? NEVER) >= offerEvery * 2);
+};
 /** Why a standalone offer (D7) is not possible now, or null when it is. */
 const offerBlock = (s: ChessState, seat: number): string | null =>
   optsOf(s).armageddon ? 'DRAW_NOT_ALLOWED'

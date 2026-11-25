@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { FIXTURE_CODE, nextMobile, ORIGIN, post, setup, testConfig, type TestCtx } from './helpers.ts';
+import { GAME_ALIASES } from '@bg/contracts';
 
 let ctx: TestCtx;
 beforeAll(async () => { ctx = await setup({ LOG_LEVEL: 'info' }); });
@@ -21,6 +22,14 @@ describe('catalog search and filters (FR-02)', () => {
     expect(await ids(`?q=${encodeURIComponent('كندو')}`)).toEqual(['hive']); // Arabic ك matches «کندو»
     expect(await ids('?q=LINE')).toEqual(['line-three']);
     expect(await ids(`?q=${encodeURIComponent('%')}`)).toEqual([]);
+  });
+
+  it('matches aliases and Finglish spellings stored in searchText; every game has an alias entry', async () => {
+    expect(await ids('?q=kataan')).toEqual(['catan']);
+    expect(await ids('?q=shatranj')).toEqual(['chess']);
+    expect(await ids(`?q=${encodeURIComponent('اسپلندور')}`)).toEqual(['splendor']);
+    const all = (await get('/api/games')).json().items.map((g: { id: string }) => g.id) as string[];
+    expect(all.filter((id) => !GAME_ALIASES[id])).toEqual([]);
   });
 
   it('filters by players, time, difficulty, mode and access', async () => {
@@ -70,7 +79,7 @@ describe('HTTP platform controls', () => {
 
   it('health live/ready report status', async () => {
     expect((await get('/api/health/live')).json()).toEqual({ status: 'ok' });
-    expect((await get('/api/health/ready')).json()).toEqual({ status: 'ok', checks: { database: 'ok', migrations: 'ok' } });
+    expect((await get('/api/health/ready')).json()).toEqual({ status: 'ok', checks: { database: 'ok', migrations: 'ok', email: 'disabled' } });
   });
 
   it('serves an OpenAPI document', async () => {

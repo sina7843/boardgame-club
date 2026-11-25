@@ -1,8 +1,9 @@
 // App glue for the BGV design-system components: router-aware links, the user's built avatar, identity props.
 import { useMemo, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { avatarSvg, frameSvg, cosmetic, parseAvatar, type League } from '@bg/contracts';
-import type { IdentityProps } from '@bg/ui/bgv';
+import { avatarSvg, frameSvg, cosmetic, parseAvatar, REPUTATION_FA, type League, type ReputationView } from '@bg/contracts';
+import { Badge, type IdentityProps } from '@bg/ui/bgv';
+import { faNum } from './format.ts';
 
 /**
  * DS components render plain <a href> links. Put the returned handler on a container (the app shell) and every
@@ -59,4 +60,11 @@ export function bestLeague(ratings: { league: League | null }[]): League | null 
   let best = -1;
   for (const r of ratings) if (r.league) best = Math.max(best, LEAGUE_ORDER.indexOf(r.league));
   return best < 0 ? null : LEAGUE_ORDER[best]!;
+}
+
+/** Reputation «اعتبار» band as a neutral badge; the number only when the server sent it (own profile, moderators). */
+export function ReputationBadge({ r, size }: { r: ReputationView | null | undefined; size?: 'sm' }) {
+  if (!r) return null;
+  const n = r.score !== null ? ` ${faNum(r.score)}` : '';
+  return <Badge size={size}>{`اعتبار: ${REPUTATION_FA[r.band]}${n}`}</Badge>;
 }

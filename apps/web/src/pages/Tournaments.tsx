@@ -308,6 +308,7 @@ export function TournamentPage() {
                     ? <Button variant="primary" block loading={busy} disabled={full || !t.checkout.available} onClick={() => act('checkout', '')}>{full ? 'ظرفیت تکمیل است' : 'پرداخت و ثبت‌نام'}</Button>
                     : <Button variant="primary" block loading={busy} disabled={full} onClick={() => act('register', 'ثبت‌نام شد. زمان شروع اعلان می‌گیرید.')}>{full ? 'ظرفیت تکمیل است' : 'ثبت‌نام'}</Button>
                 ) : <p className="bgv-muted" style={{ margin: 0 }}>ثبت‌نام بسته است.</p>}
+              {open && <Button variant="secondary" block icon="calendar" onClick={() => location.assign(`/api/tournaments/${t.id}/calendar.ics`)}>افزودن به تقویم</Button>}
               {t.entryKind === 'toman' && !t.checkout.available && t.checkout.reasonFa && <p className="bgv-hint">{t.checkout.reasonFa}</p>}
               <p className="bgv-hint"><Icon name="info" size="sm" />جایزه را سکوی بازی می‌دهد و از ورودی‌ها جمع نمی‌شود. انصراف پیش از شروع ورودی را برمی‌گرداند.</p>
             </div>

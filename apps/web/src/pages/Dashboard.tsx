@@ -3,10 +3,10 @@
 // is real data: /home (live and open tables, counts, the week's XP leaders, popularity), /games, /me/tables, /me/daily.
 // A block whose data is empty keeps its place and says so instead of showing invented numbers.
 import { useState, type CSSProperties, type ReactNode } from 'react';
-import type { DailyGame, GameSummary, HomeOverview, MyTableItem, OpenTableItem } from '@bg/contracts';
-import { Avatar, Badge, Button, Icon, ModeTag, Skeleton, StateBlock } from '@bg/ui/bgv';
+import type { DailyGame, EventSummary, GameSummary, HomeOverview, MyTableItem, OpenTableItem } from '@bg/contracts';
+import { Avatar, Badge, Banner, Button, Icon, ModeTag, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
-import { faNum, PACE_FA } from '../lib/format.ts';
+import { faNum, PACE_FA, remainingFa } from '../lib/format.ts';
 import { useSession, wasSignedIn } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { userIdentity } from '../lib/bgv.tsx';
@@ -131,6 +131,19 @@ function Popular({ games }: { games: GameSummary[] }) {
   return (
     <section className="cx-b-sec" id="popular" aria-labelledby="pop-h">
       <Head id="pop-h" icon="flame" title="بازی محبوب این هفته" more={['همهٔ بازی‌ها', '/games?sort=popular']} />
+      <div className="cx-b-shelf">{games.slice(0, 6).map((g) => <ShelfCard key={g.id} game={g} />)}</div>
+    </section>
+  );
+}
+
+/** «بازی‌های جدی، نوبتی»: hard games (catalog difficulty) that can be played turn by turn, from the catalog itself. */
+const isHeavyTurn = (g: GameSummary) => g.difficulty === 'hard' && g.paces.includes('turn');
+function HeavyTurn({ games }: { games: GameSummary[] }) {
+  if (!games.length) return null;
+  return (
+    <section className="cx-b-sec" id="heavy" aria-labelledby="heavy-h">
+      <Head id="heavy-h" icon="hourglass" title="بازی‌های جدی، نوبتی" sub="بردگیم‌های سنگین، سر فرصت و نوبتی؛ هر وقت رسیدی حرکتت را بزن."
+        more={['همهٔ بازی‌های سنگین نوبتی', '/games?difficulty=hard&mode=turn']} />
       <div className="cx-b-shelf">{games.slice(0, 6).map((g) => <ShelfCard key={g.id} game={g} />)}</div>
     </section>
   );
@@ -327,7 +340,7 @@ function GuestHero({ count, home }: { count: number; home: HomeOverview | undefi
           <span className="cx-e-kicker"><img src="/brand/symbol-reversed-small.svg" alt="" />بردگیم آنلاین به فارسی</span>
           <span className="cx-e-display">امشب چی<br />بازی کنیم؟</span>
         </h1>
-        <p className="cx-b-hero__sub">{count ? `${faNum(count)} بردگیم` : 'بردگیم‌های'} محبوب و آنلاین؛ با دوستانت میز بساز یا هم‌بازی پیدا کن.</p>
+        <p className="cx-b-hero__sub">{count ? `${faNum(count)} بردگیم` : 'بردگیم‌های'} محبوب، از دورهمی تا سنگین؛ زنده یا نوبتی و کامل فارسی. با دوستانت میز بساز یا هم‌بازی پیدا کن.</p>
         <div className="cx-b-hero__ctas">
           <Button variant="primary" size="lg" icon="zap" href={loginTo('/play')}>بازی سریع</Button>
           <Button variant="secondary" size="lg" icon="user-plus" href={loginTo('/games')}>ساخت میز با دوستان</Button>
@@ -360,6 +373,7 @@ function GuestHome({ all, home }: { all: GameSummary[]; home: HomeOverview | und
     <div className="cx-guest">
       <GuestHero count={all.length} home={home} />
       <Popular games={popular} />
+      <HeavyTurn games={popular.filter(isHeavyTurn)} />
       <OpenTables items={home?.open ?? []} total={home?.openTables ?? 0} online={home?.onlineNow ?? null} games={all} member={false} />
       <LiveTables data={home} member={false} />
       <Party games={popular.filter(isParty)} />
@@ -410,9 +424,26 @@ function DailyTile({ games }: { games: GameSummary[] }) {
         <span className="cx-f-streak"><span className="cx-b-streak" aria-hidden="true">{Array.from({ length: 7 }, (_, i) => <i key={i} className={i < week ? 'is-on' : undefined} />)}</span>{faNum(d.streak)} روز پشت سر هم</span>
       </div>
       <p className="cx-f-daily__txt">{d.doneToday ? 'امروز انجام شد؛ فردا برگرد تا رشته‌ات ادامه پیدا کند.' : `امروز هم یک دست ${g?.nameFa ?? d.gameNameFa} بزن تا رشته‌ات نشکند.`}</p>
+      {d.missions.items.length > 0 && (
+        <div className="bgv-stack" style={{ gap: 'var(--space-1)' }} aria-labelledby="dm-h">
+          <a id="dm-h" className="cx-f-label" href="/progress"><Icon name="flag" size="sm" />مأموریت‌های امروز</a>
+          {d.missions.items.map((m) => (
+            <span key={m.key} className="cx-meta">{m.completed && <Icon name="circle-check" size="sm" />}{m.titleFa}<span className="bgv-sep" />{faNum(m.progress)} از {faNum(m.target)}</span>
+          ))}
+        </div>
+      )}
       {!d.doneToday && <Button variant="secondary" block icon="play" href={`/games/${d.gameId}`}>بازی کن</Button>}
     </article>
   );
+}
+
+/** Home banner while an event is live (the first live one; the list page shows the rest). */
+function EventBanner() {
+  const list = useApi<{ items: EventSummary[] }>('/events');
+  const e = list.data?.items.find((x) => x.status === 'live');
+  if (!e) return null;
+  return <Banner tone="info" icon="zap" title={`رویداد: ${e.titleFa}`} text={`${remainingFa(e.endsAt)} مانده${e.reward ? `؛ جایزه: ${e.reward.nameFa}` : ''}`}
+    action={<Button variant="secondary" size="sm" href={`/events/${e.slug}`}>جدول و هدف‌ها</Button>} />;
 }
 
 function MemberHero({ name, avatarKey, turns, last, all, home }: { name: string; avatarKey: string; turns: number; last: MyTableItem | undefined; all: GameSummary[]; home: HomeOverview | undefined }) {
@@ -459,6 +490,7 @@ function MemberHome({ all, home }: { all: GameSummary[]; home: HomeOverview | un
   return (
     <div className="cx-member">
       <MemberHero name={me.displayName} avatarKey={me.avatarKey} turns={turns} last={lastTable} all={all} home={home} />
+      <EventBanner />
 
       <section className="cx-b-sec" aria-labelledby="turn-h">
         <Head id="turn-h" icon="hourglass" title={<>نوبت شماست{turns > 0 && <span className="cx-f-turnpill cx-f-turnpill--count">{faNum(turns)}</span>}</>} more={['همهٔ میزهای من', '/tables/mine']} />
@@ -473,6 +505,7 @@ function MemberHome({ all, home }: { all: GameSummary[]; home: HomeOverview | un
       <OpenTables items={home?.open ?? []} total={home?.openTables ?? 0} online={home?.onlineNow ?? null} games={all} member />
       <LiveTables data={home} member />
       <Popular games={popular} />
+      <HeavyTurn games={popular.filter(isHeavyTurn)} />
       <Party games={popular.filter(isParty)} />
       <LeagueBand data={home} member />
       <FinalBand count={all.length} member />

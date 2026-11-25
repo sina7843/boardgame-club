@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Me } from '@bg/contracts';
 import { api, ApiFailure } from './api.ts';
+import { syncPush } from './push.ts';
 
 interface SessionValue {
   me: Me | null;
@@ -43,6 +44,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    await syncPush(false); // a shared browser must not keep getting this account's notifications
     await api('/auth/logout', { method: 'POST' });
     setMe(null);
   }, []);

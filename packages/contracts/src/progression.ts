@@ -21,6 +21,22 @@ export type TrophyTier = z.infer<typeof trophyTier>;
 /** Coins for reaching level n: n × this (shown on the level-up celebration; paid by the server's coin sync). */
 export const LEVEL_UP_COINS = 10;
 
+/** Mission (and event goal) measures. None may require winning (Requirements: «بدون برد اجباری»). */
+export const MISSION_TYPES = ['complete_tables', 'distinct_games', 'learn_new_game', 'ranked_tables', 'friendly_tables', 'live_tables', 'turn_tables',
+  'big_tables', 'tutorials'] as const;
+export type MissionType = typeof MISSION_TYPES[number];
+export const MISSION_TYPE_FA: Record<MissionType, string> = {
+  complete_tables: 'میز کامل', distinct_games: 'بازی‌های مختلف', learn_new_game: 'یادگیری', ranked_tables: 'رتبه‌دار', friendly_tables: 'دوستانه',
+  live_tables: 'زنده', turn_tables: 'نوبتی', big_tables: 'سه‌نفره به بالا', tutorials: 'آموزش'
+};
+/** Coins for one completed daily mission (weekly missions pay more; see play/coins.ts COIN_RULES). */
+export const DAILY_MISSION_COINS = 5;
+
+const missionItem = z.object({
+  key: z.string(), titleFa: z.string(), descriptionFa: z.string(), progress: z.number().int(), target: z.number().int(), xp: z.number().int(), completed: z.boolean() });
+export const missionSet = z.object({ periodKey: z.string(), endsAt: z.iso.datetime(), items: z.array(missionItem) });
+export type MissionSet = z.infer<typeof missionSet>;
+
 export const progressionResponse = z.object({
   xp: z.number().int(),
   level: z.number().int(),
@@ -29,8 +45,9 @@ export const progressionResponse = z.object({
   ratings: z.array(ratingRow),
   mastery: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), tier: z.string(), tierFa: z.string(), completed: z.number().int(),
     wins: z.number().int(), ranked: z.number().int(), tutorial: z.boolean() })),
-  missions: z.object({ periodKey: z.string(), endsAt: z.iso.datetime(), items: z.array(z.object({
-    key: z.string(), titleFa: z.string(), descriptionFa: z.string(), progress: z.number().int(), target: z.number().int(), xp: z.number().int(), completed: z.boolean() })) }),
+  missions: missionSet,
+  /** Today's three daily missions (Tehran day), picked by the server from the active daily definitions. */
+  daily: missionSet,
   achievements: z.array(z.object({ key: z.string(), titleFa: z.string(), descriptionFa: z.string(), tier: trophyTier,
     progress: z.number().int(), target: z.number().int(), grantedAt: z.iso.datetime().nullable() })),
   ledger: z.array(ledgerItem),
@@ -41,7 +58,9 @@ export type Progression = z.infer<typeof progressionResponse>;
 /** Game of the day (Tehran calendar day). gameId null when no eligible game is published. */
 export const dailyGameResponse = z.object({
   gameId: z.string().nullable(), gameNameFa: z.string().nullable(), date: z.iso.date(), bonusXp: z.number().int(),
-  doneToday: z.boolean(), streak: z.number().int()
+  doneToday: z.boolean(), streak: z.number().int(),
+  /** Today's daily missions with my progress. */
+  missions: missionSet
 });
 export type DailyGame = z.infer<typeof dailyGameResponse>;
 

@@ -23,6 +23,7 @@ const EARN = [
   { labelFa: 'اولین بازی در یک عنوان تازه', coins: COIN_RULES.newTitle },
   { labelFa: 'آموزش تعاملی هر بازی', coins: COIN_RULES.tutorial },
   { labelFa: 'مأموریت هفتگی', coins: COIN_RULES.mission },
+  { labelFa: 'مأموریت روزانه', coins: COIN_RULES.dailyMission },
   ...(Object.keys(TIER_FA) as (keyof typeof TIER_FA)[]).map((t) => ({ labelFa: `دستاورد ${TIER_FA[t]}`, coins: COIN_RULES.achievement[t] })),
   { labelFa: 'هر سطح تازه (ضرب در شماره سطح)', coins: COIN_RULES.levelUp }
 ];

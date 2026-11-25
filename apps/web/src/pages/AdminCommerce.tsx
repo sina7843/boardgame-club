@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { DAILY_MISSION_COINS, MISSION_TYPE_FA, type MissionType } from '@bg/contracts';
 import { useToast } from '@bg/ui';
 import { Badge, Button, Card, Icon, Segmented, Select, StateBlock, Switch, TextField } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
@@ -179,21 +180,19 @@ function SubscriptionsList({ userId }: { userId: string }) {
   );
 }
 
-const MISSION_TYPE_FA: Record<string, string> = {
-  complete_tables: 'میز کامل', distinct_games: 'بازی‌های مختلف', learn_new_game: 'یادگیری', ranked_tables: 'رتبه‌دار', friendly_tables: 'دوستانه',
-  live_tables: 'زنده', turn_tables: 'نوبتی', big_tables: 'سه‌نفره به بالا', tutorials: 'آموزش'
-};
 const MAX_ACTIVE_MISSIONS = 8; // mirrors the API limit
 
 /** Weekly mission picker: tick this week's set from the catalog and save it in one audited step. */
 export function MissionsAdmin() {
-  const missions = useApi<{ items: { id: string; key: string; ruleVersion: number; titleFa: string; descriptionFa: string; criteria: unknown; active: boolean }[] }>('/admin/missions');
+  const missions = useApi<{ items: { id: string; key: string; ruleVersion: number; titleFa: string; descriptionFa: string; criteria: unknown; period: 'weekly' | 'daily'; active: boolean }[] }>('/admin/missions');
   const toast = useToast();
+  const call = useCall();
   const [picked, setPicked] = useState<Set<string> | null>(null);
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   if (!missions.data) return null;
-  const items = missions.data.items;
+  const items = missions.data.items.filter((m) => m.period === 'weekly');
+  const daily = missions.data.items.filter((m) => m.period === 'daily');
   const active = new Set(items.filter((m) => m.active).map((m) => m.id));
   const sel = picked ?? active;
   const dirty = sel.size !== active.size || [...sel].some((id) => !active.has(id));
@@ -208,6 +207,7 @@ export function MissionsAdmin() {
   };
   const tooMany = sel.size > MAX_ACTIVE_MISSIONS;
   return (
+    <>
     <AdminSection id="missions-admin-h" icon="flag" title="مأموریت‌های هفته"
       extra={<Badge tone={tooMany || sel.size === 0 ? 'danger' : 'success'}>{faNum(sel.size)} از حداکثر {faNum(MAX_ACTIVE_MISSIONS)} انتخاب‌شده</Badge>}>
       <Note>از فهرست، مأموریت‌های این هفته را انتخاب کنید. هیچ مأموریتی برد اجباری ندارد. پیشرفت هر بازیکن از رویدادهای همین هفته حساب می‌شود و پاداش‌های قبلی دست نمی‌خورند.</Note>
@@ -217,7 +217,7 @@ export function MissionsAdmin() {
           <label key={m.id} className={`ac-mission${sel.has(m.id) ? ' is-on' : ''}`}>
             <input type="checkbox" checked={sel.has(m.id)} onChange={() => toggle(m.id)} />
             <span className="ac-mission__body"><b>{m.titleFa}</b><span>{m.descriptionFa}</span></span>
-            <span className="ac-mission__meta"><Badge>{MISSION_TYPE_FA[c.type ?? ''] ?? c.type}</Badge><span className="bgv-num">+{faNum(c.xp ?? 0)} XP</span></span>
+            <span className="ac-mission__meta"><Badge>{MISSION_TYPE_FA[c.type as MissionType] ?? c.type}</Badge><span className="bgv-num">+{faNum(c.xp ?? 0)} XP</span></span>
           </label>);
       })}</div>
       <div className="ac-inline">
@@ -226,6 +226,20 @@ export function MissionsAdmin() {
         <Button variant="primary" loading={busy} disabled={!dirty || tooMany || sel.size === 0} onClick={() => void save()}>ذخیرهٔ مأموریت‌های هفته</Button>
       </div>
     </AdminSection>
+    <AdminSection id="daily-admin-h" icon="calendar" title="مأموریت‌های روزانه"
+      extra={<Badge>{faNum(daily.filter((m) => m.active).length)} فعال در چرخه</Badge>}>
+      <Note>هر روز (به وقت تهران) سرور سه مأموریت را خودکار از مأموریت‌های روشن انتخاب می‌کند؛ کاری لازم نیست. هر کدام را خاموش کنید از چرخه بیرون می‌رود. هر مأموریت روزانه {faNum(DAILY_MISSION_COINS)} سکه و XP خودش را می‌دهد.</Note>
+      {daily.map((m) => {
+        const c = m.criteria as { type?: string; count?: number; xp?: number };
+        return (
+          <div key={m.id} className="ac-row" style={{ paddingInline: 0 }}>
+            <span style={{ flex: 1 }}><b>{m.titleFa}</b> <span className="ac-cap" style={{ display: 'inline' }}>{m.descriptionFa}</span></span>
+            <Badge>{MISSION_TYPE_FA[c.type as MissionType] ?? c.type}</Badge><span className="bgv-num">+{faNum(c.xp ?? 0)} XP</span>
+            <Switch label={m.titleFa} checked={m.active} onChange={(v) => void call(`/admin/missions/${m.id}`, 'PATCH', { active: v, reason: v ? 'روشن کردن مأموریت روزانه' : 'خاموش کردن مأموریت روزانه' }, 'ذخیره شد.').then((ok) => ok && missions.reload())} />
+          </div>);
+      })}
+    </AdminSection>
+    </>
   );
 }
 

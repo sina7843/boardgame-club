@@ -6,7 +6,7 @@ import { useToast } from '@bg/ui';
 import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, ChipGroup, Icon, Identity, League, Menu, PageHead, Segmented, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
-import { userIdentity } from '../lib/bgv.tsx';
+import { ReputationBadge, userIdentity } from '../lib/bgv.tsx';
 import { presenceLine, usePresence } from '../lib/presence.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -346,7 +346,7 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
           <span className="pf-mhead__bn">{bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : null}</span>
           <div className="pf-mhead__id">
             <Avatar {...id0.avatar} initials={id0.initials} size="xl" {...(presence[u.id] ? { status: presence[u.id]!.online ? 'online' as const : 'offline' as const } : {})} />
-            <div className="bgv-row pf-mhead__name"><h1 className="t-page-sm"><bdi>{u.displayName}</bdi></h1>{u.premium && <Badge size="sm" tone="premium" icon="crown">پریمیوم</Badge>}</div>
+            <div className="bgv-row pf-mhead__name"><h1 className="t-page-sm"><bdi>{u.displayName}</bdi></h1>{u.premium && <Badge size="sm" tone="premium" icon="crown">پریمیوم</Badge>}<ReputationBadge r={u.reputation} size="sm" /></div>
             <span className="pf-mhead__meta">{[id0.title ? <span key="t">{id0.title}</span> : null, u.bestLeague ? <League key="l" tier={u.bestLeague} /> : null, u.level !== null ? <span key="v">سطح {faNum(u.level)}</span> : null]
               .filter((x) => x !== null).flatMap((x, i) => (i ? [<span key={`s${i}`} className="bgv-sep" />, x] : [x]))}</span>
             <span className="t-caption bgv-muted">{presenceText ?? `عضو از ${jalaliDate(u.joinedAt)}`}</span>
@@ -373,7 +373,7 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
         league={u.bestLeague ?? undefined}
         stats={u.stats ? [{ value: faNum(u.stats.gamesPlayed), label: 'بازی‌ها' }, { value: faNum(u.stats.wins), label: 'برد (رتبهٔ اول)' }, { value: `${faNum(u.stats.winRate)}٪`, label: 'نرخ برد' }] : undefined}
         bannerArt={bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : undefined}
-        badges={<>{u.premium && <Badge tone="premium" icon="crown">پریمیوم</Badge>}{u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}</>}
+        badges={<>{u.premium && <Badge tone="premium" icon="crown">پریمیوم</Badge>}{u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}<ReputationBadge r={u.reputation} /></>}
         {...(presence[u.id] ? { status: presence[u.id]!.online ? 'online' as const : 'offline' as const } : {})}
         meta={[...(presenceLine(presence[u.id]) ? [presenceLine(presence[u.id])!] : []), `عضو از ${jalaliDate(u.joinedAt)}`]}
         actions={actions}>
@@ -416,6 +416,7 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
                       <div className="pf-mrow__text"><a href={`/games/${g.gameId}`}><b>{g.gameNameFa}</b></a>
                         <span className="t-caption bgv-muted">{faNum(g.fieldSize)} نفر<span className="bgv-sep" />{jalaliDate(g.finishedAt)}</span></div>
                       <Badge tone={g.place === 1 ? 'success' : 'neutral'} icon={g.place === 1 ? 'crown' : undefined}>{g.place === 1 ? 'اول' : `${faNum(g.place)} از ${faNum(g.fieldSize)}`}</Badge>
+                      <Button size="sm" variant="ghost" iconOnly icon="play" href={`/tables/${g.tableId}/replay`} aria-label={`بازپخش ${g.gameNameFa}`}>بازپخش</Button>
                     </li>
                   ))}
                 </ul>

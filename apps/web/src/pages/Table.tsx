@@ -9,11 +9,12 @@ import {
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
 import { usePresence } from '../lib/presence.ts';
+import { shareResultImage } from '../lib/resultImage.ts';
 import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
 import { CONFIRMS_IN_RENDERER, GROUP_FRAME, OWN_FRAME, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
-import { AvatarArt, frameProps } from '../lib/bgv.tsx';
-import { durationFa, faNum, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
+import { AvatarArt, frameProps, ReputationBadge } from '../lib/bgv.tsx';
+import { durationFa, faNum, jalaliDate, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { browserNotificationsEnabled } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -24,6 +25,7 @@ import { ChatPanel, preloadChat, type ChatEvent } from '../social/ChatPanel.tsx'
 import { QuickChatButton } from '../social/QuickChat.tsx';
 import { InvitePanel } from '../social/InvitePanel.tsx';
 import { ReportDialog } from '../social/ReportDialog.tsx';
+import { GameRules } from '../games/RulesDoc.tsx';
 
 type Lobby = TableSnapshot['table'];
 type Seat = Lobby['seats'][number];
@@ -65,7 +67,8 @@ function useNow(ms = 1000) {
 
 function tableMeta(t: Lobby): string[] {
   if (t.isTutorial) return ['میز آموزشی', 'بدون زمان', 'بدون اثر بر رتبه'];
-  return [PACE_FA[t.pace], clockLabelFa(t.settings.options?.clock) ?? `${durationFa(t.settings.turnSeconds)} هر نوبت`, COMPETITION_FA[t.competition], t.visibility === 'private' ? 'خصوصی' : 'عمومی'];
+  return [PACE_FA[t.pace], clockLabelFa(t.settings.options?.clock) ?? `${durationFa(t.settings.turnSeconds)} هر نوبت`, COMPETITION_FA[t.competition], t.visibility === 'private' ? 'خصوصی' : 'عمومی',
+    ...(t.settings.minReputation ? [`حداقل اعتبار ${faNum(t.settings.minReputation)}`] : [])];
 }
 
 /** Time / timeout / disconnect / resign rules of the table, plus its rule variants. */
@@ -80,6 +83,17 @@ function Policies({ table }: { table: Lobby }) {
         {table.variants.map((v) => <ListItem key={v.labelFa} icon="sliders-horizontal" title={v.labelFa} sub={v.valueFa} />)}
       </div>
     </Card>
+  );
+}
+
+/** The game's full public rules (Phase F) in a bottom sheet over the table. */
+function GameRulesSheet({ gameId, nameFa, onClose }: { gameId: string; nameFa: string; onClose: () => void }) {
+  return (
+    <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <Sheet className="gf-sheet" title={`قوانین ${nameFa}`} icon="book-open" onClose={onClose} closeLabel="بستن" aria-modal="true" aria-label={`قوانین ${nameFa}`}>
+        <GameRules gameId={gameId} shift={1} idPrefix="tbl-rules" />
+      </Sheet>
+    </div>
   );
 }
 
@@ -152,7 +166,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
               {t.seats.map((s) => (
                 <LobbySeat key={s.seat} name={<bdi>{name(s.seat)}</bdi>} seat={seatNo(s.seat)} you={s.seat === t.mySeat} bot={!!s.bot}
                   avatar={seatAvatar(s, name(s.seat))} host={!!s.user && s.user.id === t.hostId} ready={s.ready}
-                  {...(s.bot ? { sub: `ربات ${BOT_LEVEL_FA[s.bot.level]}، ${BOT_STYLE_FA[s.bot.style]}` } : {})} />
+                  {...(s.bot ? { sub: `ربات ${BOT_LEVEL_FA[s.bot.level]}، ${BOT_STYLE_FA[s.bot.style]}` } : {})}><ReputationBadge r={s.reputation} size="sm" /></LobbySeat>
               ))}
               {Array.from({ length: empty }, (_, i) => (
                 <LobbySeat key={`e${i}`} empty inviteLabel="دعوت دوست" {...(inviteLink || (me && !t.isMatchmade) ? { onInvite: toInvite } : {})} />
@@ -297,6 +311,9 @@ function ResultCard({ snap, onHide, onSnap }: { snap: TableSnapshot; onHide: () 
         <Button variant="primary" icon="plus" href={`/games/${t.gameId}/new`}>{t.isTutorial ? 'ساخت میز واقعی' : 'میز تازه'}</Button>
         <Button variant="secondary" icon="house" href="/">بازگشت به خانه</Button>
         <Button variant="ghost" icon="share-2" onClick={() => void share()}>اشتراک نتیجه</Button>
+        {!t.isTutorial && <Button variant="ghost" icon="image" onClick={() => void shareResultImage({ gameNameFa: t.gameNameFa, gameNameLatin: t.gameNameOriginal,
+          places: sorted.map((p) => ({ place: p.place, name: name(p.seat), score: p.score })), date: t.finishedAt ?? new Date().toISOString() }, `${t.gameId}-${t.id.slice(0, 8)}.png`)}>تصویر نتیجه</Button>}
+        {!t.isTutorial && <Button variant="ghost" icon="play" href={`/tables/${t.id}/replay`}>بازپخش</Button>}
         <Button variant="ghost" icon="history" onClick={onHide}>تاریخچهٔ حرکت‌ها و صفحهٔ بازی</Button>
       </>}>
       {snap.game?.tutorial && <p className="t-body-sm" style={{ margin: 0, textAlign: 'center' }}>{snap.game.tutorial.instructionFa}</p>}
@@ -530,6 +547,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const navigate = useNavigate();
   const [confirmResign, setConfirmResign] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const [fullRules, setFullRules] = useState(false);
   const [sheetSeat, setSheetSeat] = useState<number | null>(null);
   // One stable callback per table, so memoized renderers (Gaia) do not re-render on every shell update.
   const { act } = s;
@@ -593,7 +611,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   // Escape closes the chat sheet / players drawer.
   useEffect(() => {
     if (!chat && !drawer) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setChat(false); setDrawer(false); } };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setChat(false); setDrawer(false); setFullRules(false); } };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [chat, drawer]);
@@ -668,7 +686,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       name: n, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
       onClick: () => setSheetSeat(x.seat),
       ...(x.bot ? { botLevel: BOT_LEVEL_FA[x.bot.level] } : {}),
-      ...(x.kind === 'script' ? { sub: 'حریف آموزشی' } : {}),
+      ...(x.kind === 'script' ? { sub: 'حریف آموزشی' } : x.onVacationUntil ? { sub: `در مرخصی تا ${jalaliDate(x.onVacationUntil)}` } : x.extraTimeUsed && !finished ? { sub: 'مهلت اضافه مصرف شد' } : {}),
       ...(x.league ? { league: x.league } : {}),
       ...(x.titleKey && cosmetic(x.titleKey) ? { title: cosmetic(x.titleKey)!.nameFa } : {}),
       ...(x.user && online[x.user.id] && !online[x.user.id]!.online ? { offline: 'آفلاین' } : {}),
@@ -716,6 +734,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             {(notPhone || !confirmsInRenderer) && <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>}
             {hasChat && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
               aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}
+            <Button variant="ghost" iconOnly icon="book-open" onClick={() => setFullRules(true)}>قوانین بازی</Button>
             <Button variant="ghost" iconOnly icon="more-vertical" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
           </>} />
         {!netOnline && !finished && <Banner className="tbl-offline" tone="danger" icon="wifi-off" title="اتصال شما قطع شد"
@@ -805,6 +824,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           <Sheet side title="بازیکنان و قوانین" icon="users" onClose={() => setDrawer(false)} aria-modal="true" aria-label="بازیکنان و قوانین">
             <div className="bgv-stack">
               <Hud layout="rail" players={players} label="بازیکنان" />
+              <Button variant="secondary" icon="book-open" block onClick={() => { setDrawer(false); setFullRules(true); }}>قوانین کامل بازی</Button>
               <Policies table={t} />
               {canResign && <Button variant="leave" icon="flag" block onClick={() => { setDrawer(false); setConfirmResign(true); }}>انصراف از بازی</Button>}
               {t.mySeat !== null && !t.isTutorial && <Button variant="ghost" icon="flag" block onClick={() => { setDrawer(false); setReporting(true); }}>گزارش این میز</Button>}
@@ -812,6 +832,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           </Sheet>
         </div>
       )}
+      {fullRules && <GameRulesSheet gameId={t.gameId} nameFa={t.gameNameFa} onClose={() => setFullRules(false)} />}
       {isPlayer && t.pace === 'turn' && !finished && !t.isTutorial && <NotifyPrompt />}
       {sheetSeat !== null && <SeatSheet t={t} sum={sum} seat={sheetSeat} name={name} onClose={() => setSheetSeat(null)} onReport={() => { setSheetSeat(null); setReporting(true); }} />}
       {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
@@ -862,7 +883,7 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
   const toDock = useCallback((node: ReactNode) => (dockNode ? createPortal(node, dockNode) : node), [dockNode]);
   const toRail = useCallback((node: ReactNode) => (railNode ? createPortal(node, railNode) : null), [railNode]);
   const [chat, setChat] = useState(false);
-  const [sheet, setSheet] = useState<'rules' | 'events' | null>(null);
+  const [sheet, setSheet] = useState<'rules' | 'events' | 'game-rules' | null>(null);
   const [sheetSeat, setSheetSeat] = useState<number | null>(null);
   const [reporting, setReporting] = useState(false);
   const [confirmResign, setConfirmResign] = useState(false);
@@ -948,6 +969,8 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
     if (ss?.status === 'passed') out.push(<Badge key="pass" size="sm">پاس داد</Badge>);
     if (ss?.status === 'done') out.push(<Badge key="done" size="sm" tone="success">آماده</Badge>);
     if (sum?.leaderSeat === x.seat && !place) out.push(<Badge key="lead" size="sm" icon="trophy">پیشتاز</Badge>);
+    if (x.onVacationUntil) out.push(<Badge key="vac" size="sm" tone="info" icon="sun">در مرخصی تا {jalaliDate(x.onVacationUntil)}</Badge>);
+    if (x.extraTimeUsed && t.status === 'active') out.push(<Badge key="extra" size="sm" icon="hourglass">مهلت اضافه مصرف شد</Badge>);
     if (ss?.strikes && sum?.strikesMax) out.push(<Badge key="st" size="sm" tone="danger" icon="alarm-clock">{faNum(ss.strikes)}/{faNum(sum.strikesMax)}</Badge>);
     return out;
   };
@@ -1113,11 +1136,13 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
           {chatPanel({ sheet: true, onClose: () => setChat(false), className: 'tbl-chatsheet' })}
         </div>
       )}
-      {sheet && (
+      {sheet === 'game-rules' && <GameRulesSheet gameId={t.gameId} nameFa={t.gameNameFa} onClose={() => setSheet(null)} />}
+      {sheet && sheet !== 'game-rules' && (
         <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setSheet(null); }}>
           <Sheet className="gf-sheet" title={sheet === 'rules' ? 'قوانین و ترک میز' : 'رویدادها'} icon={sheet === 'rules' ? 'shield' : 'list'} onClose={() => setSheet(null)} closeLabel="بستن">
             {sheet === 'rules' ? (
               <div className="bgv-stack">
+                <Button variant="secondary" icon="book-open" block onClick={() => setSheet('game-rules')}>قوانین کامل بازی</Button>
                 <Policies table={t} />
                 {finished && isPlayer && !t.isTutorial && <PostGame snap={snap} onReport={() => { setSheet(null); setReporting(true); }} />}
                 {canResign && <Button variant="leave" icon="flag" block onClick={() => { setSheet(null); setConfirmResign(true); }}>انصراف از بازی</Button>}
@@ -1528,6 +1553,10 @@ function OwnFrameResult({ snap, onSnap, onReport, toast, part = 'full' }: { snap
         <div className="tbl-ownres__foot">
           <Button variant="ghost" size="sm" icon="download" href={`/api/tables/${t.id}/record`}>PGN</Button>
           <Button variant="ghost" size="sm" icon="share-2" onClick={() => void share()}>اشتراک</Button>
+          {snap.game?.result && <Button variant="ghost" size="sm" icon="image" onClick={() => void shareResultImage({ gameNameFa: t.gameNameFa, gameNameLatin: t.gameNameOriginal,
+            places: [...snap.game!.result!.placements].sort((a, b) => a.place - b.place).map((p) => ({ place: p.place, name: seatNameOf(t)(p.seat), score: p.score })),
+            date: t.finishedAt ?? new Date().toISOString() }, `${t.gameId}-${t.id.slice(0, 8)}.png`)}>تصویر نتیجه</Button>}
+          <Button variant="ghost" size="sm" icon="play" href={`/tables/${t.id}/replay`}>بازپخش</Button>
           {t.mySeat !== null && <Button variant="ghost" size="sm" icon="flag" onClick={onReport}>گزارش</Button>}
         </div>
       )}

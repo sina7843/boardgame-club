@@ -1,6 +1,6 @@
 // Idempotent seed: publishes the reviewed registry games (labelled test games) to the catalog.
 import { and, eq, sql } from 'drizzle-orm';
-import { GETTING_STARTED_KEY, normalizeSearch, ONBOARDING_TOURS } from '@bg/contracts';
+import { gameSearchText, GETTING_STARTED_KEY, ONBOARDING_TOURS } from '@bg/contracts';
 import { createDb, type Db } from './index.ts';
 import { requireDatabaseUrl } from './env.ts';
 import { gameRegistry } from './registry.ts';
@@ -29,6 +29,22 @@ export const MISSIONS = [
   { key: 'weekly_big_3', titleFa: 'میز شلوغ', descriptionFa: 'این هفته سه بازی سه‌نفره یا بیشتر را تا پایان بازی کنید.', criteria: { type: 'big_tables', count: 3, xp: 70 } },
   { key: 'weekly_tutorial_1', titleFa: 'کلاس هفته', descriptionFa: 'این هفته آموزش یک بازی را کامل کنید.', criteria: { type: 'tutorials', count: 1, xp: 30 } },
   { key: 'weekly_tutorial_2', titleFa: 'شاگرد هفته', descriptionFa: 'این هفته آموزش دو بازی را کامل کنید.', criteria: { type: 'tutorials', count: 2, xp: 50 } }
+];
+/**
+ * Daily missions: all seeded active (the server picks three per Tehran day from the active pool; an admin can switch one
+ * off). Same goal types as weekly, none needs a win, bot tables never count.
+ */
+export const DAILY_MISSIONS = [
+  { key: 'daily_complete_1', titleFa: 'یک میز کامل', descriptionFa: 'امروز یک بازی را تا پایان کامل کنید (برد لازم نیست).', criteria: { type: 'complete_tables', count: 1, xp: 15 } },
+  { key: 'daily_complete_2', titleFa: 'دو میز کامل', descriptionFa: 'امروز دو بازی را تا پایان کامل کنید.', criteria: { type: 'complete_tables', count: 2, xp: 20 } },
+  { key: 'daily_complete_3', titleFa: 'روز پرکار', descriptionFa: 'امروز سه بازی را تا پایان کامل کنید.', criteria: { type: 'complete_tables', count: 3, xp: 30 } },
+  { key: 'daily_two_games', titleFa: 'دو بازی مختلف', descriptionFa: 'امروز دو بازی مختلف را تا پایان بازی کنید.', criteria: { type: 'distinct_games', count: 2, xp: 25 } },
+  { key: 'daily_turn_1', titleFa: 'یک میز نوبتی', descriptionFa: 'امروز یک میز نوبتی را تا پایان بازی کنید.', criteria: { type: 'turn_tables', count: 1, xp: 15 } },
+  { key: 'daily_live_1', titleFa: 'یک میز زنده', descriptionFa: 'امروز یک میز زنده را تا پایان بازی کنید.', criteria: { type: 'live_tables', count: 1, xp: 15 } },
+  { key: 'daily_friendly_1', titleFa: 'بازی دوستانه', descriptionFa: 'امروز یک بازی دوستانه را تا پایان بازی کنید.', criteria: { type: 'friendly_tables', count: 1, xp: 15 } },
+  { key: 'daily_ranked_1', titleFa: 'محک امروز', descriptionFa: 'امروز یک بازی رتبه‌دار را تا پایان بازی کنید (نتیجه مهم نیست).', criteria: { type: 'ranked_tables', count: 1, xp: 20 } },
+  { key: 'daily_big_1', titleFa: 'دورهمی امروز', descriptionFa: 'امروز یک بازی سه‌نفره یا بیشتر را تا پایان بازی کنید.', criteria: { type: 'big_tables', count: 1, xp: 20 } },
+  { key: 'daily_learn_1', titleFa: 'چیز تازه', descriptionFa: 'امروز آموزش یک بازی را کامل کنید یا اولین بازی‌تان را در عنوانی تازه تمام کنید.', criteria: { type: 'learn_new_game', count: 1, xp: 20 } }
 ];
 /** Missions active on a fresh database; afterwards the admin chooses the weekly set. */
 const DEFAULT_ACTIVE_MISSIONS = ['weekly_complete_3', 'weekly_two_games', 'weekly_learn'];
@@ -117,6 +133,7 @@ export async function seed(db: Db): Promise<void> {
   ]).onConflictDoNothing({ target: coinPacks.key });
   // Insert only: an existing row keeps the admin's active choice.
   await db.insert(missionDefinitions).values(MISSIONS.map((m) => ({ ...m, ruleVersion: 1, period: 'weekly', active: DEFAULT_ACTIVE_MISSIONS.includes(m.key) }))).onConflictDoNothing();
+  await db.insert(missionDefinitions).values(DAILY_MISSIONS.map((m) => ({ ...m, ruleVersion: 1, period: 'daily', active: true }))).onConflictDoNothing();
   // Same key + version keeps its count; re-seeding refreshes copy and tier on databases seeded before tiers existed.
   await db.insert(achievementDefinitions).values(ACHIEVEMENTS.map((a) => ({ ...a, ruleVersion: 1 })))
     .onConflictDoUpdate({ target: [achievementDefinitions.key, achievementDefinitions.ruleVersion],
@@ -127,7 +144,7 @@ export async function seed(db: Db): Promise<void> {
       id: m.gameId,
       nameFa: c.nameFa,
       nameOriginal: c.nameOriginal,
-      searchText: normalizeSearch(`${c.nameFa} ${c.nameOriginal}`),
+      searchText: gameSearchText({ id: m.gameId, nameFa: c.nameFa, nameOriginal: c.nameOriginal }),
       summaryFa: c.summaryFa,
       rulesFa: c.rulesFa,
       minPlayers: m.playerCounts.min,

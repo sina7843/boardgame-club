@@ -49,3 +49,23 @@
 .bgv-dialog { display: flex; flex-direction: column; max-block-size: calc(100dvh - var(--space-6)); }
 .bgv-dialog__body { overflow-y: auto; min-block-size: 0; }
 .bgv-dialog__head, .bgv-dialog__foot { flex: none; }
+
+/* Full game rules (games/RulesDoc.tsx): game page «قوانین کامل» and the table rules sheet. Long text justified (v2.4). */
+.rules-doc { display: grid; gap: var(--space-4); min-inline-size: 0; }
+.rules-doc__toc ol { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin: 0; padding: 0; list-style: none; }
+.rules-doc__toc a { display: inline-flex; align-items: center; gap: var(--space-1); min-block-size: 44px; color: var(--text); font-weight: 700; text-decoration: none; }
+.rules-doc__toc a:hover { color: var(--heading); text-decoration: underline; }
+.rules-doc__toc a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+.rules-doc__body { min-inline-size: 0; color: var(--text); line-height: 1.9; }
+.rules-doc__body :is(h2, h3, h4, h5, h6) { margin: var(--space-5) 0 var(--space-2); color: var(--heading); scroll-margin-block: 80px; }
+.rules-doc__body :is(h2, h3, h4, h5, h6):first-child { margin-block-start: 0; }
+.rules-doc__body h4 { padding-block-start: var(--space-4); border-block-start: 1px solid var(--line); font-size: 17px; }
+.rules-doc__body h4:first-child { padding-block-start: 0; border-block-start: 0; }
+.rules-doc__body h5 { font-size: 15px; }
+.rules-doc__body :is(p, li, blockquote) { text-align: justify; text-justify: inter-word; }
+.rules-doc__body p { margin: 0 0 var(--space-3); }
+.rules-doc__body :is(ul, ol) { margin: 0 0 var(--space-3); padding-inline-start: var(--space-5); display: grid; gap: var(--space-2); }
+.rules-doc__body blockquote { margin: 0 0 var(--space-3); padding-inline: var(--space-4); border-inline-start: 3px solid var(--line); color: var(--text-muted); }
+.rules-doc__body code { font-family: var(--font-latin); direction: ltr; unicode-bidi: isolate; }
+.rules-doc__body table { inline-size: 100%; border-collapse: collapse; margin-block-end: var(--space-3); }
+.rules-doc__body :is(th, td) { padding: var(--space-2) var(--space-3); border-block-end: 1px solid var(--line); text-align: start; vertical-align: top; }

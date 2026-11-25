@@ -5,7 +5,8 @@ import { and, asc, desc, eq, gt, gte, inArray, isNull, lte, ne, sql } from 'driz
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { AppError, apiErrorSchema, appealBody, decideAppealBody, reportBody, reportItem, resolveReportBody, sanctionItem } from '@bg/contracts';
+import { AppError, apiErrorSchema, appealBody, decideAppealBody, reportBody, reportItem, reputationView as reputationSchema, resolveReportBody, sanctionItem } from '@bg/contracts';
+import { reputations, reputationView } from '@bg/play';
 import { schema, type Db } from '@bg/db';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -105,7 +106,7 @@ export function moderationRoutes(app: FastifyInstance, { db }: Deps): void {
   r.get('/mod/reports/:id', {
     schema: { tags: ['moderation'], summary: 'One report with only the evidence it concerns (access is audited)', params: idParams,
       response: { 200: z.object({ report: reportItem, reporter: z.object({ id: z.uuid(), displayName: z.string() }), subject: z.object({ id: z.uuid(), displayName: z.string(), avatarKey: z.string() }).nullable(),
-        evidence: z.unknown(), signals: z.record(z.string(), z.number()), priorSanctions: z.array(sanctionItem) }), ...errors } }
+        evidence: z.unknown(), signals: z.record(z.string(), z.number()), reputation: reputationSchema.nullable(), priorSanctions: z.array(sanctionItem) }), ...errors } }
   }, async (req) => {
     const { userId } = requireRole(req, 'moderator');
     const [rep] = await db.select().from(reports).where(eq(reports.id, req.params.id));
@@ -148,6 +149,7 @@ export function moderationRoutes(app: FastifyInstance, { db }: Deps): void {
       subject: subject ? { id: subject.id, displayName: subject.displayName, avatarKey: subject.avatarKey } : null,
       evidence,
       signals: rep.subjectUserId ? await signalCounts(db, rep.subjectUserId) : {},
+      reputation: rep.subjectUserId ? reputationView((await reputations(db, [rep.subjectUserId])).get(rep.subjectUserId)!, true) : null,
       priorSanctions: prior.map((s) => ({ id: s.id, kind: s.kind as 'suspended', reason: s.reason, startsAt: s.startsAt.toISOString(), endsAt: s.endsAt?.toISOString() ?? null, active: isActive(s), appeal: null }))
     };
   });

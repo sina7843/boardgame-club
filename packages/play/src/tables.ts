@@ -10,6 +10,7 @@ import { lockTable, persistStep, type Tx } from './runtime.ts';
 import { activeSuspension } from './sanctions.ts';
 import { isPremium } from './billing.ts';
 import { assertTimeAllowed, effectiveSettings, resolveOptions } from './game-settings.ts';
+import { meetsReputation, reputations } from './reputation.ts';
 
 const { games, gameVersions, gameTables, participants, tutorialProgress, matchmakingTickets, tableInvites, blocks, users } = schema;
 
@@ -61,12 +62,14 @@ export async function createTable(db: Db, registry: GameRegistry, cfg: PlayConfi
     if (game.access === 'premium' && !(await isPremium(tx, userId))) throw new AppError('PREMIUM_REQUIRED');
     if (body.capacity < settings.minPlayers || body.capacity > settings.maxPlayers) throw new AppError('VALIDATION_FAILED');
     assertTimeAllowed(settings, body.pace, body.turnSeconds);
+    // «حداقل اعتبار» is for public turn-based tables only (a private table already picks its players).
+    if (body.minReputation && (body.pace !== 'turn' || body.visibility !== 'public')) throw new AppError('VALIDATION_FAILED');
     const options = resolveOptions(settings, body.options);
     await assertLimits(tx, userId, body.pace, cfg);
     const [t] = await tx.insert(gameTables).values({
       gameId: game.id, gameVersionId: version.id, pace: body.pace, competition: body.competition,
       visibility: body.visibility, status: 'open', hostId: userId, capacity: body.capacity,
-      settings: { turnSeconds: body.turnSeconds, reminders: body.reminders, options },
+      settings: { turnSeconds: body.turnSeconds, reminders: body.reminders, options, ...(body.minReputation ? { minReputation: body.minReputation } : {}) },
       inviteCode: body.visibility === 'private' ? randomBytes(12).toString('base64url') : null
     }).returning({ id: gameTables.id });
     await tx.insert(participants).values({ tableId: t!.id, seat: 0, userId, kind: 'human' });
@@ -135,6 +138,8 @@ export async function joinTable(db: Db, registry: GameRegistry, cfg: PlayConfig,
     }
     if (table.status !== 'open') throw new AppError('TABLE_NOT_OPEN');
     if (seats.length >= table.capacity) throw new AppError('TABLE_FULL');
+    const minRep = (table.settings as { minReputation?: number }).minReputation;
+    if (minRep && !meetsReputation((await reputations(tx, [userId])).get(userId)!, minRep)) throw new AppError('REPUTATION_TOO_LOW');
     await assertJoinAccess(tx, table, userId, !!invited || (!!inviteCode && inviteCode === table.inviteCode));
     await assertLimits(tx, userId, table.pace as 'live' | 'turn', cfg);
     const taken = new Set(seats.map((s) => s.seat));

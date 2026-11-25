@@ -18,6 +18,7 @@ import { gameDocTitle } from '../lib/seoTitles.ts';
 import { ShelfCard } from './Dashboard.tsx';
 import { TableCodeForm } from '../games/TableCode.tsx';
 import { AboutBody, InfoCard, Moves, ReviewsCard, SpecCard, TagsCard } from '../games/GameContent.tsx';
+import { GameRules } from '../games/RulesDoc.tsx';
 
 type Seat = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 const seatNo = (i: number) => ((i % 10) + 1) as Seat;
@@ -112,6 +113,8 @@ export function GameDetailPage() {
   const [tutorialBusy, setTutorialBusy] = useState(false);
   const [tutorialError, setTutorialError] = useState<string>();
   const [tab, setTab] = useState('play');
+  // Full rules load only once opened (one lazy chunk per game); the hero «قوانین کامل» link opens them too.
+  const [rulesOpen, setRulesOpen] = useState(false);
   const startTutorial = async () => {
     if (!me) { navigate(loginTo(`/games/${id}`)); return; }
     setTutorialBusy(true); setTutorialError(undefined);
@@ -186,7 +189,7 @@ export function GameDetailPage() {
           </>}
           <Button variant="secondary" size="lg" icon="armchair" className="gd-totables" href="#tables">{openCount > 0 ? `میزهای باز (${faNum(openCount)})` : 'میزهای باز'}</Button>
           {g.tutorialEnabled && <Button variant="secondary" size="lg" icon="book-open" loading={tutorialBusy} onClick={startTutorial}>{tutorialLabel}</Button>}
-          <a className="gd-tlink" href="#how"><Icon name="list" size="sm" />قوانین کامل</a>
+          <a className="gd-tlink" href="#rules" onClick={() => setRulesOpen(true)}><Icon name="list" size="sm" />قوانین کامل</a>
         </div>
       </section>
       {tutorialError && <p className="bgv-hint bgv-hint--error" role="alert">{tutorialError}</p>}
@@ -265,6 +268,12 @@ export function GameDetailPage() {
             )}
           </div>
         </div>
+        <section className="gd-card" id="rules" aria-labelledby="rules-h">
+          <div className="gd-cardhead"><h3 className="gd-h3" id="rules-h"><Icon name="book-open" />قوانین کامل {g.nameFa}</h3>
+            <Button variant="secondary" icon={rulesOpen ? 'x' : 'chevron-down'} aria-expanded={rulesOpen} aria-controls="rules-body" onClick={() => setRulesOpen((o) => !o)}>{rulesOpen ? 'بستن قوانین' : 'نمایش قوانین'}</Button>
+          </div>
+          <div id="rules-body" hidden={!rulesOpen}>{rulesOpen && <GameRules gameId={g.id} />}</div>
+        </section>
         <section className="gd-card gd-faq">
           <div className="gd-cardhead"><h3 className="gd-h3"><Icon name="circle-help" />سوال‌های رایج</h3></div>
           <div className="L-faq__list gd-faq2">

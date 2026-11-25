@@ -386,8 +386,11 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
     const snap = await loadSnapshot(tx, table.id, table.revision);
     if (d.deadlineKey === 'reminder') {
       const pending = module.pendingSeats(snap.state);
+      // No reminders to a player on vacation (their deadline is pushed past it when it fires).
       const users = pending.length ? await tx.select({ userId: participants.userId }).from(participants)
-        .where(and(eq(participants.tableId, table.id), inArray(participants.seat, pending))) : [];
+        .leftJoin(schema.users, eq(schema.users.id, participants.userId))
+        .where(and(eq(participants.tableId, table.id), inArray(participants.seat, pending),
+          vacationApplies(table) ? sql`(${schema.users.vacationUntil} is null or ${schema.users.vacationUntil} <= now())` : undefined)) : [];
       const [turn] = await tx.select({ dueAt: scheduledDeadlines.dueAt }).from(scheduledDeadlines)
         .where(and(eq(scheduledDeadlines.tableId, table.id), eq(scheduledDeadlines.deadlineKey, 'turn'), eq(scheduledDeadlines.status, 'pending'))).limit(1);
       const leftSeconds = turn ? Math.max(0, Math.round((turn.dueAt.getTime() - Date.now()) / 1000)) : null;
@@ -423,6 +426,7 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
       await tx.execute(sql`select pg_notify('table_changed', ${table.id})`); // lifecycle change: same revision, full snapshot push
       return 'fired';
     }
+    if (d.deadlineKey === 'turn' && await extendTurn(tx, table, module.pendingSeats(snap.state))) return 'fired';
     const logicalTime = Date.now();
     const timedOut = module.pendingSeats(snap.state);
     const revision = await persistStep(tx, locked, applyTimeout(module, snap, logicalTime), { kind: 'timeout', deadlineToken: d.token, logicalTime });
@@ -430,6 +434,54 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
     await tx.execute(sql`select pg_notify('table_clock', ${JSON.stringify({ tableId: table.id, revision, seats: timedOut })})`);
     return 'fired';
   });
+}
+
+/** Vacation and extra time apply to turn-based tables only, never to tournament or tutorial tables. */
+export const vacationApplies = (table: { pace: string; isTutorial: boolean; settings: unknown }) =>
+  table.pace === 'turn' && !table.isTutorial && !(table.settings as { tournament?: unknown }).tournament;
+
+/** Extra time «مهلت اضافه» is the turn time, at most a day. */
+export const extraTimeSeconds = (turnSeconds: number) => Math.min(turnSeconds, 24 * 3600);
+
+/**
+ * Turn-based, non-tournament, non-tutorial tables only, before the game's timeout rule (game modules are untouched):
+ * - a pending human on vacation: the turn deadline moves to the end of the vacation plus the turn time (no timeout);
+ * - otherwise a pending human who has not used it yet gets the one-time extra time and a «مهلت اضافه شروع شد» reminder.
+ * Several pending seats share one deadline, so the push or extension applies to all of them.
+ * Returns true when the deadline was rescheduled instead of timing out.
+ */
+async function extendTurn(tx: Tx, table: TableRow, pending: number[]): Promise<boolean> {
+  if (!vacationApplies(table) || !pending.length) return false;
+  const humans = await tx.select({ seat: participants.seat, userId: participants.userId, extraTimeUsed: participants.extraTimeUsed, vacationUntil: schema.users.vacationUntil })
+    .from(participants).innerJoin(schema.users, eq(schema.users.id, participants.userId))
+    .where(and(eq(participants.tableId, table.id), eq(participants.kind, 'human'), inArray(participants.seat, pending)));
+  const turnSeconds = (table.settings as { turnSeconds: number }).turnSeconds;
+  const now = Date.now();
+  const away = humans.map((h) => h.vacationUntil?.getTime() ?? 0).filter((t) => t > now);
+  let dueAt: Date;
+  if (away.length) {
+    dueAt = new Date(Math.max(...away) + turnSeconds * 1000);
+    // One «last hour» reminder after the vacation: the reminder chain of this turn has already fired, so it stops after it.
+    const lead = reminderLeads(turnSeconds).at(-1);
+    if ((table.settings as { reminders?: boolean }).reminders && lead !== undefined) {
+      await tx.update(scheduledDeadlines).set({ status: 'cancelled' })
+        .where(and(eq(scheduledDeadlines.tableId, table.id), eq(scheduledDeadlines.deadlineKey, 'reminder'), eq(scheduledDeadlines.status, 'pending')));
+      await tx.insert(scheduledDeadlines).values({ tableId: table.id, deadlineKey: 'reminder', token: randomUUID(), expectedRevision: table.revision,
+        dueAt: new Date(dueAt.getTime() - lead * 1000) });
+    }
+  } else {
+    const fresh = humans.filter((h) => !h.extraTimeUsed);
+    if (!fresh.length) return false;
+    await tx.update(participants).set({ extraTimeUsed: true })
+      .where(and(eq(participants.tableId, table.id), inArray(participants.seat, fresh.map((h) => h.seat))));
+    dueAt = new Date(now + extraTimeSeconds(turnSeconds) * 1000);
+    await tx.insert(outboxEvents).values({ topic: 'table.reminder', aggregateId: table.id,
+      payload: { tableId: table.id, revision: table.revision, reminderId: `extra:${fresh.map((h) => h.seat).join('-')}`, extraTime: true, leftSeconds: extraTimeSeconds(turnSeconds),
+        gameId: table.gameId, userIds: fresh.map((h) => h.userId) } });
+  }
+  await tx.insert(scheduledDeadlines).values({ tableId: table.id, deadlineKey: 'turn', token: randomUUID(), expectedRevision: table.revision, dueAt });
+  await tx.execute(sql`select pg_notify('table_changed', ${table.id})`); // same revision, new deadline: full snapshot push
+  return true;
 }
 
 /**

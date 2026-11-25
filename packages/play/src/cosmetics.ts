@@ -8,14 +8,19 @@ import { coinBalance, lockCoins } from './coins.ts';
 import { levelFor, totalXp } from './progression.ts';
 import type { Tx } from './runtime.ts';
 
-const { users, coinLedger, userCosmetics, userAchievements, achievementDefinitions, leaguePlacements, notifications } = schema;
+const { users, coinLedger, userCosmetics, userAchievements, achievementDefinitions, leaguePlacements, notifications, rewardLedger } = schema;
 const LEAGUES = leagueSchema.options;
 
 export interface Progress { level: number; achievements: Set<string>; bestLeague: number; owned: Set<string>; premium: boolean }
 
+/** Catalogue items won as event rewards (one ledger row each, written by progression.evaluateEvents). */
+const eventRewards = (db: Db | Tx, userId: string) => db.select({ k: sql<string>`${rewardLedger.metadata}->>'item'` }).from(rewardLedger)
+  .where(and(eq(rewardLedger.userId, userId), eq(rewardLedger.ruleId, 'event.reward')));
+
 export async function cosmeticProgress(db: Db | Tx, userId: string): Promise<Progress> {
-  const [owned, ach, leagues] = await Promise.all([
+  const [owned, won, ach, leagues] = await Promise.all([
     db.select({ k: userCosmetics.itemKey }).from(userCosmetics).where(eq(userCosmetics.userId, userId)),
+    eventRewards(db, userId),
     db.select({ k: achievementDefinitions.key }).from(userAchievements)
       .innerJoin(achievementDefinitions, eq(achievementDefinitions.id, userAchievements.achievementId)).where(eq(userAchievements.userId, userId)),
     db.select({ l: leaguePlacements.league }).from(leaguePlacements).where(eq(leaguePlacements.userId, userId))
@@ -24,15 +29,15 @@ export async function cosmeticProgress(db: Db | Tx, userId: string): Promise<Pro
     level: levelFor(await totalXp(db, userId)).level,
     achievements: new Set(ach.map((a) => a.k)),
     bestLeague: Math.max(-1, ...leagues.map((l) => LEAGUES.indexOf(l.l as never))),
-    owned: new Set(owned.map((o) => o.k)),
+    owned: new Set([...owned, ...won].map((o) => o.k)),
     premium: await isPremium(db, userId)
   };
 }
 
 export function isUnlocked(item: CosmeticItem, p: Progress): boolean {
   const u = item.unlock;
-  if ('free' in u) return true;
-  if ('coins' in u) return p.owned.has(item.key);
+  if ('free' in u || p.owned.has(item.key)) return true; // owned = bought, gifted or won in an event
+  if ('coins' in u) return false;
   if ('level' in u) return p.level >= u.level;
   if ('achievement' in u) return p.achievements.has(u.achievement);
   if ('premium' in u) return p.premium;
@@ -66,7 +71,7 @@ export async function buyCosmetic(db: Db, userId: string, key: string, requestId
     const [done] = await tx.select({ id: coinLedger.id }).from(coinLedger).where(eq(coinLedger.sourceKey, sourceKey));
     if (!done) {
       const [own] = await tx.select().from(userCosmetics).where(and(eq(userCosmetics.userId, userId), eq(userCosmetics.itemKey, key)));
-      if (own) throw new AppError('ALREADY_OWNED');
+      if (own || (await eventRewards(tx, userId)).some((r) => r.k === key)) throw new AppError('ALREADY_OWNED');
       if ((await coinBalance(tx, userId)) < cost) throw new AppError('INSUFFICIENT_COINS');
       const [row] = await tx.insert(coinLedger).values({ userId, amount: -cost, ruleId: `cosmetic.${key}`, reason: `خرید «${item.nameFa}».`, sourceKey,
         metadata: { item: key } }).returning({ id: coinLedger.id });

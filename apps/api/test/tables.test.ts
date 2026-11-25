@@ -196,6 +196,8 @@ describe('deadlines (FR-09)', () => {
     expect(d2.id).toBe(d1.id);
     expect(d2.expectedRevision).toBe(2);
     expect(await pendingDeadline(ctx, t.tableId, 'reminder')).toBeDefined();
+    // The one-time extra time (phase B) is already spent: this deadline times out.
+    await ctx.db.update(schema.participants).set({ extraTimeUsed: true }).where(eq(schema.participants.tableId, t.tableId));
     await makeDue(ctx, d2.id);
     expect(await fireDeadline(ctx.db, createDefaultRegistry(), d2.id)).toBe('fired');
     const v = (await view(ctx, t.players[1]!, t.tableId)).game.view;

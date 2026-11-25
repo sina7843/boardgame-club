@@ -1,7 +1,7 @@
 // Coins: a soft currency. Earned only from server reward rows (never a client claim), bought only through a verified
 // payment (billing.ts), spent only on server-defined shop items. Balance = sum of the append-only coin_ledger.
 import { and, desc, eq, gt, isNull, sql } from 'drizzle-orm';
-import { AppError, LEVEL_UP_COINS, trophyTier, type TrophyTier } from '@bg/contracts';
+import { AppError, DAILY_MISSION_COINS, LEVEL_UP_COINS, trophyTier, type TrophyTier } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
 
@@ -15,6 +15,8 @@ export const COIN_RULES = {
   tutorial: 10,
   dailyGame: 15,
   mission: 20,
+  /** Daily missions (rule id `mission_daily.*`): smaller, three per Tehran day. */
+  dailyMission: DAILY_MISSION_COINS,
   achievement: { bronze: 10, silver: 20, gold: 40, turquoise: 75, diamond: 150 } satisfies Record<TrophyTier, number>,
   /** Reaching level n pays n × this. */
   levelUp: LEVEL_UP_COINS
@@ -33,7 +35,7 @@ const FIXED: Record<string, number> = { 'xp.new_title': COIN_RULES.newTitle, 'xp
 /** Coins for one reward row; 0 = this row pays no coins (manual, cosmetic, capped match). */
 export function coinsForReward(r: { ruleId: string; kind: string; amount: number }, tierOf: (achievementKey: string) => TrophyTier): number {
   if (MATCH_RULES.has(r.ruleId)) return Math.round(r.amount / COIN_RULES.matchXpDivisor);
-  if (r.kind === 'mission') return COIN_RULES.mission;
+  if (r.kind === 'mission') return r.ruleId.startsWith('mission_daily.') ? COIN_RULES.dailyMission : COIN_RULES.mission;
   if (r.kind === 'achievement') return COIN_RULES.achievement[tierOf(r.ruleId.replace(/^achievement\./, ''))];
   return FIXED[r.ruleId] ?? 0;
 }

@@ -61,6 +61,7 @@ export function Players({ t }: { t: MyTableItem }) {
 
 function Status({ t }: { t: MyTableItem }) {
   const other = !t.isMyTurn && t.status === 'active' ? t.seats.find((s) => t.turnSeats.includes(s.seat)) : undefined;
+  const away = t.seats.find((s) => s.seat !== t.mySeat && s.onVacationUntil);
   return (
     <div className="bgv-row hm-status" style={{ gap: 8 }}>
       {isUrgent(t) && <Badge tone="danger" icon="alarm-clock">فوری</Badge>}
@@ -73,6 +74,7 @@ function Status({ t }: { t: MyTableItem }) {
       {t.deadline && t.status === 'active' && (t.isMyTurn || t.pace === 'live')
         ? <DeadlineClock iso={t.deadline} />
         : t.deadline && t.status === 'active' && <Clock size="chip" state="paused" p={1} time={remainingFa(t.deadline)} />}
+      {away && <Badge tone="info" icon="sun"><bdi>{away.name}</bdi> در مرخصی تا {jalaliDate(away.onVacationUntil!)}</Badge>}
     </div>
   );
 }

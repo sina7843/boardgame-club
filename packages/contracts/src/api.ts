@@ -55,9 +55,25 @@ export const meResponse = publicProfile.extend(profileExtras.shape).extend({
   /** Active suspension: only sanctions, appeals and support are available. */
   suspended: z.boolean(),
   /** False until the user accepts the current terms version (first login, or after the admin requires re-acceptance). */
-  termsAccepted: z.boolean()
+  termsAccepted: z.boolean(),
+  /** Vacation «مرخصی»: active until (null = not on vacation) and the earliest time a new one may start (null = now). */
+  vacation: z.object({ until: z.iso.datetime().nullable(), availableAt: z.iso.datetime().nullable() }).optional(),
+  /**
+   * Email (owner only): verified address or null, the address waiting for its code, whether email notifications
+   * (daily turn digest, tournament reminder) are on, and whether the site can send email at all (SMTP configured).
+   */
+  email: z.object({ address: z.string().nullable(), pending: z.string().nullable(), digest: z.boolean(), available: z.boolean() }).optional()
 });
 export type Me = z.infer<typeof meResponse>;
+
+export const emailBody = z.strictObject({ email: z.string().trim().toLowerCase().max(254).pipe(z.email()) });
+export const emailVerifyBody = z.strictObject({ code: z.string().regex(/^\d{6}$/) });
+export const emailDigestBody = z.strictObject({ digest: z.boolean() });
+
+/** Vacation length in days (1 to 7); at least 7 days between two vacations (server enforced). */
+export const VACATION_MAX_DAYS = 7;
+export const VACATION_COOLDOWN_DAYS = 7;
+export const vacationBody = z.strictObject({ days: z.number().int().min(1).max(VACATION_MAX_DAYS) });
 
 export const displayNameSchema = z.string().trim()
   .min(2, 'نام نمایشی حداقل ۲ نویسه است')
@@ -183,7 +199,7 @@ export const adminUpdateGameBody = z.strictObject({
 // ---------- Health ----------
 export const healthResponse = z.object({
   status: z.enum(['ok', 'unavailable']),
-  checks: z.record(z.string(), z.enum(['ok', 'fail'])).optional()
+  checks: z.record(z.string(), z.enum(['ok', 'fail', 'disabled'])).optional()
 });
 
 // ---------- Table cosmetics ----------
