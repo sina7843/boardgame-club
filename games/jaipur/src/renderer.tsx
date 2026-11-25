@@ -3,13 +3,15 @@
 // the action bar offers what the selection means: take, exchange or sell; camels have their own button.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePieceIds, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePieceIds, useTermsLang, type GameRendererProps, type Term } from '@bg/ui';
 import coinsArt from './art/coins.webp';
 import deckBack from './art/gc/jaipur-back.png';
+import { terms } from './terms.ts';
 import { GOODS, PRECIOUS, type Card, type Good, type JaipurView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const CARD_FA: Record<Card, string> = { diamond: 'الماس', gold: 'طلا', silver: 'نقره', cloth: 'پارچه', spice: 'ادویه', leather: 'چرم', camel: 'شتر' };
+const CARD_T: Record<Card, Term> = { diamond: terms.diamond, gold: terms.gold, silver: terms.silver, cloth: terms.cloth, spice: terms.spice, leather: terms.leather, camel: terms.camel };
+const cardFa = (c: Card) => tx(CARD_T[c]);
 
 // Card pictures and goods coins are the BGA Jaipur client art (see DECISIONS.md).
 const GC = import.meta.glob<string>('./art/gc/jaipur-*.png', { eager: true, import: 'default' });
@@ -27,9 +29,9 @@ const coinArt = (g: Good, v: number | undefined) => {
 
 export function GoodCard({ c, size = 'md', flip, flipFrom, exit }: { c: Card; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) {
   return (
-    <span className={['jp-card', `jp-card--${size}`, `jp-c--${c}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={CARD_FA[c]}>
+    <span className={['jp-card', `jp-card--${size}`, `jp-c--${c}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={cardFa(c)}>
       <img src={ART[c]} alt="" draggable={false} />
-      {size === 'md' && <span className="jp-card__n">{CARD_FA[c]}</span>}
+      {size === 'md' && <span className="jp-card__n">{cardFa(c)}</span>}
     </span>
   );
 }
@@ -57,6 +59,7 @@ type Mode = 'take' | 'camels' | 'exchange' | 'sell';
 const MODES: [Mode, string][] = [['take', 'یک کالا'], ['camels', 'شترها'], ['exchange', 'معاوضه'], ['sell', 'فروش']];
 
 export default function JaipurRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<JaipurView>) {
+  useTermsLang(); // re-render when the terms language changes
   const me = mySeat ?? 0;
   // Undo-window preview: taken cards are already in the hand, camels in the herd, sold cards gone; undo returns them.
   const view = useMemo(() => preview(real, queued, me), [real, queued, me]);
@@ -76,17 +79,17 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
   const sellGood = give.length && !mk.length && !cam && give.every((g) => g === give[0]) ? give[0]! : null;
   const action = (() => {
     if (!myTurn) return null;
-    if (mk.length === 1 && !hd.length && !cam && takeG.length === 1) return hand.length < 7 ? { label: `برداشتن ${CARD_FA[takeG[0]!]}`, a: { type: 'take', good: takeG[0] } } : null;
+    if (mk.length === 1 && !hd.length && !cam && takeG.length === 1) return hand.length < 7 ? { label: `برداشتن ${cardFa(takeG[0]!)}`, a: { type: 'take', good: takeG[0] } } : null;
     if (mk.length >= 2 && takeG.length === mk.length && give.length + cam === mk.length && !give.some((g) => takeG.includes(g)) && hand.length + cam <= 7)
       return { label: `معاوضهٔ ${fa(mk.length)} کارت`, a: { type: 'exchange', take: takeG, give: [...give, ...Array<Card>(cam).fill('camel')] } };
-    if (sellGood && (!PRECIOUS.has(sellGood) || give.length >= 2)) return { label: `فروش ${fa(give.length)} ${CARD_FA[sellGood]}`, a: { type: 'sell', good: sellGood, count: give.length } };
+    if (sellGood && (!PRECIOUS.has(sellGood) || give.length >= 2)) return { label: `فروش ${fa(give.length)} ${cardFa(sellGood)}`, a: { type: 'sell', good: sellGood, count: give.length } };
     return null;
   })();
   // Action row (reference §1): a mode chip, a short summary and one «تأیید». The chip follows the selection unless picked.
   const shownMode: Mode | null = mode ?? (action?.a.type as Mode | undefined) ?? null;
   const confirm = mode === 'camels' ? (canCamels ? { type: 'camels' } : null) : action && (!mode || action.a.type === mode) ? action.a : null;
   const summary = mode === 'camels' ? `همهٔ شترهای بازار (${fa(view.market.filter((c) => c === 'camel').length)})`
-    : confirm?.type === 'exchange' ? `${takeG.map((g) => CARD_FA[g]).join(' و ')} ← ${[...give.map((g) => CARD_FA[g]), ...Array<string>(cam).fill(CARD_FA.camel)].join(' و ')}`
+    : confirm?.type === 'exchange' ? `${takeG.map((g) => cardFa(g)).join(' و ')} ← ${[...give.map((g) => cardFa(g)), ...Array<string>(cam).fill(cardFa('camel'))].join(' و ')}`
       : action?.label ?? '';
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
@@ -120,7 +123,7 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
 
       <section className="jp__tokens" data-flip-anchor="tokens" aria-label="سکه‌های کالا">
         {GOODS.map((g) => (
-          <span key={g} className={`jp-stack jp-c--${g} ${view.tokens[g].length ? '' : 'jp-stack--out'}`} aria-label={`${CARD_FA[g]}: ${fa(view.tokens[g].length)} سکه`}>
+          <span key={g} className={`jp-stack jp-c--${g} ${view.tokens[g].length ? '' : 'jp-stack--out'}`} aria-label={`${cardFa(g)}: ${fa(view.tokens[g].length)} سکه`}>
             <i className="jp-coin" style={coinArt(g, view.tokens[g][0])} aria-hidden="true" />
             <small className="bg-pop" key={view.tokens[g].length}>{fa(view.tokens[g].length)}</small>
           </span>
@@ -158,9 +161,9 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
       {!framed && last && !view.outcome && (
         <p className="jp__last" role="status" key={view.seq}>
           <bdi>{who(last.seat)}</bdi>{' '}
-          {last.kind === 'take' ? `${CARD_FA[last.cards![0]!]} برداشت` : last.kind === 'camels' ? `${fa(last.count!)} شتر برداشت`
-            : last.kind === 'exchange' ? `${last.cards!.map((c) => CARD_FA[c]).join('، ')} را با ${last.give!.map((c) => CARD_FA[c]).join('، ')} عوض کرد`
-              : `${fa(last.count!)} ${CARD_FA[last.good!]} فروخت (+${fa(last.earned!)})`}
+          {last.kind === 'take' ? `${cardFa(last.cards![0]!)} برداشت` : last.kind === 'camels' ? `${fa(last.count!)} ${tx(terms.camel)} برداشت`
+            : last.kind === 'exchange' ? `${last.cards!.map((c) => cardFa(c)).join('، ')} را با ${last.give!.map((c) => cardFa(c)).join('، ')} عوض کرد`
+              : `${fa(last.count!)} ${cardFa(last.good!)} فروخت (+${fa(last.earned!)})`}
         </p>
       )}
 
@@ -178,9 +181,9 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
             {!hand.length && <span className="jp__empty">دستتان خالی است</span>}
           </div>
           <div className="jp__herd" data-flip-anchor="herd-me">
-            <GoodCard c="camel" size="sm" /> گلهٔ شما: <b className="bg-pop" key={view.herds[me]}>{fa(view.herds[me]!)}</b>
+            <GoodCard c="camel" size="sm" /> <T t={terms.herd} /> شما: <b className="bg-pop" key={view.herds[me]}>{fa(view.herds[me]!)}</b>
             {myTurn && mk.length >= 2 && view.herds[me]! > 0 && (
-              <span className="jp__camgive">شتر برای معاوضه:
+              <span className="jp__camgive"><T t={terms.camel} /> برای معاوضه:
                 <button type="button" onClick={() => setCam(Math.max(0, cam - 1))} disabled={!cam}>−</button><b>{fa(cam)}</b>
                 <button type="button" onClick={() => setCam(Math.min(view.herds[me]!, cam + 1))} disabled={cam >= view.herds[me]!}>+</button>
               </span>

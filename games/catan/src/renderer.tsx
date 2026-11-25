@@ -3,11 +3,12 @@
 // other players' hands and development cards are counts, never contents.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePop, T, tx, useTermsLang, type Term, type GameRendererProps, DockSlot } from '@bg/ui';
 import { BEGINNER_HARBORS, BEGINNER_MAP, EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
 import { BOARD_PNG, BoardDefs, COST_PNG, CARD_BACK, pieceArt, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
 import awardRoad from './art/catan-award-road.png';
 import awardArmy from './art/catan-award-army.png';
+import { terms } from './terms.ts';
 import { COST, LIMITS, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -15,14 +16,14 @@ type Hint = { type: string; [k: string]: unknown };
 
 export const SEAT_COLOR = ['#c8323c', '#2f62c9', '#f1ece0', '#e0861a'];
 const SEAT_FA = ['قرمز', 'آبی', 'سفید', 'نارنجی'];
-const DEV_FA: Record<Dev, string> = { knight: 'شوالیه', vp: 'امتیاز پیروزی', road: 'جاده‌سازی', plenty: 'سال فراوانی', monopoly: 'انحصار' };
-const DEV_HELP: Record<Dev, string> = {
-  knight: 'راهزن را جابه‌جا کنید و از صاحب یک ساختمان کنارش یک کارت بدزدید.',
+const DEV_T: Record<Dev, Term> = { knight: terms.knight, vp: terms.victoryPoint, road: terms.roadBuilding, plenty: terms.yearOfPlenty, monopoly: terms.monopoly };
+const devHelp = (): Record<Dev, string> => ({
+  knight: `${tx(terms.robber)} را جابه‌جا کنید و از صاحب یک ساختمان کنارش یک کارت بدزدید.`,
   vp: '۱ امتیاز؛ تا پایان بازی مخفی می‌ماند.',
   road: '۲ جاده رایگان بسازید.',
   plenty: '۲ منبع دلخواه از بانک بگیرید.',
   monopoly: 'یک منبع را نام ببرید؛ همه بازیکنان دیگر کارت‌های آن منبع را به شما می‌دهند.'
-};
+});
 const HARBOR_FA = (k: HarborKind) => (k === 'any' ? '۳:۱' : `۲:۱ ${RES_FA[k]}`);
 
 const handText = (h: Partial<Hand>) => RESOURCES.filter((r) => (h[r] ?? 0) > 0).map((r) => `${fa(h[r]!)} ${RES_FA[r]}`).join('، ') || 'هیچ';
@@ -43,17 +44,17 @@ function describe(e: LogEntry, view: CatanView, name: (s: number) => string): st
     }
     case 'shortage': return `بانک ${RES_FA[e.res]} کافی نداشت؛ کسی ${RES_FA[e.res]} نگرفت.`;
     case 'discard': return `${name(e.seat)} ${handText(e.cards)} دور ریخت.`;
-    case 'robber': return `${name(e.seat)} راهزن را به ${hexLabel(view, e.hex)} برد.`;
+    case 'robber': return `${name(e.seat)} ${tx(terms.robber)} را به ${hexLabel(view, e.hex)} برد.`;
     case 'steal': return `${name(e.seat)} از ${name(e.from)} ${e.res ? `یک ${RES_FA[e.res]}` : 'یک کارت'} دزدید.`;
     case 'bank': return `${name(e.seat)} ${fa(e.n)} ${RES_FA[e.give]} را با بانک به ۱ ${RES_FA[e.get]} معامله کرد.`;
     case 'offer': return `${name(e.seat)} پیشنهاد داد: ${handText(e.give)} در ازای ${handText(e.get)}.`;
     case 'trade': return `${name(e.seat)} با ${name(e.with)} معامله کرد: ${handText(e.give)} در ازای ${handText(e.get)}.`;
-    case 'buy': return `${name(e.seat)} یک کارت توسعه خرید.`;
+    case 'buy': return `${name(e.seat)} یک ${tx(terms.devCard)} خرید.`;
     case 'dev':
-      return `${name(e.seat)} «${DEV_FA[e.card]}» بازی کرد${e.card === 'monopoly' ? ` و ${fa(e.n ?? 0)} ${RES_FA[e.res!]} گرفت` : e.card === 'plenty' && e.pick ? ` و ${RES_FA[e.pick[0]]} و ${RES_FA[e.pick[1]]} گرفت` : ''}.`;
+      return `${name(e.seat)} «${tx(DEV_T[e.card])}» بازی کرد${e.card === 'monopoly' ? ` و ${fa(e.n ?? 0)} ${RES_FA[e.res!]} گرفت` : e.card === 'plenty' && e.pick ? ` و ${RES_FA[e.pick[0]]} و ${RES_FA[e.pick[1]]} گرفت` : ''}.`;
     case 'award': return e.seat === null
-      ? `${e.kind === 'road' ? 'طولانی‌ترین جاده' : 'بزرگ‌ترین ارتش'} فعلاً صاحبی ندارد.`
-      : `${name(e.seat)} ${e.kind === 'road' ? 'طولانی‌ترین جاده' : 'بزرگ‌ترین ارتش'} را گرفت (۲ امتیاز).`;
+      ? `${tx(e.kind === 'road' ? terms.longestRoad : terms.largestArmy)} فعلاً صاحبی ندارد.`
+      : `${name(e.seat)} ${tx(e.kind === 'road' ? terms.longestRoad : terms.largestArmy)} را گرفت (۲ امتیاز).`;
     case 'timeout': return `زمان ${name(e.seat)} تمام شد.`;
     case 'left': return `${name(e.seat)} ${e.reason === 'resign' ? 'انصراف داد' : 'به‌دلیل غیبت کنار گذاشته شد'}.`;
     case 'win': return `${name(e.seat)} با ${fa(e.vp)} امتیاز برد!`;
@@ -72,6 +73,7 @@ const HOUSE = ['M-8 8 V-1 H8 V8Z', 'M-10.5 -1 L0 -11 L10.5 -1Z'];
 const CITY = ['M-13.5 8 V-1 H-4 V8Z', 'M-15 -1 L-8.7 -7 L-2.5 -1Z', 'M-4 8 V-8 H13 V8Z', 'M-5.6 -8 L4.5 -17 L14.6 -8Z'];
 
 function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPick: (s: NonNullable<Sel>) => void; mySeat: number | null }) {
+  useTermsLang();
   const key = (fn: () => void) => (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } };
   const btn = (s: NonNullable<Sel>, label: string) => ({ role: 'button', tabIndex: 0, 'aria-label': label, 'aria-pressed': t.sel?.kind === s.kind && t.sel.id === s.id, onClick: () => onPick(s), onKeyDown: key(() => onPick(s)) });
   const is = (s: Sel, kind: string, id: number) => s?.kind === kind && s.id === id;
@@ -104,7 +106,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, len = Math.hypot(mx, my);
         const hx = mx + (mx / len) * 30, hy = my + (my / len) * 30;
         return (
-          <g key={`h${i}`} className={h.kind === 'any' ? 'ct-harbor' : `ct-harbor ct-res--${h.kind}`} role="img" aria-label={`بندر ${HARBOR_FA(h.kind)}`}>
+          <g key={`h${i}`} className={h.kind === 'any' ? 'ct-harbor' : `ct-harbor ct-res--${h.kind}`} role="img" aria-label={`${tx(terms.harbor)} ${HARBOR_FA(h.kind)}`}>
             <line x1={a.x} y1={a.y} x2={hx} y2={hy} className="ct-pier__under" /><line x1={b.x} y1={b.y} x2={hx} y2={hy} className="ct-pier__under" />
             <line x1={a.x} y1={a.y} x2={hx} y2={hy} className="ct-pier" /><line x1={b.x} y1={b.y} x2={hx} y2={hy} className="ct-pier" />
             <HarborArt x={hx} y={hy + 6} />
@@ -122,7 +124,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         const target = t.hexes.has(i);
         return (
           <g key={`x${i}`} className={['ct-hex', target ? 'ct-target' : '', is(t.sel, 'hex', i) ? 'ct-selected' : '', is(t.hint, 'hex', i) ? 'ct-hint' : ''].join(' ')}
-            {...(target ? btn({ kind: 'hex', id: i }, `${hexLabel(view, i)}، راهزن را اینجا ببرید`) : { role: 'img', 'aria-label': `${hexLabel(view, i)}${view.robber === i ? '، راهزن اینجاست' : ''}` })}>
+            {...(target ? btn({ kind: 'hex', id: i }, `${hexLabel(view, i)}، ${tx(terms.robber)} را اینجا ببرید`) : { role: 'img', 'aria-label': `${hexLabel(view, i)}${view.robber === i ? `، ${tx(terms.robber)} اینجاست` : ''}` })}>
             {!beginner && <HexArt terrain={h.terrain} cx={c.x} cy={c.y} r={R} className="ct-hex__art" />}
             <polygon points={pts(i)} fill="#000" fillOpacity="0.001" className="ct-hex__tile" />
             {!beginner && <text x={c.x} y={c.y - R * 0.5} className="ct-hex__name">{TERRAIN_FA[h.terrain]}</text>}
@@ -273,6 +275,7 @@ function preview(v: CatanView, q: Hint | null | undefined, me: number | null): C
 }
 
 export default function CatanRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CatanView>) {
+  useTermsLang(); // re-render when the terms language changes
   // Undo-window preview: the road / settlement / city already stands (cost paid) and the robber already moved; undo
   // clears `queued` and it goes back. A roll is never previewed: the dice tumble without pips until the server rolls.
   const view = useMemo(() => preview(real, queued as Hint | null, mySeat), [real, queued, mySeat]);
@@ -353,10 +356,10 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
       setupRoad: 'یک جاده کنار آبادی تازه‌تان بگذارید',
       roll: 'نوبت شماست: تاس بریزید',
       discard: 'منتظر دور ریختن کارت‌های دیگران',
-      robber: 'راهزن را به شش‌ضلعی دیگری ببرید',
+      robber: `${tx(terms.robber)} را به شش‌ضلعی دیگری ببرید`,
       steal: 'از چه کسی بدزدید؟',
       main: 'معامله کنید، بسازید و در پایان نوبت را تمام کنید',
-      roadBuilding: `جاده‌سازی: ${fa(view.freeRoads)} جاده رایگان بگذارید`
+      roadBuilding: `${tx(terms.roadBuilding)}: ${fa(view.freeRoads)} جاده رایگان بگذارید`
     }[view.phase] };
   }
 
@@ -382,7 +385,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
   // the dice, and the two award cards with their holder.
   const side = (
     <div className="ct-rack">
-      <ul className="ct-bankgrid" aria-label={`بانک: ${handText(view.bank)}، کارت توسعه: ${fa(view.devDeckCount)}`}>
+      <ul className="ct-bankgrid" aria-label={`بانک: ${handText(view.bank)}، ${tx(terms.devCard)}: ${fa(view.devDeckCount)}`}>
         {RESOURCES.map((r) => <li key={r} className={`ct-bankcard ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span><b>{fa(view.bank[r])}</b></li>)}
         <li className="ct-bankcard" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" draggable={false} /><b>{fa(view.devDeckCount)}</b></li>
       </ul>
@@ -399,7 +402,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>آبادی ۱ امتیاز، شهر ۲، طولانی‌ترین جاده و بزرگ‌ترین ارتش هر کدام ۲ امتیاز؛ با {fa(10)} امتیاز برنده‌اید. تاس ۷: بیش از {fa(7)} کارت را نصف کنید و راهزن را ببرید.</p>
+          <p>آبادی ۱ امتیاز، شهر ۲، <T t={terms.longestRoad} /> و <T t={terms.largestArmy} /> هر کدام ۲ امتیاز؛ با {fa(10)} امتیاز برنده‌اید. تاس ۷: بیش از {fa(7)} کارت را نصف کنید و <T t={terms.robber} /> را ببرید.</p>
           {view.myHand && <CostCard />}
         </RailSlot>
       )}
@@ -408,7 +411,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
       <div className="ct__meta">
         {!framed && <span>نوبت {fa(view.turn)}</span>}
         {!framed && diceEl}
-        {!framed && <span className="ct-deck" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />کارت توسعه در دسته: {fa(view.devDeckCount)}</span>}
+        {!framed && <span className="ct-deck" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} /><T t={terms.devCard} /> در دسته: {fa(view.devDeckCount)}</span>}
         {!framed && bank}
       </div>
 
@@ -441,13 +444,13 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
               </span>
               <span className="ct-player__counts">
                 <span className="ct-tally"><i className="ct-tally__card" aria-hidden="true" />{fa(view.handCounts[s] ?? 0)} کارت منبع</span>
-                <span className="ct-tally"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />{fa(view.devCounts[s] ?? 0)} کارت توسعه</span>
-                <span className="ct-tally"><span aria-hidden="true">⚔</span> {fa(view.knights[s] ?? 0)} شوالیه</span>
+                <span className="ct-tally"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />{fa(view.devCounts[s] ?? 0)} <T t={terms.devCard} /></span>
+                <span className="ct-tally"><span aria-hidden="true">⚔</span> {fa(view.knights[s] ?? 0)} <T t={terms.knight} /></span>
                 <span className="ct-tally">جاده بلند {fa(view.roadLength[s] ?? 0)}</span>
               </span>
               <span className="ct-player__awards">
-                {view.longestRoad === s && <span className="ct-badge ct-badge--award">طولانی‌ترین جاده</span>}
-                {view.largestArmy === s && <span className="ct-badge ct-badge--award">بزرگ‌ترین ارتش</span>}
+                {view.longestRoad === s && <span className="ct-badge ct-badge--award"><T t={terms.longestRoad} /></span>}
+                {view.largestArmy === s && <span className="ct-badge ct-badge--award"><T t={terms.largestArmy} /></span>}
                 {view.phase === 'discard' && (view.owed[s] ?? 0) > 0 && <span className="ct-badge ct-badge--warn">باید {fa(view.owed[s]!)} کارت دور بریزد</span>}
               </span>
               {s === mySeat && <CostCard />}
@@ -491,7 +494,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                   </button>
                 ))}
                 <button type="button" className="ct-buildbtn" disabled={busy || !has('buyDev')} onClick={() => act({ type: 'buyDev' })}>
-                  <strong>کارت توسعه</strong><span className="ct-cost">{handText(COST.dev)}</span>
+                  <strong><T t={terms.devCard} /></strong><span className="ct-cost">{handText(COST.dev)}</span>
                 </button>
               </div>
               {mode && <p className="ct-help">روی نقشه یکی از جاهای مجازِ برجسته را انتخاب کنید.</p>}
@@ -499,7 +502,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
           )}
 
           {myTurn && view.phase === 'main' && (
-            <Panel title="معامله با بانک و بندر">
+            <Panel title={`معامله با بانک و ${tx(terms.harbor)}`}>
               <ResChoice label="می‌دهم" value={bankGive} options={RESOURCES.filter((r) => bankRate(r) !== undefined)} onChange={setBankGive} />
               <ResChoice label="می‌گیرم" value={bankGet} options={RESOURCES.filter((r) => r !== bankGive && view.bank[r] > 0)} onChange={setBankGet} />
               <Button className={exp?.type === 'bankTrade' ? 'ct-hintbtn' : ''} disabled={busy || !bankGive || !bankGet || bankGive === bankGet || !legal.bank.some((h) => h.give === bankGive && h.get === bankGet)}
@@ -561,7 +564,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
               </ul>
               {(view.myDevs?.length ?? 0) > 0 && (
                 <>
-                  <h3>کارت‌های توسعه شما</h3>
+                  <h3><T t={terms.devCards} /> شما</h3>
                   <ul className="ct-devs">
                     {(Object.keys(devCounts) as Dev[]).map((d) => {
                       const t = playType[d];
@@ -569,8 +572,8 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                       return (
                         <li key={d} className="ct-dev" data-flip={`dev-${d}`} data-flip-from="devdeck">
                           <img className="ct-dev__art" src={DEV_ART[d]} alt="" aria-hidden="true" draggable={false} />
-                          <span><strong>{DEV_FA[d]}</strong> ×{fa(devCounts[d]!.n)}{devCounts[d]!.fresh ? ` (${fa(devCounts[d]!.fresh)} تازه)` : ''}</span>
-                          <span className="ct-help">{DEV_HELP[d]}</span>
+                          <span><strong><T t={DEV_T[d]} /></strong> ×{fa(devCounts[d]!.n)}{devCounts[d]!.fresh ? ` (${fa(devCounts[d]!.fresh)} تازه)` : ''}</span>
+                          <span className="ct-help">{devHelp()[d]}</span>
                           {can && <Button size="sm" disabled={busy} onClick={() => {
                             if (d === 'plenty' || d === 'monopoly') { setDevPick(d); setPick([]); } else act({ type: t! });
                           }}>بازی</Button>}
@@ -582,7 +585,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                 </>
               )}
               {devPick === 'plenty' && (
-                <Panel title="سال فراوانی: ۲ منبع انتخاب کنید" tone="decide">
+                <Panel title={`${tx(terms.yearOfPlenty)}: ۲ منبع انتخاب کنید`} tone="decide">
                   <div className="ct-choice">
                     {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={pick.length >= 2 || view.bank[r] < 1 + pick.filter((x) => x === r).length} onClick={() => setPick([...pick, r])}><span aria-hidden="true"><ResIcon r={r} /></span> {RES_FA[r]}</button>)}
                   </div>
@@ -594,7 +597,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                 </Panel>
               )}
               {devPick === 'monopoly' && (
-                <Panel title="انحصار: کدام منبع؟" tone="decide">
+                <Panel title={`${tx(terms.monopoly)}: کدام منبع؟`} tone="decide">
                   <div className="ct-choice">
                     {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={busy} onClick={() => { act({ type: 'playMonopoly', res: r }); setDevPick(null); }}><span aria-hidden="true"><ResIcon r={r} /></span> {RES_FA[r]}</button>)}
                   </div>

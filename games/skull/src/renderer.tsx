@@ -3,7 +3,8 @@
 // plain labelled placeholder (listed in the delivery report), never a drawn substitute.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, tx, useTermsLang, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import p1m0 from './art/skull-player-1-points-0.png';
 import p1m1 from './art/skull-player-1-points-1.png';
 import p1rose from './art/skull-player-1-rose.png';
@@ -27,13 +28,13 @@ const ART: Record<string, string | undefined> = {
   'mat0-1': p1m0, 'mat0-2': p2m0, 'mat0-4': p4m0, 'mat1-1': p1m1, 'mat1-3': p3m1
 };
 type Face = Disc | 'back';
-const TXT: Record<Face, string> = { rose: 'گل', skull: 'جمجمه', back: 'دیسک' };
+const txt = (f: Face) => (f === 'rose' ? tx(terms.rose) : f === 'skull' ? tx(terms.skull) : 'دیسک');
 
 function Coaster({ face, seat, size = 'md', flip }: { face: Face; seat: number; size?: 'sm' | 'md'; flip?: boolean }) {
   const src = ART[`${face}-${seat + 1}`];
   return src
     ? <img className={['sk-disc', `sk-disc--${size}`, flip ? 'bg-flip-in' : ''].join(' ')} src={src} alt="" draggable={false} />
-    : <span className={['sk-disc', 'sk-ph', `sk-disc--${size}`].join(' ')} aria-hidden="true">{TXT[face]}</span>;
+    : <span className={['sk-disc', 'sk-ph', `sk-disc--${size}`].join(' ')} aria-hidden="true">{txt(face)}</span>;
 }
 
 /** A number that bumps when it changes (never on first render). */
@@ -62,6 +63,7 @@ function withQueued(view: SkullView, me: number | null, q: Queued): SkullView {
 }
 
 export default function SkullRenderer({ view: real, legalActions: allActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SkullView>) {
+  useTermsLang();
   const q = queued as Queued;
   const view = withQueued(real, mySeat, q);
   const legalActions = q ? [] : allActions;
@@ -101,7 +103,7 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {framed && <RailSlot><p>{rule}</p></RailSlot>}
       {view.bid && view.phase !== 'first' && (
-        <p className="sk-banner" role="status"><span className="sk-banner__n"><Pop v={view.bid.n} /></span><span><b>پیشنهاد <bdi>{who(view.bid.seat)}</bdi></b><br /><small>{fa(view.maxBid)} دیسک روی میز است</small></span></p>
+        <p className="sk-banner" role="status"><span className="sk-banner__n"><Pop v={view.bid.n} /></span><span><b><T t={terms.bid} /> <bdi>{who(view.bid.seat)}</bdi></b><br /><small>{fa(view.maxBid)} دیسک روی میز است</small></span></p>
       )}
 
       <ul className="sk-mats" aria-label="بازیکنان">
@@ -132,8 +134,8 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
               <span className="sk-mat__l">
                 <b><bdi>{who(s)}</bdi></b> {fa(owned)} دیسک
                 {owned === 0 ? <><span className="bgv-sep" /><em>بیرون</em></> : null}
-                {view.phase === 'bid' && view.passed[s] ? <><span className="bgv-sep" />پاس</> : null}
-                {view.bid?.seat === s && !view.outcome && view.phase !== 'first' ? <><span className="bgv-sep" /><em>پیشنهاد {fa(view.bid.n)}</em></> : null}
+                {view.phase === 'bid' && view.passed[s] ? <><span className="bgv-sep" /><T t={terms.pass} /></> : null}
+                {view.bid?.seat === s && !view.outcome && view.phase !== 'first' ? <><span className="bgv-sep" /><em><T t={terms.bid} /> {fa(view.bid.n)}</em></> : null}
               </span>
             </>
           );
@@ -153,7 +155,7 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
           <div className="sk__hand" data-flip-anchor="hand" role="group" aria-label="دیسک‌های دست شما">
             {view.hand.map((d, k) => (
               <button key={k} type="button" data-flip={`hd-${d}-${view.hand!.slice(0, k).filter((x) => x === d).length}`} className={['sk-handdisc', hint?.type === 'place' && hint.disc === d ? 'sk-hint' : ''].join(' ')} disabled={busy || !placeable.has(d)}
-                onClick={() => onAction({ type: 'place', disc: d })} aria-label={d === 'skull' ? 'گذاشتن جمجمه' : 'گذاشتن گل'}>
+                onClick={() => onAction({ type: 'place', disc: d })} aria-label={d === 'skull' ? `گذاشتن ${tx(terms.skull)}` : `گذاشتن ${tx(terms.rose)}`}>
                 <Coaster face={d} seat={me} size="sm" />
               </button>
             ))}
@@ -163,13 +165,13 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
               {Array.from({ length: bidHint.max - bidHint.min + 1 }, (_, k) => bidHint.min + k).map((n) => (
                 <button key={n} type="button" aria-pressed={chosenBid === n} className={['sk-n sk-num', chosenBid === n ? 'is-sel' : '', hint?.type === 'bid' && hint.n === n ? 'sk-hint' : ''].join(' ')} onClick={() => setBid(n)}>{fa(n)}</button>
               ))}
-              <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'bid', n: chosenBid })}>پیشنهاد {fa(chosenBid)}</Button>
+              <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'bid', n: chosenBid })}><T t={terms.bid} /> {fa(chosenBid)}</Button>
             </div>
           )}
           {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>کنار می‌کشم</Button></DockSlot>}
         </div>
       ) : null}
-      {view.lostLast && lastLose && lastLose.seat === mySeat && <p className="sk__lost" role="status">یک {view.lostLast === 'skull' ? 'جمجمه' : 'گل'} از دست دادید (فقط شما می‌دانید).</p>}
+      {view.lostLast && lastLose && lastLose.seat === mySeat && <p className="sk__lost" role="status">یک {tx(view.lostLast === 'skull' ? terms.skull : terms.rose)} از دست دادید (فقط شما می‌دانید).</p>}
     </div>
   );
 }

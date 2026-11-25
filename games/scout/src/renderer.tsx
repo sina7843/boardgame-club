@@ -3,7 +3,8 @@
 // of neighbours. Scout: tap an end card of the ring's show (flip it if you like), then the gap where it goes.
 import './renderer.css';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import { ART } from './art.ts';
 import { down, type HandCard, type ScoutView } from './rules.ts';
 
@@ -23,6 +24,7 @@ export function Act({ c, size = 'md', flipped, flip, flipFrom, exit }: { c: Hand
 }
 
 export default function ScoutRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<ScoutView>) {
+  useTermsLang();
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const framed = useInFrame() !== null;
@@ -67,7 +69,7 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : orient ? { tone: 'mine' as const, text: 'دستتان را همین‌طور نگه می‌دارید یا برمی‌گردانید؟' }
       : view.phase === 'orient' ? { tone: 'wait' as const, text: 'منتظر انتخاب جهت دست بقیه' }
-        : myTurn ? { tone: 'mine' as const, text: view.phase === 'show' ? 'حالا نمایش بدهید' : end ? 'جای کارت را در دستتان بزنید' : 'نمایش بدهید یا از نمایش وسط دیدبانی کنید' }
+        : myTurn ? { tone: 'mine' as const, text: view.phase === 'show' ? `حالا ${tx(terms.show)} بدهید` : end ? 'جای کارت را در دستتان بزنید' : `${tx(terms.show)} بدهید یا از ${tx(terms.show)} وسط ${tx(terms.scout)} کنید` }
           : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const order = mySeat === null ? view.scores.map((_, k) => k) : [...view.scores.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
   const inRange = (i: number) => !!sel && i >= sel.from && i < sel.from + sel.count;
@@ -78,7 +80,7 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>ترتیب کارت‌های دست عوض نمی‌شود. کارت دیدبانی‌شده را هر جای دست می‌گذارید و می‌توانید وارونه‌اش کنید. هر کارتی که آخر دست بماند ۱ امتیاز منفی است.</p>
+          <p>ترتیب کارت‌های دست عوض نمی‌شود. کارت <T t={terms.scout} />‌شده را هر جای دست می‌گذارید و می‌توانید وارونه‌اش کنید. هر کارتی که آخر دست بماند ۱ امتیاز منفی است.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -98,16 +100,16 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
       </ul>}
 
       {!view.outcome && (
-        <section className="sc__ring" data-flip-anchor="deck" aria-label="نمایش وسط">
+        <section className="sc__ring" data-flip-anchor="deck" aria-label={`${tx(terms.show)} وسط`}>
           {t ? (
             <>
-              <span className="sc__owner">نمایش <bdi>{who(t.owner)}</bdi></span>
+              <span className="sc__owner"><T t={terms.show} /> <bdi>{who(t.owner)}</bdi></span>
               <div className="sc__show">
                 {t.cards.map((c, i) => {
                   const e = i === 0 ? 'first' : i === t.cards.length - 1 ? 'last' : null;
                   const can = !!scoutHint && view.phase === 'play' && !!e && !busy && !range;
                   return can
-                    ? <button key={i} type="button" className={`sc-end ${end === e ? 'sc-end--on' : ''}`} onClick={() => { setEnd(end === e ? null : e); setFlip(false); }} aria-pressed={end === e} aria-label={e === 'first' ? 'دیدبانی کارت اول' : 'دیدبانی کارت آخر'}>
+                    ? <button key={i} type="button" className={`sc-end ${end === e ? 'sc-end--on' : ''}`} onClick={() => { setEnd(end === e ? null : e); setFlip(false); }} aria-pressed={end === e} aria-label={e === 'first' ? `${tx(terms.scout)} کارت اول` : `${tx(terms.scout)} کارت آخر`}>
                       <Act c={c} flipped={end === e && flip} flip={`c-${c.id}`} flipFrom={`seat-${t.owner}`} exit={`seat-${view.current}`} /></button>
                     : <Act key={i} c={c} flip={`c-${c.id}`} flipFrom={`seat-${t.owner}`} exit={`seat-${view.current}`} />;
                 })}
@@ -120,7 +122,7 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
       {myTurn && end && (
         <DockSlot><div className="sc__bar">
           <Button size="sm" variant="secondary" onClick={() => setFlip(!flip)}>برگرداندن کارت ⇅</Button>
-          {scoutHint?.canShow && <label className="sc__ss"><input type="checkbox" checked={andShow} onChange={(e) => setAndShow(e.target.checked)} /> دیدبانی و نمایش</label>}
+          {scoutHint?.canShow && <label className="sc__ss"><input type="checkbox" checked={andShow} onChange={(e) => setAndShow(e.target.checked)} /> <T t={terms.scoutAndShow} /></label>}
           <Button size="sm" variant="secondary" onClick={() => setEnd(null)}>لغو</Button>
         </div></DockSlot>
       )}
@@ -156,7 +158,7 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
           )}
           {showHint && !end && !orient && (
             <DockSlot><Button size="sm" disabled={!showOk || busy} className={hint?.type === 'show' && showOk ? 'sc-hint' : ''} onClick={() => sel && onAction({ type: 'show', from: sel.from, count: sel.count })}>
-              نمایش {sel ? fa(sel.count) : ''} کارت
+              <T t={terms.show} /> {sel ? fa(sel.count) : ''} کارت
             </Button></DockSlot>
           )}
         </section>

@@ -3,18 +3,19 @@
 // into a bid.
 import './renderer.css';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, type Term, DockSlot } from '@bg/ui';
 const GC = import.meta.glob<string>('./art/gc/high-society-*.png', { eager: true, import: 'default' });
 const gc = (n: string | number) => GC[`./art/gc/high-society-${n}.png`];
 import luxuryArt from './art/luxury.webp';
 import prestigeArt from './art/prestige.webp';
 import disgraceArt from './art/disgrace.webp';
+import { terms } from './terms.ts';
 import { isDisgrace, isRed, lux, status, type HighSocietyView, type StatusCard } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const LUX = ['', 'گلاب‌پاش', 'کلاه', 'دستکش', 'عطر', 'شامپاین', 'تابلو', 'پیانو', 'اسب', 'قایق', 'کاخ ییلاقی'];
-const SPECIAL: Record<string, { big: string; name: string }> = {
-  prestige: { big: '×۲', name: 'افتخار' }, passe: { big: '−۵', name: 'از مد افتاده' }, scandal: { big: '½', name: 'رسوایی' }, faux: { big: '✕', name: 'گاف' }
+const SPECIAL: Record<string, { big: string; name: Term }> = {
+  prestige: { big: '×۲', name: terms.prestige }, passe: { big: '−۵', name: terms.passe }, scandal: { big: '½', name: terms.scandal }, faux: { big: '✕', name: terms.faux }
 };
 // Painted art cut from a generated sheet (see DECISIONS.md), chosen by card type.
 const ART = { lux: luxuryArt, good: prestigeArt, bad: disgraceArt };
@@ -25,13 +26,13 @@ export function Card({ c, size = 'md', flip, flipFrom, exit }: { c: StatusCard; 
   const sp = SPECIAL[c];
   const kind = v ? 'lux' : isDisgrace(c) ? 'bad' : 'good';
   const face = gc(v ? `l${v}` : c);
-  if (face) return <span className={['hs-card', 'hs-card--img', `hs-card--${size}`, isRed(c) ? 'hs-card--red' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={v ? `${LUX[v]} (${fa(v)})` : sp!.name}><img className="hs-card__face" src={face} alt="" draggable={false} /></span>;
+  if (face) return <span className={['hs-card', 'hs-card--img', `hs-card--${size}`, isRed(c) ? 'hs-card--red' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={v ? `${LUX[v]} (${fa(v)})` : tx(sp!.name)}><img className="hs-card__face" src={face} alt="" draggable={false} /></span>;
   return (
     <span className={['hs-card', `hs-card--${size}`, `hs-card--${kind}`, isRed(c) ? 'hs-card--red' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}
-      aria-label={v ? `${LUX[v]} (${fa(v)})` : sp!.name}>
+      aria-label={v ? `${LUX[v]} (${fa(v)})` : tx(sp!.name)}>
       <img className="hs-card__art" src={ART[kind]} alt="" draggable={false} />
       <span className="hs-card__big">{v ? fa(v) : sp!.big}</span>
-      <span className="hs-card__name">{v ? LUX[v] : sp!.name}</span>
+      <span className="hs-card__name">{v ? LUX[v] : tx(sp!.name)}</span>
     </span>
   );
 }
@@ -63,6 +64,7 @@ function preview(v: HighSocietyView, q: { type: string; cards?: number[] } | nul
 }
 
 export default function HighSocietyRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<HighSocietyView>) {
+  useTermsLang(); // re-render when the terms language changes
   const q = queued as { type: string; cards?: number[] } | null | undefined;
   const view = preview(served, q, mySeat);
   const root = useRef<HTMLDivElement>(null);
@@ -82,7 +84,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
   const status_ = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: disgrace ? 'پول بگذارید یا کنار بکشید و رسوایی را بپذیرید' : 'پیشنهاد بالاتر بدهید یا کنار بکشید' }
+    : myTurn ? { tone: 'mine' as const, text: disgrace ? `پول بگذارید یا کنار بکشید و ${tx(terms.disgrace)} را بپذیرید` : `${tx(terms.bid)} بالاتر بدهید یا کنار بکشید` }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
   const last = view.last;
   const framed = useInFrame() !== null; // the shell draws seats, scores, whose-turn and the events log
@@ -102,8 +104,8 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
           <div className="hs__lamps" title="با چهارمین کارت قاب‌قرمز بازی تمام می‌شود">{[0, 1, 2, 3].map((k) => <i key={`${k}${k < view.red}`} className={k < view.red ? 'on bg-pop' : ''} />)}<span>قاب قرمز: {fa(view.red)} از ۴</span></div>
           <Card c={view.card} key={view.seq + view.card} flip={`c-${view.card === 'prestige' ? 'prestige.stage' : view.card}`} flipFrom="deck" />
           <div className="hs__terms">
-            {disgrace ? <>رسوایی: <b>اولین کسی که کنار بکشد</b> آن را می‌گیرد؛ بقیه پولشان را از دست می‌دهند</> : <>آخرین نفر باقی‌مانده می‌خرد</>}
-            {view.high > 0 && <>، بالاترین پیشنهاد <b className="hs__high bg-pop" key={view.high}>{fa(view.high)}</b></>}
+            {disgrace ? <><T t={terms.disgrace} />: <b>اولین کسی که کنار بکشد</b> آن را می‌گیرد؛ بقیه پولشان را از دست می‌دهند</> : <>آخرین نفر باقی‌مانده می‌خرد</>}
+            {view.high > 0 && <>، بالاترین <T t={terms.bid} /> <b className="hs__high bg-pop" key={view.high}>{fa(view.high)}</b></>}
           </div>
           <span className="hs__deck" data-flip-anchor="deck"><span key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</span> کارت در دسته</span>
         </section>
@@ -111,7 +113,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
 
       {!framed && last && !view.outcome && (
         <p className="hs__last" role="status" key={view.seq}>
-          <bdi>{who(last.seat)}</bdi> «{lux(last.card) ? LUX[lux(last.card)] : SPECIAL[last.card]!.name}» را {isDisgrace(last.card) ? 'گرفت' : 'برد'}{last.paid ? ` (${fa(last.paid)} داد)` : ''}{last.lost ? ` و «${LUX[lux(last.lost)]}» را از دست داد` : ''}
+          <bdi>{who(last.seat)}</bdi> «{lux(last.card) ? LUX[lux(last.card)] : tx(SPECIAL[last.card]!.name)}» را {isDisgrace(last.card) ? 'گرفت' : 'برد'}{last.paid ? ` (${fa(last.paid)} داد)` : ''}{last.lost ? ` و «${LUX[lux(last.lost)]}» را از دست داد` : ''}
         </p>
       )}
 
@@ -129,7 +131,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
                 <span className="hs-pl__status" title="امتیاز">★ {fmtStatus(status(view.won[s]!))}</span>
                 {view.money ? <span key={view.money[s]} className={`hs-pl__money bg-pop ${poorest ? 'hs-pl__money--out' : ''}`}>{fa(view.money[s]!)} پول{poorest ? '، کم‌پول‌ترین' : ''}</span>
                   : <span className="hs-pl__meta">{fa(view.handCount[s]!)} اسکناس</span>}
-                {view.faux[s] && <span className="hs-pl__flag">گاف در انتظار</span>}
+                {view.faux[s] && <span className="hs-pl__flag"><T t={terms.faux} /> در انتظار</span>}
                 {!view.outcome && view.passed[s] && <span className="hs-pl__flag">کنار کشید</span>}
               </div>}
               {!view.outcome && view.bids[s]!.length > 0 && <div className="hs-pl__bid">{view.bids[s]!.map((v) => <Note key={v} v={v} size="sm" flip={`n-${s}-${v}`} flipFrom={`seat-${s}`} exit="drop" />)}</div>}
@@ -151,7 +153,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
           {myTurn && (
             <div className="hs__actions" data-need={bidHint?.need ?? ''}>
               {bidHint && <Button size="sm" disabled={busy || total < bidHint.need} className={hint?.type === 'bid' && total >= bidHint.need ? 'hs-hint' : ''}
-                onClick={() => onAction({ type: 'bid', cards: chosen })}>پیشنهاد {fa(myBid + total)}{total < bidHint.need ? ` (حداقل ${fa(myBid + bidHint.need)})` : ''}</Button>}
+                onClick={() => onAction({ type: 'bid', cards: chosen })}><T t={terms.bid} /> {fa(myBid + total)}{total < bidHint.need ? ` (حداقل ${fa(myBid + bidHint.need)})` : ''}</Button>}
               {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'hs-hint' : ''} onClick={() => onAction({ type: 'pass' })}>{disgrace ? 'کنار می‌کشم (کارت را می‌گیرم)' : 'کنار می‌کشم'}</Button></DockSlot>}
             </div>
           )}

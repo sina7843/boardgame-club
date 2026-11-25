@@ -2,7 +2,8 @@
 // Place: tap a bug in your reserve, then a lit spot. Move: tap one of your pieces, then a lit destination.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
+import { RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePieceIds, usePop, useTermsLang, tx, type Term, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import tileWQ from './art/hive-white-queen.png';
 import iconWQ from './art/hive-white-queen-icon.png';
 import tileWS from './art/hive-white-spider.png';
@@ -29,7 +30,8 @@ import { DIRS, START_RESERVE, destinations, key, parse, placements, type Bug, ty
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const R = 46;
-const BUG_FA: Record<Bug, string> = { Q: 'ملکه زنبور', S: 'عنکبوت', B: 'سوسک', G: 'ملخ', A: 'مورچه' };
+const BUG_T: Record<Bug, Term> = { Q: terms.queen, S: terms.spider, B: terms.beetle, G: terms.grasshopper, A: terms.ant };
+const bugName = (b: Bug) => tx(BUG_T[b]);
 const TILE: Record<Color, Record<Bug, string>> = { w: { Q: tileWQ, S: tileWS, B: tileWB, G: tileWG, A: tileWA }, b: { Q: tileBQ, S: tileBS, B: tileBB, G: tileBG, A: tileBA } };
 const ICON: Record<Color, Record<Bug, string>> = { w: { Q: iconWQ, S: iconWS, B: iconWB, G: iconWG, A: iconWA }, b: { Q: iconBQ, S: iconBS, B: iconBB, G: iconBG, A: iconBA } };
 // Tile art is 130 px with the hexagon ≈ 0.585 of it wide; neighbours are √3·R apart, so the image is √3·R / 0.585 across.
@@ -69,6 +71,7 @@ const WIDE = '(min-width: 900px)';
 const useWide = () => useSyncExternalStore((f) => { const q = matchMedia(WIDE); q.addEventListener('change', f); return () => q.removeEventListener('change', f); }, () => matchMedia(WIDE).matches, () => true);
 
 export default function HiveRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<HiveView>) {
+  useTermsLang(); // re-render when the terms language changes
   const framed = useInFrame() !== null; // the shell draws players, the opponent's reserve count, turn number and whose-turn
   const wide = useWide();
   const inRail = framed && wide;
@@ -129,7 +132,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : canPlace || canMove ? { tone: 'mine' as const, text: mustQueen ? 'نوبت چهارم: باید ملکه را بگذارید' : bug ? `جای ${BUG_FA[bug]} را انتخاب کنید` : from ? 'مقصد را بزنید' : 'نوبت شما: بگذارید یا حرکت دهید' }
+    : canPlace || canMove ? { tone: 'mine' as const, text: mustQueen ? `نوبت چهارم: باید ${tx(terms.queenShort)} را بگذارید` : bug ? `جای ${bugName(bug)} را انتخاب کنید` : from ? 'مقصد را بزنید' : 'نوبت شما: بگذارید یا حرکت دهید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
   const myReserve = <Reserve view={view} color={myColor} label="ذخیره شما" selected={bug} onPick={canPlace ? (b) => { setFrom(null); setBug(bug === b ? null : b); } : undefined}
@@ -142,7 +145,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>{mustQueen ? 'نوبت چهارم شماست: ملکه را باید همین حالا بگذارید.' : 'هر نوبت یا یک مهرهٔ تازه می‌گذارید (کنار مهره‌های خودتان، نه کنار حریف) یا یک مهره را حرکت می‌دهید؛ کندو نباید دو تکه شود، و تا ملکه روی میز نیست مهره‌ای حرکت نمی‌کند.'}</p>
+          <p>{mustQueen ? `نوبت چهارم شماست: ${tx(terms.queenShort)} را باید همین حالا بگذارید.` : `هر نوبت یا یک مهرهٔ تازه می‌گذارید (کنار مهره‌های خودتان، نه کنار حریف) یا یک مهره را حرکت می‌دهید؛ کندو نباید دو تکه شود، و تا ${tx(terms.queenShort)} روی میز نیست مهره‌ای حرکت نمی‌کند.`}</p>
           {lastPass && !view.outcome && <p role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت؛ نوبتش رد شد`}</p>}
           {inRail && <div className="hv-rres">
             <div className="hv-rres__row"><span className="hv-rres__lab">ذخیرهٔ شما <b>{fa(left(myColor))}</b></span>{myReserve}</div>
@@ -178,7 +181,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
             const isHint = hint?.type === 'move' && !from && key(hint.from) === k;
             return (
               <g key={k} data-hex={k} role="gridcell" tabIndex={mine ? 0 : -1}
-                aria-label={`${BUG_FA[topPiece.t]} ${topPiece.c === myColor ? 'شما' : 'حریف'}${stack.length > 1 ? `، ${fa(stack.length)} مهره روی هم` : ''}${isSel ? '، انتخاب‌شده' : ''}`}
+                aria-label={`${bugName(topPiece.t)} ${topPiece.c === myColor ? 'شما' : 'حریف'}${stack.length > 1 ? `، ${fa(stack.length)} مهره روی هم` : ''}${isSel ? '، انتخاب‌شده' : ''}`}
                 className={['hv-cell', mine ? 'hv-cell--mine' : '', isSel ? 'hv-cell--sel' : '', isHint ? 'hv-cell--hint' : '',
                   topPiece.t === 'Q' && surrounded.has(topPiece.c) ? 'hv-cell--trapped' : ''].join(' ')}
                 onClick={() => tapCell(hx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
@@ -196,12 +199,13 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
 
       {!inRail && myReserve}
       {!framed && lastPass && !view.outcome && <p className="hv__note" role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت و نوبتش رد شد`}</p>}
-      {!framed && view.end && <p className="hv__end" role="status">{{ queen: 'ملکه محاصره شد!', draw: 'مساوی', resign: 'انصراف', timeout: 'اتمام زمان', limit: '۳۰۰ نوبت بدون نتیجه — مساوی' }[view.end.kind]}</p>}
+      {!framed && view.end && <p className="hv__end" role="status">{{ queen: `${tx(terms.queenShort)} محاصره شد!`, draw: 'مساوی', resign: 'انصراف', timeout: 'اتمام زمان', limit: '۳۰۰ نوبت بدون نتیجه — مساوی' }[view.end.kind]}</p>}
     </div>
   );
 }
 
 function Reserve({ view, color, label, selected, onPick, only, hint, small }: { view: HiveView; color: Color; label: string; selected?: Bug | null; onPick?: (b: Bug) => void; only?: Bug; hint?: Bug; small?: boolean }) {
+  useTermsLang();
   return (
     <div className={small ? 'hv-reserve hv-reserve--small' : 'hv-reserve'} role="group" aria-label={label}>
       {(Object.keys(START_RESERVE) as Bug[]).map((b) => {
@@ -214,8 +218,8 @@ function Reserve({ view, color, label, selected, onPick, only, hint, small }: { 
           </>
         );
         return onPick
-          ? <button key={b} type="button" disabled={!enabled} aria-pressed={selected === b} aria-label={`${BUG_FA[b]}، ${fa(n)} عدد`} className={['hv-reserve__item', hint === b ? 'hv-reserve__item--hint' : ''].join(' ')} onClick={() => onPick(b)}>{body}</button>
-          : <span key={b} className="hv-reserve__item" aria-label={`${BUG_FA[b]}، ${fa(n)} عدد`}>{body}</span>;
+          ? <button key={b} type="button" disabled={!enabled} aria-pressed={selected === b} aria-label={`${bugName(b)}، ${fa(n)} عدد`} className={['hv-reserve__item', hint === b ? 'hv-reserve__item--hint' : ''].join(' ')} onClick={() => onPick(b)}>{body}</button>
+          : <span key={b} className="hv-reserve__item" aria-label={`${bugName(b)}، ${fa(n)} عدد`}>{body}</span>;
       })}
     </div>
   );

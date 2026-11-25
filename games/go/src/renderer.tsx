@@ -2,7 +2,8 @@
 // Play: tap an intersection. Scoring: tap a group to mark it dead/alive; territory and the running score are shown.
 import './renderer.css';
 import { useSyncExternalStore } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, useTermsLang, tx, type GameRendererProps, DockSlot } from '@bg/ui';
+import { terms } from './terms.ts';
 import stoneB from './art/go-black.png';
 import stoneW from './art/go-white.png';
 import boardArt9 from './art/go-board-9.png';
@@ -23,6 +24,7 @@ const WIDE = '(min-width: 900px)';
 const useWide = () => useSyncExternalStore((f) => { const q = matchMedia(WIDE); q.addEventListener('change', f); return () => q.removeEventListener('change', f); }, () => matchMedia(WIDE).matches, () => true);
 
 export default function GoRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<GoView>) {
+  useTermsLang(); // re-render when the terms language changes
   const framed = useInFrame() !== null; // the shell draws players, captures, score and whose-turn
   const wide = useWide();
   const n = real.size;
@@ -52,10 +54,10 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : scoring ? { tone: (mySeat !== null && !view.accepted[mySeat] ? 'mine' : 'wait') as 'mine' | 'wait', text: mySeat !== null && !view.accepted[mySeat] ? 'شمارش: گروه‌های مرده را بزنید و تأیید کنید' : 'منتظر تأیید حریف' }
-      : canPlace ? { tone: 'mine' as const, text: view.passes ? 'حریف پاس داد؛ بگذارید یا پاس بدهید' : 'نوبت شما: روی یک تقاطع بگذارید' }
+      : canPlace ? { tone: 'mine' as const, text: view.passes ? `حریف ${tx(terms.pass)} داد؛ بگذارید یا ${tx(terms.pass)} بدهید` : 'نوبت شما: روی یک تقاطع بگذارید' }
         : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
-  const passBtn = has('pass') ? <Button key="pass" className="go-passbtn" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پاس</Button> : null;
+  const passBtn = has('pass') ? <Button key="pass" className="go-passbtn" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>{tx(terms.pass)}</Button> : null;
   const acceptBtn = has('accept') ? <Button key="acc" disabled={busy} onClick={() => onAction({ type: 'accept' })}>تأیید شمارش</Button> : null;
   const resumeBtn = has('resume') ? <Button key="res" variant="ghost" disabled={busy} onClick={() => onAction({ type: 'resume' })}>ادامه بازی</Button> : null;
 
@@ -66,8 +68,8 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
           {scoring && (['b', 'w'] as Stone[]).map((c) => view.accepted[seatOf(c)] && <p key={c} className="go-side__ok"><bdi>{who(c)}</bdi> شمارش را تأیید کرد</p>)}
-          <p className="go-pts"><span>کومی سفید <b>{fa(view.komi)}</b></span><span>اسیر <b>{fa(view.captures.b)}</b> سیاه<span className="go-sep" aria-hidden />{fa(view.captures.w)} سفید</span></p>
-          <p>{scoring ? 'سنگ‌های مرده را با زدن روی گروهشان علامت بزنید؛ قلمرو و امتیاز با کومی همین حالا شمرده می‌شود. هر دو باید تأیید کنند.' : 'سنگ یا گروهی که آخرین آزادی‌اش پر شود گرفته می‌شود. نمی‌شود وضعیت قبلی صفحه را تکرار کرد (کو). دو پاس پشت‌سرهم شمارش را شروع می‌کند.'}</p>
+          <p className="go-pts"><span>{tx(terms.komi)} سفید <b>{fa(view.komi)}</b></span><span>{tx(terms.capture)} <b>{fa(view.captures.b)}</b> سیاه<span className="go-sep" aria-hidden />{fa(view.captures.w)} سفید</span></p>
+          <p>{scoring ? `سنگ‌های مرده را با زدن روی گروهشان علامت بزنید؛ ${tx(terms.territory)} و امتیاز با ${tx(terms.komi)} همین حالا شمرده می‌شود. هر دو باید تأیید کنند.` : `سنگ یا گروهی که آخرین ${tx(terms.liberty)}‌اش پر شود گرفته می‌شود. نمی‌شود وضعیت قبلی صفحه را تکرار کرد (${tx(terms.ko)}). دو ${tx(terms.pass)} پشت‌سرهم شمارش را شروع می‌کند.`}</p>
           <section className="go-ml" aria-label="حرکت‌ها">
             <h3>حرکت‌ها<span className="go-ml__note">ستون {COLS[0]} تا {COLS[n - 1]} (بدون I)، ردیف ۱ تا {fa(n)}</span></h3>
             <div className="go-ml__grid" role="list">
@@ -76,7 +78,7 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
                 <span key={`n${r}`} className="go-ml__n">{fa(r + 1)}.</span>,
                 ...[0, 1].map((k) => {
                   const h = real.history[r * 2 + k];
-                  const text = !h ? '' : h.at === null ? 'پاس' : `${COLS[h.at % n]}${n - Math.floor(h.at / n)}`;
+                  const text = !h ? '' : h.at === null ? tx(terms.pass) : `${COLS[h.at % n]}${n - Math.floor(h.at / n)}`;
                   return <bdi key={`${r}-${k}`} role="listitem" dir={h?.at === null ? 'rtl' : 'ltr'} className={r * 2 + k === real.history.length - 1 ? 'go-ml__m is-cur' : 'go-ml__m'}>{text}</bdi>;
                 })
               ]).flat().slice(-90)}
@@ -92,7 +94,7 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
           <div key={c} className={['go-side', view.turn === c && view.phase === 'play' && !view.outcome ? 'go-side--turn' : ''].join(' ')}>
             <span className={`go-side__stone go-side__stone--${c}`} aria-hidden="true" />
             <bdi className="go-side__name">{who(c)}</bdi>
-            <Pop n={view.captures[c]} className="go-side__stat">اسیر {fa(view.captures[c])}{c === 'w' ? `، کومی ${fa(view.komi)}` : ''}</Pop>
+            <Pop n={view.captures[c]} className="go-side__stat">{tx(terms.capture)} {fa(view.captures[c])}{c === 'w' ? `، ${tx(terms.komi)} ${fa(view.komi)}` : ''}</Pop>
             {(live || view.score) && <Pop n={(live ?? view.score!)[c]} as="strong" className="go-side__score">{fa((live ?? view.score!)[c])}</Pop>}
             {scoring && view.accepted[seatOf(c)] && <span className="go-side__ok">تأیید کرد</span>}
           </div>
@@ -139,7 +141,7 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
 
       {!framed && <div className="go__actions">{passBtn}{acceptBtn}{resumeBtn}</div>}
       {!framed && view.score && view.outcome && (
-        <p className="go__end" role="status">سیاه {fa(view.score.b)} — سفید {fa(view.score.w)} (با کومی)</p>
+        <p className="go__end" role="status">سیاه {fa(view.score.b)} — سفید {fa(view.score.w)} (با {tx(terms.komi)})</p>
       )}
     </div>
   );

@@ -4,7 +4,7 @@
 // paid along the row), tap an order to deliver it.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
 import spiceY from './art/century-spice-y.png';
 import spiceR from './art/century-spice-r.png';
 import spiceG from './art/century-spice-g.png';
@@ -13,6 +13,7 @@ import cubeY from './art/century-cube-y.png';
 import cubeR from './art/century-cube-r.png';
 import cubeG from './art/century-cube-g.png';
 import cubeB from './art/century-cube-b.png';
+import { terms } from './terms.ts';
 import { MERCHANTS, ORDERS, SPICES, scoreOf, upgrade, type Bag, type CenturyView, type Spice } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -41,10 +42,11 @@ export function Cubes({ bag, size = 'md', fid, from, exit }: { bag: Bag; size?: 
  * Cubes keep the same motion ids as `Cubes` (fid + spice + index).
  */
 function Caravan({ bag, fid }: { bag: Bag; fid: string }) {
+  useTermsLang();
   const list = SPICES.flatMap((s) => Array.from({ length: bag[s] }, (_, i) => [s, i] as const));
   const label = SPICES.filter((s) => bag[s] > 0).map((s) => `${fa(bag[s])} ${SPICE_FA[s]}`).join('، ') || 'خالی';
   return (
-    <span className="ct-cv" role="img" aria-label={`کاروان: ${label} (${fa(list.length)} از ۱۰)`}>
+    <span className="ct-cv" role="img" aria-label={`${tx(terms.caravan)}: ${label} (${fa(list.length)} از ۱۰)`}>
       {Array.from({ length: Math.max(10, list.length) }, (_, k) => {
         const c = list[k];
         return (
@@ -58,12 +60,13 @@ function Caravan({ bag, fid }: { bag: Bag; fid: string }) {
 }
 
 export function MerchantCard({ id }: { id: number }) {
+  useTermsLang();
   const m = MERCHANTS[id]!;
   return (
     <span className={`ct-card ct-card--${m.kind}`}>
       {m.kind === 'spice' && <><small>ادویه</small><Cubes bag={m.gain} /></>}
-      {m.kind === 'upgrade' && <><small>ارتقا</small><b className="ct-up">{'▲'.repeat(m.n)}</b></>}
-      {m.kind === 'trade' && <><small>معاوضه</small><span className="ct-trade"><Cubes bag={m.give} size="sm" /><b>⇣</b><Cubes bag={m.gain} size="sm" /></span></>}
+      {m.kind === 'upgrade' && <><small><T t={terms.upgrade} /></small><b className="ct-up">{'▲'.repeat(m.n)}</b></>}
+      {m.kind === 'trade' && <><small><T t={terms.trade} /></small><span className="ct-trade"><Cubes bag={m.give} size="sm" /><b>⇣</b><Cubes bag={m.gain} size="sm" /></span></>}
     </span>
   );
 }
@@ -125,6 +128,7 @@ function Bump({ v, className, children }: { v: unknown; className: string; child
 const cheapest = (bag: Bag, n: number) => { const b = { ...bag }; const out: Spice[] = []; for (let k = 0; k < n; k++) { const s = SPICES.find((x) => b[x] > 0); if (!s) break; b[s] -= 1; out.push(s); } return out; };
 
 export default function CenturyRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction: send, expected, queued }: GameRendererProps<CenturyView>) {
+  useTermsLang(); // re-render when the terms language changes
   const me = mySeat ?? -1;
   const view = preview(served, me, queued);
   // Cards glide market → hand → played pile and back on rest; spice cubes fly onto market cards from the paying caravan.
@@ -187,10 +191,10 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
               </button>
             ))}
           </section>
-          <section className="ct__market" aria-label="تاجرها">
+          <section className="ct__market" aria-label={tx(terms.merchants)}>
             {view.market.map((x, i) => (
               <button key={x.card} type="button" data-flip={`m${x.card}`} data-flip-exit={`seat-${view.current}`} className={['ct-slot', acquire.has(i) ? 'ct-slot--can' : ''].join(' ')} disabled={!acquire.has(i) || busy}
-                onClick={() => myCubes && onAction({ type: 'acquire', slot: i, pay: cheapest(myCubes, i) })} aria-label={`استخدام تاجر ${fa(i + 1)}${i > 0 ? `، ${fa(i)} ادویه` : '، رایگان'}`}>
+                onClick={() => myCubes && onAction({ type: 'acquire', slot: i, pay: cheapest(myCubes, i) })} aria-label={`استخدام ${tx(terms.merchant)} ${fa(i + 1)}${i > 0 ? `، ${fa(i)} ادویه` : '، رایگان'}`}>
                 <MerchantCard id={x.card} />
                 {x.cubes.y + x.cubes.r + x.cubes.g + x.cubes.b > 0 && <span className="ct-on"><Cubes bag={x.cubes} size="sm" fid={`mk${x.card}`} from={view.last?.kind === 'acquire' ? `seat-${view.last.seat}` : undefined} /></span>}
                 <small className="ct-cost" aria-hidden>{fa(i)}</small>
@@ -209,7 +213,7 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
             </div>
             <div className="ct-pl__board">
               <div className={framed ? 'ct-pl__card ct-pl__card--mini' : 'ct-pl__card'}>
-                <small className="ct-pl__cap">کاروان <Bump className="ct-caravan__n" v={view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b}>{fa(view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b)}/۱۰</Bump></small>
+                <small className="ct-pl__cap"><T t={terms.caravan} /> <Bump className="ct-caravan__n" v={view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b}>{fa(view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b)}/۱۰</Bump></small>
                 {framed && s !== mySeat ? <Cubes bag={view.cubes[s]!} size="sm" fid={`cv${s}`} /> : <Caravan bag={view.cubes[s]!} fid={`cv${s}`} />}
               </div>
               <div className="ct-pl__side">
@@ -238,23 +242,23 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
               <span>چند بار؟</span>
               <button type="button" onClick={() => setTimes(Math.max(1, times - 1))} disabled={times <= 1}>−</button><b>{fa(times)}</b>
               <button type="button" onClick={() => setTimes(Math.min(maxTimes, times + 1))} disabled={times >= maxTimes}>+</button>
-              <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'play', card: pick!, times })}>معاوضه</Button>
+              <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'play', card: pick!, times })}><T t={terms.trade} /></Button>
             </div>
           )}
           {pickM?.kind === 'upgrade' && (
             <div className="ct__tool">
-              <span>ارتقا ({fa(ups.length)} از {fa(pickM.n)}):</span>
+              <span><T t={terms.upgrade} /> ({fa(ups.length)} از {fa(pickM.n)}):</span>
               {(['y', 'r', 'g'] as Spice[]).map((x) => (
-                <button key={x} type="button" className="ct-cube--btn" title={SPICE_FA[x]} aria-label={`ارتقای ${SPICE_FA[x]}`}
+                <button key={x} type="button" className="ct-cube--btn" title={SPICE_FA[x]} aria-label={`${tx(terms.upgrade)} ${SPICE_FA[x]}`}
                   disabled={ups.length >= pickM.n || !upgrade(myCubes!, [...ups, x])} onClick={() => setUps([...ups, x])}><img src={ART[x]} alt="" draggable={false} /></button>
               ))}
               {upPreview && <span className="ct__preview">← <Cubes bag={upPreview} size="sm" /></span>}
               <Button size="sm" variant="secondary" onClick={() => setUps([])} disabled={!ups.length}>از نو</Button>
-              <Button size="sm" disabled={!ups.length || busy} onClick={() => onAction({ type: 'play', card: pick!, upgrades: ups })}>ارتقا</Button>
+              <Button size="sm" disabled={!ups.length || busy} onClick={() => onAction({ type: 'play', card: pick!, upgrades: ups })}><T t={terms.upgrade} /></Button>
             </div>
           )}
           <div className="ct__actions">
-            {canRest && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'rest' ? 'ct-hint' : ''} onClick={() => onAction({ type: 'rest' })}>استراحت ({fa(view.played[me]!.length)} کارت برمی‌گردد)</Button></DockSlot>}
+            {canRest && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'rest' ? 'ct-hint' : ''} onClick={() => onAction({ type: 'rest' })}><T t={terms.rest} /> ({fa(view.played[me]!.length)} کارت برمی‌گردد)</Button></DockSlot>}
             {disc && myCubes && <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'discard', cubes: cheapest(myCubes, disc.count) })}>کنار گذاشتن {fa(disc.count)} ادویهٔ ارزان</Button>}
           </div>
           {view.played[me]!.length > 0 && <div className="ct__played"><small>بازی‌شده:</small>{view.played[me]!.map((id) => <span key={id} data-flip={`m${id}`}><MerchantCard id={id} /></span>)}</div>}

@@ -2,13 +2,14 @@
 // if it has one move it plays at once, otherwise tap the highlighted squares (jump by jump) until the move is unique.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Button, DockSlot, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFresh, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFresh, useInFrame, usePop, useTermsLang, tx, type GameRendererProps } from '@bg/ui';
 import { Button as DsButton } from '@bg/ui/bgv';
 import manD from './art/checkers-black-man.png';
 import kingD from './art/checkers-black-king.png';
 import manL from './art/checkers-white-man.png';
 import kingL from './art/checkers-white-king.png';
 import boardArt from './art/checkers-board.png';
+import { terms } from './terms.ts';
 import { colOf, notation, rowOf, type CheckersView, type Color, type Move, type Piece } from './rules.ts';
 
 /** My queued move applied locally (undo window): the path is mine, captures are the pieces jumped, a man ending on the last row crowns. */
@@ -52,6 +53,7 @@ function Stat({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 export default function CheckersRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CheckersView>) {
+  useTermsLang(); // re-render when the terms language changes
   const framed = useInFrame() !== null; // the shell draws players, piece counts, turn and the move list
   const wide = useWide();
   const myColor: Color = mySeat === null ? 'd' : view.colors[mySeat]!;
@@ -152,7 +154,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>{view.variant === 'brazilian' ? <><b>قوانین برزیلی:</b> مهره و شاه به عقب هم می‌زنند و شاه پرنده است؛ زدن بیشترین مهره اجباری است.</> : <><b>قوانین انگلیسی: گرفتن اجباری است.</b> مهره فقط به جلو و مورب می‌رود. مهره‌ای که به ردیف آخر برسد شاه می‌شود و نوبت تمام می‌شود.</>}</p>
+          <p>{view.variant === 'brazilian' ? <><b>قوانین برزیلی:</b> مهره و {tx(terms.king)} به عقب هم می‌زنند و {tx(terms.flyingKing)} است؛ زدن بیشترین مهره اجباری است.</> : <><b>قوانین انگلیسی: گرفتن اجباری است.</b> مهره فقط به جلو و مورب می‌رود. مهره‌ای که به ردیف آخر برسد {tx(terms.king)} می‌شود و نوبت تمام می‌شود.</>}</p>
           <section className="ck-ml" aria-label="حرکت‌ها">
             <h3>حرکت‌ها<span className="ck-ml__note">شمارهٔ خانه‌ها ۱ تا ۳۲</span></h3>
             <div className="ck-ml__grid" role="list">
@@ -173,7 +175,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
           <div key={c} className={['ck-side', view.turn === c && !view.outcome ? 'ck-side--turn' : ''].join(' ')}>
             <span className={`ck-side__chip ck-side__chip--${c}`} aria-hidden="true" />
             <bdi className="ck-side__name">{who(c)}</bdi>
-            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? `، ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} شاه` : ''}</Stat>
+            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? `، ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} ${tx(terms.king)}` : ''}</Stat>
             <span className="ck-side__caps" aria-label={`${fa(captured[c === 'd' ? 'l' : 'd'])} مهره زده`}>
               <Caps n={captured[c === 'd' ? 'l' : 'd']} color={c === 'd' ? 'l' : 'd'} />
             </span>
@@ -261,7 +263,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
   );
 }
 
-const pieceFa = (p: Piece, mine: Color) => `${(p.toLowerCase() === mine) ? 'مهره شما' : 'مهره حریف'}${p === 'D' || p === 'L' ? ' (شاه)' : ''}`;
+const pieceFa = (p: Piece, mine: Color) => `${(p.toLowerCase() === mine) ? 'مهره شما' : 'مهره حریف'}${p === 'D' || p === 'L' ? ` (${tx(terms.king)})` : ''}`;
 
 function Disc({ x, y, p }: { x: number; y: number; p: Piece }) {
   const w = S * 0.82;

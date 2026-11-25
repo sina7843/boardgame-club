@@ -4,7 +4,7 @@
 // then «ثبت». Only the projection is shown: other players' clues and the answer appear only after the game ends.
 import './renderer.css';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, T, tx, useTermsLang, type GameRendererProps } from '@bg/ui';
 import cubeB from './art/cryptid-cube-b.png';
 import cubeT from './art/cryptid-cube-t.png';
 import cubeY from './art/cryptid-cube-y.png';
@@ -22,6 +22,7 @@ import artCryptid from './art/cryptid.webp';
 import artStone from './art/stone.webp';
 import artShack from './art/shack.webp';
 import artParchment from './art/parchment.webp';
+import { terms } from './terms.ts';
 import { COLORS, COLS, ROWS, TERRAINS, type Clue, type CryptidView, type LogEntry, type SColor, type Target, type Terrain } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -34,7 +35,7 @@ const COLOR_HEX: Record<SColor, string> = { white: '#f4f1e8', green: '#2fa35a', 
 const colorMark = (c: SColor, x: number, y: number) => c === 'green' ? <path d={`M${x} ${y - 2.6} L${x + 2.6} ${y + 2} L${x - 2.6} ${y + 2} Z`} className="cr-mark" />
   : c === 'blue' ? <circle cx={x} cy={y} r="2.3" className="cr-mark" />
     : c === 'black' ? <rect x={x - 2} y={y - 2} width="4" height="4" className="cr-mark" /> : null;
-const TARGET_FA: Record<string, string> = { ...TERRAIN_FA, animal: 'قلمرو یکی از جانوران', bear: 'قلمرو خرس', cougar: 'قلمرو پوما', stone: 'سنگ ایستاده', shack: 'کلبهٔ متروک' };
+const targetFa = (k: string): string => ({ animal: `${tx(terms.territory)} یکی از جانوران`, bear: `${tx(terms.territory)} خرس`, cougar: `${tx(terms.territory)} پوما`, stone: tx(terms.standingStone), shack: tx(terms.abandonedShack) } as Record<string, string>)[k] ?? TERRAIN_FA[k as Terrain];
 export const SEAT_COLOR = ['#d8433b', '#3a7be0', '#e9b52c', '#9b59c9', '#21a597'];
 /** Handoff pieces exist in blue, teal and yellow only. Seats 0 (red) and 3 (purple) reuse the blue piece hue-shifted: a placeholder until their art arrives. */
 const PIECE = [{ i: 'b', hue: 150 }, { i: 'b', hue: 0 }, { i: 'y', hue: 0 }, { i: 'b', hue: 60 }, { i: 't', hue: 0 }] as const;
@@ -45,7 +46,7 @@ const SEAT_FA = ['قرمز', 'آبی', 'زرد', 'بنفش', 'فیروزه‌ا�
 export function clueFa(c: Clue): string {
   const n = c.not ? 'نه ' : '';
   if (c.d === 0) return `${n}روی ${TERRAIN_FA[c.a as Terrain]} یا ${TERRAIN_FA[c.b!]}`;
-  const what = c.d === 3 ? `سازهٔ ${COLOR_FA[c.a as SColor]}` : TARGET_FA[c.a as Target]!;
+  const what = c.d === 3 ? `سازهٔ ${COLOR_FA[c.a as SColor]}` : targetFa(c.a);
   return `${n}در فاصلهٔ ${fa(c.d)} خانه از ${what}`;
 }
 export const cellFa = (i: number) => `ستون ${fa((i % COLS) + 1)}، ردیف ${fa(Math.floor(i / COLS) + 1)}`;
@@ -58,8 +59,8 @@ const W = PAD + R * (1.5 * (COLS - 1) + 2) + 4, HT = PAD + H * (ROWS + 0.5) + 4;
 
 function describe(e: LogEntry, who: (s: number) => string): string {
   switch (e.t) {
-    case 'cube': return `${who(e.seat)} مکعب گذاشت روی ${cellFa(e.cell)}${e.opening ? ' (شروع بازی)' : ''}${e.auto ? ' — خودکار، پایان زمان' : ''}.`;
-    case 'question': return `${who(e.seat)} از ${who(e.target)} دربارهٔ ${cellFa(e.cell)} پرسید: ${e.yes ? 'بله (دیسک)' : 'نه (مکعب)'}.`;
+    case 'cube': return `${who(e.seat)} ${tx(terms.cube)} گذاشت روی ${cellFa(e.cell)}${e.opening ? ' (شروع بازی)' : ''}${e.auto ? ' — خودکار، پایان زمان' : ''}.`;
+    case 'question': return `${who(e.seat)} از ${who(e.target)} دربارهٔ ${cellFa(e.cell)} پرسید: ${e.yes ? `بله (${tx(terms.disc)})` : `نه (${tx(terms.cube)})`}.`;
     case 'search': return `${who(e.seat)} ${cellFa(e.cell)} را جست‌وجو کرد: ${e.results.map((r) => `${who(r.seat)} ${r.yes ? 'تأیید' : 'رد'}`).join('، ') || '—'}${e.results.every((r) => r.yes) ? ' — جانور پیدا شد!' : '.'}`;
     case 'skip': return `زمان ${who(e.seat)} تمام شد و نوبتش رد شد.`;
     case 'out': return `${who(e.seat)} ${e.why === 'resign' ? 'انصراف داد' : 'به خاطر دو نوبت ازدست‌رفته حذف شد'}؛ سرنخش همچنان جواب می‌دهد.`;
@@ -69,6 +70,7 @@ function describe(e: LogEntry, who: (s: number) => string): string {
 type Mode = 'ask' | 'search';
 
 export default function CryptidRenderer({ view: served, legalActions: legal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CryptidView>) {
+  useTermsLang(); // re-render when the terms language changes
   // Undo-window preview: my queued cube, or the disc my search puts down first, is on the map at once. A question's
   // answer and the other players' search replies come from their secret clues, so those wait for the server.
   const qCell = mySeat !== null && (queued?.type === 'placeCube' || queued?.type === 'search') ? (queued.cell as number) : null;
@@ -123,7 +125,7 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
           <p><b>بازیکنان</b></p>
           <ul className="cr-railpl" aria-label="بازیکنان">
             {Array.from({ length: view.players }, (_, s) => (
-              <li key={s}><bdi>{who(s)}</bdi><span className="cr-dot" style={{ background: SEAT_COLOR[s] }} title={SEAT_FA[s]} /><span>{fa(view.discs.filter((d) => d.includes(s)).length)} دیسک<span className="bgv-sep" />{fa(view.cubes.filter((c) => c === s).length)} مکعب</span></li>
+              <li key={s}><bdi>{who(s)}</bdi><span className="cr-dot" style={{ background: SEAT_COLOR[s] }} title={SEAT_FA[s]} /><span>{fa(view.discs.filter((d) => d.includes(s)).length)} <T t={terms.disc} /><span className="bgv-sep" />{fa(view.cubes.filter((c) => c === s).length)} <T t={terms.cube} /></span></li>
             ))}
           </ul>
           <p>جواب «بله» دیسک و جواب «نه» مکعب است. جانور جایی است که همهٔ سرنخ‌ها قبولش دارند؛ با جست‌وجو و پرسش، سرنخ بقیه را بفهمید.</p>
@@ -133,8 +135,8 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
       {!framed && view.outcome && <TurnIndicator tone="done">{winner === mySeat ? 'شما جانور را پیدا کردید!' : `${who(winner!)} برنده شد`}</TurnIndicator>}
 
       {view.myClue && (
-        <section className="cr-clue" aria-label="سرنخ مخفی شما" style={{ backgroundImage: `url(${artParchment})` }}>
-          <span className="cr-clue__label">سرنخ مخفی شما</span>
+        <section className="cr-clue" aria-label={`${tx(terms.clue)} مخفی شما`} style={{ backgroundImage: `url(${artParchment})` }}>
+          <span className="cr-clue__label"><T t={terms.clue} /> مخفی شما</span>
           <b className="cr-clue__text">{clueFa(view.myClue)}</b>
         </section>
       )}
@@ -172,7 +174,7 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
       {framed && action && <DockSlot><Button disabled={busy} onClick={() => onAction(action)}>ثبت</Button></DockSlot>}
       {(action || (cube && sel === null)) && (
         <div className="cr-confirm-bar">
-          <span>{action ? `${action.type === 'placeCube' ? 'مکعب روی' : action.type === 'search' ? 'جست‌وجوی' : `پرسش از ${who(tgt!)} دربارهٔ`} ${cellFa(sel!)}` : 'خانهٔ مکعب را روی نقشه انتخاب کنید.'}</span>
+          <span>{action ? `${action.type === 'placeCube' ? `${tx(terms.cube)} روی` : action.type === 'search' ? 'جست‌وجوی' : `پرسش از ${who(tgt!)} دربارهٔ`} ${cellFa(sel!)}` : 'خانهٔ مکعب را روی نقشه انتخاب کنید.'}</span>
           {action && !framed && <Button size="sm" disabled={busy} className={['cr-confirm', same(action) ? 'cr-hint' : ''].join(' ')} onClick={() => onAction(action)}>ثبت</Button>}
         </div>
       )}
@@ -192,7 +194,7 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
           {view.cells.map((c, i) => {
             const { x, y } = center(i);
             const can = targets.has(i) && !busy;
-            const label = `${cellFa(i)}: ${TERRAIN_FA[c.terrain]}${c.animal ? `، قلمرو ${c.animal === 'bear' ? 'خرس' : 'پوما'}` : ''}${c.structure ? `، ${c.structure.kind === 'stone' ? 'سنگ ایستادهٔ' : 'کلبهٔ'} ${COLOR_FA[c.structure.color]}` : ''}${view.cubes[i] !== null ? `، مکعب ${who(view.cubes[i]!)}` : ''}${view.discs[i]!.length ? `، دیسک ${view.discs[i]!.map(who).join('، ')}` : ''}`;
+            const label = `${cellFa(i)}: ${TERRAIN_FA[c.terrain]}${c.animal ? `، ${tx(terms.territory)} ${c.animal === 'bear' ? 'خرس' : 'پوما'}` : ''}${c.structure ? `، ${c.structure.kind === 'stone' ? 'سنگ ایستادهٔ' : 'کلبهٔ'} ${COLOR_FA[c.structure.color]}` : ''}${view.cubes[i] !== null ? `، ${tx(terms.cube)} ${who(view.cubes[i]!)}` : ''}${view.discs[i]!.length ? `، ${tx(terms.disc)} ${view.discs[i]!.map(who).join('، ')}` : ''}`;
             return (
               <g key={i} className={['cr-cell', can ? 'cr-target-cell' : '', sel === i ? 'cr-sel' : '', hintCell === i && sel !== i ? 'cr-hint' : '', view.reveal?.answer === i ? 'cr-answer' : ''].join(' ')}
                 role={can ? 'button' : 'img'} tabIndex={can ? 0 : undefined} aria-label={label} aria-pressed={can ? sel === i : undefined}
@@ -232,13 +234,13 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
       {/* Framed: the legend is in the rules sheet; the rail card lists the players' markers (reference §1). */}
       {!framed && <ul className="cr-legend" aria-label="راهنمای نقشه">
         {TERRAINS.map((t) => <li key={t}><img src={TERRAIN_ART[t]} alt="" className="cr-swatch" />{TERRAIN_FA[t]}</li>)}
-        <li><img src={artBear} alt="" className="cr-swatch cr-swatch--icon" />قلمرو خرس (خط‌چین قهوه‌ای)</li>
-        <li><img src={artCougar} alt="" className="cr-swatch cr-swatch--icon" />قلمرو پوما (خط‌چین نارنجی)</li>
-        <li><img src={artStone} alt="" className="cr-swatch cr-swatch--icon" />سنگ ایستاده (ستون رنگی)</li>
-        <li><img src={artShack} alt="" className="cr-swatch cr-swatch--icon" />کلبهٔ متروک (خانهٔ رنگی)</li>
+        <li><img src={artBear} alt="" className="cr-swatch cr-swatch--icon" /><T t={terms.territory} /> خرس (خط‌چین قهوه‌ای)</li>
+        <li><img src={artCougar} alt="" className="cr-swatch cr-swatch--icon" /><T t={terms.territory} /> پوما (خط‌چین نارنجی)</li>
+        <li><img src={artStone} alt="" className="cr-swatch cr-swatch--icon" /><T t={terms.standingStone} /> (ستون رنگی)</li>
+        <li><img src={artShack} alt="" className="cr-swatch cr-swatch--icon" /><T t={terms.abandonedShack} /> (خانهٔ رنگی)</li>
         {(view.advanced ? COLORS : COLORS.slice(0, 3)).map((c) => <li key={c}><svg className="cr-key cr-key--svg" viewBox="-6 -6 12 12" aria-hidden="true"><rect x="-6" y="-6" width="12" height="12" fill={COLOR_HEX[c]} />{colorMark(c, 0, 0)}</svg>سازهٔ {COLOR_FA[c]}</li>)}
-        <li><img className="cr-swatch cr-swatch--icon" src={discB} alt="" />دیسک = بله</li>
-        <li><img className="cr-swatch cr-swatch--icon" src={cubeB} alt="" />مکعب = نه</li>
+        <li><img className="cr-swatch cr-swatch--icon" src={discB} alt="" /><T t={terms.disc} /> = بله</li>
+        <li><img className="cr-swatch cr-swatch--icon" src={cubeB} alt="" /><T t={terms.cube} /> = نه</li>
       </ul>}
 
       {!framed && <ul className="cr-players" aria-label="بازیکنان">
@@ -248,7 +250,7 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
             <li key={s} className={['cr-pl', view.current === s && !view.outcome ? 'cr-pl--turn' : '', s === mySeat ? 'cr-pl--me' : '', !view.active[s] ? 'cr-pl--out' : ''].join(' ')} aria-current={view.current === s && !view.outcome ? 'true' : undefined}>
               <span className="cr-dot" style={{ background: SEAT_COLOR[s] }} title={SEAT_FA[s]} />
               <bdi className="cr-pl__name">{who(s)}</bdi>
-              <span className="cr-pl__meta">{SEAT_FA[s]} (شمارهٔ {fa(s + 1)})<span className="bgv-sep" /> {fa(view.discs.filter((d) => d.includes(s)).length)} دیسک<span className="bgv-sep" /> {fa(view.cubes.filter((c) => c === s).length)} مکعب{!view.active[s] ? ' (بیرون)' : ''}{place ? `، رتبهٔ ${fa(place)}` : ''}</span>
+              <span className="cr-pl__meta">{SEAT_FA[s]} (شمارهٔ {fa(s + 1)})<span className="bgv-sep" /> {fa(view.discs.filter((d) => d.includes(s)).length)} <T t={terms.disc} /><span className="bgv-sep" /> {fa(view.cubes.filter((c) => c === s).length)} <T t={terms.cube} />{!view.active[s] ? ' (بیرون)' : ''}{place ? `، رتبهٔ ${fa(place)}` : ''}</span>
             </li>
           );
         })}

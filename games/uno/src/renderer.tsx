@@ -2,7 +2,8 @@
 // own hand within thumb reach. Shows only the projection; other hands are counts, never cards.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useTermsLang, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import { terms } from './terms.ts';
 import { COLORS, type Card, type Color, type LogEntry, type UnoView } from './rules.ts';
 import { CardBack, CardFace, cardLabel, COLOR_FA } from './cards.tsx';
 
@@ -12,15 +13,15 @@ type Hint = { type: string; card?: unknown; seat?: unknown; needsColor?: unknown
 function describe(e: LogEntry, name: (s: number) => string): string {
   switch (e.t) {
     case 'start': return `دست ${fa(e.hand)} شروع شد؛ کارت رو: ${cardLabel(e.top)}.`;
-    case 'play': return `${name(e.seat)} ${cardLabel(e.card)} گذاشت${e.card.color ? '' : ` و رنگ ${COLOR_FA[e.color]} را انتخاب کرد`}${e.uno ? ' و گفت «اونو!»' : ''}.`;
+    case 'play': return `${name(e.seat)} ${cardLabel(e.card)} گذاشت${e.card.color ? '' : ` و رنگ ${COLOR_FA[e.color]} را انتخاب کرد`}${e.uno ? ` و گفت «${tx(terms.uno)}!»` : ''}.`;
     case 'draw': {
       const why = { turn: '', d2: ' (+۲)', wd4: ' (+۴)', start: ' (کارت شروع)', penalty: ' (جریمه)', challenge: ' (نتیجه اعتراض)' }[e.reason];
       return e.n === 0 ? `${name(e.seat)} کارتی برای کشیدن نبود.` : `${name(e.seat)} ${fa(e.n)} کارت کشید${why}.`;
     }
     case 'pass': return `${name(e.seat)} نوبتش را تمام کرد.`;
     case 'skip': return `نوبت ${name(e.seat)} سوخت.`;
-    case 'uno': return `${name(e.seat)} گفت «اونو!»`;
-    case 'caught': return `${name(e.by)} ${name(e.seat)} را گرفت؛ «اونو» نگفته بود و ${fa(e.n)} کارت جریمه شد.`;
+    case 'uno': return `${name(e.seat)} گفت «${tx(terms.uno)}!»`;
+    case 'caught': return `${name(e.by)} ${name(e.seat)} را گرفت؛ «${tx(terms.uno)}» نگفته بود و ${fa(e.n)} کارت جریمه شد.`;
     case 'challenge': return `${name(e.by)} به +۴ ${name(e.seat)} اعتراض کرد: ${e.guilty ? 'حق با معترض بود' : 'بازی درست بود'}.`;
     case 'color': return `${name(e.seat)} رنگ ${COLOR_FA[e.color]} را انتخاب کرد.`;
     case 'timeout': return `زمان ${name(e.seat)} تمام شد.`;
@@ -30,6 +31,7 @@ function describe(e: LogEntry, name: (s: number) => string): string {
 }
 
 export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<UnoView>) {
+  useTermsLang();
   const hints = legalActions as Hint[];
   const myTurn = mySeat !== null && view.current === mySeat && !view.outcome;
   const playableIds = useMemo(() => new Set(hints.filter((h) => h.type === 'play').map((h) => h.card as string)), [hints]);
@@ -82,7 +84,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   if (view.outcome) status = null;
   else if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
   else if (myTurn && view.phase === 'wd4') status = { tone: 'mine', text: `${seatName(view.wd4!.offender)} برای شما +۴ گذاشت؛ تصمیم بگیرید` };
-  else if (myTurn && view.phase === 'chooseColor') status = { tone: 'mine', text: 'کارت شروع «رنگی» است؛ رنگ را انتخاب کنید' };
+  else if (myTurn && view.phase === 'chooseColor') status = { tone: 'mine', text: `کارت شروع «${tx(terms.wild)}» است؛ رنگ را انتخاب کنید` };
   else if (myTurn && view.phase === 'drawn') status = { tone: 'mine', text: 'کارت کشیده‌شده قابل بازی است' };
   else if (myTurn) status = { tone: 'mine', text: playableIds.size ? 'نوبت شماست: کارت هم‌رنگ، هم‌عدد یا هم‌نماد بگذارید' : 'کارت مناسبی ندارید؛ یک کارت بکشید' };
   else status = { tone: 'wait', text: `نوبت ${seatName(view.current)}${view.phase === 'wd4' ? '، تصمیم درباره +۴' : ''}` };
@@ -97,11 +99,11 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>کارت هم‌رنگ، هم‌عدد یا هم‌نماد بگذارید؛ «رنگی» و «+۴» همیشه مجازند.{view.color ? ` رنگ فعال: ${COLOR_FA[view.color]}.` : ''} {view.direction === 1 ? 'جهت عادی' : 'جهت برعکس'}، دست {fa(view.hand)}{view.target ? `، هدف ${fa(view.target)} امتیاز` : ''}.</p>
+          <p>کارت هم‌رنگ، هم‌عدد یا هم‌نماد بگذارید؛ «<T t={terms.wild} />» و «+۴» همیشه مجازند.{view.color ? ` رنگ فعال: ${COLOR_FA[view.color]}.` : ''} {view.direction === 1 ? 'جهت عادی' : 'جهت برعکس'}، دست {fa(view.hand)}{view.target ? `، هدف ${fa(view.target)} امتیاز` : ''}.</p>
         </RailSlot>
       )}
       {framed && catchSeat !== undefined && (
-        <DockSlot><Button variant="danger" disabled={busy} onClick={() => onAction({ type: 'catch', seat: catchSeat })}>اونو نگفت! بگیر: {seatName(catchSeat)}</Button></DockSlot>
+        <DockSlot><Button variant="danger" disabled={busy} onClick={() => onAction({ type: 'catch', seat: catchSeat })}>{tx(terms.uno)} نگفت! بگیر: {seatName(catchSeat)}</Button></DockSlot>
       )}
 
       {!framed && <div className="uno__meta">
@@ -126,8 +128,8 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
                 <span className="uno-opp__count">{view.active[s] ? `${fa(view.handCounts[s] ?? 0)} کارت` : 'کنار رفته'}{view.target ? `، ${fa(view.scores[s] ?? 0)} امتیاز` : ''}</span>
               </span>
               {active && <span className="uno-badge">نوبت</span>}
-              {view.called[s] && view.handCounts[s] === 1 && <span className="uno-badge uno-badge--uno">اونو!</span>}
-              {catchSeat === s && <Button size="sm" variant="danger" disabled={busy} onClick={() => onAction({ type: 'catch', seat: s })}>اونو نگفت! بگیر</Button>}
+              {view.called[s] && view.handCounts[s] === 1 && <span className="uno-badge uno-badge--uno">{tx(terms.uno)}!</span>}
+              {catchSeat === s && <Button size="sm" variant="danger" disabled={busy} onClick={() => onAction({ type: 'catch', seat: s })}>{tx(terms.uno)} نگفت! بگیر</Button>}
             </li>
           );
         })}
@@ -164,8 +166,8 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
 
       {canCallUno && (
         <div className="uno-alert" role="alert">
-          <span>یک کارت دارید و «اونو» نگفتید! پیش از اینکه کسی شما را بگیرد بگویید.</span>
-          <Button disabled={busy} onClick={() => onAction({ type: 'callUno' })}>اونو!</Button>
+          <span>یک کارت دارید و «<T t={terms.uno} />» نگفتید! پیش از اینکه کسی شما را بگیرد بگویید.</span>
+          <Button disabled={busy} onClick={() => onAction({ type: 'callUno' })}>{tx(terms.uno)}!</Button>
         </div>
       )}
 
@@ -200,13 +202,13 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
             <strong>دست شما ({fa(hand.length)})</strong>
             {needsUno && (
               <button type="button" className={unoArmed ? 'uno-call uno-call--on' : 'uno-call'} aria-pressed={unoArmed} onClick={() => setUnoArmed(!unoArmed)}>
-                {unoArmed ? '✓ اونو!' : 'اونو!'}
+                {unoArmed ? `✓ ${tx(terms.uno)}!` : `${tx(terms.uno)}!`}
               </button>
             )}
             {myTurn && view.phase === 'drawn' && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'keep' })}>نگه‌داشتن و پایان نوبت</Button>}
             {selected?.color && <Button size="sm" disabled={busy} onClick={() => play(selected)}>بازی {cardLabel(selected)}</Button>}
           </div>
-          {needsUno && !unoArmed && <p className="uno-hand__tip">یکی‌مانده به آخر! پیش از گذاشتن کارت «اونو!» را بزنید.</p>}
+          {needsUno && !unoArmed && <p className="uno-hand__tip">یکی‌مانده به آخر! پیش از گذاشتن کارت «{tx(terms.uno)}!» را بزنید.</p>}
           <div className="uno-hand__cards" style={{ ['--n' as string]: hand.length }}>
             {hand.map((c) => {
               const ok = playableIds.has(c.id) && !busy;

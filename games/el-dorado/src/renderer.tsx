@@ -4,7 +4,8 @@
 // rubble and camps ask which cards to give up. The market lists every card with price and stock.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, type Term, DockSlot } from '@bg/ui';
+import { terms } from './terms.ts';
 import mapArt from './art/ed-map.png';
 import pawn0 from './art/ed-pawn-0.png';
 import pawn1 from './art/ed-pawn-1.png';
@@ -26,15 +27,18 @@ import { COLS, MAP, ROWS, TYPE, coinValue, type CardType, type EdView } from './
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const PAWN = ['#e0473c', '#2f7de1', '#f2c230', '#9b59d0']; // fallback dot colours outside the frame
 const KIND_FA: Record<string, string> = { g: 'جنگل', b: 'آب', y: 'روستا', r: 'آوار', c: 'اردوگاه', m: 'کوه', s: 'شروع', E: 'الدورادو' };
-const SYM_FA: Record<string, string> = { g: 'قمه', b: 'پارو', y: 'سکه', any: 'همه‌کاره' };
+const SYM_T: Record<string, Term> = { g: terms.machete, b: terms.paddle, y: terms.coin, any: terms.joker };
+const symFa = (k: string) => tx(SYM_T[k]!);
+const kindFa = (k: string) => (k === 'r' ? tx(terms.rubble) : k === 'c' ? tx(terms.camp) : KIND_FA[k]!);
 // Hex grid measured on the 372x553 map image: pointy hexes, R 32, column pitch 54.3, row pitch 48, odd rows shifted half a column.
 const R = 32, W = 54.3, MAP_W = 372, MAP_H = 553;
 const center = (i: number) => { const r = Math.floor(i / COLS), c = i % COLS; return [36.75 + c * W + (r % 2 ? W / 2 : 0), 37.6 + (ROWS - 1 - r) * 48] as const; };
 const hexPath = (x: number, y: number) => [[0, -R], [27, -R / 2], [27, R / 2], [0, R], [-27, R / 2], [-27, -R / 2]].map(([dx, dy]) => `${(x + dx!).toFixed(1)},${(y + dy!).toFixed(1)}`).join(' ');
 
 export function EdCard({ t, size = 'md' }: { t: CardType; size?: 'sm' | 'md' }) {
+  useTermsLang();
   return (
-    <span className={`ed-card ed-card--${size}`} aria-label={`${t.name}: ${t.pts ? `${fa(t.pts)} ${SYM_FA[t.sym]}` : t.draw ? `${fa(t.draw)} کارت بکش` : 'حرکت آزاد'}${t.once ? '، یک‌بار مصرف' : ''}`}>
+    <span className={`ed-card ed-card--${size}`} aria-label={`${t.name}: ${t.pts ? `${fa(t.pts)} ${symFa(t.sym)}` : t.draw ? `${fa(t.draw)} کارت بکش` : 'حرکت آزاد'}${t.once ? '، یک‌بار مصرف' : ''}`}>
       <img src={CARD_ART[t.key]} alt="" draggable={false} />
       <span className="visually-hidden">{t.name}</span>
     </span>
@@ -42,6 +46,7 @@ export function EdCard({ t, size = 'md' }: { t: CardType; size?: 'sm' | 'md' }) 
 }
 
 export function MapSvg({ view, targets, onPick, hint }: { view: Pick<EdView, 'explorers'>; targets?: Set<number>; onPick?: (hex: number) => void; hint?: number }) {
+  useTermsLang();
   return (
     <div className="ed-mapi">
       <img src={mapArt} alt="" draggable={false} />
@@ -51,7 +56,7 @@ export function MapSvg({ view, targets, onPick, hint }: { view: Pick<EdView, 'ex
           const [x, y] = center(i);
           return (
             <g key={i} data-hex={i} className={`ed-hex ed-hex--can ${hint === i ? 'ed-hint' : ''}`} onClick={onPick ? () => onPick(i) : undefined}
-              role="button" aria-label={`رفتن به ${KIND_FA[h.kind]}${h.cost ? ` ${fa(h.cost)}` : ''}`} tabIndex={0}
+              role="button" aria-label={`رفتن به ${kindFa(h.kind)}${h.cost ? ` ${fa(h.cost)}` : ''}`} tabIndex={0}
               onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onPick(i); } : undefined}>
               <polygon className="ed-tap" points={hexPath(x, y)} />
             </g>
@@ -110,6 +115,7 @@ function preview(v: EdView, me: number | null, q: GameRendererProps<EdView>['que
 }
 
 export default function ElDoradoRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<EdView>) {
+  useTermsLang(); // re-render when the terms language changes
   const hint = expected as unknown as Hint;
   // Undo window: my move or buy shows at once; undo clears `queued` and everything glides back.
   const view = preview(served, mySeat, queued);
@@ -151,13 +157,13 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
 
   return (
     <div className={framed ? 'ed ed--framed' : 'ed'} ref={root} data-seq={view.seq}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>کارت را بازی کنید تا خانه‌های قابل رفتن روشن شوند؛ عدد هر خانه هزینهٔ ورود است. آوار و اردوگاه با دور ریختن کارت باز می‌شوند.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>کارت را بازی کنید تا خانه‌های قابل رفتن روشن شوند؛ عدد هر خانه هزینهٔ ورود است. <T t={terms.rubble} /> و <T t={terms.camp} /> با دور ریختن کارت باز می‌شوند.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!framed && <ul className="ed-crew" aria-label="گروه‌ها">
         {view.explorers.map((e, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={`ed-crew__p ${k === view.current && !view.outcome ? 'is-now' : ''}`} style={{ ['--pawn' as string]: PAWN[k] }}>
             <i className="ed-dot" /><bdi>{who(k)}</bdi>
-            <small>{e.arrived ? 'رسید ★' : `دسته ${fa(e.deck)}، دورریز ${fa(e.discard)}`}</small>
+            <small>{e.arrived ? 'رسید ★' : `${tx(terms.deck)} ${fa(e.deck)}، ${tx(terms.discard)} ${fa(e.discard)}`}</small>
             {view.last?.kind === 'buy' && view.last.seat === k && view.last.card && <span className="ed-chip" data-flip={`buy-${view.seq}`} data-flip-from={`mk-${view.last.card}`}>{TYPE[view.last.card]?.name}</span>}
           </li>
         ))}
@@ -171,7 +177,7 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
         <section className="ed-me" aria-label="دست شما">
           {view.active && myTurn && (
             <button type="button" className={`ed-active ${chosen === -1 ? 'is-on' : ''}`} onClick={() => { setSel(null); setPay([]); }}>
-              ادامه با {TYPE[view.active.key]!.name}: {fa(view.active.left)} {SYM_FA[view.active.sym]} مانده
+              ادامه با {TYPE[view.active.key]!.name}: {fa(view.active.left)} {symFa(view.active.sym)} مانده
             </button>
           )}
           <div className="ed-hand">
@@ -186,7 +192,7 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
                     <EdCard t={t} />
                   </button>
                   {usable.has(i) && <button type="button" className="ed-mini" disabled={busy} onClick={() => onAction({ type: 'use', card: i })}>استفاده</button>}
-                  {rubble.length > 0 && <button type="button" className="ed-mini" disabled={busy} aria-pressed={pay.includes(i)} onClick={() => { setSel(null); setPay(pay.includes(i) ? pay.filter((x) => x !== i) : [...pay, i]); }}>{pay.includes(i) ? 'برای آوار ✓' : 'برای آوار'}</button>}
+                  {rubble.length > 0 && <button type="button" className="ed-mini" disabled={busy} aria-pressed={pay.includes(i)} onClick={() => { setSel(null); setPay(pay.includes(i) ? pay.filter((x) => x !== i) : [...pay, i]); }}>{pay.includes(i) ? `برای ${tx(terms.rubble)} ✓` : `برای ${tx(terms.rubble)}`}</button>}
                 </span>
               );
             })}
@@ -201,8 +207,8 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
       )}
 
       {!view.outcome && (
-        <section className="ed-market" aria-label="بازار">
-          <p className="ed-market__title">بازار {canBuy && myTurn ? `، ${fa(coins)} سکه در دست` : view.bought ? '، این نوبت خرید شد' : ''}</p>
+        <section className="ed-market" aria-label={tx(terms.market)}>
+          <p className="ed-market__title"><T t={terms.market} /> {canBuy && myTurn ? `، ${fa(coins)} ${tx(terms.coins)} در دست` : view.bought ? '، این نوبت خرید شد' : ''}</p>
           <div className="ed-market__row">
             {Object.entries(view.market).map(([k, n]) => {
               const t = TYPE[k]!;

@@ -2,6 +2,8 @@
 // generated sprite sheet, see DECISIONS.md). Colour is never the only signal: every face carries
 // the colour's Persian initial and a full spoken label.
 import type { CSSProperties } from 'react';
+import { tx } from '@bg/ui';
+import { terms } from './terms.ts';
 import type { Card, Color } from './rules.ts';
 import skipArt from './art/uno-skip.webp';
 import reverseArt from './art/uno-reverse.webp';
@@ -36,11 +38,11 @@ export function cardLabel(c: Card): string {
   const color = c.color ? ` ${COLOR_FA[c.color]}` : '';
   switch (c.kind) {
     case 'num': return `${fa(c.value!)}${color}`;
-    case 'skip': return `ردشدن${color}`;
-    case 'rev': return `برگشت${color}`;
+    case 'skip': return `${tx(terms.skip)}${color}`;
+    case 'rev': return `${tx(terms.reverse)}${color}`;
     case 'd2': return `+۲${color}`;
-    case 'wild': return 'رنگی';
-    case 'wd4': return 'رنگی +۴';
+    case 'wild': return tx(terms.wild);
+    case 'wd4': return tx(terms.wildDrawFour);
   }
 }
 

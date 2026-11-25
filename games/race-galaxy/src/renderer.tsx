@@ -3,7 +3,7 @@
 // you pick a card to place and then the cards that pay for it.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, T, tx, type Term, useTermsLang, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
 import ph0 from './art/rg-ph0.png';
 import faceAsteroid from './art/rg-c42.png';
 import ph1 from './art/rg-ph1.png';
@@ -14,29 +14,33 @@ import goodN from './art/good-n.webp';
 import goodR from './art/good-r.webp';
 import goodG from './art/good-g.webp';
 import goodA from './art/good-a.webp';
+import { terms } from './terms.ts';
 import { CARDS, PHASES, type Good, type Phase, type RgView } from './rules.ts';
 
 // Goods paintings are cut from a generated sprite sheet (see DECISIONS.md).
 const GOOD_ART: Record<Good, string> = { n: goodN, r: goodR, g: goodG, a: goodA };
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const PHASE_FA: Record<Phase, [string, string, string]> = {
-  explore: ['کاوش', '🔭', 'دو کارت بکش، یکی نگه دار (انتخاب‌کننده: چهار)'], develop: ['توسعه', '⚙', 'یک پیشرفت بگذار (انتخاب‌کننده: ۱ ارزان‌تر)'],
-  settle: ['استقرار', '🪐', 'یک جهان بگذار (انتخاب‌کننده: یک کارت جایزه)'], consume: ['مصرف', '♻', 'کالاها امتیاز می‌شوند (انتخاب‌کننده: دو برابر)'],
-  produce: ['تولید', '⛏', 'جهان‌های تولیدی کالا می‌گیرند (انتخاب‌کننده: بادآورده‌ها هم)']
-};
+const PHASE_T: Record<Phase, Term> = { explore: terms.explore, develop: terms.develop, settle: terms.settle, consume: terms.consume, produce: terms.produce };
+export const phaseName = (p: Phase) => tx(PHASE_T[p]);
+const phaseDesc = (p: Phase): string => ({
+  explore: 'دو کارت بکش، یکی نگه دار (انتخاب‌کننده: چهار)', develop: `یک ${tx(terms.development)} بگذار (انتخاب‌کننده: ۱ ارزان‌تر)`,
+  settle: `یک ${tx(terms.world)} بگذار (انتخاب‌کننده: یک کارت جایزه)`, consume: `${tx(terms.goodsPl)} امتیاز می‌شوند (انتخاب‌کننده: دو برابر)`,
+  produce: `${tx(terms.world)}‌های ${tx(terms.production)} کالا می‌گیرند (انتخاب‌کننده: ${tx(terms.windfall)}‌ها هم)`
+} as Record<Phase, string>)[p];
 const PHASE_ART: Record<Phase, string> = { explore: ph0, develop: ph1, settle: ph2, consume: ph3, produce: ph4 };
-const POWER_FA: Record<string, string> = { devCost: 'توسعه −۱', settleCost: 'استقرار −۱', military: 'نظامی', explore: 'کاوش +۱', consume: 'مصرف +۱' };
+const powerName = (k: string): string => ({ devCost: `${tx(terms.develop)} −۱`, settleCost: `${tx(terms.settle)} −۱`, military: tx(terms.military), explore: `${tx(terms.explore)} +۱`, consume: `${tx(terms.consume)} +۱` } as Record<string, string>)[k]!;
 
 // Printed BGA faces (art/rg-c*.png) only where the engine card is that card (same name, cost, kind, good and VP);
 // every other engine card is invented (RULES S3/E2) and stays a labelled text card.
 const PRINTED: Record<string, string> = { 'کمربند سیارکی': faceAsteroid };
 
 export function GalaxyCard({ id, good, size = 'md' }: { id: number; good?: boolean; size?: 'sm' | 'md' }) {
+  useTermsLang();
   const c = CARDS[id]!;
   const face = PRINTED[c.name];
   if (face) return <span className={`rg-card rg-card--${size} rg-card--face`} aria-label={`${c.name}، هزینه ${fa(c.cost)}، ${fa(c.vp)} امتیاز${good ? '، دارای کالا' : ''}`}><img src={face} alt="" draggable={false} />{good && c.good && <img className="rg-good bg-land" src={GOOD_ART[c.good]} alt="" />}</span>;
-  const tag = c.type === 'dev' ? (c.power ? `${POWER_FA[c.power]}${c.mil ? ` +${fa(c.mil)}` : ''}` : 'پیشرفت') : c.kind === 'mil' ? `نظامی ${fa(c.cost)}` : c.kind === 'wind' ? 'بادآورده' : 'تولیدی';
+  const tag = c.type === 'dev' ? (c.power ? `${powerName(c.power)}${c.mil ? ` +${fa(c.mil)}` : ''}` : tx(terms.development)) : c.kind === 'mil' ? `${tx(terms.military)} ${fa(c.cost)}` : c.kind === 'wind' ? tx(terms.windfall) : tx(terms.production);
   return (
     <span className={`rg-card rg-card--${size} ${c.type === 'dev' ? 'rg-dev' : `rg-w--${c.good} rg-k--${c.kind}`}`} aria-label={`${c.name}، ${tag}، هزینه ${fa(c.cost)}، ${fa(c.vp)} امتیاز${good ? '، دارای کالا' : ''}`}>
       <span className="rg-card__orb" aria-hidden>{c.type === 'dev' ? '⬢' : ''}{good && c.good && <img className="rg-good bg-land" src={GOOD_ART[c.good]} alt="" />}</span>
@@ -72,6 +76,7 @@ function Num({ v, className, children }: { v: number; className?: string; childr
 }
 
 export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<RgView>) {
+  useTermsLang();
   const me = mySeat ?? 0;
   const q = queued as Queued | null | undefined;
   const view = preview(served, q, mySeat ?? -1);
@@ -97,8 +102,8 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : choosing ? { tone: 'mine' as const, text: 'پنهانی یک مرحله انتخاب کنید' }
       : keeps.length ? { tone: 'mine' as const, text: 'یکی از کارت‌های کشیده را نگه دارید' }
-        : placing ? { tone: 'mine' as const, text: sel === null ? `کارتی برای ${PHASE_FA[view.stage as Phase][0]} انتخاب کنید یا صرف‌نظر کنید` : `${fa(price)} کارت برای پرداخت انتخاب کنید` }
-          : { tone: 'wait' as const, text: view.stage === 'select' ? 'منتظر انتخاب دیگران…' : `منتظر بقیه در مرحلهٔ ${PHASE_FA[view.stage as Phase][0]}` };
+        : placing ? { tone: 'mine' as const, text: sel === null ? `کارتی برای ${phaseName(view.stage as Phase)} انتخاب کنید یا صرف‌نظر کنید` : `${fa(price)} کارت برای پرداخت انتخاب کنید` }
+          : { tone: 'wait' as const, text: view.stage === 'select' ? 'منتظر انتخاب دیگران…' : `منتظر بقیه در مرحلهٔ ${phaseName(view.stage as Phase)}` };
   const framed = useInFrame() !== null; // the shell draws the seat strip, scores and whose turn
   const chosenNow = view.stage !== 'select' ? new Set(view.chosen.flat()) : new Set<Phase>();
 
@@ -115,11 +120,11 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
           const mine = view.myChoice === ph;
           return choosing ? (
             <button key={ph} type="button" disabled={busy} onClick={() => onAction({ type: 'choose', phase: ph })} aria-pressed={picked === ph} className={`rg-phase is-can ${hint?.phase === ph ? 'rg-hint' : ''} ${picked === ph ? 'is-mine' : ''}`}>
-              <img className="rg-phase__ic" src={PHASE_ART[ph]} alt="" draggable={false} /><span>{PHASE_FA[ph][0]}</span><small>{PHASE_FA[ph][2]}</small>
+              <img className="rg-phase__ic" src={PHASE_ART[ph]} alt="" draggable={false} /><span><T t={PHASE_T[ph]} /></span><small>{phaseDesc(ph)}</small>
             </button>
           ) : (
             <span key={`${ph}${on}`} className={['rg-phase', on ? 'is-on bg-flip-in' : 'is-off', active ? 'is-active' : '', mine ? 'is-mine' : ''].join(' ')}>
-              <img className="rg-phase__ic" src={PHASE_ART[ph]} alt="" draggable={false} /><span>{PHASE_FA[ph][0]}</span>
+              <img className="rg-phase__ic" src={PHASE_ART[ph]} alt="" draggable={false} /><span><T t={PHASE_T[ph]} /></span>
               {view.stage !== 'select' && <small>{view.chosen.map((c, k) => (c.includes(ph) ? who(k) : null)).filter(Boolean).join('، ') || '—'}</small>}
             </span>
           );
@@ -133,7 +138,7 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
           <li key={k} data-flip-anchor={`seat-${k}`} className={['rg-empire', k === me ? 'is-me' : '', (view.stage === 'select' ? !e.chose : !e.done) && !view.outcome ? 'is-waiting' : ''].join(' ')}>
             <div className="rg-empire__head">
               <bdi>{who(k)}</bdi><Num className="rg-vp" v={e.vp}>{fa(e.vp)}★</Num>
-              <small>{fa(e.tableau.length)}/۱۲ کارت<span className="bgv-sep" />نظامی {fa(e.military)}<span className="bgv-sep" />{fa(e.chips)} نشان<span className="bgv-sep" />دست {fa(e.hand)}</small>
+              <small>{fa(e.tableau.length)}/۱۲ کارت<span className="bgv-sep" /><T t={terms.military} /> {fa(e.military)}<span className="bgv-sep" />{fa(e.chips)} نشان<span className="bgv-sep" />دست {fa(e.hand)}</small>
             </div>
             <div className="rg-row">{e.tableau.map((id) => <span key={id} className="rg-fly" data-flip={`g${id}`} data-flip-from={`seat-${k}`}><GalaxyCard id={id} size="sm" good={e.goods.includes(id)} /></span>)}</div>
           </li>

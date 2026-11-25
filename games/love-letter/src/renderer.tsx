@@ -2,14 +2,18 @@
 // protection and discards; your two cards — tap one, then (if needed) a target and, for the Guard, a guess.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
-import { CARD_FA, type LogEntry, type LoveLetterView } from './rules.ts';
+import { Button, RailSlot, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, type Term } from '@bg/ui';
+import { terms } from './terms.ts';
+import { type LogEntry, type LoveLetterView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-const EFFECT_FA: Record<number, string> = {
+const CARD_T: Record<number, Term> = { 1: terms.guard, 2: terms.priest, 3: terms.baron, 4: terms.handmaid, 5: terms.prince, 6: terms.king, 7: terms.countess, 8: terms.princess };
+const cardFa = (v: number) => tx(CARD_T[v]!);
+const EFFECT_FA = (): Record<number, string> => ({
   1: 'کارت یک نفر را حدس بزنید', 2: 'دست یک نفر را ببینید', 3: 'دست‌ها را مقایسه کنید', 4: 'تا نوبت بعد در امانید',
-  5: 'یک نفر کارتش را عوض کند', 6: 'دست‌تان را عوض کنید', 7: 'با شاه یا شاهزاده باید بازی شود', 8: 'دور بیندازید، می‌بازید'
-};
+  5: 'یک نفر کارتش را عوض کند', 6: 'دست‌تان را عوض کنید', 7: `با ${tx(terms.king)} یا ${tx(terms.prince)} باید بازی شود`, 8: 'دور بیندازید، می‌بازید'
+});
+const effectFa = (v: number) => EFFECT_FA()[v];
 
 // Portraits are cut from the BGA Love Letter client art (see DECISIONS.md); decorative, the card name and value stay as text.
 const GC = import.meta.glob<string>('./art/gc/love-letter-*.png', { eager: true, import: 'default' });
@@ -22,14 +26,15 @@ function LLCard({ v, size = 'md', onClick, selected, hint, disabled, flip, flipF
   );
   const cls = ['ll-card', `ll-card--${size}`, `ll-card--v${v}`, selected ? 'll-card--sel' : '', hint ? 'll-card--hint' : ''].join(' ');
   return onClick
-    ? <button type="button" className={cls} data-flip={flip} data-flip-from={flipFrom} onClick={onClick} disabled={disabled} aria-pressed={selected} aria-label={`${CARD_FA[v]} (${fa(v)}): ${EFFECT_FA[v]}`}>{body}</button>
-    : <span className={cls} data-flip={flip} data-flip-from={flipFrom} aria-label={`${CARD_FA[v]} (${fa(v)})`}>{body}</span>;
+    ? <button type="button" className={cls} data-flip={flip} data-flip-from={flipFrom} onClick={onClick} disabled={disabled} aria-pressed={selected} aria-label={`${cardFa(v)} (${fa(v)}): ${effectFa(v)}`}>{body}</button>
+    : <span className={cls} data-flip={flip} data-flip-from={flipFrom} aria-label={`${cardFa(v)} (${fa(v)})`}>{body}</span>;
 }
 
 /** Hand card id: round, value and which copy of that value it is in the hand. */
 const handId = (round: number, hand: number[], k: number) => `h-${round}-${hand[k]}-${hand.slice(0, k).filter((x) => x === hand[k]).length}`;
 
 export default function LoveLetterRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LoveLetterView>) {
+  useTermsLang(); // re-render when the terms language changes
   const me = mySeat ?? -1;
   // Undo-window preview: the card I play leaves my hand for my discard pile at once (its effect waits for the server).
   // The discarded copy keeps the hand card's id, so it flies there, flies back on undo, and stays put once confirmed.
@@ -81,12 +86,12 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
   const framed = useInFrame() !== null; // the shell draws seats, tokens, whose-turn and the events log
   const describe = (e: LogEntry) => {
     if (e.t === 'play') {
-      const base = `${who(e.seat)} «${CARD_FA[e.card]}» بازی کرد${e.target !== null ? ` روی ${who(e.target)}` : ''}`;
-      if (e.card === 1 && e.guess) return `${base} و «${CARD_FA[e.guess]}» گفت — ${e.result === 'out' ? 'درست بود!' : 'اشتباه بود'}`;
+      const base = `${who(e.seat)} «${cardFa(e.card)}» بازی کرد${e.target !== null ? ` روی ${who(e.target)}` : ''}`;
+      if (e.card === 1 && e.guess) return `${base} و «${cardFa(e.guess)}» گفت — ${e.result === 'out' ? 'درست بود!' : 'اشتباه بود'}`;
       if (e.result === 'tie') return `${base}: مساوی`;
       return base;
     }
-    if (e.t === 'out') return `${who(e.seat)} با «${CARD_FA[e.card]}» از دور بیرون رفت`;
+    if (e.t === 'out') return `${who(e.seat)} با «${cardFa(e.card)}» از دور بیرون رفت`;
     if (e.t === 'round') return `دور ${fa(e.round)} را ${e.winners.map(who).join(' و ')} برد`;
     if (e.t === 'timeout') return `زمان ${who(e.seat)} تمام شد`;
     return `${who(e.seat)} کنار رفت`;
@@ -98,7 +103,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>{card !== null ? EFFECT_FA[card] : 'یک کارت بازی کنید و اثرش را اجرا کنید؛ در پایان دور بالاترین کارت می‌برد. با شاهزاده یا شاه، شاهزاده‌خانم را هرگز نگه ندارید.'}</p>
+          <p>{card !== null ? effectFa(card) : `یک کارت بازی کنید و اثرش را اجرا کنید؛ در پایان دور بالاترین کارت می‌برد. با ${tx(terms.prince)} یا ${tx(terms.king)}، ${tx(terms.princess)} را هرگز نگه ندارید.`}</p>
         </RailSlot>
       )}
 
@@ -137,7 +142,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
 
       {view.seen && (
         <p key={view.seen.seq} className="ll__seen" role="status">
-          فقط شما می‌بینید: کارت <bdi>{who(view.seen.seat)}</bdi> «{CARD_FA[view.seen.card]}» است.
+          فقط شما می‌بینید: کارت <bdi>{who(view.seen.seat)}</bdi> «{cardFa(view.seen.card)}» است.
         </p>
       )}
 
@@ -145,7 +150,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
         <div className="ll__guess" role="group" aria-label="حدس کارت">
           {[2, 3, 4, 5, 6, 7, 8].map((g) => (
             <button key={g} type="button" className={hint?.guess === g ? 'll-guess ll-guess--hint' : 'll-guess'} disabled={busy} onClick={() => send(1, target, g)}>
-              <img src={gc(`guess-${g}`)} alt="" aria-hidden="true" width={28} height={28} />{fa(g)} {CARD_FA[g]}
+              <img src={gc(`guess-${g}`)} alt="" aria-hidden="true" width={28} height={28} />{fa(g)} {cardFa(g)}
             </button>
           ))}
         </div>

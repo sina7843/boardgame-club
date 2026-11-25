@@ -2,15 +2,16 @@
 // code). Tap three cards (or focus + Enter/Space), then «ست!». Found sets fly to the finder's tray; new cards flip in.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, tx, type Term, useTermsLang, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import { DECK, FACE } from './art.ts';
 import { attrs, isSet, type SetView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const COUNT_FA = ['یک', 'دو', 'سه'];
-const SHAPE_FA = ['لوزی', 'موج', 'بیضی'];
+const SHAPE_T: Term[] = [terms.diamond, terms.squiggle, terms.oval];
 const COLOR_FA = ['قرمز', 'سبز', 'بنفش'];
-const SHADE_FA = ['توپر', 'هاشور', 'توخالی'];
+const SHADE_T: Term[] = [terms.solid, terms.striped, terms.open];
 const INK = ['#d22a3c', '#14874a', '#6a37a6'];
 const SHAPES = [
   'M6 25 L50 4 L94 25 L50 46 Z',
@@ -20,7 +21,7 @@ const SHAPES = [
 
 export const cardLabel = (id: number) => {
   const [n, s, c, f] = attrs(id);
-  return `${COUNT_FA[n]} ${SHAPE_FA[s]} ${COLOR_FA[c]} ${SHADE_FA[f]}`;
+  return `${COUNT_FA[n]} ${tx(SHAPE_T[s]!)} ${COLOR_FA[c]} ${tx(SHADE_T[f]!)}`;
 };
 
 export function SetCard({ id }: { id: number }) {
@@ -42,10 +43,11 @@ export function SetCard({ id }: { id: number }) {
 /** Wrong claims shake the seat's line (only when the count really went up). */
 function Meta({ sets, penalties }: { sets: number; penalties: number }) {
   const hit = usePop(penalties) ? 'bg-hit' : '';
-  return <span key={penalties} className={`muted set-seat__meta ${hit}`}>{fa(sets)} ست{penalties ? `، ${fa(penalties)} اشتباه` : ''}</span>;
+  return <span key={penalties} className={`muted set-seat__meta ${hit}`}>{fa(sets)} {tx(terms.set)}{penalties ? `، ${fa(penalties)} اشتباه` : ''}</span>;
 }
 
 export default function SetRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SetView>) {
+  useTermsLang();
   // Undo window: a claim that is a set (checked here from the cards themselves) flies to my tray at once; the cards
   // that replace it come from the server only. Undo clears `queued` and the three fly back to the table.
   const claimed = queued?.type === 'claim' && mySeat !== null ? (queued.cards as number[]) : null;
@@ -67,9 +69,9 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
 
   const last = view.last;
   const lastText = !last ? null
-    : last.kind === 'set' ? `${seatName(last.seat)} یک ست گرفت: ${last.cards.map(cardLabel).join('، ')}.`
+    : last.kind === 'set' ? `${seatName(last.seat)} یک ${tx(terms.set)} گرفت: ${last.cards.map(cardLabel).join('، ')}.`
       : last.kind === 'miss' ? `${seatName(last.seat)} اشتباه اعلام کرد و یک امتیاز از دست داد: ${last.cards.map(cardLabel).join('، ')}.`
-        : `مهلت تمام شد؛ این ست بدون امتیاز کنار رفت: ${last.cards.map(cardLabel).join('، ')}.`;
+        : `مهلت تمام شد؛ این ${tx(terms.set)} بدون امتیاز کنار رفت: ${last.cards.map(cardLabel).join('، ')}.`;
 
   return (
     <div className={`set${framed ? ' set--framed' : ''}`} ref={root} data-seq={view.seq}>
@@ -126,7 +128,7 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
             const btns = (
               <>
                 <Button variant="secondary" disabled={!sel.length || busy} onClick={() => setSel([])}>پاک کردن</Button>
-                <Button className={['set-claim', hint ? 'set-hint' : ''].join(' ')} disabled={sel.length !== 3 || busy} onClick={claim}>ست!</Button>
+                <Button className={['set-claim', hint ? 'set-hint' : ''].join(' ')} disabled={sel.length !== 3 || busy} onClick={claim}>{tx(terms.set)}!</Button>
               </>
             );
             return framed ? <DockSlot>{btns}</DockSlot> : <div className="set__bar">{btns}</div>;
@@ -137,7 +139,7 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
       {!framed && <div className="set__players">
         {seats.map((s) => (
           <section key={s} className={['set-seat', s === mySeat ? 'set-seat--me' : '', view.resigned[s] ? 'set-seat--out' : ''].join(' ')}
-            aria-label={`${seatName(s)}: ${fa(view.scores[s]!)} امتیاز، ${fa(view.sets[s]!.length)} ست، ${fa(view.penalties[s]!)} اعلام اشتباه`}>
+            aria-label={`${seatName(s)}: ${fa(view.scores[s]!)} امتیاز، ${fa(view.sets[s]!.length)} ${tx(terms.set)}، ${fa(view.penalties[s]!)} اعلام اشتباه`}>
             <header className="set-seat__head">
               <bdi>{seatName(s)}</bdi>{s === mySeat ? ' (شما)' : ''}{view.resigned[s] ? ' — انصراف' : view.locked[s] ? ' — منتظر ست بعدی' : ''}
               <b key={view.scores[s]} className="set-seat__score bg-pop">{fa(view.scores[s]!)}</b>
