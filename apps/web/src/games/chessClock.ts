@@ -21,3 +21,9 @@ export function clockMinutesRange(choices: readonly { value: unknown }[]): [numb
   const mins = choices.filter((c) => clockClass(c.value) !== 'classical').map((c) => CLOCK_RE.exec(String(c.value))).filter((m) => m !== null).map((m) => Number(m[1]));
   return mins.length ? [Math.min(...mins), Math.max(...mins)] : null;
 }
+
+/**
+ * Approximate rating of each bot level, estimated from games/chess/src/bot.ts (NOT measured against rated players: the design's
+ * 800 / 1,200 / 1,600 are higher than this engine plays). Shared by the lobby and the table's bot bar.
+ */
+export const BOT_RATING = { easy: 500, medium: 900, hard: 1300 } as const;

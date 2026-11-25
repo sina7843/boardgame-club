@@ -130,7 +130,9 @@ function PlayerBar({ seat, name, color, captured, lead, clock, small, off, set }
       <div className="ch-player__id">
         <div className="ch-player__name">
           <b><bdi>{name}</bdi></b>
-          {typeof seat?.rating === 'number' && <span className="ch-rating">{faNum(seat.rating)}</span>}
+          {seat?.bot && <Badge tone="neutral" size="sm" icon="bot">{seat.botLabel ?? 'ربات'}</Badge>}
+          {seat?.bot && typeof seat.botRating === 'number' ? <span className="ch-rating">حدود {faNum(seat.botRating)}</span>
+            : typeof seat?.rating === 'number' && <span className="ch-rating">{faNum(seat.rating)}</span>}
           {seat?.league && LEAGUE_FA[seat.league] && <League tier={seat.league as 'gold'}>{LEAGUE_FA[seat.league]}</League>}
           {off && <span className="ch-pill ch-pill--off"><Icon name="wifi-off" size={12} />قطع</span>}
         </div>
@@ -220,7 +222,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   const [options, setOptions] = useState(false);
   const [cardOpen, setCardOpen] = useState(true); // the result card; closing it leaves the post-game panel
   const [flash, setFlash] = useState(false); // the own king square blinks red (illegal move of a pinned piece)
-  const [notice, setNotice] = useState<string | null>(null); // short status-bar message
+  const [notice, setNotice] = useState<ReactNode>(null); // short status-bar message
   const timers = useRef<number[]>([]);
   const later = (fn: () => void, ms: number) => { timers.current.push(window.setTimeout(fn, ms)); };
   useEffect(() => { const t = timers.current; return () => t.forEach((x) => window.clearTimeout(x)); }, []);
@@ -265,7 +267,10 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
     const near = Math.abs(from.charCodeAt(0) - to.charCodeAt(0)) <= 1 && Math.abs(Number(from[1]) - Number(to[1])) <= 1;
     if (!(pinned.has(from) || (liveView.board[idx(from)] === `${myColor}K` && near))) return;
     setFlash(false); setNotice(null);
-    later(() => { setFlash(true); setNotice('این حرکت شاه را در کیش می‌گذارد'); }, 0);
+    // D20: name the pinned piece («سرباز f7 میخ شده؛ حرکتش شاه را در کیش می‌گذارد»); a king step keeps the short text.
+    const piece = liveView.board[idx(from)];
+    const text = pinned.has(from) && piece ? <>{NAME_FA[piece[1] as PieceType]} <bdi dir="ltr">{from}</bdi> میخ شده؛ حرکتش شاه را در کیش می‌گذارد</> : 'این حرکت شاه را در کیش می‌گذارد';
+    later(() => { setFlash(true); setNotice(text); }, 0);
     later(() => setFlash(false), 400);
     later(() => setNotice(null), 3500);
   };
@@ -541,7 +546,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
         // P08 / U10: one line, «X مساوی پیشنهاد داد ✓ ✕» (moving declines it)
         <div className="ch-offer ch-offer--bar" data-offer="received" role="alert">
           <Icon name="handshake" size={20} />
-          <span className="ch-offer__txt"><b><bdi>{seatName(offerFrom)}</bdi></b> مساوی پیشنهاد داد.</span>
+          <span className="ch-offer__txt"><b className="ch-offer__name"><bdi>{seatName(offerFrom)}</bdi></b><span> مساوی پیشنهاد داد.</span></span>
           <Button variant="primary" icon="check" disabled={busy || !live || !has('acceptDraw')} onClick={() => onAction({ type: 'acceptDraw' })}>قبول</Button>
           <Button variant="secondary" iconOnly icon="x" disabled={busy || !live} onClick={() => onAction({ type: 'declineDraw' })}>رد</Button>
         </div>
@@ -708,6 +713,12 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   );
 
   useEffect(() => { if (!ended && !aborted) setCardOpen(true); }, [ended, aborted]);
+  // A rematch request closes the result card (D16 / P21): the request lives in the panel (desktop) or under the board (phone).
+  const rematchPending = !!frame?.rematch?.pending;
+  useEffect(() => { if (rematchPending) setCardOpen(false); }, [rematchPending]);
+  const rematch = frame?.rematch ?? null;
+  const gameOver = ended || aborted;
+  const rematchBlock = gameOver && rematchPending ? (phone ? rematch?.bar : rematch?.card) : null;
   // Phone: a thin one-line note beside the board instead of a banner over its squares.
   const phoneNote = phone && !over ? (!live
     ? <div className="ch-note-strip ch-note-strip--lost" role="status"><span className="ch-spin" aria-hidden="true" /><span>اتصال شما قطع شد. در حال وصل شدن دوباره…</span></div>
@@ -731,12 +742,12 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   const flipBtn = tip('چرخاندن صفحه', <Button variant="secondary" iconOnly icon="rotate-ccw" pressed={flipped} title="چرخاندن صفحه" onClick={() => setFlipped((f) => !f)}>چرخاندن صفحه</Button>);
   const settingsBtn = tip('تنظیمات صفحه', <Button variant="secondary" iconOnly icon="settings" title="تنظیمات صفحه" onClick={() => setSettings(true)}>تنظیمات صفحه</Button>);
   // After the result card is closed (U4): review, rematch and new opponent stay in the panel.
-  const postGame = (ended || aborted) && !cardOpen ? (
-    <div className="ch-card ch-post" data-post-game>
-      <Button variant="secondary" icon="list" block disabled={!boards || total === 0} onClick={() => go(0)}>مرور بازی</Button>
-      {frame?.result}
-    </div>
-  ) : null;
+  const postGame = gameOver && !cardOpen && frame?.resultInfo ? <div className="ch-card ch-post" data-post-game>{frame.resultInfo}</div> : null;
+  const reviewBtn = <Button variant="secondary" icon="list" block disabled={!boards || total === 0} onClick={() => go(0)}>مرور بازی</Button>;
+  // B9: after the game the rail swaps «مساوی / تسلیم» for «بازی دوباره» (or «حریف جدید» while a rematch is pending) and «مرور بازی».
+  const againBtn = rematch && !rematchPending
+    ? <Button variant="primary" icon="refresh-cw" block loading={rematch.busy} onClick={rematch.ask}>بازی دوباره</Button>
+    : <Button variant="secondary" icon="search" block href={frame?.newGameHref}>حریف جدید</Button>;
 
   const dialogs = (
     <>
@@ -778,6 +789,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
         {bar(bottomSeat, true)}
         {statusCard /* the check message stays here; the one-line draw bar goes below it */}
         {offerCard}
+        {rematchBlock}
         {postGame}
         {claim && canAct && <Button variant="secondary" icon="handshake" block onClick={() => onAction({ type: 'claimDraw' })}>ادعای مساوی (تکرار سه‌باره / ۵۰ حرکت)</Button>}
         {frame?.tournament}
@@ -791,13 +803,21 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
             <button type="button" onClick={() => setOptions(true)}><Icon name="list" size={22} /><span>حرکت‌ها</span></button>
             <button type="button" aria-pressed={flipped} onClick={() => setFlipped((f) => !f)}><Icon name="rotate-ccw" size={22} /><span>چرخاندن</span></button>
             <button type="button" disabled={!frame?.openChat} onClick={() => frame?.openChat?.()}><Icon name="message-circle" size={22} /><span>گفت‌وگو</span></button>
+          </> : gameOver ? <>
+            <button type="button" disabled={!rematch || rematchPending || rematch.busy} onClick={() => rematch?.ask()}><Icon name="refresh-cw" size={22} /><span>بازی دوباره</span></button>
+            <a href={frame?.newGameHref}><Icon name="search" size={22} /><span>حریف جدید</span></a>
+            <button type="button" disabled={!boards || total === 0} onClick={() => go(0)}><Icon name="list" size={22} /><span>مرور بازی</span></button>
+            <button type="button" disabled={!frame?.share} onClick={() => frame?.share?.()}><Icon name="share-2" size={22} /><span>اشتراک</span></button>
+            {frame?.recordHref ? <a href={frame.recordHref}><Icon name="download" size={22} /><span>PGN</span></a> : <button type="button" disabled><Icon name="download" size={22} /><span>PGN</span></button>}
           </> : <>
             <button type="button" onClick={() => setOptions(true)}><Icon name="more-vertical" size={22} /><span>گزینه‌ها</span></button>
             <button type="button" disabled={drawDisabled} onClick={() => onAction({ type: 'offerDraw' })}><Icon name="handshake" size={22} /><span>{drawSent ? 'فرستاده شد' : 'مساوی'}</span></button>
             <button type="button" disabled={busy || !live || over} onClick={() => setConfirmResign(true)}><Icon name="flag" size={22} /><span>تسلیم</span></button>
           </>}
-          <button type="button" disabled={!boards || cur === 0} onClick={() => go(cur - 1)}><Icon name="chevron-right" size={22} /><span>قبلی</span></button>
-          <button type="button" disabled={ply === null} onClick={() => go(cur + 1)}><Icon name="chevron-left" size={22} /><span>بعدی</span></button>
+          {!(gameOver && mySeat !== null) && <>
+            <button type="button" disabled={!boards || cur === 0} onClick={() => go(cur - 1)}><Icon name="chevron-right" size={22} /><span>قبلی</span></button>
+            <button type="button" disabled={ply === null} onClick={() => go(cur + 1)}><Icon name="chevron-left" size={22} /><span>بعدی</span></button>
+          </>}
         </nav>
         {dialogs}
       </div>
@@ -815,11 +835,12 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
       <aside className="ch-rail" aria-label="وضعیت و حرکت‌ها">
         <div className="ch-card">{statusCard}</div>
         {offerCard}
+        {rematchBlock}
         {postGame}
         {claim && canAct && <Button variant="secondary" icon="handshake" block onClick={() => onAction({ type: 'claimDraw' })}>ادعای مساوی (تکرار سه‌باره / ۵۰ حرکت)</Button>}
         {frame?.tournament}
         {moveList}
-        <div className={mySeat === null ? 'ch-actions ch-actions--watch' : 'ch-actions'}>{mySeat !== null && <>{drawBtn()}{resignBtn()}</>}{flipBtn}{settingsBtn}</div>
+        <div className={mySeat === null ? 'ch-actions ch-actions--watch' : 'ch-actions'}>{mySeat !== null && (gameOver ? <>{againBtn}{reviewBtn}</> : <>{drawBtn()}{resignBtn()}</>)}{flipBtn}{settingsBtn}</div>
       </aside>
       <main className="ch-felt" aria-label="صفحهٔ بازی">
         {bar(topSeat)}
@@ -844,7 +865,7 @@ function EndPanel({ view, mySeat, words, seatName, seatInfo, frame, open, setOpe
   const [late, setLate] = useState(delay > 0);
   useEffect(() => { if (!late) return; const t = window.setTimeout(() => setLate(false), delay); return () => window.clearTimeout(t); }, [late, delay]);
   if (late) return null;
-  if (!open) return <button type="button" className="ch-endpeek" onClick={() => setOpen(true)}><Icon name="trophy" size={16} />{words.title}</button>;
+  if (!open) return <button type="button" className="ch-endpeek" onClick={() => setOpen(true)}><Icon name="trophy" size={16} />{words.title}<span className="bgv-sep" />دیدن نتیجه</button>;
   const winner = view.outcome?.placements.length && view.end?.kind !== 'draw' ? view.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
   const white = view.colors.indexOf('w'), black = 1 - white;
   const sc = scoreText(view);
@@ -870,9 +891,8 @@ function EndPanel({ view, mySeat, words, seatName, seatInfo, frame, open, setOpe
           <span className="ch-vs__score" dir="ltr" aria-label={sc ? `نتیجه ${sc} (سفید ـ سیاه)` : undefined}>{sc ?? '—'}</span>
           {player(black)}
         </div>
-        {canReview && <div className="ch__end-review"><Button variant="secondary" icon="list" block onClick={onReview}>مرور بازی</Button></div>}
         {frame?.result}
-        <div className="ch__end-foot"><Button variant="ghost" size="sm" icon="eye" onClick={() => setOpen(false)}>دیدن صفحه</Button></div>
+        {canReview && <div className="ch__end-review"><Button variant="secondary" icon="list" block onClick={onReview}>مرور بازی</Button></div>}
       </section>
     </div>
   );
@@ -906,11 +926,11 @@ function SettingsPanel({ phone, prefs, setPrefs, onClose }: { phone: boolean; pr
         </div>
       </section>
       <section className="ch-switches" aria-label="گزینه‌ها">
-        <Switch label="مختصات" checked={prefs.coords} onChange={(v) => setPrefs({ coords: v })} stateLabels={['خاموش', 'روشن']} />
-        <Switch label="نمایش حرکت‌های مجاز" checked={prefs.dots} onChange={(v) => setPrefs({ dots: v })} stateLabels={['خاموش', 'روشن']} />
-        <Switch label="برجسته کردن حرکت آخر" checked={prefs.last} onChange={(v) => setPrefs({ last: v })} stateLabels={['خاموش', 'روشن']} />
-        <Switch label="پری‌موو" checked={prefs.premove} onChange={(v) => setPrefs({ premove: v })} stateLabels={['خاموش', 'روشن']} />
-        <Switch label="ارتقای خودکار به وزیر" checked={prefs.autoQueen} onChange={(v) => setPrefs({ autoQueen: v })} stateLabels={['خاموش', 'روشن']} />
+        <Switch label="مختصات" checked={prefs.coords} onChange={(v) => setPrefs({ coords: v })} />
+        <Switch label="نمایش حرکت‌های مجاز" checked={prefs.dots} onChange={(v) => setPrefs({ dots: v })} />
+        <Switch label="برجسته کردن حرکت آخر" checked={prefs.last} onChange={(v) => setPrefs({ last: v })} />
+        <Switch label="پری‌موو" checked={prefs.premove} onChange={(v) => setPrefs({ premove: v })} />
+        <Switch label="ارتقای خودکار به وزیر" checked={prefs.autoQueen} onChange={(v) => setPrefs({ autoQueen: v })} />
       </section>
       <section className="ch-switches" aria-labelledby="ch-set-fx">
         <h4 id="ch-set-fx">صدا و انیمیشن</h4>

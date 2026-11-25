@@ -20,12 +20,14 @@
 .ch-felt { container-type: size; background: var(--felt); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2);
   padding: var(--space-3) var(--space-4); min-inline-size: 0; min-block-size: 0; position: relative; }
 /* Board edge = the smaller of the felt's width and its height minus the two player bars (52px) and gaps; at most 688px. */
-.ch-felt > * { --b: min(688px, 100cqi - 32px, 100cqb - 104px - 40px); }
+.ch-felt > * { --b: min(688px, 100cqi - 32px, 100cqb - 104px - 16px); }
 /* U1 (HANDOFF §13 / D15): from 1440 the board has no 688 cap: height left under the header minus the two player bars, at most the width between the side columns. */
-@media (min-width: 1440px) { .ch-felt > * { --b: min(100cqi - 32px, 100cqb - 104px - 40px); } }
+@media (min-width: 1440px) { .ch-felt > * { --b: min(100cqi - 32px, 100cqb - 104px - 16px); } }
 
 .ch-card { background: var(--surface); border-radius: var(--radius-md); box-shadow: var(--shadow-card), var(--shadow-ring); padding: var(--space-3); display: grid; gap: var(--space-2); align-content: start; }
 .ch-card--fill { flex: 1; min-block-size: 220px; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+/* With the opening name (U11) the card has one more row: the list, not the column header, takes the free space. */
+.ch-card--fill:has(> .ch-opening) { grid-template-rows: auto auto auto minmax(0, 1fr) auto; }
 .ch-card h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--heading); }
 .ch-status { display: flex; align-items: center; gap: var(--space-2); font-size: 15px; line-height: 1.6; color: var(--text); }
 .ch-status b { color: var(--heading); }
@@ -67,10 +69,10 @@
 .ch-rating { color: var(--felt-muted); font-size: 13.5px; font-weight: 700; }
 .ch-vs .ch-rating { color: var(--text-muted); }
 .ch-player__caps { display: flex; align-items: center; block-size: 22px; min-inline-size: 0; }
-.ch-player__captured { display: inline-flex; align-items: center; block-size: 22px; padding-inline: 3px 10px; border-radius: 6px; direction: ltr; }
+.ch-player__captured { flex: none; display: inline-flex; align-items: center; block-size: 22px; padding-inline: 3px 10px; border-radius: 6px; direction: ltr; }
 .ch-player__captured--b { background: #E9E4DA; box-shadow: inset 0 0 0 1px rgb(20 43 59 / .18); } /* light chip behind BLACK captured pieces only (CX-6b) */
 .ch-capt { inline-size: 20px; block-size: 20px; flex: none; margin-inline-end: -7px; }
-.ch-lead { font: 700 13px/1 var(--font-fa); color: var(--felt-muted); margin-inline-start: 12px; }
+.ch-lead { flex: none; position: relative; font: 700 13px/1 var(--font-fa); color: var(--felt-muted); margin-inline-start: var(--space-3); }
 .ch-player--sm { block-size: 46px; gap: var(--space-2); padding-inline: var(--space-3); }
 .ch-player--sm .ch-player__name { font-size: 14px; }
 .ch-pill { display: inline-flex; align-items: center; gap: 4px; block-size: 20px; padding-inline: 7px; border-radius: 5px; font-size: 11.5px; font-weight: 700; }
@@ -174,12 +176,13 @@
 @media (prefers-reduced-motion: reduce) { .ch-spin { animation: none; } }
 
 /* ---------- result (CX-11) ---------- */
-.ch-over { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--scrim); padding: var(--space-3); }
-.ch__end { inline-size: min(400px, 100%); max-block-size: 100%; overflow: auto; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-float), var(--shadow-ring); display: grid; }
+.ch-over { position: absolute; inset: 0; z-index: 20; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; background: var(--scrim); padding: var(--space-3); }
+.ch__end { inline-size: min(400px, 100%); max-block-size: 100%; overflow: auto; grid-auto-rows: min-content; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-float), var(--shadow-ring); display: grid; }
 .ch__end-head { padding: 22px 22px 16px; display: grid; justify-items: center; gap: 6px; text-align: center; background: var(--felt); color: var(--felt-ink); }
 .ch__end-head { position: relative; }
-.ch__end-x { position: absolute; inset-block-start: var(--space-2); inset-inline-start: var(--space-2); color: var(--felt-ink); }
-.ch__end-review { padding: 0 20px 12px; }
+.ch__end-x { position: absolute; inset-block-start: var(--space-2); inset-inline-end: var(--space-2); color: var(--felt-ink); }
+.ch__end-review { padding: 0 20px var(--space-4); }
+.ch-post .tbl-ownres { padding: 0; }
 .ch-post { gap: var(--space-2); }
 .ch-opening { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 .ch-opening b { color: var(--heading); }
@@ -229,9 +232,9 @@
 .ch-strip .ch-ml__m.is-cur { background: var(--felt-control); color: var(--brand-ink); }
 .ch-pdock { position: fixed; z-index: var(--z-hud); inset-inline: 0; inset-block-end: 0; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface-chrome);
   box-shadow: var(--shadow-float); padding-block-end: env(safe-area-inset-bottom); }
-.ch-pdock button { display: grid; justify-items: center; gap: 2px; min-block-size: 56px; padding: 6px 2px; border: 0; background: none; color: var(--text); font: 700 12px/1.2 var(--font-fa); cursor: pointer; }
-.ch-pdock button:disabled { color: var(--text-muted); opacity: .55; cursor: default; }
-.ch-pdock button:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.ch-pdock :is(button, a) { display: grid; justify-items: center; gap: 2px; min-block-size: 56px; padding: 6px 2px; border: 0; background: none; color: var(--text); font: 700 12px/1.2 var(--font-fa); cursor: pointer; text-decoration: none; }
+.ch-pdock :is(button, a):disabled { color: var(--text-muted); opacity: .55; cursor: default; }
+.ch-pdock :is(button, a):focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .ch-optsheet { display: grid; gap: var(--space-3); }
 
 .ch-optrow { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -239,6 +242,9 @@
 .ch-sheetbtns .bgv-btn { inline-size: 100%; justify-content: center; }
 .ch-offer--bar { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
 .ch-offer--bar .ch-offer__txt { flex: 1; min-inline-size: 0; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-offer__txt:has(> .ch-offer__name) { display: flex; }
+.ch-offer__name { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; margin-inline-end: var(--space-1); }
+.ch-offer__name + span { flex: none; }
 .ch-offer--bar .bgv-btn { flex: none; }
 .ch-note-strip { display: flex; align-items: center; gap: var(--space-2); padding: 4px var(--space-3); font-size: 13px; line-height: 1.5; white-space: nowrap; overflow: hidden; background: var(--felt-plate); color: var(--felt-ink); }
 .ch-note-strip > span:last-child { overflow: hidden; text-overflow: ellipsis; }

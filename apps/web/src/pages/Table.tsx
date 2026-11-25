@@ -19,7 +19,7 @@ import { browserNotificationsEnabled } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { useTableSession } from '../lib/useTableSession.ts';
 import { useTurnAlerts } from '../lib/alerts.ts';
-import { clockLabelFa } from '../games/chessClock.ts';
+import { BOT_RATING, clockLabelFa } from '../games/chessClock.ts';
 import { ChatPanel, preloadChat, type ChatEvent } from '../social/ChatPanel.tsx';
 import { QuickChatButton } from '../social/QuickChat.tsx';
 import { InvitePanel } from '../social/InvitePanel.tsx';
@@ -1220,16 +1220,37 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   }) : null;
   fast.current = !!clocks?.some((x) => x.state === 'crit');
 
+  const [rematchBusy, setRematchBusy] = useState(false);
+  const askRematch = async () => {
+    setRematchBusy(true);
+    try { s.accept(await api<TableSnapshot>(`/tables/${t.id}/rematch`, { method: 'POST', body: { vote: 'yes' } })); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'درخواست ثبت نشد.'); } finally { setRematchBusy(false); }
+  };
+  const shareGame = async () => {
+    const url = `${location.origin}/${t.code ? `t/${t.code}` : `tables/${t.id}`}`;
+    try {
+      if (navigator.share) await navigator.share({ title: t.gameNameFa, url });
+      else { await navigator.clipboard.writeText(url); toast('success', 'لینک بازی کپی شد.'); }
+    } catch { /* share sheet dismissed */ }
+  };
   const frame: TableFrame = {
     seats: t.seats.map((x) => {
       const n = name(x.seat);
-      return { seat: x.seat, name: n, avatar: <Avatar size="md" {...seatAvatar(x, n)} />, rating: x.rating ?? null, league: x.league ?? null, bot: !!x.bot,
+      return { seat: x.seat, name: n, avatar: <Avatar size="md" {...seatAvatar(x, n)} />, rating: x.bot ? null : x.rating ?? null, league: x.league ?? null, bot: !!x.bot,
+        ...(x.bot ? { botLabel: `ربات ${BOT_LEVEL_FA[x.bot.level]}`, botRating: BOT_RATING[x.bot.level] } : {}),
         offline: live && !finished && x.seat !== t.mySeat && !!x.user && x.connected === false };
     }),
     clocks, live, finished, aborted,
     timeLabel: timeLabel(t) ?? undefined,
     recordHref: finished ? `/api/tables/${t.id}/record` : undefined,
     result: (finished || aborted) ? <OwnFrameResult snap={snap} onSnap={s.accept} onReport={() => setReporting(true)} toast={toast} /> : undefined,
+    resultInfo: (finished || aborted) ? <OwnFrameResult part="info" snap={snap} onSnap={s.accept} onReport={() => setReporting(true)} toast={toast} /> : undefined,
+    rematch: finished && t.mySeat !== null ? {
+      pending: !!t.rematch?.votes.length, busy: rematchBusy, ask: () => void askRematch(),
+      card: <OwnFrameRematch mode="card" snap={snap} onSnap={s.accept} />, bar: <OwnFrameRematch mode="bar" snap={snap} onSnap={s.accept} />
+    } : null,
+    newGameHref: `/play?game=${t.gameId}`,
+    share: () => void shareGame(),
     openChat: wide && !botGame ? undefined : () => setChat(true),
     unread,
     rejected: s.rejection, notice,
@@ -1409,7 +1430,7 @@ function useFrameNotice(snap: TableSnapshot, name: (seat: number) => string): Ta
  * 30 s countdown that started at the request. The asker waits; the other side gets «قبول / رد». «قبول» opens the new
  * table (same time control, colours swapped by the server) and both players are taken to it.
  */
-function OwnFrameRematch({ snap, onSnap }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void }) {
+function OwnFrameRematch({ snap, onSnap, mode }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void; /** button: the ask button of the result card; card / bar: the compact request UI (desktop panel / phone line) */ mode: 'button' | 'card' | 'bar' }) {
   const t = snap.table;
   const r = t.rematch;
   const toast = useToast();
@@ -1430,8 +1451,21 @@ function OwnFrameRematch({ snap, onSnap }: { snap: TableSnapshot; onSnap: (s: Ta
     try { onSnap(await api<TableSnapshot>(`/tables/${t.id}/rematch`, { method: 'POST', body: { vote: v } })); }
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'درخواست ثبت نشد.'); } finally { setBusy(false); }
   };
-  if (!r.votes.length) return <Button variant="primary" icon="refresh-cw" loading={busy} onClick={() => void vote('yes')}>بازی دوباره</Button>;
+  if (!r.votes.length) return mode === 'button' ? <Button variant="primary" icon="refresh-cw" loading={busy} onClick={() => void vote('yes')}>بازی دوباره</Button> : null;
+  if (mode === 'button') return null; // a request is open: it lives in the panel / under the board, the result card closes
   const askerName = asker ? name(asker.seat) : '';
+  if (mode === 'bar') {
+    return (
+      <div className="ch-offer ch-offer--bar" role="status" data-rematch="bar">
+        <Icon name="refresh-cw" size={20} />
+        <span className="ch-offer__txt">{asker && !myVote ? <><b><bdi>{askerName}</bdi></b> بازی دوباره می‌خواهد.</> : 'منتظر جواب حریف…'}{secs !== null && <> <bdi>{faNum(secs)} ثانیه</bdi></>}</span>
+        {asker && !myVote && <>
+          <Button variant="primary" icon="check" loading={busy} onClick={() => void vote('yes')}>قبول</Button>
+          <Button variant="secondary" iconOnly icon="x" disabled={busy} onClick={() => void vote('no')}>رد</Button>
+        </>}
+      </div>
+    );
+  }
   return (
     <Rematch className="tbl-rematch"
       title={asker && !myVote ? <><bdi>{askerName}</bdi> بازی دوباره می‌خواهد.</> : 'منتظر جواب حریف…'}
@@ -1449,7 +1483,7 @@ function OwnFrameRematch({ snap, onSnap }: { snap: TableSnapshot; onSnap: (s: Ta
 }
 
 /** The platform half of the chess result (CX-11): my rating change, rematch, new opponent, PGN, share and report. */
-function OwnFrameResult({ snap, onSnap, onReport, toast }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void; onReport: () => void; toast: ReturnType<typeof useToast> }) {
+function OwnFrameResult({ snap, onSnap, onReport, toast, part = 'full' }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void; onReport: () => void; toast: ReturnType<typeof useToast>; /** info: no action buttons (they sit in the panel / dock) */ part?: 'full' | 'info' }) {
   const t = snap.table;
   const rewards = useRewards(t.id, t.mySeat !== null && t.status === 'finished');
   const d = rewards.data;
@@ -1483,11 +1517,13 @@ function OwnFrameResult({ snap, onSnap, onReport, toast }: { snap: TableSnapshot
           : <p className="tbl-ownres__rating" role="status">{rewards.gaveUp ? 'تغییر رتبه بعداً در «پیشرفت» نمایش داده می‌شود.' : 'در حال محاسبهٔ رتبه…'}</p>
       )}
       {t.competition === 'friendly' && t.status === 'finished' && <p className="tbl-ownres__rating">میز دوستانه روی رتبه اثری ندارد.</p>}
-      <div className="tbl-ownres__btns">
-        {t.status === 'finished' && <OwnFrameRematch snap={snap} onSnap={onSnap} />}
-        {t.status === 'cancelled' && friend && <Button variant="primary" icon="refresh-cw" loading={again} onClick={() => void reopen()}>دوباره با همین دوست</Button>}
-        <Button variant="secondary" icon="search" href={`/play?game=${t.gameId}`}>حریف جدید</Button>
-      </div>
+      {part === 'full' && (
+        <div className="tbl-ownres__btns">
+          {t.status === 'finished' && <OwnFrameRematch mode="button" snap={snap} onSnap={onSnap} />}
+          {t.status === 'cancelled' && friend && <Button variant="primary" icon="refresh-cw" loading={again} onClick={() => void reopen()}>دوباره با همین دوست</Button>}
+          <Button variant="secondary" icon="search" href={`/play?game=${t.gameId}`}>حریف جدید</Button>
+        </div>
+      )}
       {t.status === 'finished' && (
         <div className="tbl-ownres__foot">
           <Button variant="ghost" size="sm" icon="download" href={`/api/tables/${t.id}/record`}>PGN</Button>

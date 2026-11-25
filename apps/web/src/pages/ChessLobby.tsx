@@ -13,7 +13,7 @@ import { api, ApiFailure } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { clockLabelFa } from '../games/chessClock.ts';
+import { BOT_RATING, clockLabelFa } from '../games/chessClock.ts';
 import { useCopy } from '../social/InviteCard.tsx';
 
 type Mode = 'online' | 'friend' | 'bot';
@@ -41,7 +41,7 @@ const FIRST_MOVE: Record<Color, string> = { white: 'host', random: 'random', bla
  * the design's 800 / 1,200 / 1,600 are higher than this engine plays. Replace with measured values when a bot-vs-rated run exists.
  */
 const BOTS: Record<Level, { rating: number; initial: string; seat: 3 | 2 | 5 }> = {
-  easy: { rating: 500, initial: 'آ', seat: 3 }, medium: { rating: 900, initial: 'م', seat: 2 }, hard: { rating: 1300, initial: 'س', seat: 5 }
+  easy: { rating: BOT_RATING.easy, initial: 'آ', seat: 3 }, medium: { rating: BOT_RATING.medium, initial: 'م', seat: 2 }, hard: { rating: BOT_RATING.hard, initial: 'س', seat: 5 }
 };
 const botLine = (l: Level) => `حدود ${faNum(BOTS[l].rating)}`;
 
@@ -200,7 +200,7 @@ export function ChessLobby() {
   ) : null;
 
   return (
-    <div className={waiting ? 'chl chl--seeking' : 'chl'}>
+    <div className={waiting ? (invite ? 'chl chl--seeking chl--invite' : 'chl chl--seeking') : 'chl'}>
       <GameBar title="شطرنج" latin="Chess" onBack={() => navigate('/games/chess')} backLabel="بازگشت به صفحهٔ شطرنج" meta={['شطرنج', 'بازی جدید']} />
       <div className="chl__body">
         <section className="chl__side" aria-labelledby="chl-h">

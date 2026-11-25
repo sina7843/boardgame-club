@@ -12,6 +12,8 @@ html[data-immersive] .bgv-app__main { max-inline-size: none; }
   html[data-tablepage] .bgv-app__main { padding-block-end: 0 !important; }
 }
 html[data-immersive] .app-page { gap: 0; }
+/* B5: a phone chess table (own frame) is full width: the felt and the board reach both screen edges. */
+@media (max-width: 899px) { html[data-immersive]:has(.tbl-own) .bgv-app__main { padding-inline: 0 !important; } }
 
 /* Lobby */
 .tbl-head { display: flex; align-items: center; gap: var(--space-3); }
