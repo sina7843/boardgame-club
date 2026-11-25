@@ -4,6 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
   apiErrorSchema, avatarItemKeys, COSMETICS, equipBody, equippedCosmetics, loadout, maskMobile, meResponse, parseAvatar, publicProfile, updateProfileBody,
+  VACATION_COOLDOWN_DAYS, vacationBody,
   type ProfileExtras, type PublicProfile
 } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
@@ -26,6 +27,14 @@ export function toPublicProfile(u: typeof users.$inferSelect): PublicProfile {
 }
 export function toProfileExtras(u: typeof users.$inferSelect): ProfileExtras {
   return { bio: u.bio, titleKey: u.titleKey, bannerKey: u.bannerKey, favoriteGames: u.favoriteGames, showcase: u.showcase };
+}
+
+/** Vacation state for the account owner: active until, and when the next one may start. */
+function vacationOf(u: typeof users.$inferSelect) {
+  const now = Date.now();
+  const until = u.vacationUntil && u.vacationUntil.getTime() > now ? u.vacationUntil.toISOString() : null;
+  const next = u.vacationLastEndedAt ? u.vacationLastEndedAt.getTime() + VACATION_COOLDOWN_DAYS * 86_400_000 : 0;
+  return { until, availableAt: next > now ? new Date(next).toISOString() : null };
 }
 
 /** Achievement keys the catalogue unlocks with, so the builder can name them («دستاورد هت‌تریک»). */
@@ -64,8 +73,36 @@ export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
       .innerJoin(userPrivate, eq(userPrivate.userId, users.id)).where(eq(users.id, userId));
     if (!row) throw new AppError('UNAUTHENTICATED');
     return { ...toPublicProfile(row.user), ...toProfileExtras(row.user), mobileMasked: maskMobile(row.mobile), roles, profileCompleted: row.user.profileCompleted, suspended,
-      termsAccepted: row.user.termsVersion === await termsVersion(db) };
+      termsAccepted: row.user.termsVersion === await termsVersion(db), vacation: vacationOf(row.user) };
   };
+
+  r.post('/me/vacation', {
+    schema: { tags: ['users'], summary: 'Start a vacation (1 to 7 days): turn deadlines of turn-based, non-tournament tables are pushed past it; 7 days between two vacations',
+      body: vacationBody, response: { 200: meResponse, 400: apiErrorSchema, 401: apiErrorSchema, 409: apiErrorSchema } }
+  }, async (req) => {
+    const auth = requireUser(req);
+    // One conditional update: no active vacation and the cooldown has passed (concurrent requests cannot both start one).
+    const until = sql`now() + make_interval(days => ${req.body.days})`;
+    const [ok] = await db.update(users).set({ vacationUntil: until, vacationLastEndedAt: until, updatedAt: sql`now()` })
+      .where(and(eq(users.id, auth.userId), sql`(${users.vacationUntil} is null or ${users.vacationUntil} <= now())`,
+        sql`(${users.vacationLastEndedAt} is null or ${users.vacationLastEndedAt} <= now() - make_interval(days => ${VACATION_COOLDOWN_DAYS}))`))
+      .returning({ id: users.id });
+    if (!ok) {
+      const [u] = await db.select({ until: users.vacationUntil }).from(users).where(eq(users.id, auth.userId));
+      throw new AppError(u?.until && u.until.getTime() > Date.now() ? 'VACATION_ACTIVE' : 'VACATION_COOLDOWN');
+    }
+    return loadMe(auth.userId, auth.roles);
+  });
+
+  r.delete('/me/vacation', {
+    schema: { tags: ['users'], summary: 'End the vacation early (deadlines already pushed keep their new time; the 7-day gap counts from now)',
+      response: { 200: meResponse, 401: apiErrorSchema } }
+  }, async (req) => {
+    const auth = requireUser(req);
+    await db.update(users).set({ vacationUntil: sql`now()`, vacationLastEndedAt: sql`now()`, updatedAt: sql`now()` })
+      .where(and(eq(users.id, auth.userId), gt(users.vacationUntil, sql`now()`)));
+    return loadMe(auth.userId, auth.roles);
+  });
 
   r.get('/me', {
     schema: { tags: ['users'], summary: 'Signed-in account (private view)', response: { 200: meResponse, 401: apiErrorSchema } }

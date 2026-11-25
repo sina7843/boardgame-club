@@ -13,7 +13,7 @@ import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
 import { CONFIRMS_IN_RENDERER, GROUP_FRAME, OWN_FRAME, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AvatarArt, frameProps } from '../lib/bgv.tsx';
-import { durationFa, faNum, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
+import { durationFa, faNum, jalaliDate, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { browserNotificationsEnabled } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -666,7 +666,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       name: n, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
       onClick: () => setSheetSeat(x.seat),
       ...(x.bot ? { botLevel: BOT_LEVEL_FA[x.bot.level] } : {}),
-      ...(x.kind === 'script' ? { sub: 'حریف آموزشی' } : {}),
+      ...(x.kind === 'script' ? { sub: 'حریف آموزشی' } : x.onVacationUntil ? { sub: `در مرخصی تا ${jalaliDate(x.onVacationUntil)}` } : x.extraTimeUsed && !finished ? { sub: 'مهلت اضافه مصرف شد' } : {}),
       ...(x.league ? { league: x.league } : {}),
       ...(x.titleKey && cosmetic(x.titleKey) ? { title: cosmetic(x.titleKey)!.nameFa } : {}),
       ...(x.user && online[x.user.id] && !online[x.user.id]!.online ? { offline: 'آفلاین' } : {}),
@@ -946,6 +946,8 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
     if (ss?.status === 'passed') out.push(<Badge key="pass" size="sm">پاس داد</Badge>);
     if (ss?.status === 'done') out.push(<Badge key="done" size="sm" tone="success">آماده</Badge>);
     if (sum?.leaderSeat === x.seat && !place) out.push(<Badge key="lead" size="sm" icon="trophy">پیشتاز</Badge>);
+    if (x.onVacationUntil) out.push(<Badge key="vac" size="sm" tone="info" icon="sun">در مرخصی تا {jalaliDate(x.onVacationUntil)}</Badge>);
+    if (x.extraTimeUsed && t.status === 'active') out.push(<Badge key="extra" size="sm" icon="hourglass">مهلت اضافه مصرف شد</Badge>);
     if (ss?.strikes && sum?.strikesMax) out.push(<Badge key="st" size="sm" tone="danger" icon="alarm-clock">{faNum(ss.strikes)}/{faNum(sum.strikesMax)}</Badge>);
     return out;
   };

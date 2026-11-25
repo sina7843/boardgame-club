@@ -42,6 +42,10 @@ export const users = pgTable('users', {
   termsAcceptedAt: tsz(),
   /** Invite code for the friend-referral link; issued on first request. */
   referralCode: text().unique(),
+  /** Vacation «مرخصی» (turn-based, non-tournament tables): turn deadlines due before this are pushed past it. */
+  vacationUntil: tsz(),
+  /** End (planned or early) of the latest vacation; a new one may start 7 days after it. */
+  vacationLastEndedAt: tsz(),
   createdAt: createdAt(),
   updatedAt: createdAt()
 }, (t) => [oneOf('users_status_chk', t.status, ['active', 'suspended', 'deleted'])]);
@@ -331,6 +335,8 @@ export const participants = pgTable('participants', {
   userId: uuid().references(() => users.id),
   kind: text().notNull().default('human'),
   ready: boolean().notNull().default(false),
+  /** Turn-based non-tournament tables: the seat already got its one-time extra time «مهلت اضافه». */
+  extraTimeUsed: boolean().notNull().default(false),
   joinedAt: createdAt(),
   leftAt: tsz()
 }, (t) => [

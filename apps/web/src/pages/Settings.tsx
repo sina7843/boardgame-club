@@ -1,9 +1,10 @@
 import { useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { turnThresholds, type AlertPrefs, type UserSettings } from '@bg/contracts';
+import { turnThresholds, VACATION_MAX_DAYS, type AlertPrefs, type UserSettings } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Button, Card, Clock, Dialog, Icon, Identity, PageHead, PageTabs, Segmented, Select, Slider, StateBlock, Switch, Tag, TextField } from '@bg/ui/bgv';
+import { Badge, Button, Card, Clock, Dialog, Icon, Identity, PageHead, PageTabs, Segmented, Select, Slider, StateBlock, Switch, Tag, TextField } from '@bg/ui/bgv';
 import { userIdentity } from '../lib/bgv.tsx';
+import { faNum, jalaliDate, jalaliDateTime } from '../lib/format.ts';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 import { playAlert } from '../lib/alerts.ts';
@@ -120,6 +121,7 @@ export function Settings() {
               <Button size="sm" variant="leave" className="ac-signout" onClick={() => void logout().then(() => navigate('/'))}>خروج از حساب</Button>
             </div>
           </Section>
+          <VacationCard />
           <DeleteAccountCard />
         </div></div>
       )}
@@ -257,6 +259,43 @@ function TurnAlerts() {
       </div>
     </Section>
     </>
+  );
+}
+
+const VACATION_DAYS = Array.from({ length: VACATION_MAX_DAYS }, (_, i) => ({ value: String(i + 1), label: `${faNum(i + 1)} روز` }));
+
+/** Vacation «مرخصی»: turn deadlines on turn-based, non-tournament tables wait until it ends (server enforced). */
+function VacationCard() {
+  const { me, refresh } = useSession();
+  const toast = useToast();
+  const [days, setDays] = useState('3');
+  const [busy, setBusy] = useState(false);
+  const v = me?.vacation;
+  const send = async (method: 'POST' | 'DELETE') => {
+    setBusy(true);
+    try {
+      await api('/me/vacation', method === 'POST' ? { method, body: { days: Number(days) } } : { method });
+      await refresh();
+      toast('success', method === 'POST' ? 'مرخصی شروع شد.' : 'مرخصی تمام شد.');
+    } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
+    finally { setBusy(false); }
+  };
+  return (
+    <Section id="vacation-h" icon="sun" title="مرخصی" extra={v?.until ? <Badge tone="info" icon="sun">در مرخصی تا {jalaliDate(v.until)}</Badge> : undefined}>
+      <div className="ac-sec__body">
+        <p className="t-body-sm" style={{ margin: 0, textWrap: 'pretty' }}>در مرخصی، مهلت نوبت شما در میزهای نوبتی تمام نمی‌شود و یادآوری هم نمی‌گیرید؛ بعد از مرخصی یک نوبت کامل وقت دارید. میزهای زنده و تورنمنت‌ها شامل مرخصی نمی‌شوند. مرخصی دست‌کم ۱ و حداکثر ۷ روز است و بین دو مرخصی باید ۷ روز فاصله باشد.</p>
+        {v?.until ? (
+          <div><Button variant="secondary" loading={busy} onClick={() => void send('DELETE')}>پایان زودتر مرخصی</Button></div>
+        ) : v?.availableAt ? (
+          <StateBlock kind="empty" title="فعلاً نمی‌توانید مرخصی بگیرید" text={`مرخصی بعدی از ${jalaliDateTime(v.availableAt)} ممکن است.`} />
+        ) : (
+          <div className="ac-row">
+            <Select label="مدت مرخصی" value={days} options={VACATION_DAYS} onChange={(e) => setDays(e.target.value)} />
+            <Button variant="primary" loading={busy} onClick={() => void send('POST')}>شروع مرخصی</Button>
+          </div>
+        )}
+      </div>
+    </Section>
   );
 }
 

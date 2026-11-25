@@ -94,6 +94,9 @@ export const seatView = z.object({
   rating: z.number().int().nullable().optional(),
   /** Running tables: the player has a live table connection (socket) right now. */
   connected: z.boolean().optional(),
+  /** Turn-based non-tournament tables: the player is on vacation «مرخصی» until then (public), and whether the seat used its one-time extra time. */
+  onVacationUntil: z.iso.datetime().nullable().optional(),
+  extraTimeUsed: z.boolean().optional(),
   ready: z.boolean(),
   /** Bot seats only. */
   bot: z.object({ level: botLevelSchema, nameFa: z.string(), avatarKey: avatarKeySchema, style: botStyleSchema }).optional()
@@ -225,7 +228,8 @@ export const myTableItem = z.object({
   updatedRevision: z.number().int(),
   /** My seat and everyone seated (names and avatars only), whose turn it is, and my result once finished. */
   mySeat: z.number().int(),
-  seats: z.array(z.object({ seat: z.number().int(), name: z.string(), avatarKey: z.string(), kind: z.enum(['human', 'script', 'bot']) })),
+  seats: z.array(z.object({ seat: z.number().int(), name: z.string(), avatarKey: z.string(), kind: z.enum(['human', 'script', 'bot']),
+    onVacationUntil: z.iso.datetime().nullable().optional() })),
   turnSeats: z.array(z.number().int()),
   /** Last public move «name: text» from the game's summary (games that publish moves), for the home turn cards. */
   lastMove: z.string().nullable().optional(),

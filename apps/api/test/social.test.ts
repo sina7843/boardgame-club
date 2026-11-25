@@ -281,6 +281,8 @@ describe('reports, sanctions and appeals (FR-01, FR-16)', () => {
   it('records a timeout behaviour signal from the result without any automatic sanction', async () => {
     const t = await startTable(ctx, 'line-three', 2, { pace: 'turn' });
     const loserSeat = (await view(ctx, t.players[0]!, t.tableId)).game.pendingSeats[0];
+    // The one-time extra time (phase B) is already spent: this deadline times out.
+    await ctx.db.update(schema.participants).set({ extraTimeUsed: true }).where(eq(schema.participants.tableId, t.tableId));
     await ctx.db.update(schema.scheduledDeadlines).set({ dueAt: sql`now() - interval '1 second'` })
       .where(and(eq(schema.scheduledDeadlines.tableId, t.tableId), eq(schema.scheduledDeadlines.deadlineKey, 'turn')));
     const { runDueDeadlines } = await import('@bg/play');

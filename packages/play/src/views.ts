@@ -4,7 +4,7 @@ import { AppError, botPersona, ratingModeOf, type League, type TurnStartedEvent,
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
 import type { BotLevel, Viewer } from '@bg/game-sdk';
-import { clockControl, firstMovePending, loadSnapshot } from './runtime.ts';
+import { clockControl, firstMovePending, loadSnapshot, vacationApplies } from './runtime.ts';
 import { rematchOf } from './rematch.ts';
 import { seatCosmeticsOf } from './cosmetics.ts';
 import { displayRating } from './rating.ts';
@@ -149,6 +149,8 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     const { nameFa, avatarKey, style } = botPersona(botCfg?.personas, seats.filter((x) => x.p.kind === 'bot' && x.p.seat < seat).length);
     return { level: botCfg!.level, nameFa, avatarKey, style };
   };
+  const away = vacationApplies(table) && table.status !== 'finished' && table.status !== 'cancelled';
+  const onVacation = (u: { vacationUntil: Date | null } | null) => (away && u?.vacationUntil && u.vacationUntil.getTime() > Date.now() ? u.vacationUntil.toISOString() : null);
   const seatMode = ratingModeOf(table.pace, (table.settings as { options?: { clock?: unknown } }).options);
   const seatIds = seats.flatMap(({ u }) => (u ? [u.id] : []));
   const [leagues, ratingsBy, online] = await Promise.all([seatLeagues(db, table.gameId, seatMode, seatIds), seatRatings(db, table.gameId, seatMode, seatIds),
@@ -163,6 +165,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     seats: seats.map(({ p, u }) => ({
       seat: p.seat, kind: p.kind as 'human' | 'script' | 'bot', ready: p.ready,
       ...(u ? { titleKey: u.titleKey, league: leagues.get(u.id) ?? null, rating: ratingsBy.get(u.id) ?? null, ...(online ? { connected: online.has(u.id) } : {}) } : {}),
+      ...(away && p.kind === 'human' ? { onVacationUntil: onVacation(u), extraTimeUsed: p.extraTimeUsed } : {}),
       user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null,
       // equipped comes with the seats' users row (no extra query on the move path).
       ...(u && seatCosmeticsOf(u.equipped) ? { cosmetics: seatCosmeticsOf(u.equipped)! } : {}),
@@ -218,7 +221,7 @@ export async function listMyTables(db: Db, registry: GameRegistry, userId: strin
     .orderBy(desc(gameTables.createdAt)).limit(50);
   const ids = rows.map((r) => r.table.id);
   const seated = ids.length ? await db.select({ tableId: participants.tableId, seat: participants.seat, kind: participants.kind, settings: gameTables.settings,
-    name: users.displayName, avatarKey: users.avatarKey }).from(participants).innerJoin(gameTables, eq(gameTables.id, participants.tableId))
+    name: users.displayName, avatarKey: users.avatarKey, vacationUntil: users.vacationUntil }).from(participants).innerJoin(gameTables, eq(gameTables.id, participants.tableId))
     .leftJoin(users, eq(users.id, participants.userId)).where(inArray(participants.tableId, ids)).orderBy(participants.seat) : [];
   const results = ids.length ? await db.select({ tableId: gameResults.tableId, id: gameResults.id, outcome: gameResults.outcome }).from(gameResults).where(inArray(gameResults.tableId, ids)) : [];
   const deltas = results.length ? await db.select({ resultId: ratingHistory.resultId, before: ratingHistory.muBefore, after: ratingHistory.muAfter }).from(ratingHistory)
@@ -239,7 +242,8 @@ export async function listMyTables(db: Db, registry: GameRegistry, userId: strin
     const mine = seated.filter((x) => x.tableId === table.id);
     let bots = 0;
     const seats = mine.map((x) => {
-      if (x.kind !== 'bot') return { seat: x.seat, name: x.name ?? 'جایگزین', avatarKey: x.avatarKey ?? 'meeple', kind: x.kind as 'human' | 'script' };
+      const away = table.status === 'active' && vacationApplies(table) && x.vacationUntil && x.vacationUntil.getTime() > Date.now();
+      if (x.kind !== 'bot') return { seat: x.seat, name: x.name ?? 'جایگزین', avatarKey: x.avatarKey ?? 'meeple', kind: x.kind as 'human' | 'script', ...(away ? { onVacationUntil: x.vacationUntil!.toISOString() } : {}) };
       const p = botPersona((x.settings as { bot?: { personas?: number[] } }).bot?.personas, bots++);
       return { seat: x.seat, name: p.nameFa, avatarKey: p.avatarKey, kind: 'bot' as const };
     });
@@ -311,13 +315,14 @@ const leftFa = (sec: number) => (sec >= 3600 ? `${Math.round(sec / 3600).toLocal
 export function toNotificationItem(n: typeof notifications.$inferSelect): NotificationItem {
   const p = n.payload as { tableId?: string; gameNameFa?: string; actorName?: string; conversationId?: string; clubSlug?: string; clubName?: string;
     tournamentId?: string; titleFa?: string; round?: number; rank?: number; cancelled?: boolean; itemNameFa?: string; leftSeconds?: number | null;
-    checkin?: 'open' | 'closing'; minutesLeft?: number };
+    checkin?: 'open' | 'closing'; minutesLeft?: number; extraTime?: boolean };
   const game = p.gameNameFa ?? 'بازی';
   const actor = p.actorName ?? 'یک بازیکن';
   const kind = n.kind as NotificationItem['kind'];
   const text = {
     turn: `نوبت شما در «${game}» است.`,
-    reminder: p.leftSeconds ? `${leftFa(p.leftSeconds)} تا پایان نوبت شما در «${game}» مانده است.` : `موعد نوبت شما در «${game}» نزدیک است.`,
+    reminder: p.extraTime ? `مهلت اضافه شروع شد: ${leftFa(p.leftSeconds ?? 0)} برای نوبت خود در «${game}» وقت دارید.`
+      : p.leftSeconds ? `${leftFa(p.leftSeconds)} تا پایان نوبت شما در «${game}» مانده است.` : `موعد نوبت شما در «${game}» نزدیک است.`,
     finished: `بازی «${game}» تمام شد؛ نتیجه را ببینید.`,
     invite: `${actor} شما را به میز «${game}» دعوت کرد.`,
     match: `حریف پیدا شد: «${game}». آمادگی خود را اعلام کنید.`,
