@@ -10,3 +10,4 @@ export * from './tournaments.ts';
 export * from './rating-mode.ts';
 export * from './onboarding.ts';
 export * from './game-content.ts';
+export * from './search.ts';

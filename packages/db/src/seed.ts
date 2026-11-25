@@ -1,6 +1,6 @@
 // Idempotent seed: publishes the reviewed registry games (labelled test games) to the catalog.
 import { and, eq, sql } from 'drizzle-orm';
-import { GETTING_STARTED_KEY, normalizeSearch, ONBOARDING_TOURS } from '@bg/contracts';
+import { gameSearchText, GETTING_STARTED_KEY, ONBOARDING_TOURS } from '@bg/contracts';
 import { createDb, type Db } from './index.ts';
 import { requireDatabaseUrl } from './env.ts';
 import { gameRegistry } from './registry.ts';
@@ -127,7 +127,7 @@ export async function seed(db: Db): Promise<void> {
       id: m.gameId,
       nameFa: c.nameFa,
       nameOriginal: c.nameOriginal,
-      searchText: normalizeSearch(`${c.nameFa} ${c.nameOriginal}`),
+      searchText: gameSearchText({ id: m.gameId, nameFa: c.nameFa, nameOriginal: c.nameOriginal }),
       summaryFa: c.summaryFa,
       rulesFa: c.rulesFa,
       minPlayers: m.playerCounts.min,
