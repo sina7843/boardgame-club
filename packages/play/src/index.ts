@@ -20,3 +20,4 @@ export * from './rematch.ts';
 export * from './presence.ts';
 export * from './home.ts';
 export * from './admin-tables.ts';
+export * from './reputation.ts';

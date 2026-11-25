@@ -158,6 +158,7 @@ export function QuickMatch() {
   const [competition, setCompetition] = useState<'friendly' | 'ranked'>('friendly');
   const [players, setPlayers] = useState(2);
   const [turnSeconds, setTurnSeconds] = useState<number>(60);
+  const [minRep, setMinRep] = useState<'0' | '70' | '90'>('0');
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const reload = tickets.reload;
@@ -186,7 +187,8 @@ export function QuickMatch() {
     e.preventDefault();
     setBusy(true);
     try {
-      const r = await api<{ id?: string; tableId?: string }>('/matchmaking/tickets', { method: 'POST', body: { gameId, pace, competition, playerCount: players, turnSeconds } });
+      const r = await api<{ id?: string; tableId?: string }>('/matchmaking/tickets', { method: 'POST', body: { gameId, pace, competition, playerCount: players, turnSeconds,
+        ...(pace === 'turn' && minRep !== '0' ? { minReputation: Number(minRep) } : {}) } });
       // A matching open table had a free seat: we are already sitting there, ready.
       if (r.tableId) { toast('success', 'به یک میز باز با همین تنظیمات اضافه شدید.'); navigate(`/tables/${r.tableId}`); }
       else reload();
@@ -218,6 +220,12 @@ export function QuickMatch() {
                 )}
                 <Select label={pace === 'live' ? 'زمان هر حرکت' : 'مهلت هر نوبت'} value={String(turnSeconds)} onChange={(e) => setTurnSeconds(Number(e.target.value))}
                   options={(game ? (pace === 'live' ? game.liveSeconds : game.turnSeconds) : []).map((s) => ({ value: String(s), label: durationFa(s) }))} />
+                {pace === 'turn' && (
+                  <div className="pg-field"><span className="bgv-label">حداقل اعتبار هم‌بازی‌ها</span>
+                    <Segmented label="حداقل اعتبار هم‌بازی‌ها" value={minRep} onChange={(v) => setMinRep(v as typeof minRep)}
+                      options={[{ value: '0', label: 'بدون شرط' }, { value: '70', label: faNum(70) }, { value: '90', label: faNum(90) }]} />
+                  </div>
+                )}
                 {game?.competitions.includes('ranked') && (
                   <div className="pg-field"><span className="bgv-label">نوع رقابت</span>
                     <Segmented label="نوع رقابت" value={competition} onChange={(v) => setCompetition(v as 'friendly' | 'ranked')} options={[{ value: 'friendly', label: 'دوستانه' }, { value: 'ranked', label: 'رتبه‌دار' }]} />

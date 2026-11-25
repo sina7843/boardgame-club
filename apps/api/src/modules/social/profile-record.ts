@@ -2,11 +2,11 @@
 import { and, eq, sql } from 'drizzle-orm';
 import { DEFAULT_PROFILE_PRIVACY, type League, type ProfilePrivacy, type PublicRecord } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
-import { activeSeason, levelFor, masteryFor, ratingRows, totalXp } from '@bg/play';
+import { activeSeason, levelFor, masteryFor, ratingRows, reputations, reputationView, totalXp } from '@bg/play';
 
 const { leaguePlacements, games, userSettings } = schema;
 const LEAGUES: League[] = ['bronze', 'silver', 'gold', 'platinum', 'diamond', 'master'];
-const NOTHING: PublicRecord = { stats: null, level: null, bestLeague: null, ratings: null, recent: null, mastery: null };
+const NOTHING: PublicRecord = { stats: null, level: null, bestLeague: null, ratings: null, recent: null, mastery: null, reputation: null };
 
 export async function privacyOf(db: Db, userId: string): Promise<ProfilePrivacy> {
   const [s] = await db.select({ p: userSettings.profilePrivacy }).from(userSettings).where(eq(userSettings.userId, userId));
@@ -20,11 +20,15 @@ const FINISHED = sql`select t.game_id, t.visibility, t.finished_at,
   from participants pa join game_tables t on t.id = pa.table_id join game_results r on r.table_id = t.id`;
 const rowsOf = <T>(r: unknown) => r as T[];
 
-/** `viewer` is 'self' (sees all), 'other' (respects privacy) or 'blocked' (sees nothing). */
-export async function publicRecord(db: Db, userId: string, viewer: 'self' | 'other' | 'blocked'): Promise<PublicRecord> {
+/**
+ * `viewer` is 'self' (sees all), 'other' (respects privacy) or 'blocked' (sees nothing). The reputation band is shown
+ * whatever the privacy settings (a trust signal, like the seat badge); its number only to the owner and moderators.
+ */
+export async function publicRecord(db: Db, userId: string, viewer: 'self' | 'other' | 'blocked', moderator = false): Promise<PublicRecord> {
   if (viewer === 'blocked') return NOTHING;
   const privacy = viewer === 'self' ? { showStats: true, showRatings: true, showRecent: true } : await privacyOf(db, userId);
-  const out: PublicRecord = { ...NOTHING, level: levelFor(await totalXp(db, userId)).level };
+  const rep = (await reputations(db, [userId])).get(userId)!;
+  const out: PublicRecord = { ...NOTHING, level: levelFor(await totalXp(db, userId)).level, reputation: reputationView(rep, viewer === 'self' || moderator) };
 
   if (privacy.showStats) {
     const [a] = rowsOf<{ n: number; wins: number }>(await db.execute(sql`select count(*)::int n, count(*) filter (where place = 1)::int wins

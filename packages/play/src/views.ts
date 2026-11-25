@@ -8,6 +8,7 @@ import { clockControl, firstMovePending, loadSnapshot, vacationApplies } from '.
 import { rematchOf } from './rematch.ts';
 import { seatCosmeticsOf } from './cosmetics.ts';
 import { displayRating } from './rating.ts';
+import { reputations, reputationView } from './reputation.ts';
 
 const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables, ratingHistory, tableWatchers, leaguePlacements, seasons } = schema;
 
@@ -153,8 +154,10 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
   const onVacation = (u: { vacationUntil: Date | null } | null) => (away && u?.vacationUntil && u.vacationUntil.getTime() > Date.now() ? u.vacationUntil.toISOString() : null);
   const seatMode = ratingModeOf(table.pace, (table.settings as { options?: { clock?: unknown } }).options);
   const seatIds = seats.flatMap(({ u }) => (u ? [u.id] : []));
-  const [leagues, ratingsBy, online] = await Promise.all([seatLeagues(db, table.gameId, seatMode, seatIds), seatRatings(db, table.gameId, seatMode, seatIds),
-    table.status === 'active' ? connectedUsers(db, table.id) : Promise.resolve(null)]);
+  // Reputation only in the lobby (open table, where people decide to sit): keeps the move path free of extra queries.
+  const [leagues, ratingsBy, online, reps] = await Promise.all([seatLeagues(db, table.gameId, seatMode, seatIds), seatRatings(db, table.gameId, seatMode, seatIds),
+    table.status === 'active' ? connectedUsers(db, table.id) : Promise.resolve(null),
+    table.status === 'open' && !table.isTutorial ? reputations(db, seatIds) : Promise.resolve(null)]);
   const lobby: TableLobby = {
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, gameNameOriginal: game.nameOriginal,
     status: table.status as TableLobby['status'], pace: table.pace as TableLobby['pace'],
@@ -166,6 +169,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       seat: p.seat, kind: p.kind as 'human' | 'script' | 'bot', ready: p.ready,
       ...(u ? { titleKey: u.titleKey, league: leagues.get(u.id) ?? null, rating: ratingsBy.get(u.id) ?? null, ...(online ? { connected: online.has(u.id) } : {}) } : {}),
       ...(away && p.kind === 'human' ? { onVacationUntil: onVacation(u), extraTimeUsed: p.extraTimeUsed } : {}),
+      ...(u && reps?.get(u.id) ? { reputation: reputationView(reps.get(u.id)!, false) } : {}),
       user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null,
       // equipped comes with the seats' users row (no extra query on the move path).
       ...(u && seatCosmeticsOf(u.equipped) ? { cosmetics: seatCosmeticsOf(u.equipped)! } : {}),
@@ -273,11 +277,13 @@ export async function listOpenTables(db: Db, gameId?: string) {
   const open = rows.filter((r) => r.players < r.table.capacity);
   const seated = open.length ? await db.select({ tableId: participants.tableId, id: users.id, name: users.displayName, avatarKey: users.avatarKey }).from(participants)
     .innerJoin(users, eq(users.id, participants.userId)).where(inArray(participants.tableId, open.map((r) => r.table.id))).orderBy(participants.seat) : [];
+  const reps = await reputations(db, seated.map((x) => x.id));
   return open.map(({ table, game, host, players }) => ({
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, pace: table.pace as 'live' | 'turn', players, capacity: table.capacity,
     turnSeconds: (table.settings as { turnSeconds: number }).turnSeconds,
+    minReputation: ((table.settings as { minReputation?: 70 | 90 }).minReputation ?? null),
     host: { id: host.id, displayName: host.displayName, avatarKey: host.avatarKey as never, joinedAt: host.createdAt.toISOString() },
-    seated: seated.filter((x) => x.tableId === table.id).map((x) => ({ id: x.id, name: x.name, avatarKey: x.avatarKey }))
+    seated: seated.filter((x) => x.tableId === table.id).map((x) => ({ id: x.id, name: x.name, avatarKey: x.avatarKey, reputation: reputationView(reps.get(x.id)!, false) }))
   }));
 }
 

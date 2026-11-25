@@ -1,0 +1,1 @@
+ALTER TABLE "matchmaking_tickets" ADD COLUMN "min_reputation" integer;

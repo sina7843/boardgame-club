@@ -9,6 +9,7 @@ import type { GameRegistry } from '@bg/game-engine';
 import { activeVersion, assertLimits, joinTable, pickPersonas, type PlayConfig } from './tables.ts';
 import { isPremium } from './billing.ts';
 import { matchRating } from './rating.ts';
+import { meetsReputation, reputations } from './reputation.ts';
 import type { Tx } from './runtime.ts';
 
 const { matchmakingTickets: tickets, gameTables, gameVersions, participants, scheduledDeadlines, outboxEvents, ratings, games, blocks, behaviorSignals } = schema;
@@ -60,7 +61,14 @@ async function seatAtOpenTable(db: Db, registry: GameRegistry, play: PlayConfig,
     sql`(select count(*) from participants p where p.table_id = ${gameTables.id}) < ${gameTables.capacity}`,
     sql`not exists (select 1 from participants p where p.table_id = ${gameTables.id} and p.user_id = ${userId})`
   )).orderBy(asc(gameTables.createdAt)).limit(10);
-  for (const { id } of candidates) {
+  // A ticket's «حداقل اعتبار» also applies to the people already seated (the table's own minimum is checked by joinTable).
+  let tables = candidates.map((c) => c.id);
+  if (body.minReputation && tables.length) {
+    const seated = await db.select({ tableId: participants.tableId, userId: participants.userId }).from(participants).where(inArray(participants.tableId, tables));
+    const reps = await reputations(db, seated.flatMap((x) => (x.userId ? [x.userId] : [])));
+    tables = tables.filter((id) => seated.every((x) => x.tableId !== id || !x.userId || meetsReputation(reps.get(x.userId)!, body.minReputation)));
+  }
+  for (const id of tables) {
     try { await joinTable(db, registry, play, userId, id); return id; } catch (e) {
       // Limits and premium apply to every table alike: report them. Blocked, just filled or started → next table.
       if (!(e instanceof AppError) || ['ALREADY_QUEUED', 'ALREADY_IN_LIVE_TABLE', 'TURN_TABLE_LIMIT', 'PREMIUM_REQUIRED', 'ACCOUNT_SUSPENDED'].includes(e.code)) throw e;
@@ -85,12 +93,13 @@ export async function enqueue(db: Db, registry: GameRegistry, play: PlayConfig, 
     if (body.clock) {
       if (body.pace !== 'live' || !settings.options.find((o) => o.key === 'clock')?.allowed.includes(body.clock)) throw new AppError('OPTION_NOT_ALLOWED');
     } else assertTimeAllowed(settings, body.pace, body.turnSeconds);
+    if (body.minReputation && body.pace !== 'turn') throw new AppError('VALIDATION_FAILED');
     await assertLimits(tx, userId, body.pace, play, { forQueue: true }); // also refuses a second active ticket
     const [r] = await tx.select({ mu: ratings.mu, sigma: ratings.sigma }).from(ratings)
       .where(and(eq(ratings.userId, userId), eq(ratings.gameId, game.id), eq(ratings.mode, body.pace)));
     const [t] = await tx.insert(tickets).values({
       userId, gameId: game.id, pace: body.pace, competition: body.competition, playerCount: body.playerCount, turnSeconds: body.turnSeconds,
-      rating: r ? matchRating(r) : cfg.baselineRating, status: 'queued',
+      rating: r ? matchRating(r) : cfg.baselineRating, status: 'queued', minReputation: body.minReputation ?? null,
       expiresAt: sql`now() + make_interval(secs => ${cfg.ticketTtlSeconds[body.pace]})`
     }).returning({ id: tickets.id });
     return t!.id;
@@ -119,6 +128,9 @@ export async function runMatcher(db: Db, cfg: MatchConfig, key: QueueKey, regist
       eq(tickets.playerCount, key.playerCount), eq(tickets.turnSeconds, key.turnSeconds), sql`${tickets.expiresAt} > now()`
     )).orderBy(asc(tickets.createdAt)).for('update', { skipLocked: true });
     const blocked = await blockedPairs(tx, queued.map((t) => t.userId));
+    // «حداقل اعتبار» (turn queues): two tickets fit only when each player meets the other's minimum.
+    const reps = queued.some((t) => t.minReputation) ? await reputations(tx, queued.map((t) => t.userId)) : null;
+    const fits = (a: Ticket, b: Ticket) => !reps || (meetsReputation(reps.get(a.userId)!, b.minReputation) && meetsReputation(reps.get(b.userId)!, a.minReputation));
     const now = Date.now();
     const pool = [...queued];
     const created: string[] = [];
@@ -132,7 +144,7 @@ export async function runMatcher(db: Db, cfg: MatchConfig, key: QueueKey, regist
       for (const t of pool) {
         if (group.length === key.playerCount) break;
         if (Math.abs(t.rating - anchor.rating) > window) continue;
-        if (group.some((g) => blocked.has(`${g.userId}:${t.userId}`))) continue;
+        if (group.some((g) => blocked.has(`${g.userId}:${t.userId}`) || !fits(g, t))) continue;
         group.push(t);
       }
       let bots = 0;

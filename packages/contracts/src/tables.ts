@@ -9,6 +9,16 @@ export const TIME_OPTIONS = {
   turn: [12 * 3600, 24 * 3600, 48 * 3600, 72 * 3600]
 } as const;
 
+// ---------- Reputation «اعتبار» (computed on read from behaviour signals, see @bg/play reputation.ts) ----------
+/** «حداقل اعتبار» of a public turn-based table or a turn-based quick-match ticket. */
+export const minReputationSchema = z.union([z.literal(70), z.literal(90)]);
+export const reputationBand = z.enum(['reliable', 'normal', 'low', 'newcomer']);
+export type ReputationBand = z.infer<typeof reputationBand>;
+/** `score` only on the player's own profile and for moderators; always null for «تازه‌وارد». */
+export const reputationView = z.object({ band: reputationBand, score: z.number().int().min(0).max(100).nullable() });
+export type ReputationView = z.infer<typeof reputationView>;
+export const REPUTATION_FA: Record<ReputationBand, string> = { reliable: 'خوش‌قول', normal: 'معمولی', low: 'کم‌اعتبار', newcomer: 'تازه‌وارد' };
+
 export const tableStatusSchema = z.enum(['open', 'active', 'paused', 'finished', 'cancelled']);
 export const visibilitySchema = z.enum(['public', 'private']);
 
@@ -20,6 +30,8 @@ export const createTableBody = z.strictObject({
   capacity: z.number().int().min(1).max(16),
   turnSeconds: z.number().int().positive(),
   reminders: z.boolean().default(true),
+  /** Public turn-based tables only: players below this reputation cannot join. */
+  minReputation: minReputationSchema.optional(),
   /** Rule variants chosen by the host; omitted keys use the game's default. */
   options: z.record(z.string().max(32), optionValueSchema).default({})
 });
@@ -35,6 +47,7 @@ export type CreateBotTableBody = z.infer<typeof createBotTableBody>;
 
 export const tableSettings = z.object({
   turnSeconds: z.number().int(), reminders: z.boolean(), options: z.record(z.string(), optionValueSchema).optional(),
+  minReputation: minReputationSchema.optional(),
   /** Present on tables with bot seats (reduced XP, never rated). `personas[i]` = BOT_PERSONAS index of the i-th bot seat. */
   bot: z.object({ level: botLevelSchema, personas: z.array(z.number().int().min(0)).optional() }).optional(),
   /** Present on tournament tables: nobody can join, anyone signed in can watch. */
@@ -97,6 +110,8 @@ export const seatView = z.object({
   /** Turn-based non-tournament tables: the player is on vacation «مرخصی» until then (public), and whether the seat used its one-time extra time. */
   onVacationUntil: z.iso.datetime().nullable().optional(),
   extraTimeUsed: z.boolean().optional(),
+  /** Open tables (lobby) only, human seats: the reputation band (never the number). */
+  reputation: reputationView.optional(),
   ready: z.boolean(),
   /** Bot seats only. */
   bot: z.object({ level: botLevelSchema, nameFa: z.string(), avatarKey: avatarKeySchema, style: botStyleSchema }).optional()
@@ -241,7 +256,8 @@ export type MyTableItem = z.infer<typeof myTableItem>;
 export const openTableItem = z.object({
   id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, players: z.number().int(),
   capacity: z.number().int(), turnSeconds: z.number().int(), host: publicProfile,
-  seated: z.array(z.object({ id: z.uuid(), name: z.string(), avatarKey: z.string() }))
+  minReputation: minReputationSchema.nullable().optional(),
+  seated: z.array(z.object({ id: z.uuid(), name: z.string(), avatarKey: z.string(), reputation: reputationView.optional() }))
 });
 export type OpenTableItem = z.infer<typeof openTableItem>;
 

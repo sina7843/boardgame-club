@@ -358,6 +358,8 @@ export const matchmakingTickets = pgTable('matchmaking_tickets', {
   /** Skill estimate used for matching; documented baseline until ratings exist (DRAGON-03). */
   rating: doublePrecision().notNull(),
   status: text().notNull(),
+  /** Turn queues: «حداقل اعتبار» (70 or 90) the other players must meet; null = none. */
+  minReputation: integer(),
   matchedTableId: uuid().references(() => gameTables.id),
   /** Original queue time; kept when re-queued after someone else failed to accept. */
   createdAt: createdAt(),

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { competitionSchema, paceSchema } from '@bg/game-sdk';
 import { profileExtras, publicProfile } from './api.ts';
 import { leagueSchema } from './progression.ts';
+import { minReputationSchema, reputationView } from './tables.ts';
 
 // ---------- Matchmaking ----------
 export const enqueueBody = z.strictObject({
@@ -14,7 +15,9 @@ export const enqueueBody = z.strictObject({
    * Live games with a clock option (chess): queue for this «m+0» control instead of a per-move time. The queue is keyed
    * by the bank (turnSeconds = m × 60) and the matched table gets the clock (see createMatchTable).
    */
-  clock: z.string().regex(/^\d{1,2}\+0$/).optional()
+  clock: z.string().regex(/^\d{1,2}\+0$/).optional(),
+  /** Turn-based queues only: be matched only with players at or above this reputation (they must meet yours too). */
+  minReputation: minReputationSchema.optional()
 });
 export type EnqueueBody = z.infer<typeof enqueueBody>;
 
@@ -56,7 +59,9 @@ export const publicRecord = z.object({
   /** Leaderboard-eligible ratings only (never provisional ones). */
   ratings: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), mode: z.string(), rating: z.number().int(), games: z.number().int(), league: leagueSchema.nullable() })).nullable(),
   recent: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), place: z.number().int(), fieldSize: z.number().int(), finishedAt: z.iso.datetime() })).nullable(),
-  mastery: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), tier: z.string(), tierFa: z.string() })).nullable()
+  mastery: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), tier: z.string(), tierFa: z.string() })).nullable(),
+  /** Reputation band, shown even when stats are hidden (a trust signal); null only when blocked. Number: own profile and moderators. */
+  reputation: reputationView.nullable()
 });
 export type PublicRecord = z.infer<typeof publicRecord>;
 

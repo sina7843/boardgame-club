@@ -12,7 +12,7 @@ import { usePresence } from '../lib/presence.ts';
 import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
 import { CONFIRMS_IN_RENDERER, GROUP_FRAME, OWN_FRAME, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
-import { AvatarArt, frameProps } from '../lib/bgv.tsx';
+import { AvatarArt, frameProps, ReputationBadge } from '../lib/bgv.tsx';
 import { durationFa, faNum, jalaliDate, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { browserNotificationsEnabled } from '../lib/realtime.tsx';
@@ -64,7 +64,8 @@ function useNow(ms = 1000) {
 
 function tableMeta(t: Lobby): string[] {
   if (t.isTutorial) return ['میز آموزشی', 'بدون زمان', 'بدون اثر بر رتبه'];
-  return [PACE_FA[t.pace], `${durationFa(t.settings.turnSeconds)} هر نوبت`, COMPETITION_FA[t.competition], t.visibility === 'private' ? 'خصوصی' : 'عمومی'];
+  return [PACE_FA[t.pace], `${durationFa(t.settings.turnSeconds)} هر نوبت`, COMPETITION_FA[t.competition], t.visibility === 'private' ? 'خصوصی' : 'عمومی',
+    ...(t.settings.minReputation ? [`حداقل اعتبار ${faNum(t.settings.minReputation)}`] : [])];
 }
 
 /** Time / timeout / disconnect / resign rules of the table, plus its rule variants. */
@@ -150,7 +151,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
               {t.seats.map((s) => (
                 <LobbySeat key={s.seat} name={<bdi>{name(s.seat)}</bdi>} seat={seatNo(s.seat)} you={s.seat === t.mySeat} bot={!!s.bot}
                   avatar={seatAvatar(s, name(s.seat))} host={!!s.user && s.user.id === t.hostId} ready={s.ready}
-                  {...(s.bot ? { sub: `ربات ${BOT_LEVEL_FA[s.bot.level]}، ${BOT_STYLE_FA[s.bot.style]}` } : {})} />
+                  {...(s.bot ? { sub: `ربات ${BOT_LEVEL_FA[s.bot.level]}، ${BOT_STYLE_FA[s.bot.style]}` } : {})}><ReputationBadge r={s.reputation} size="sm" /></LobbySeat>
               ))}
               {Array.from({ length: empty }, (_, i) => (
                 <LobbySeat key={`e${i}`} empty inviteLabel="دعوت دوست" {...(inviteLink || (me && !t.isMatchmade) ? { onInvite: toInvite } : {})} />

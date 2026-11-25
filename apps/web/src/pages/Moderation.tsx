@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { REPUTATION_FA, type ReputationView } from '@bg/contracts';
 import { Badge, Button, Card, DataTable, Icon, Message, PageHead, PageTabs, Segmented, Select, StateBlock, Tabs, Textarea, TextField } from '@bg/ui/bgv';
 import { ADMIN_TABS } from './adminTabs.ts';
 import { useToast } from '@bg/ui';
@@ -13,7 +14,7 @@ interface Detail {
   report: { id: string; targetType: string; reasonCode: string; reason: string; evidenceRef: string | null; status: string };
   reporter: { displayName: string }; subject: { id: string; displayName: string } | null;
   evidence: { reported?: string; messages?: { id: string; sender: string; body: string; createdAt: string; deleted: boolean }[]; game?: string; players?: { seat: number; name: string }[]; result?: unknown; displayName?: string; bio?: string } | null;
-  signals: Record<string, number>; priorSanctions: { id: string; kind: keyof typeof SANCTION_FA; reason: string; active: boolean }[];
+  signals: Record<string, number>; reputation: ReputationView | null; priorSanctions: { id: string; kind: keyof typeof SANCTION_FA; reason: string; active: boolean }[];
 }
 const TARGET_FA: Record<string, string> = { user: 'رفتار کاربر', display_name: 'نام نمایشی', bio: 'متن معرفی', message: 'پیام', table: 'میز' };
 const TARGET_ICON: Record<string, string> = { user: 'door-open', display_name: 'user', bio: 'pencil', message: 'message-circle', table: 'layout-grid' };
@@ -78,6 +79,7 @@ function ReportReview({ id, onDone, onClose }: { id: string; onDone: () => void;
       <p className="sx-cap">
         نشانه‌های ۳۰ روز اخیر: {Object.keys(x.signals).length ? Object.entries(x.signals).map(([k, n]) => `${SIGNAL_FA[k] ?? k} ${faNum(n)}`).join('، ') : 'ندارد'} (فقط برای اطلاع؛ جریمه خودکار ندارد)
       </p>
+      {x.reputation && <p className="sx-cap">اعتبار ۹۰ روز اخیر: {REPUTATION_FA[x.reputation.band]}{x.reputation.score !== null ? ` (${faNum(x.reputation.score)} از ${faNum(100)})` : ''}</p>}
       {x.priorSanctions.length > 0 && <p className="sx-cap">سابقه: {x.priorSanctions.map((s) => `${SANCTION_FA[s.kind]}${s.active ? ' (فعال)' : ''}`).join('، ')}</p>}
       {x.report.status === 'open' && (
         <div className="sx-stack-sm">
