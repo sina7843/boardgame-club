@@ -13,8 +13,9 @@ import type { Deps } from '../../app.ts';
 import { AppError } from '../../http/errors.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
 import { termsVersion } from '../site/routes.ts';
+import { emailStateOf } from '../email/routes.ts';
 
-const { users, userPrivate, games, userAchievements, achievementDefinitions, sessions, userRoles, friendships, userSettings, participants, gameTables, auditLog, matchmakingTickets, tournamentEntries, tournaments, userSanctions, pushSubscriptions } = schema;
+const { users, userPrivate, games, userAchievements, achievementDefinitions, sessions, userRoles, friendships, userSettings, participants, gameTables, auditLog, matchmakingTickets, tournamentEntries, tournaments, userSanctions, pushSubscriptions, emailVerifications } = schema;
 
 /** Public projection: an explicit allow-list so private columns can never leak by addition. */
 export function toPublicProfile(u: typeof users.$inferSelect): PublicProfile {
@@ -59,21 +60,22 @@ export async function closeAccount(db: Db, userId: string, actorId: string, acti
     await tx.delete(friendships).where(or(eq(friendships.userLow, userId), eq(friendships.userHigh, userId)));
     await tx.delete(userSettings).where(eq(userSettings.userId, userId));
     await tx.delete(pushSubscriptions).where(eq(pushSubscriptions.userId, userId));
+    await tx.delete(emailVerifications).where(eq(emailVerifications.userId, userId));
     await tx.update(matchmakingTickets).set({ status: 'cancelled', updatedAt: sql`now()` }).where(and(eq(matchmakingTickets.userId, userId), eq(matchmakingTickets.status, 'queued')));
     await tx.update(sessions).set({ revokedAt: sql`now()` }).where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)));
     await tx.insert(auditLog).values({ actorId, action, targetType: 'user', targetId: userId, metadata, requestId });
   });
 }
 
-export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
+export function userRoutes(app: FastifyInstance, { db, config, mail }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   const loadMe = async (userId: string, roles: z.infer<typeof meResponse>['roles'], suspended = false) => {
-    const [row] = await db.select({ user: users, mobile: userPrivate.mobile }).from(users)
+    const [row] = await db.select({ user: users, mobile: userPrivate.mobile, email: userPrivate.email, emailDigest: userPrivate.emailDigest }).from(users)
       .innerJoin(userPrivate, eq(userPrivate.userId, users.id)).where(eq(users.id, userId));
     if (!row) throw new AppError('UNAUTHENTICATED');
     return { ...toPublicProfile(row.user), ...toProfileExtras(row.user), mobileMasked: maskMobile(row.mobile), roles, profileCompleted: row.user.profileCompleted, suspended,
-      termsAccepted: row.user.termsVersion === await termsVersion(db), vacation: vacationOf(row.user) };
+      termsAccepted: row.user.termsVersion === await termsVersion(db), vacation: vacationOf(row.user), email: await emailStateOf(db, userId, row, !!mail) };
   };
 
   r.post('/me/vacation', {

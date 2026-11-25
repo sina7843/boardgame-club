@@ -121,6 +121,7 @@ export function Settings() {
               <Button size="sm" variant="leave" className="ac-signout" onClick={() => void logout().then(() => navigate('/'))}>خروج از حساب</Button>
             </div>
           </Section>
+          {me.email?.available && <EmailCard />}
           <VacationCard />
           <DeleteAccountCard />
         </div></div>
@@ -293,6 +294,60 @@ function VacationCard() {
             <Select label="مدت مرخصی" value={days} options={VACATION_DAYS} onChange={(e) => setDays(e.target.value)} />
             <Button variant="primary" loading={busy} onClick={() => void send('POST')}>شروع مرخصی</Button>
           </div>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+/** Email: add (6-digit code by email) → verify → remove; daily turn digest and tournament reminder on/off. Shown only when SMTP is configured. */
+function EmailCard() {
+  const { me, refresh } = useSession();
+  const toast = useToast();
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const e = me?.email;
+  const run = async (path: string, init: Parameters<typeof api>[1], done: string) => {
+    setBusy(true);
+    try {
+      await api(path, init);
+      await refresh();
+      setCode('');
+      toast('success', done);
+    } catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'انجام نشد.'); }
+    finally { setBusy(false); }
+  };
+  const sendCode = (to: string) => run('/me/email', { method: 'POST', body: { email: to.trim() } }, 'کد تأیید به ایمیل شما فرستاده شد.');
+  if (!e) return null;
+  return (
+    <Section id="email-h" icon="send" title="ایمیل" extra={e.address ? <Badge tone="success" icon="check">تأییدشده</Badge> : undefined}>
+      <div className="ac-sec__body">
+        <p className="t-body-sm" style={{ margin: 0, textWrap: 'pretty' }}>هر روز ساعت ۹ صبح، اگر در میزهای نوبتی نوبت شما باشد، یک ایمیل خلاصه می‌گیرید؛ یک ساعت پیش از شروع تورنمنت‌هایی که ثبت‌نام کرده‌اید هم یادآوری می‌آید. ایمیل شما به هیچ بازیکنی نشان داده نمی‌شود.</p>
+        {e.pending ? (
+          <form className="ac-row" onSubmit={(ev) => { ev.preventDefault(); void run('/me/email/verify', { method: 'POST', body: { code } }, 'ایمیل شما تأیید شد.'); }}>
+            <TextField label="کد ۶ رقمی" hint={<>فرستاده‌شده به <bdi dir="ltr">{e.pending}</bdi></>} value={code} onChange={(ev) => setCode(ev.target.value.replace(/\D/g, '').slice(0, 6))}
+              inputMode="numeric" autoComplete="one-time-code" dir="ltr" />
+            <Button type="submit" variant="primary" loading={busy} disabled={code.length !== 6}>تأیید</Button>
+            <Button variant="ghost" disabled={busy} onClick={() => void sendCode(e.pending!)}>ارسال دوباره</Button>
+            {!e.address && <Button variant="ghost" disabled={busy} onClick={() => void run('/me/email', { method: 'DELETE' }, 'می‌توانید نشانی دیگری وارد کنید.')}>تغییر ایمیل</Button>}
+          </form>
+        ) : e.address ? (
+          <>
+            <div className="ac-row">
+              <div className="ac-row__text"><b>نشانی ایمیل</b><bdi dir="ltr" className="bgv-latin">{e.address}</bdi></div>
+              <Button size="sm" variant="secondary" loading={busy} onClick={() => void run('/me/email', { method: 'DELETE' }, 'ایمیل حذف شد.')}>حذف ایمیل</Button>
+            </div>
+            <div className="ac-row">
+              <div className="ac-row__text"><b>ایمیل‌های یادآوری</b><span>خلاصهٔ روزانهٔ نوبت‌ها و یادآوری تورنمنت</span></div>
+              <Switch aria-label="ایمیل‌های یادآوری" checked={e.digest} disabled={busy} onChange={(digest) => void run('/me/email/digest', { method: 'PUT', body: { digest } }, digest ? 'ایمیل‌های یادآوری روشن شد.' : 'ایمیل‌های یادآوری خاموش شد.')} />
+            </div>
+          </>
+        ) : (
+          <form className="ac-row" onSubmit={(ev) => { ev.preventDefault(); void sendCode(email); }}>
+            <TextField label="نشانی ایمیل" type="email" value={email} onChange={(ev) => setEmail(ev.target.value)} autoComplete="email" dir="ltr" />
+            <Button type="submit" variant="primary" loading={busy} disabled={!email.includes('@')}>ارسال کد</Button>
+          </form>
         )}
       </div>
     </Section>

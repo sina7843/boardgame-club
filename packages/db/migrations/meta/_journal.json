@@ -225,6 +225,13 @@
       "when": 1795607860406,
       "tag": "0031_events",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1795609107620,
+      "tag": "0032_email",
+      "breakpoints": true
     }
   ]
 }

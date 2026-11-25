@@ -54,8 +54,27 @@ export const users = pgTable('users', {
 export const userPrivate = pgTable('user_private', {
   userId: uuid().primaryKey().references(() => users.id, { onDelete: 'cascade' }),
   mobile: text().notNull().unique(),
+  /** Verified email (lowercased); only set after the 6-digit code was confirmed. Never shown to other players. */
+  email: text().unique(),
+  emailVerifiedAt: tsz(),
+  /** Email notifications (daily turn digest and tournament reminder); the signed unsubscribe link turns it off. */
+  emailDigest: boolean().notNull().default(true),
+  /** Tehran date (YYYY-MM-DD) of the last digest sent: one per user per day. */
+  emailDigestDay: text(),
   createdAt: createdAt()
 });
+
+/** Pending email verification codes (HMAC hashed, like otp_challenges); counted for per-user and per-address limits. */
+export const emailVerifications = pgTable('email_verifications', {
+  id: id(),
+  userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  email: text().notNull(),
+  codeHash: text().notNull(),
+  expiresAt: tsz().notNull(),
+  attempts: integer().notNull().default(0),
+  consumedAt: tsz(),
+  createdAt: createdAt()
+}, (t) => [index('email_verifications_user_idx').on(t.userId, t.createdAt), index('email_verifications_email_idx').on(t.email, t.createdAt)]);
 
 export const userRoles = pgTable('user_roles', {
   userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -794,6 +813,8 @@ export const tournamentEntries = pgTable('tournament_entries', {
   byeRounds: jsonb().$type<number[]>().notNull().default([]),
   requestedByes: jsonb().$type<number[]>().notNull().default([]),
   checkedInAt: tsz(),
+  /** Email reminder one hour before the start (sent once). */
+  emailRemindedAt: tsz(),
   /** Display rating for this game and pace when the tournament started (null = unrated); basis of the ARO tie-break. */
   startRating: integer(),
   /** Swiss tie-breaks, filled when the tournament finishes: sum of opponents' points / of beaten opponents' points (+½ drawn). */

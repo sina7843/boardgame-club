@@ -79,7 +79,7 @@ describe('HTTP platform controls', () => {
 
   it('health live/ready report status', async () => {
     expect((await get('/api/health/live')).json()).toEqual({ status: 'ok' });
-    expect((await get('/api/health/ready')).json()).toEqual({ status: 'ok', checks: { database: 'ok', migrations: 'ok' } });
+    expect((await get('/api/health/ready')).json()).toEqual({ status: 'ok', checks: { database: 'ok', migrations: 'ok', email: 'disabled' } });
   });
 
   it('serves an OpenAPI document', async () => {

@@ -6,7 +6,7 @@ import swagger from '@fastify/swagger';
 import { jsonSchemaTransform, serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import type { Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
-import { fakeGateway, zarinpalGateway, type BillingConfig, type MatchConfig, type PlayConfig } from '@bg/play';
+import { fakeGateway, zarinpalGateway, type BillingConfig, type MailSend, type MatchConfig, type PlayConfig } from '@bg/play';
 import type { Config } from './config.ts';
 import { AppError, registerErrorHandling } from './http/errors.ts';
 import { registerOriginGuard } from './http/origin-guard.ts';
@@ -32,6 +32,7 @@ import { siteRoutes } from './modules/site/routes.ts';
 import { referralRoutes } from './modules/referrals/routes.ts';
 import { pushRoutes } from './modules/push/routes.ts';
 import { eventRoutes } from './modules/events/routes.ts';
+import { emailRoutes } from './modules/email/routes.ts';
 
 export interface Deps {
   config: Config;
@@ -41,6 +42,8 @@ export interface Deps {
   play: PlayConfig;
   match: MatchConfig;
   billing: BillingConfig;
+  /** SMTP sender (null/absent = email disabled: the settings card is hidden and nothing is sent). */
+  mail?: MailSend | null | undefined;
   /** Every API worker's metrics when running as a cluster (cluster.ts); this process alone otherwise. */
   collectMetrics?: (() => Promise<LocalMetrics[]>) | undefined;
 }
@@ -138,6 +141,7 @@ export async function buildApp(deps: Deps, opts: { logStream?: { write(msg: stri
     referralRoutes(api, deps);
     pushRoutes(api, deps);
     eventRoutes(api, deps);
+    emailRoutes(api, deps);
     api.get('/openapi.json', { schema: { hide: true } }, async () => app.swagger());
     // Operational metrics (Prometheus text). Not public: the reverse proxy does not route the path (scrape over the
     // internal network) and a token is required, compared in constant time on fixed-length digests.

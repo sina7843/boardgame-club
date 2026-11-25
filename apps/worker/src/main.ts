@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { z } from 'zod';
 import { createDb } from '@bg/db';
 import { createDefaultRegistry } from '@bg/game-engine';
-import { configureWebPush, defaultMatchConfig, expireSubscriptions, fakeGateway, zarinpalGateway, reconcilePayments, runDueDeadlines, runMatchmaking, runOutbox, runTournaments, type BillingConfig } from '@bg/play';
+import { configureWebPush, defaultMatchConfig, mailSender, runEmailDigest, runTournamentReminders, smtpConfig,expireSubscriptions, fakeGateway, zarinpalGateway, reconcilePayments, runDueDeadlines, runMatchmaking, runOutbox, runTournaments, type BillingConfig } from '@bg/play';
 import { runMaintenance } from './maintenance.ts';
 
 const env = z.object({
@@ -21,7 +21,15 @@ const env = z.object({
   /** Web Push (VAPID). All three set = push on; any missing = push off (logged at start). */
   WEB_PUSH_PUBLIC_KEY: z.string().min(40).optional(),
   WEB_PUSH_PRIVATE_KEY: z.string().min(20).optional(),
-  WEB_PUSH_SUBJECT: z.string().regex(/^(mailto:|https:\/\/)/, 'must be a mailto: or https:// URL').optional()
+  WEB_PUSH_SUBJECT: z.string().regex(/^(mailto:|https:\/\/)/, 'must be a mailto: or https:// URL').optional(),
+  /** SMTP (daily turn digest, tournament reminder). Host + from unset = email off (logged at start). */
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: z.coerce.number().int().min(1).max(65535).optional(),
+  SMTP_USER: z.string().min(1).optional(),
+  SMTP_PASSWORD: z.string().min(1).optional(),
+  SMTP_FROM: z.string().min(3).optional(),
+  /** Same secret as the API: signs the unsubscribe link in emails. */
+  OTP_HASH_SECRET: z.string().min(32).optional()
 }).parse(Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== '')));
 
 const { db, close } = createDb(env.DATABASE_URL, { max: 4 });
@@ -93,7 +101,10 @@ if (env.WORKER_HEALTH_PORT) {
 }
 
 const webPush = configureWebPush({ publicKey: env.WEB_PUSH_PUBLIC_KEY, privateKey: env.WEB_PUSH_PRIVATE_KEY, subject: env.WEB_PUSH_SUBJECT });
-log('worker started', { deadlinePollMs: env.DEADLINE_POLL_MS, maintenanceSeconds: env.WORKER_INTERVAL_SECONDS, webPush: webPush ? 'on' : 'disabled (WEB_PUSH_* not set)' });
+const send = mailSender(smtpConfig(env));
+const email = send && env.OTP_HASH_SECRET ? { send, secret: env.OTP_HASH_SECRET, webUrl: web } : null;
+log('worker started', { deadlinePollMs: env.DEADLINE_POLL_MS, maintenanceSeconds: env.WORKER_INTERVAL_SECONDS, webPush: webPush ? 'on' : 'disabled (WEB_PUSH_* not set)',
+  email: email ? 'on' : send ? 'disabled (OTP_HASH_SECRET not set)' : 'disabled (SMTP_HOST/SMTP_FROM not set)' });
 loop('deadlines', env.DEADLINE_POLL_MS, () => runDueDeadlines(db, registry));
 // Outbox in small claims under a time budget: when many games end together (each costs ~80 statements of rewards,
 // ratings and notifications) the backlog drains over a few ticks instead of holding the database busy and slowing
@@ -112,6 +123,10 @@ loop('matchmaking', 2000, () => runMatchmaking(db, defaultMatchConfig, registry)
 loop('tournaments', 3000, () => runTournaments(db, registry));
 loop('payments', 30_000, () => reconcilePayments(db, billing));
 loop('subscriptions', 60_000, () => expireSubscriptions(db));
+if (email) {
+  loop('email-digest', 60_000, () => runEmailDigest(db, registry, email));
+  loop('email-tournament', 60_000, () => runTournamentReminders(db, email));
+}
 loop('maintenance', env.WORKER_INTERVAL_SECONDS * 1000, () => runMaintenance(db));
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
