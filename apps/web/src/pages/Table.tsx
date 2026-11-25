@@ -1570,7 +1570,6 @@ export function TablePage({ id: idProp }: { id?: string } = {}) {
   const { id: routeId = '' } = useParams();
   const id = idProp ?? routeId;
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const invite = params.get('invite');
   const { me, status } = useSession();
   const s = useTableSession(id, invite);
@@ -1579,7 +1578,11 @@ export function TablePage({ id: idProp }: { id?: string } = {}) {
   const canonical = !!snap && snap.table.code && (snap.table.visibility === 'public' || snap.table.mySeat !== null);
   // Row 10: /tables/<uuid> → /t/<code>. A private table is reachable by code only for its own players (the API refuses
   // anyone else), so a guest holding an invite link stays on the long URL.
-  useEffect(() => { if (!idProp && canonical && code) navigate(`/t/${code}${location.search}`, { replace: true }); }, [idProp, canonical, code, navigate]);
+  // Only the address bar changes (history.replaceState): a router navigation would remount the table through
+  // TableCodePage and drop a move still waiting in the undo window (seen as tutorials stalling on the first tap).
+  useEffect(() => {
+    if (!idProp && canonical && code) window.history.replaceState(window.history.state, '', `/t/${code}${location.search}`);
+  }, [idProp, canonical, code]);
   // Table chat is loaded on entry so the sheet opens with messages at once (no «در حال بارگذاری»).
   const chatId = snap && snap.table.mySeat !== null && !snap.table.isTutorial ? snap.table.id : null;
   useEffect(() => { if (chatId) preloadChat(`/tables/${chatId}/chat`); }, [chatId]);
