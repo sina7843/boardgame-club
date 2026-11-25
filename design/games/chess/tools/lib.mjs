@@ -9,6 +9,8 @@ export const TOKENS = JSON.parse(readFileSync(`${ART}/../boards/board-tokens.jso
 // ---------- digits / text ----------
 const FA = '۰۱۲۳۴۵۶۷۸۹';
 export const fa = (v) => String(v).replace(/\d/g, (d) => FA[d]).replace(/\./g, '٫');
+/** Amounts ≥ 1000 with a plain comma between Persian digits («۱,۶۸۴»), owner rule 2026-11-12; not for years, codes or clocks. */
+export const num = (v) => fa(Number(v) >= 1000 ? String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v);
 export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // ---------- pieces: one CSS class per piece, background = the ready-made flat SVG (no invented art) ----------
@@ -74,6 +76,7 @@ export function board(boardArr, o = {}) {
     if (o.sel === sq) cl.push('is-sel');
     if (o.pre?.includes(sq)) cl.push('is-pre');
     if (o.check === sq) cl.push('is-check');
+    if (o.flash === sq) cl.push('is-flash');
     if (o.hover === sq) cl.push('is-hover');
     if (o.dots?.includes(sq)) cl.push(boardArr[idx] ? 'is-cap' : 'is-dot');
     if (o.ring?.includes(sq)) cl.push('is-cap', 'is-ep');
@@ -136,6 +139,8 @@ const I = {
   share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
   link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
   undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+  copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  volume: '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>',
   swords: '<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/>',
 };
 export const ic = (n, cls = '') => `<svg class="bgv-icon${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
@@ -165,7 +170,7 @@ export function pbar(p, o = {}) {
   const tags = (p.tags ?? []).join('');
   return `<div class="cx-pbar${p.you ? ' is-you' : ''}${p.turn ? ' is-turn' : ''}${o.sm ? ' cx-pbar--sm' : ''}">
 <span class="bgv-avatar ${o.sm ? 'bgv-avatar--sm' : ''} seat-${p.seat ?? 1}${p.you ? ' is-you' : ''}">${p.av ?? p.name[0]}</span>
-<span class="cx-pbar__id"><span class="cx-pbar__name"><b>${esc(p.name)}</b><span class="cx-rating">${fa(p.rating)}</span>${p.tier ? `<span class="bgv-league bgv-league--${p.tier}">${p.tierFa}</span>` : ''}${tags}</span>
+<span class="cx-pbar__id"><span class="cx-pbar__name"><b>${esc(p.name)}</b>${p.rating ? `<span class="cx-rating">${num(p.rating)}</span>` : ''}${p.tier ? `<span class="bgv-league bgv-league--${p.tier}">${p.tierFa}</span>` : ''}${tags}</span>
 <span class="cx-pbar__caps" aria-label="مهره‌های گرفته‌شده">${caps}${lead}${p.note ? `<span class="cx-pbar__note">${p.note}</span>` : ''}</span></span>
 ${p.clock ?? ''}</div>`;
 }

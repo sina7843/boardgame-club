@@ -37,6 +37,10 @@ export const S = {
   draw: scene('draw', '3r2k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 30', M('g1f1 g8f8 f1e2 f8e7')),
   // Game over: back-rank mate.
   mate: scene('mate', '6k1/p2r1ppp/8/8/8/8/5PPP/3RR1K1 b - - 0 30', M('d7d1 e1d1 a7a6 d1d8')),
+  // Start position (lobby previews).
+  start: scene('start', null, []),
+  // Pinned pawn: after 2.Qh5 the f7 pawn is pinned to the black king (you are Black).
+  pin: scene('pin', null, M('e2e3 a7a5 d1h5')),
   // Threefold repetition (phone, draw result).
   ep: scene('ep', null, M('e2e4 e7e6 e2e4'.replace('e2e4 e7e6 e2e4', 'e2e4 e7e6 e4e5 d7d5'))),
   rep: scene('rep', null, M('e2e4 e7e5 g1f3 b8c6 f1b5 g8f6 e1g1 f6e4 f1e1 e4d6 f3e5 f8e7 b5f1 c6e5 e1e5 e8g8 d2d4 e7f6 e5e1 f8e8 c2c3 e8e1 d1e1 d6f5 c1f4 d7d6 b1d2 c8e6 d2f3 d8d7 e1e2 a8e8 e2d2 d7c8 d2e2 c8d7 e2d2 d7c8 d2e2 c8d7')),

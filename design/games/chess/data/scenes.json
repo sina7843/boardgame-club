@@ -97,12 +97,15 @@
     "D10-reconnect",
     "D12-spectator",
     "D13-dark",
+    "D15-large-screen",
+    "D17-bot-game",
     "P03",
     "P09",
     "P12",
     "P13",
     "P15",
-    "P17"
+    "P17",
+    "P20"
    ]
   },
   "mainB": {
@@ -561,7 +564,63 @@
    },
    "usedOn": [
     "D09-game-over",
-    "P10"
+    "D16-rematch",
+    "P10",
+    "P21"
+   ]
+  },
+  "start": {
+   "startFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+   "san": [],
+   "uci": [],
+   "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+   "lastMove": null,
+   "inCheck": false,
+   "checkSquare": null,
+   "capturedByWhite": [],
+   "capturedByBlack": [],
+   "materialLead": {
+    "w": 0,
+    "b": 0
+   },
+   "usedOn": [
+    "D01-lobby",
+    "D18-bot-lobby",
+    "D19-friend-invite",
+    "P23"
+   ]
+  },
+  "pin": {
+   "startFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+   "san": [
+    "e3",
+    "a5",
+    "Qh5"
+   ],
+   "uci": [
+    "e2e3",
+    "a7a5",
+    "d1h5"
+   ],
+   "fen": "rnbqkbnr/1ppppppp/8/p6Q/8/4P3/PPPP1PPP/RNB1KBNR b KQkq - 1 2",
+   "lastMove": [
+    "d1",
+    "h5"
+   ],
+   "inCheck": false,
+   "checkSquare": null,
+   "capturedByWhite": [],
+   "capturedByBlack": [],
+   "materialLead": {
+    "w": 0,
+    "b": 0
+   },
+   "selected": "f7",
+   "legalTargets": [],
+   "flash": "e8",
+   "note": "you are Black; f7 is pinned by Qh5: selectable, no targets; an attempt flashes the king (is-flash) and plays «illegal»",
+   "usedOn": [
+    "D20-illegal-move"
    ]
   },
   "ep": {

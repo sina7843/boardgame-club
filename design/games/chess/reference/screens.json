@@ -77,7 +77,7 @@
    "id": "D09-game-over",
    "title": "دسکتاپ ۹: پایان بازی",
    "width": 1520,
-   "height": 1476,
+   "height": 1502,
    "img": "reference/img/D09-game-over.jpg",
    "html": "reference/html/D09-game-over.html",
    "dc": "reference/dc/D09-game-over.dc.html"
@@ -128,10 +128,64 @@
    "dc": "reference/dc/D14-en-passant.dc.html"
   },
   {
+   "id": "D16-rematch",
+   "title": "دسکتاپ ۱۶: درخواست بازی دوباره",
+   "width": 1520,
+   "height": 1107,
+   "img": "reference/img/D16-rematch.jpg",
+   "html": "reference/html/D16-rematch.html",
+   "dc": "reference/dc/D16-rematch.dc.html"
+  },
+  {
+   "id": "D17-bot-game",
+   "title": "دسکتاپ ۱۷: بازی با ربات",
+   "width": 1520,
+   "height": 1134,
+   "img": "reference/img/D17-bot-game.jpg",
+   "html": "reference/html/D17-bot-game.html",
+   "dc": "reference/dc/D17-bot-game.dc.html"
+  },
+  {
+   "id": "D18-bot-lobby",
+   "title": "دسکتاپ ۱۸: بازی جدید با ربات",
+   "width": 1520,
+   "height": 1134,
+   "img": "reference/img/D18-bot-lobby.jpg",
+   "html": "reference/html/D18-bot-lobby.html",
+   "dc": "reference/dc/D18-bot-lobby.dc.html"
+  },
+  {
+   "id": "D19-friend-invite",
+   "title": "دسکتاپ ۱۹: دعوت دوست",
+   "width": 1520,
+   "height": 1107,
+   "img": "reference/img/D19-friend-invite.jpg",
+   "html": "reference/html/D19-friend-invite.html",
+   "dc": "reference/dc/D19-friend-invite.dc.html"
+  },
+  {
+   "id": "D20-illegal-move",
+   "title": "دسکتاپ ۲۰: حرکت غیرمجاز",
+   "width": 1520,
+   "height": 1107,
+   "img": "reference/img/D20-illegal-move.jpg",
+   "html": "reference/html/D20-illegal-move.html",
+   "dc": "reference/dc/D20-illegal-move.dc.html"
+  },
+  {
+   "id": "D15-large-screen",
+   "title": "دسکتاپ ۱۵: صفحهٔ بزرگ",
+   "width": 2000,
+   "height": 1287,
+   "img": "reference/img/D15-large-screen.jpg",
+   "html": "reference/html/D15-large-screen.html",
+   "dc": "reference/dc/D15-large-screen.dc.html"
+  },
+  {
    "id": "P01",
    "title": "گوشی ۱: بازی جدید",
    "width": 470,
-   "height": 1007,
+   "height": 1028,
    "img": "reference/img/P01.jpg",
    "html": "reference/html/P01.html",
    "dc": "reference/dc/P01.dc.html"
@@ -194,7 +248,7 @@
    "id": "P08",
    "title": "گوشی ۸: پیشنهاد مساوی از حریف",
    "width": 470,
-   "height": 1007,
+   "height": 1028,
    "img": "reference/img/P08.jpg",
    "html": "reference/html/P08.html",
    "dc": "reference/dc/P08.dc.html"
@@ -212,7 +266,7 @@
    "id": "P10",
    "title": "گوشی ۱۰: بردید",
    "width": 470,
-   "height": 1007,
+   "height": 1028,
    "img": "reference/img/P10.jpg",
    "html": "reference/html/P10.html",
    "dc": "reference/dc/P10.dc.html"
@@ -239,7 +293,7 @@
    "id": "P13",
    "title": "گوشی ۱۳: قطع شدن اتصال شما",
    "width": 470,
-   "height": 1007,
+   "height": 1028,
    "img": "reference/img/P13.jpg",
    "html": "reference/html/P13.html",
    "dc": "reference/dc/P13.dc.html"
@@ -299,10 +353,46 @@
    "dc": "reference/dc/P19.dc.html"
   },
   {
+   "id": "P20",
+   "title": "گوشی ۲۰: تنظیمات صفحه",
+   "width": 470,
+   "height": 1048,
+   "img": "reference/img/P20.jpg",
+   "html": "reference/html/P20.html",
+   "dc": "reference/dc/P20.dc.html"
+  },
+  {
+   "id": "P21",
+   "title": "گوشی ۲۱: درخواست بازی دوباره",
+   "width": 470,
+   "height": 1028,
+   "img": "reference/img/P21.jpg",
+   "html": "reference/html/P21.html",
+   "dc": "reference/dc/P21.dc.html"
+  },
+  {
+   "id": "P22",
+   "title": "گوشی ۲۲: دعوت دوست",
+   "width": 470,
+   "height": 1028,
+   "img": "reference/img/P22.jpg",
+   "html": "reference/html/P22.html",
+   "dc": "reference/dc/P22.dc.html"
+  },
+  {
+   "id": "P23",
+   "title": "گوشی ۲۳: بازی جدید با ربات",
+   "width": 470,
+   "height": 1028,
+   "img": "reference/img/P23.jpg",
+   "html": "reference/html/P23.html",
+   "dc": "reference/dc/P23.dc.html"
+  },
+  {
    "id": "Chess-Spec",
    "title": "مشخصات برای تیم فنی",
    "width": 1520,
-   "height": 4161,
+   "height": 6080,
    "img": "reference/img/Chess-Spec.jpg",
    "html": "reference/html/Chess-Spec.html",
    "dc": "reference/dc/Chess-Spec.dc.html"

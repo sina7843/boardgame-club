@@ -151,6 +151,7 @@
   --shadow-box-sm: 0 3px 0 rgba(0,0,0,0.45), 0 16px 20px -12px #172C3A;
   --shadow-box-md: 0 3px 0 rgba(0,0,0,0.45), 0 26px 30px -16px #172C3A;
   --shadow-box-lg: 0 3px 0 rgba(0,0,0,0.45), 0 30px 34px -14px #172C3A;
+  --shadow-pop: 0 16px 20px -12px #172C3A;
   --shadow-housebox: inset -10px 0 0 rgba(0,0,0,0.22), 0 16px 14px -6px rgba(20,43,59,0.35);
   --shadow-housebox-sm: inset -5px 0 0 rgba(0,0,0,0.22), 0 6px 6px -3px rgba(20,43,59,0.35);
 }
@@ -302,6 +303,7 @@
   --shadow-box-sm: 0 3px 0 rgba(0,0,0,0.5), 0 16px 20px -12px rgba(5,12,17,0.55);
   --shadow-box-md: 0 3px 0 rgba(0,0,0,0.5), 0 26px 30px -16px rgba(5,12,17,0.55);
   --shadow-box-lg: 0 3px 0 rgba(0,0,0,0.5), 0 30px 34px -14px rgba(5,12,17,0.55);
+  --shadow-pop: 0 16px 20px -12px rgba(5,12,17,0.55);
   --shadow-housebox: inset -10px 0 0 rgba(0,0,0,0.22), 0 16px 14px -6px rgba(0,0,0,0.4);
   --shadow-housebox-sm: inset -5px 0 0 rgba(0,0,0,0.22), 0 6px 6px -3px rgba(0,0,0,0.4);
 }
