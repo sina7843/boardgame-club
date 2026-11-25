@@ -24,6 +24,7 @@ import { ChatPanel, type ChatEvent } from '../social/ChatPanel.tsx';
 import { QuickChatButton } from '../social/QuickChat.tsx';
 import { InvitePanel } from '../social/InvitePanel.tsx';
 import { ReportDialog } from '../social/ReportDialog.tsx';
+import { GameRules } from '../games/RulesDoc.tsx';
 
 type Lobby = TableSnapshot['table'];
 type Seat = Lobby['seats'][number];
@@ -81,6 +82,17 @@ function Policies({ table }: { table: Lobby }) {
         {table.variants.map((v) => <ListItem key={v.labelFa} icon="sliders-horizontal" title={v.labelFa} sub={v.valueFa} />)}
       </div>
     </Card>
+  );
+}
+
+/** The game's full public rules (Phase F) in a bottom sheet over the table. */
+function GameRulesSheet({ gameId, nameFa, onClose }: { gameId: string; nameFa: string; onClose: () => void }) {
+  return (
+    <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <Sheet className="gf-sheet" title={`قوانین ${nameFa}`} icon="book-open" onClose={onClose} closeLabel="بستن" aria-modal="true" aria-label={`قوانین ${nameFa}`}>
+        <GameRules gameId={gameId} shift={1} idPrefix="tbl-rules" />
+      </Sheet>
+    </div>
   );
 }
 
@@ -533,6 +545,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const navigate = useNavigate();
   const [confirmResign, setConfirmResign] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const [fullRules, setFullRules] = useState(false);
   const [sheetSeat, setSheetSeat] = useState<number | null>(null);
   // One stable callback per table, so memoized renderers (Gaia) do not re-render on every shell update.
   const { act } = s;
@@ -596,7 +609,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   // Escape closes the chat sheet / players drawer.
   useEffect(() => {
     if (!chat && !drawer) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setChat(false); setDrawer(false); } };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setChat(false); setDrawer(false); setFullRules(false); } };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [chat, drawer]);
@@ -719,6 +732,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             {(notPhone || !confirmsInRenderer) && <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>}
             {hasChat && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
               aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}
+            <Button variant="ghost" iconOnly icon="book-open" onClick={() => setFullRules(true)}>قوانین بازی</Button>
             <Button variant="ghost" iconOnly icon="more-vertical" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
           </>} />
         {!netOnline && !finished && <Banner className="tbl-offline" tone="danger" icon="wifi-off" title="اتصال شما قطع شد"
@@ -808,6 +822,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           <Sheet side title="بازیکنان و قوانین" icon="users" onClose={() => setDrawer(false)} aria-modal="true" aria-label="بازیکنان و قوانین">
             <div className="bgv-stack">
               <Hud layout="rail" players={players} label="بازیکنان" />
+              <Button variant="secondary" icon="book-open" block onClick={() => { setDrawer(false); setFullRules(true); }}>قوانین کامل بازی</Button>
               <Policies table={t} />
               {canResign && <Button variant="leave" icon="flag" block onClick={() => { setDrawer(false); setConfirmResign(true); }}>انصراف از بازی</Button>}
               {t.mySeat !== null && !t.isTutorial && <Button variant="ghost" icon="flag" block onClick={() => { setDrawer(false); setReporting(true); }}>گزارش این میز</Button>}
@@ -815,6 +830,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           </Sheet>
         </div>
       )}
+      {fullRules && <GameRulesSheet gameId={t.gameId} nameFa={t.gameNameFa} onClose={() => setFullRules(false)} />}
       {isPlayer && t.pace === 'turn' && !finished && !t.isTutorial && <NotifyPrompt />}
       {sheetSeat !== null && <SeatSheet t={t} sum={sum} seat={sheetSeat} name={name} onClose={() => setSheetSeat(null)} onReport={() => { setSheetSeat(null); setReporting(true); }} />}
       {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
@@ -865,7 +881,7 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
   const toDock = useCallback((node: ReactNode) => (dockNode ? createPortal(node, dockNode) : node), [dockNode]);
   const toRail = useCallback((node: ReactNode) => (railNode ? createPortal(node, railNode) : null), [railNode]);
   const [chat, setChat] = useState(false);
-  const [sheet, setSheet] = useState<'rules' | 'events' | null>(null);
+  const [sheet, setSheet] = useState<'rules' | 'events' | 'game-rules' | null>(null);
   const [sheetSeat, setSheetSeat] = useState<number | null>(null);
   const [reporting, setReporting] = useState(false);
   const [confirmResign, setConfirmResign] = useState(false);
@@ -1118,11 +1134,13 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
           {chatPanel({ sheet: true, onClose: () => setChat(false), className: 'tbl-chatsheet' })}
         </div>
       )}
-      {sheet && (
+      {sheet === 'game-rules' && <GameRulesSheet gameId={t.gameId} nameFa={t.gameNameFa} onClose={() => setSheet(null)} />}
+      {sheet && sheet !== 'game-rules' && (
         <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setSheet(null); }}>
           <Sheet className="gf-sheet" title={sheet === 'rules' ? 'قوانین و ترک میز' : 'رویدادها'} icon={sheet === 'rules' ? 'shield' : 'list'} onClose={() => setSheet(null)} closeLabel="بستن">
             {sheet === 'rules' ? (
               <div className="bgv-stack">
+                <Button variant="secondary" icon="book-open" block onClick={() => setSheet('game-rules')}>قوانین کامل بازی</Button>
                 <Policies table={t} />
                 {finished && isPlayer && !t.isTutorial && <PostGame snap={snap} onReport={() => { setSheet(null); setReporting(true); }} />}
                 {canResign && <Button variant="leave" icon="flag" block onClick={() => { setSheet(null); setConfirmResign(true); }}>انصراف از بازی</Button>}

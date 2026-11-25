@@ -90,3 +90,6 @@ BGV-Complete-Handoff-2026-11/
 test-results*/
 # local helper for the Bazaar upload, not part of the repository
 /apps/android/bazaar-bin.cmd
+
+# public game rules, generated from design/games/**/RULES.md by apps/web/scripts/rules.ts (dev and build)
+apps/web/src/generated/
