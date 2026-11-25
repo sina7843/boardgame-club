@@ -88,6 +88,15 @@ export function pickPersonas(n: number): number[] {
  * once. Joining it cancels the player's queued ticket (the «حریف پیدا نشد» offer). Live pace with the longest
  * offered move time when the game supports live play, otherwise turn-based with the shortest turn.
  */
+/**
+ * Colour choice against a bot (chess): `firstMove: 'host'` makes seat 0 White. White = the human on seat 0; Black = the
+ * human on seat 1 and the bot on seat 0 (createBotTable swaps them); random = the engine's own draw.
+ */
+function botOptions(options: Record<string, OptionValue>, color: 'white' | 'random' | 'black' | undefined): Record<string, OptionValue> {
+  if ((color === 'white' || color === 'black') && 'firstMove' in options) return { ...options, firstMove: 'host' };
+  return options;
+}
+
 export async function createBotTable(db: Db, registry: GameRegistry, cfg: PlayConfig, userId: string, body: CreateBotTableBody): Promise<string> {
   return db.transaction(async (tx) => {
     const { game, version, settings } = await activeVersion(tx, registry, body.gameId);
@@ -104,12 +113,11 @@ export async function createBotTable(db: Db, registry: GameRegistry, cfg: PlayCo
     const [t] = await tx.insert(gameTables).values({
       gameId: game.id, gameVersionId: version.id, pace, competition: 'friendly', visibility: 'private', status: 'open',
       hostId: userId, capacity: body.playerCount,
-      settings: { turnSeconds, reminders: false, options: resolveOptions(settings), bot: { level: body.level, personas: pickPersonas(body.playerCount - 1) } }
+      settings: { turnSeconds, reminders: false, options: botOptions(resolveOptions(settings), body.color), bot: { level: body.level, personas: pickPersonas(body.playerCount - 1) } }
     }).returning();
-    await tx.insert(participants).values([
-      { tableId: t!.id, seat: 0, userId, kind: 'human', ready: true },
-      ...Array.from({ length: body.playerCount - 1 }, (_, i) => ({ tableId: t!.id, seat: i + 1, userId: null, kind: 'bot', ready: true }))
-    ]);
+    const humanSeat = body.color === 'black' && game.id === 'chess' ? 1 : 0; // Black: the bot takes seat 0 and plays White
+    await tx.insert(participants).values(Array.from({ length: body.playerCount }, (_, seat) =>
+      seat === humanSeat ? { tableId: t!.id, seat, userId, kind: 'human', ready: true } : { tableId: t!.id, seat, userId: null, kind: 'bot', ready: true }));
     await startTable(tx, { table: t!, version, module });
     return t!.id;
   });
@@ -143,8 +151,13 @@ export async function joinTable(db: Db, registry: GameRegistry, cfg: PlayConfig,
     else while (taken.has(seat)) seat++;
     // Joining means «آماده‌ام»: the joiner sits ready, and the game starts once every seat is filled and ready.
     await tx.insert(participants).values({ tableId: table.id, seat, userId, kind: 'human', ready: true });
-    if (seats.length + 1 === table.capacity && seats.every((s) => s.ready)) await startTable(tx, locked);
-    else await tx.execute(sql`select pg_notify('table_changed', ${table.id})`);
+    // U3 (design/games/chess livefix): a friendly private two-player table starts when the invited friend sits down; the
+    // host agreed by creating it, so there is no «آماده‌ام» step (the host's seat is marked ready here).
+    const friendDuel = table.gameId === 'chess' && table.capacity === 2 && table.visibility === 'private' && table.competition === 'friendly' && !table.isMatchmade;
+    if (seats.length + 1 === table.capacity && (friendDuel || seats.every((s) => s.ready))) {
+      if (friendDuel) await tx.update(participants).set({ ready: true }).where(eq(participants.tableId, table.id));
+      await startTable(tx, locked);
+    } else await tx.execute(sql`select pg_notify('table_changed', ${table.id})`);
   });
 }
 

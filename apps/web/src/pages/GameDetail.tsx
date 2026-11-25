@@ -11,6 +11,7 @@ import { Avatar, Banner, Breadcrumbs, Button, Icon, League, Skeleton, StateBlock
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { userIdentity } from '../lib/bgv.tsx';
+import { clockLabelFa, clockMinutesRange } from '../games/chessClock.ts';
 import { DIFFICULTY_FA, durationFa, faNum, jalaliDateTime, PACE_FA } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { gameDocTitle } from '../lib/seoTitles.ts';
@@ -55,7 +56,7 @@ function OpenTile({ t, member }: { t: OpenTableItem; member: boolean }) {
         <span className={`gd-mode gd-mode--${t.pace}`}><Icon name={t.pace === 'live' ? 'zap' : 'hourglass'} /></span>
         <div className="cx-b-id">
           <b className="cx-b-name">{PACE_FA[t.pace]}</b>
-          <span className="cx-meta"><span className="gd-mi"><Icon name="clock" size="sm" />{durationFa(t.turnSeconds)} هر {t.pace === 'live' ? 'حرکت' : 'نوبت'}</span><span className="bgv-sep" /><span className="gd-mi"><Icon name="users" size="sm" />{faNum(t.capacity)} نفره</span></span>
+          <span className="cx-meta"><span className="gd-mi"><Icon name="clock" size="sm" />{clockLabelFa(t.clock) ?? `${durationFa(t.turnSeconds)} هر ${t.pace === 'live' ? 'حرکت' : 'نوبت'}`}</span><span className="bgv-sep" /><span className="gd-mi"><Icon name="users" size="sm" />{faNum(t.capacity)} نفره</span></span>
         </div>
       </div>
       <div role="group" className="cx-b-seats" aria-label={`${faNum(t.players)} از ${faNum(t.capacity)} صندلی پر`}>
@@ -132,6 +133,11 @@ export function GameDetailPage() {
   const live = member
     ? (liveApi.data?.items ?? []).map((t) => ({ id: t.id, players: t.players, tournament: t.tournament ? `${t.tournament.titleFa}، دور ${faNum(t.tournament.round)}` : null }))
     : (home.data?.live ?? []).filter((t) => t.gameId === g.id).map((t) => ({ id: t.id, players: t.seats.map((s) => s.name), tournament: null }));
+  const clockChoices = g.options.find((o) => o.key === 'clock')?.choices;
+  const clockRange = clockChoices ? clockMinutesRange(clockChoices) : null;
+  const minutes = clockRange ? span(clockRange[0], clockRange[1]) : span(g.minMinutes, g.maxMinutes);
+  // Never «۰ میز…»: say only what is non-zero, else invite the first player.
+  const playSub = [openCount > 0 && `${faNum(openCount)} میز جای خالی دارد`, live.length > 0 && `${faNum(live.length)} بازی همین حالا در جریان است`].filter(Boolean).join(' و ') || 'اولین نفر باش؛ میز بساز و دوستانت را دعوت کن';
   const c = contentApi.data ?? emptyGameContent();
   const steps = sectionsOf(g.rulesFa).filter((s) => s.title).slice(0, 5);
   const about = sectionsOf(g.rulesFa)[0];
@@ -171,9 +177,9 @@ export function GameDetailPage() {
           <p className="gd-desc gd-just">{g.summaryFa}</p>
           <ul className="gd-stats">
             <li><Icon name="users" /><b>{span(g.minPlayers, g.maxPlayers)}</b><small>نفر</small></li>
-            <li><Icon name="clock" /><b>{span(g.minMinutes, g.maxMinutes)}</b><small>دقیقه</small></li>
+            <li><Icon name="clock" /><b>{minutes}</b><small>دقیقه</small></li>
             <li><Icon name="gauge" /><b>{DIFFICULTY_FA[g.difficulty]}</b><small>سختی</small></li>
-            <li className="gd-statli"><a className="gd-statlink" href="#tables"><Icon name="armchair" /><b>{faNum(openCount)}</b><small>میز باز<Icon name="arrow-left" size="sm" /></small></a></li>
+            {openCount > 0 && <li className="gd-statli"><a className="gd-statlink" href="#tables"><Icon name="armchair" /><b>{faNum(openCount)}</b><small>میز باز<Icon name="arrow-left" size="sm" /></small></a></li>}
           </ul>
         </div>
         <div className="gd-a__acts" data-tour="game-actions">
@@ -181,7 +187,7 @@ export function GameDetailPage() {
             <Button variant="primary" size="lg" icon="zap" href={member ? `/play?game=${g.id}` : loginTo(`/play?game=${g.id}`)}>بازی سریع</Button>
             <Button variant="secondary" size="lg" icon="user-plus" href={member ? `/games/${g.id}/new` : loginTo(`/games/${g.id}/new`)}>میز بساز</Button>
           </>}
-          <Button variant="secondary" size="lg" icon="armchair" className="gd-totables" href="#tables">میزهای باز ({faNum(openCount)})</Button>
+          <Button variant="secondary" size="lg" icon="armchair" className="gd-totables" href="#tables">{openCount > 0 ? `میزهای باز (${faNum(openCount)})` : 'میزهای باز'}</Button>
           {g.tutorialEnabled && <Button variant="secondary" size="lg" icon="book-open" loading={tutorialBusy} onClick={startTutorial}>{tutorialLabel}</Button>}
           <a className="gd-tlink" href="#rules" onClick={() => setRulesOpen(true)}><Icon name="list" size="sm" />قوانین کامل</a>
         </div>
@@ -202,7 +208,7 @@ export function GameDetailPage() {
       </div>
 
       <section className="gd-band" id="play" aria-labelledby="play-h">
-        <BandHead id="play-h" icon="zap" title="بازی کن" sub={`${faNum(openCount)} میز جای خالی دارد و ${faNum(live.length)} بازی همین حالا در جریان است.`} />
+        <BandHead id="play-h" icon="zap" title="بازی کن" sub={playSub} />
         <section className="L-box L-band--felt gd-tbox" id="tables" data-theme="dark" aria-labelledby="tables-h">
           <div className="cx-b-head">
             <div className="cx-b-headtxt">

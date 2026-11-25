@@ -58,4 +58,4 @@ jobs:
             echo "::warning::COOLIFY_DEPLOY_URL / COOLIFY_TOKEN not set; images are pushed, deploy from Coolify by hand."
             exit 0
           fi
-          curl -fsS -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_DEPLOY_URL"
+          curl -fsS --request POST -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_DEPLOY_URL"

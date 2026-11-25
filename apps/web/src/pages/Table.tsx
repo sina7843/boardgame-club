@@ -20,7 +20,8 @@ import { browserNotificationsEnabled } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { useTableSession } from '../lib/useTableSession.ts';
 import { useTurnAlerts } from '../lib/alerts.ts';
-import { ChatPanel, type ChatEvent } from '../social/ChatPanel.tsx';
+import { BOT_RATING, clockLabelFa } from '../games/chessClock.ts';
+import { ChatPanel, preloadChat, type ChatEvent } from '../social/ChatPanel.tsx';
 import { QuickChatButton } from '../social/QuickChat.tsx';
 import { InvitePanel } from '../social/InvitePanel.tsx';
 import { ReportDialog } from '../social/ReportDialog.tsx';
@@ -66,7 +67,7 @@ function useNow(ms = 1000) {
 
 function tableMeta(t: Lobby): string[] {
   if (t.isTutorial) return ['میز آموزشی', 'بدون زمان', 'بدون اثر بر رتبه'];
-  return [PACE_FA[t.pace], `${durationFa(t.settings.turnSeconds)} هر نوبت`, COMPETITION_FA[t.competition], t.visibility === 'private' ? 'خصوصی' : 'عمومی',
+  return [PACE_FA[t.pace], clockLabelFa(t.settings.options?.clock) ?? `${durationFa(t.settings.turnSeconds)} هر نوبت`, COMPETITION_FA[t.competition], t.visibility === 'private' ? 'خصوصی' : 'عمومی',
     ...(t.settings.minReputation ? [`حداقل اعتبار ${faNum(t.settings.minReputation)}`] : [])];
 }
 
@@ -75,7 +76,7 @@ function Policies({ table }: { table: Lobby }) {
   return (
     <Card title={<span className="bgv-row"><Icon name="shield" />قوانین زمان و ترک میز</span>}>
       <div className="tbl-rules">
-        {!table.isTutorial && <ListItem icon="timer" title={`${PACE_FA[table.pace]}، ${durationFa(table.settings.turnSeconds)} هر نوبت`} />}
+        {!table.isTutorial && <ListItem icon="timer" title={clockLabelFa(table.settings.options?.clock) ?? `${PACE_FA[table.pace]}، ${durationFa(table.settings.turnSeconds)} هر نوبت`} />}
         <ListItem icon="alarm-clock" title="اتمام زمان" sub={table.policies.timeoutFa} />
         <ListItem icon="wifi-off" title="قطع اتصال" sub={table.policies.disconnectFa} />
         <ListItem icon="flag" title="انصراف" sub={table.policies.resignFa} />
@@ -114,6 +115,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
     setBusy(true); setError(undefined);
     try { await fn(); } catch (e) { setError(e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); } finally { setBusy(false); }
   };
+  // Invite links keep the long URL: /t/<code> never resolves a private table for someone who is not seated yet.
   const inviteLink = t.inviteCode ? `${location.origin}/tables/${t.id}?invite=${t.inviteCode}` : null;
   const empty = t.capacity - t.seats.length;
   const readyCount = t.seats.filter((s) => s.ready).length;
@@ -121,7 +123,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
   const copy = (link: string) => navigator.clipboard.writeText(link).then(() => toast('success', 'لینک دعوت کپی شد.'), () => toast('error', 'کپی ممکن نشد؛ لینک را دستی انتخاب کنید.'));
   const toInvite = () => document.getElementById('table-invite')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   // Public tables can always be shared by plain URL; private ones need the invite code.
-  const shareLink = inviteLink ?? (t.visibility === 'public' ? `${location.origin}/tables/${t.id}` : null);
+  const shareLink = inviteLink ?? (t.visibility === 'public' ? `${location.origin}/${t.code ? `t/${t.code}` : `tables/${t.id}`}` : null);
   const phone = !useWide(900);
   const hasLobbyChat = !!me && !t.isTutorial;
   const [chatOpen, setChatOpen] = useState(false);
@@ -296,7 +298,7 @@ function ResultCard({ snap, onHide, onSnap }: { snap: TableSnapshot; onHide: () 
   // Share the public outcome only (names and places), never hidden game information.
   const share = async () => {
     const text = `${t.gameNameFa}: ${sorted.map((p) => `${faNum(p.place)}. ${name(p.seat)}`).join('، ')}`;
-    const url = `${location.origin}/tables/${t.id}`;
+    const url = `${location.origin}/${t.code ? `t/${t.code}` : `tables/${t.id}`}`;
     try {
       if (navigator.share) await navigator.share({ title: headline, text, url });
       else { await navigator.clipboard.writeText(`${text}\n${url}`); toast('success', 'نتیجه کپی شد.'); }
@@ -1187,7 +1189,9 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const navigate = useNavigate();
   const toast = useToast();
   const { act } = s;
-  const onAction = useCallback((a: Parameters<typeof act>[0]) => act(a, false), [act]);
+  // Chess has no undo window (chess.com): a move, premove included, is sent the instant it is made, and the renderer shows
+  // it from `queued` at once (optimistic); a refusal arrives as `frame.rejected`.
+  const onAction = useCallback((a: Parameters<typeof act>[0]) => act(a, true), [act]);
   const Renderer = RENDERERS[t.clientBundleRef];
   const name = seatNameOf(t);
   const finished = t.status === 'finished';
@@ -1202,8 +1206,9 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const [showBoard, setShowBoard] = useState(false);
   const { unread } = useTableChatAlerts(t.id, chat || wide);
   useTurnAlerts(t.id, t.mySeat);
-  const online = usePresence(finished || aborted ? [] : t.seats.map((x) => (x.seat === t.mySeat ? null : x.user?.id)));
   const myTurn = t.mySeat !== null && g.pendingSeats.includes(t.mySeat);
+  const botGame = !!t.settings.bot;
+  const notice = useFrameNotice(snap, name);
   // Tournament players: the page being hidden/shown is recorded for fair-play review (stated in the tournament rules).
   const inTournament = !!t.settings.tournament;
   useEffect(() => {
@@ -1233,25 +1238,47 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     const first = running && !!c.first;
     const ms = flaggedSeat === x.seat ? 0 : running && !first && dueMs !== null ? Math.max(0, dueMs) : c.left[x.seat] ?? 0;
     // Only while my own connection is live: when I am the one offline, the others' status is stale.
-    const off = live && !finished && !aborted && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online));
+    const off = live && !finished && !aborted && x.seat !== t.mySeat && !!x.user && x.connected === false;
     const state: FrameClockState = flaggedSeat === x.seat ? 'flag' : off ? 'off' : aborted || first ? 'pre'
       : !running ? 'idle' : ms <= 10_000 ? 'crit' : ms <= warnMs ? 'warn' : 'run';
     return { ms, state, ...(first ? { first: true, firstMs: Math.max(0, dueMs ?? 0) } : {}) };
   }) : null;
   fast.current = !!clocks?.some((x) => x.state === 'crit');
 
+  const [rematchBusy, setRematchBusy] = useState(false);
+  const askRematch = async () => {
+    setRematchBusy(true);
+    try { s.accept(await api<TableSnapshot>(`/tables/${t.id}/rematch`, { method: 'POST', body: { vote: 'yes' } })); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'درخواست ثبت نشد.'); } finally { setRematchBusy(false); }
+  };
+  const shareGame = async () => {
+    const url = `${location.origin}/${t.code ? `t/${t.code}` : `tables/${t.id}`}`;
+    try {
+      if (navigator.share) await navigator.share({ title: t.gameNameFa, url });
+      else { await navigator.clipboard.writeText(url); toast('success', 'لینک بازی کپی شد.'); }
+    } catch { /* share sheet dismissed */ }
+  };
   const frame: TableFrame = {
     seats: t.seats.map((x) => {
       const n = name(x.seat);
-      return { seat: x.seat, name: n, avatar: <Avatar size="md" {...seatAvatar(x, n)} />, rating: x.rating ?? null, league: x.league ?? null, bot: !!x.bot,
-        offline: live && !finished && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online)) };
+      return { seat: x.seat, name: n, avatar: <Avatar size="md" {...seatAvatar(x, n)} />, rating: x.bot ? null : x.rating ?? null, league: x.league ?? null, bot: !!x.bot,
+        ...(x.bot ? { botLabel: `ربات ${BOT_LEVEL_FA[x.bot.level]}`, botRating: BOT_RATING[x.bot.level] } : {}),
+        offline: live && !finished && x.seat !== t.mySeat && !!x.user && x.connected === false };
     }),
     clocks, live, finished, aborted,
     timeLabel: timeLabel(t) ?? undefined,
     recordHref: finished ? `/api/tables/${t.id}/record` : undefined,
     result: (finished || aborted) ? <OwnFrameResult snap={snap} onSnap={s.accept} onReport={() => setReporting(true)} toast={toast} /> : undefined,
-    openChat: wide ? undefined : () => setChat(true),
+    resultInfo: (finished || aborted) ? <OwnFrameResult part="info" snap={snap} onSnap={s.accept} onReport={() => setReporting(true)} toast={toast} /> : undefined,
+    rematch: finished && t.mySeat !== null ? {
+      pending: !!t.rematch?.votes.length, busy: rematchBusy, ask: () => void askRematch(),
+      card: <OwnFrameRematch mode="card" snap={snap} onSnap={s.accept} />, bar: <OwnFrameRematch mode="bar" snap={snap} onSnap={s.accept} />
+    } : null,
+    newGameHref: `/play?game=${t.gameId}`,
+    share: () => void shareGame(),
+    openChat: wide && !botGame ? undefined : () => setChat(true),
     unread,
+    rejected: s.rejection, notice,
     tournament: t.settings.tournament ? <OwnFrameTournament id={t.settings.tournament.id} round={t.settings.tournament.round} meId={t.seats.find((x) => x.seat === t.mySeat)?.user?.id} /> : undefined
   };
 
@@ -1275,24 +1302,25 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}
           {isPlayer && !t.isTutorial && <Button variant="ghost" iconOnly icon="flag" onClick={() => setReporting(true)}>گزارش این میز</Button>}
         </>} />
-      {(snap.incident || s.notice || s.pending) && (
+      {(snap.incident || s.notice || s.pending || notice?.kind === 'drawDeclined') && (
         <div className="tbl-pops tbl-pops--own">
           {snap.incident && <Banner tone="warning" icon="lock" title="توقف سراسری" text={`${snap.incident.reasonFa}. موعدها پس از رفع مشکل جبران می‌شوند.`} />}
+          {notice?.kind === 'drawDeclined' && <Banner tone="info" icon="handshake" text={notice.text} />}
           {s.notice && <Banner tone="danger" text={s.notice} action={<Button variant="secondary" size="sm" onClick={() => s.setNotice(null)}>باشه</Button>} />}
           {s.pending && s.pending.status !== 'sending' && <Banner tone="warning" icon="clock" text="در انتظار تأیید: پاسخ سرور نرسید."
             action={<span className="bgv-row"><Button size="sm" variant="secondary" onClick={s.resendPending}>ارسال دوباره</Button><Button size="sm" variant="ghost" onClick={s.dropPending}>نمایش آخرین وضعیت</Button></span>} />}
         </div>
       )}
-      <div className={wide ? 'tbl-own__body tbl-own__body--chat' : 'tbl-own__body'} data-game={t.gameId}>
+      <div className={wide && !botGame ? 'tbl-own__body tbl-own__body--chat' : 'tbl-own__body'} data-game={t.gameId}>
         {finished && isPlayer && t.settings.tournament && !showBoard
           ? <BetweenRounds tournamentId={t.settings.tournament.id} round={t.settings.tournament.round} tableId={t.id} meId={t.seats.find((x) => x.seat === t.mySeat)?.user?.id} onBoard={() => setShowBoard(true)} />
           : Renderer
           ? <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={onAction}
               expected={null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} frame={frame} />
           : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
-        {wide && chatPanel({ className: 'tbl-chat tbl-own__chat' })}
+        {wide && !botGame && chatPanel({ className: 'tbl-chat tbl-own__chat' })}
       </div>
-      {chat && !wide && (
+      {chat && (!wide || botGame) && (
         <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setChat(false); }}>
           {chatPanel({ sheet: true, onClose: () => setChat(false), className: 'tbl-chatsheet' })}
         </div>
@@ -1394,8 +1422,40 @@ function OwnFrameTournament({ id, round, meId }: { id: string; round: number; me
   );
 }
 
-/** «بازی دوباره» (CX-11): one vote for a rematch with the same time and swapped colours; the server opens the new table. */
-function OwnFrameRematch({ snap, onSnap }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void }) {
+/**
+ * Platform events for the chess frame (`frame.notice`): my draw offer was declined (the offer vanished, the game goes on and
+ * no move was played: a move by the opponent also ends an offer, but that is not a «رد»), and the opponent asked for a
+ * rematch. The renderer plays `notify` once per `seq`; the shell shows the text in the status area.
+ */
+function useFrameNotice(snap: TableSnapshot, name: (seat: number) => string): TableFrame['notice'] {
+  const t = snap.table;
+  const view = snap.game?.view as { drawOffer?: number | null; history?: unknown[] } | null | undefined;
+  const mine = t.mySeat;
+  const offer = view?.drawOffer ?? null;
+  const plies = view?.history?.length ?? 0;
+  const asked = t.rematch?.votes.some((v) => v.seat !== mine && v.vote === 'yes') && !t.rematch.votes.some((v) => v.seat === mine) && !t.rematch.closed;
+  const prev = useRef<{ offer: number | null; plies: number; asked: boolean } | null>(null);
+  const [notice, setNotice] = useState<TableFrame['notice']>(null);
+  const seq = useRef(0);
+  useEffect(() => {
+    const p = prev.current;
+    prev.current = { offer, plies, asked: !!asked };
+    if (!p || mine === null) return;
+    const opp = name(1 - mine);
+    if (p.offer === mine && offer === null && plies === p.plies && t.status === 'active') setNotice({ seq: ++seq.current, kind: 'drawDeclined', text: `${opp} پیشنهاد مساوی را رد کرد.` });
+    else if (!p.asked && asked) setNotice({ seq: ++seq.current, kind: 'rematchOffer', text: `${opp} بازی دوباره می‌خواهد.` });
+  }, [offer, plies, asked, mine, t.status]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The banner is a short message, not a state: it goes away after a few seconds (the sound already played).
+  useEffect(() => { if (!notice) return; const id = setTimeout(() => setNotice((n) => (n === notice ? null : n)), 6000); return () => clearTimeout(id); }, [notice]);
+  return notice;
+}
+
+/**
+ * «بازی دوباره» (CX-11 / CX-15): either player asks; both votes are live (the server pushes every vote) with one shared
+ * 30 s countdown that started at the request. The asker waits; the other side gets «قبول / رد». «قبول» opens the new
+ * table (same time control, colours swapped by the server) and both players are taken to it.
+ */
+function OwnFrameRematch({ snap, onSnap, mode }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void; /** button: the ask button of the result card; card / bar: the compact request UI (desktop panel / phone line) */ mode: 'button' | 'card' | 'bar' }) {
   const t = snap.table;
   const r = t.rematch;
   const toast = useToast();
@@ -1404,28 +1464,71 @@ function OwnFrameRematch({ snap, onSnap }: { snap: TableSnapshot; onSnap: (s: Ta
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (r?.newTableId) navigate(`/tables/${r.newTableId}`); }, [r?.newTableId, navigate]);
   if (!r || t.mySeat === null) return null;
+  const name = seatNameOf(t);
   const secs = r.deadline ? Math.max(0, Math.ceil((new Date(r.deadline).getTime() - now) / 1000)) : null;
   const myVote = r.votes.find((v) => v.seat === t.mySeat)?.vote;
+  const asker = r.votes.find((v) => v.seat !== t.mySeat && v.vote === 'yes');
   const declined = r.votes.some((v) => v.seat !== t.mySeat && v.vote === 'no');
-  if (r.closed || secs === 0 || declined) return <p className="tbl-ownres__rating">{declined ? 'حریف بازی دوباره را رد کرد.' : 'مهلت بازی دوباره تمام شد.'}</p>;
-  const vote = async () => {
+  if (declined || myVote === 'no') return <p className="tbl-ownres__rating" role="status">{declined ? 'حریف بازی دوباره را رد کرد.' : 'بازی دوباره را رد کردید.'}</p>;
+  if (r.closed || secs === 0) return <p className="tbl-ownres__rating" role="status">مهلت بازی دوباره تمام شد.</p>;
+  const vote = async (v: 'yes' | 'no') => {
     setBusy(true);
-    try { onSnap(await api<TableSnapshot>(`/tables/${t.id}/rematch`, { method: 'POST', body: { vote: 'yes' } })); }
+    try { onSnap(await api<TableSnapshot>(`/tables/${t.id}/rematch`, { method: 'POST', body: { vote: v } })); }
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'درخواست ثبت نشد.'); } finally { setBusy(false); }
   };
-  return myVote === 'yes'
-    ? <p className="tbl-ownres__rating" role="status">منتظر جواب حریف…{secs !== null ? ` (${faNum(secs)} ثانیه)` : ''}</p>
-    : <Button variant="primary" icon="refresh-cw" loading={busy} onClick={() => void vote()}>بازی دوباره</Button>;
+  if (!r.votes.length) return mode === 'button' ? <Button variant="primary" icon="refresh-cw" loading={busy} onClick={() => void vote('yes')}>بازی دوباره</Button> : null;
+  if (mode === 'button') return null; // a request is open: it lives in the panel / under the board, the result card closes
+  const askerName = asker ? name(asker.seat) : '';
+  if (mode === 'bar') {
+    return (
+      <div className="ch-offer ch-offer--bar" role="status" data-rematch="bar">
+        <Icon name="refresh-cw" size={20} />
+        <span className="ch-offer__txt">{asker && !myVote ? <><b><bdi>{askerName}</bdi></b> بازی دوباره می‌خواهد.</> : 'منتظر جواب حریف…'}{secs !== null && <> <bdi>{faNum(secs)} ثانیه</bdi></>}</span>
+        {asker && !myVote && <>
+          <Button variant="primary" icon="check" loading={busy} onClick={() => void vote('yes')}>قبول</Button>
+          <Button variant="secondary" iconOnly icon="x" disabled={busy} onClick={() => void vote('no')}>رد</Button>
+        </>}
+      </div>
+    );
+  }
+  return (
+    <Rematch className="tbl-rematch"
+      title={asker && !myVote ? <><bdi>{askerName}</bdi> بازی دوباره می‌خواهد.</> : 'منتظر جواب حریف…'}
+      note="همان زمان، رنگ‌ها جابه‌جا."
+      votes={t.seats.filter((x) => x.kind !== 'script').map((x) => {
+        const v = x.bot ? 'yes' : r.votes.find((y) => y.seat === x.seat)?.vote;
+        return { name: <bdi>{name(x.seat)}</bdi>, seat: seatNo(x.seat), initials: name(x.seat).charAt(0), you: x.seat === t.mySeat, vote: v ?? 'wait' };
+      })}
+      {...(secs !== null ? { countdown: { time: secs, p: secs / 30, size: 'chip' as const, label: 'مهلت' } } : {})}
+      actions={asker && !myVote ? <>
+        <Button variant="primary" icon="check" loading={busy} onClick={() => void vote('yes')}>قبول</Button>
+        <Button variant="secondary" icon="x" disabled={busy} onClick={() => void vote('no')}>رد</Button>
+      </> : undefined} />
+  );
 }
 
 /** The platform half of the chess result (CX-11): my rating change, rematch, new opponent, PGN, share and report. */
-function OwnFrameResult({ snap, onSnap, onReport, toast }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void; onReport: () => void; toast: ReturnType<typeof useToast> }) {
+function OwnFrameResult({ snap, onSnap, onReport, toast, part = 'full' }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void; onReport: () => void; toast: ReturnType<typeof useToast>; /** info: no action buttons (they sit in the panel / dock) */ part?: 'full' | 'info' }) {
   const t = snap.table;
   const rewards = useRewards(t.id, t.mySeat !== null && t.status === 'finished');
   const d = rewards.data;
   const delta = d?.processed && d.rating ? d.rating.after - d.rating.before : null;
+  // Aborted friendly table: «دوباره با همین دوست» reopens the same kind of table (same settings) and invites the same friend.
+  const navigate = useNavigate();
+  const [again, setAgain] = useState(false);
+  const friend = t.visibility === 'private' && t.competition === 'friendly' && !t.settings.bot && !t.settings.tournament && t.mySeat !== null
+    ? t.seats.find((x) => x.seat !== t.mySeat && x.kind === 'human' && x.user)?.user ?? null : null;
+  const reopen = async () => {
+    if (!friend) return;
+    setAgain(true);
+    try {
+      const { id } = await api<{ id: string }>('/tables', { method: 'POST', body: { gameId: t.gameId, pace: t.pace, visibility: 'private', capacity: t.capacity, turnSeconds: t.settings.turnSeconds, reminders: t.settings.reminders, competition: 'friendly', options: t.settings.options ?? {} } });
+      await api(`/tables/${id}/invites`, { method: 'POST', body: { userId: friend.id } }).catch(() => undefined);
+      navigate(`/tables/${id}`);
+    } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'ساخت میز انجام نشد.'); } finally { setAgain(false); }
+  };
   const share = async () => {
-    const url = `${location.origin}/tables/${t.id}`;
+    const url = `${location.origin}/${t.code ? `t/${t.code}` : `tables/${t.id}`}`;
     try {
       if (navigator.share) await navigator.share({ title: t.gameNameFa, url });
       else { await navigator.clipboard.writeText(url); toast('success', 'لینک بازی کپی شد.'); }
@@ -1439,10 +1542,13 @@ function OwnFrameResult({ snap, onSnap, onReport, toast }: { snap: TableSnapshot
           : <p className="tbl-ownres__rating" role="status">{rewards.gaveUp ? 'تغییر رتبه بعداً در «پیشرفت» نمایش داده می‌شود.' : 'در حال محاسبهٔ رتبه…'}</p>
       )}
       {t.competition === 'friendly' && t.status === 'finished' && <p className="tbl-ownres__rating">میز دوستانه روی رتبه اثری ندارد.</p>}
-      <div className="tbl-ownres__btns">
-        {t.status === 'finished' && <OwnFrameRematch snap={snap} onSnap={onSnap} />}
-        <Button variant="secondary" icon="search" href={`/play?game=${t.gameId}`}>حریف جدید</Button>
-      </div>
+      {part === 'full' && (
+        <div className="tbl-ownres__btns">
+          {t.status === 'finished' && <OwnFrameRematch mode="button" snap={snap} onSnap={onSnap} />}
+          {t.status === 'cancelled' && friend && <Button variant="primary" icon="refresh-cw" loading={again} onClick={() => void reopen()}>دوباره با همین دوست</Button>}
+          <Button variant="secondary" icon="search" href={`/play?game=${t.gameId}`}>حریف جدید</Button>
+        </div>
+      )}
       {t.status === 'finished' && (
         <div className="tbl-ownres__foot">
           <Button variant="ghost" size="sm" icon="download" href={`/api/tables/${t.id}/record`}>PGN</Button>
@@ -1488,13 +1594,29 @@ function GuestTable() {
   );
 }
 
-export function TablePage() {
-  const { id = '' } = useParams();
+/** `id` is given when the page is opened through /t/<code> (TableCodePage resolves the code); /tables/<id> redirects there. */
+export function TablePage({ id: idProp }: { id?: string } = {}) {
+  const { id: routeId = '' } = useParams();
+  const id = idProp ?? routeId;
   const [params] = useSearchParams();
   const invite = params.get('invite');
   const { me, status } = useSession();
   const s = useTableSession(id, invite);
   const snap = s.snapshot;
+  const code = snap?.table.code;
+  const canonical = !!snap && snap.table.code && (snap.table.visibility === 'public' || snap.table.mySeat !== null);
+  // Row 10: /tables/<uuid> → /t/<code>. A private table is reachable by code only for its own players (the API refuses
+  // anyone else), so a guest holding an invite link stays on the long URL.
+  // Only the address bar changes (history.replaceState): a router navigation would remount the table through
+  // TableCodePage and drop a move still waiting in the undo window (seen as tutorials stalling on the first tap).
+  useEffect(() => {
+    if (!idProp && canonical && code) window.history.replaceState(window.history.state, '', `/t/${code}${location.search}`);
+  }, [idProp, canonical, code]);
+  // Table chat is loaded on entry so the sheet opens with messages at once (no «در حال بارگذاری»).
+  const chatId = snap && snap.table.mySeat !== null && !snap.table.isTutorial ? snap.table.id : null;
+  useEffect(() => { if (chatId) preloadChat(`/tables/${chatId}/chat`); }, [chatId]);
+  // The site's bottom navigation never shows on a table page (phones); see table.css.
+  useEffect(() => { document.documentElement.dataset.tablepage = 'true'; return () => { delete document.documentElement.dataset.tablepage; }; }, []);
   usePageTitle(snap ? `${snap.table.isTutorial ? 'آموزش' : 'میز'} ${snap.table.gameNameFa}` : 'میز');
 
   if (status !== 'loading' && !me) {

@@ -1,6 +1,6 @@
 // Desktop artboard: 12 full table frames 1440×900 + result-reason grid.
 import { S } from './scenes.mjs';
-import { ME, OPP, felt, desk, railStd, status, tourStrip, resultCard, chatCol, actionsRow, btn, ibtn, mlist, fa, ic, aic, pc, board, clock, gamebar } from './parts.mjs';
+import { ME, OPP, felt, desk, railStd, status, tourStrip, resultCard, chatCol, actionsRow, btn, ibtn, mlist, fa, num, ic, aic, pc, board, clock, gamebar } from './parts.mjs';
 
 const cap = (n, title, sub, notes) => `<header class="cx-cap"><h2><span class="cx-tag">${fa(n)}</span>${title}${sub ? `<small>${sub}</small>` : ''}</h2>${notes ? `<ul>${notes.map((x) => `<li>${x}</li>`).join('')}</ul>` : ''}</header>`;
 const shot = (n, title, sub, notes, frame) => `<section class="cx-shot" id="d${n}">${cap(n, title, sub, notes)}${frame}</section>`;
@@ -11,23 +11,33 @@ const tile = (label, on, inc) => `<button class="cx-tile${inc ? ' cx-tile--inc' 
 /** Time picker grouped by category (chess.com layout): the category name appears once, as the row label. */
 export function picker(o = {}) {
   const sel = o.sel ?? '3';
+  const online = (o.tab ?? 'online') === 'online';
+  o = { ...o, more: online ? false : o.more };
   const rows = [
     ['bullet', 'بولت', ['1'], ['1+1']],
     ['lightning', 'بلیتس', ['3', '5'], ['3+2', '5+3']],
     ['stopwatch', 'رپید', ['10'], ['10+5']],
   ].map(([icon, name, main, inc]) => `<div class="cx-catrow"><span class="cx-cat">${aic(icon)}${name}</span><div class="cx-catrow__tiles">${main.map((m) => tile(`<span>${fa(m)}</span><span>دقیقه</span>`, sel === m)).join('')}${o.more ? inc.map((m) => tile(`<span class="cx-inc" dir="ltr">${m.split('+').map(fa).join('<i>+</i>')}</span>`, sel === m, true)).join('') : ''}</div></div>`).join('');
-  return `<div class="bgv-seg bgv-seg--block" role="tablist" aria-label="حریف"><button class="bgv-seg__item" role="tab" aria-selected="true">${ic('globe')}آنلاین</button><button class="bgv-seg__item" role="tab" aria-selected="false">${ic('users')}با دوست</button><button class="bgv-seg__item" role="tab" aria-selected="false">${ic('bot')}با ربات</button></div>
+  return `${tabs(o.tab ?? 'online')}
 <div class="cx-tc">${rows}</div>
-<button class="cx-more" type="button" aria-expanded="${o.more ? 'true' : 'false'}">${ic('chevdown')}${o.more ? 'زمان‌های کمتر' : 'زمان‌های بیشتر'}</button>
+${online ? '' : `<button class="cx-more" type="button" aria-expanded="${o.more ? 'true' : 'false'}">${ic('chevdown')}${o.more ? 'زمان‌های کمتر' : 'زمان‌های بیشتر'}</button>`}
 ${o.more ? `<p class="cx-hint">در «۳ + ۲» بعد از هر حرکت ۲ ثانیه به ساعت شما اضافه می‌شود. این زمان‌ها برای بازی با دوست و مسابقه است.</p>` : ''}
 <div class="cx-row cx-row--between"><span class="cx-cat">نوع رقابت</span><div class="bgv-seg" role="radiogroup" aria-label="نوع رقابت"><button class="bgv-seg__item" role="radio" aria-checked="false">دوستانه</button><button class="bgv-seg__item" role="radio" aria-checked="true" aria-selected="true">رتبه‌دار</button></div></div><p class="cx-hint">نتیجه روی رتبهٔ بلیتس شما اثر دارد. حریف بر اساس مهارت انتخاب می‌شود.</p>`;
 }
+export const tabs = (t) => `<div class="bgv-seg bgv-seg--block" role="tablist" aria-label="حریف"><button class="bgv-seg__item" role="tab" aria-selected="${t === 'online'}">${ic('globe')}آنلاین</button><button class="bgv-seg__item" role="tab" aria-selected="${t === 'friend'}">${ic('users')}با دوست</button><button class="bgv-seg__item" role="tab" aria-selected="${t === 'bot'}">${ic('bot')}با ربات</button></div>`;
+/** Colour choice (chess.com: white / random / black). */
+export const colors = (sel = 'random') => `<div class="cx-colorsrow"><span class="cx-cat">رنگ شما</span><div class="cx-colors" role="radiogroup" aria-label="رنگ شما"><button type="button" role="radio" aria-pressed="${sel === 'w'}" aria-label="سفید">${pc('wK')}</button><button type="button" role="radio" aria-pressed="${sel === 'random'}" aria-label="تصادفی"><i class="cx-half"></i></button><button type="button" role="radio" aria-pressed="${sel === 'b'}" aria-label="سیاه">${pc('bK')}</button></div></div>`;
+/** Bot levels with an approximate rating (chess.com shows each bot with a face and rating). Faces: letter avatars until the owner's GPT images arrive. */
+export const BOTS = [['آ', 'آسان', 'آیدا', 800, 3], ['پ', 'متوسط', 'پویا', 1200, 2], ['س', 'سخت', 'سهند', 1600, 5]];
+export const botPicker = (sel = 1) => `<div class="cx-bots" role="radiogroup" aria-label="سطح ربات">${BOTS.map(([av, lvl, name, r, seat], i) => `<button class="cx-bot" type="button" role="radio" aria-pressed="${i === sel}"><span class="bgv-avatar seat-${seat}">${av}</span><b>${lvl}</b><small>${name}، حدود ${num(r)}</small></button>`).join('')}</div>`;
+export const ghost = () => board(S.start.pos.board, { cls: 'cx-board--ghost' });
 function lobby() {
   const side = `<h2 class="cx-h">بازی جدید شطرنج</h2>${picker({ sel: '3', more: true })}
 ${btn('لغو', 'secondary bgv-btn--lg cx-cta', 'x')}`;
   const stage = `<div class="cx-seek" role="status"><div class="cx-ring" aria-hidden="true"></div><h3>دنبال حریف می‌گردیم…</h3><p>۳ دقیقه، بلیتس، رتبه‌دار</p><span class="cx-seek__t">${fa('0:07')}</span></div>`;
-  return `<div class="cx-frame bgv" data-theme="light" dir="rtl"><div style="display:grid;grid-template-rows:var(--gamebar-h) 1fr;block-size:900px">${gamebar({ meta: ['شطرنج', 'بازی جدید'] })}<div class="cx-lobby"><div class="cx-lobby__side">${side}</div><div class="cx-lobby__stage">${stage}</div></div></div></div>`;
+  return lobbyFrame(side, ghost() + stage);
 }
+const lobbyFrame = (side, stage, meta = ['شطرنج', 'بازی جدید']) => `<div class="cx-frame bgv" data-theme="light" dir="rtl"><div style="display:grid;grid-template-rows:var(--gamebar-h) 1fr;block-size:900px">${gamebar({ meta })}<div class="cx-lobby"><div class="cx-lobby__side">${side}</div><div class="cx-lobby__stage">${stage}</div></div></div></div>`;
 
 // ---------- frames ----------
 function myTurn(theme = 'light') {
@@ -93,7 +103,7 @@ function drawOffer() {
 function resign() {
   const sc = S.main;
   const over = `<div class="cx-over"><div class="bgv-dialog" role="alertdialog" aria-label="تسلیم"><div class="bgv-dialog__head"><span class="bgv-dialog__title">تسلیم می‌شوید؟</span>${ibtn('x', 'بستن')}</div><div style="padding:0 20px 8px;font-size:15px;line-height:1.8;color:var(--text)">بازی را می‌بازید و رتبهٔ بلیتس شما حدود ${fa(8)} امتیاز کم می‌شود.</div><div style="display:flex;gap:10px;padding:12px 20px 20px">${btn('ادامهٔ بازی', 'secondary')}${btn('تسلیم', 'leave', 'flag')}</div></div></div>`;
-  const sent = `<section class="cx-offer" style="background:var(--surface-sunken);box-shadow:var(--shadow-ring)"><div class="cx-offer__t">${ic('hand')}<span>پیشنهاد مساوی فرستاده شد. منتظر جواب نیلوفر بمانید.</span></div><span class="cx-note">تا ۵ حرکت دیگر نمی‌توانید دوباره پیشنهاد بدهید.</span></section>`;
+  const sent = `<section class="cx-offer" style="background:var(--surface-sunken);box-shadow:var(--shadow-ring)"><div class="cx-offer__t">${ic('hand')}<span>پیشنهاد مساوی فرستاده شد. منتظر جواب نیلوفر بمانید.</span></div><span class="cx-note">اگر نیلوفر رد کند یا حرکت کند، همین‌جا خبر می‌دهیم و دوباره می‌توانید پیشنهاد بدهید.</span></section>`;
   return desk({
     gb: GB5, over,
     rail: railStd(sc, { status: status('<b>نوبت نیلوفر.</b>', { icon: ic('clock') }), mid: sent, drawLabel: 'فرستاده شد', drawDisabled: true, opening: 'گشایش ایتالیایی' }),
@@ -102,10 +112,10 @@ function resign() {
 }
 function gameOver() {
   const sc = S.mate;
-  const over = `<div class="cx-over" style="background:rgba(7,19,28,.55)">${resultCard({ title: 'بردید!', reason: 'حریف را مات کردید', win: 'me', score: '1 - 0', rMe: 1620, dMe: 8, rOpp: 1676, dOpp: -8 })}</div>`;
+  const over = `<div class="cx-over" style="background:rgba(7,19,28,.55)">${resultCard({ title: 'بردید!', reason: 'حریف را مات کردید', win: 'me', white: 'me', score: '1 - 0', rMe: 1620, dMe: 8, rOpp: 1676, dOpp: -8 })}</div>`;
   return desk({
     gb: { meta: ['بلیتس ۵ دقیقه', 'بازی تمام شد'] }, over,
-    rail: railStd(sc, { status: status('<b>بازی تمام شد.</b> سفید مات کرد و برد (۱-۰).', { icon: ic('trophy') }), actions: `<div class="cx-actions" style="grid-template-columns:1fr 1fr">${btn('بازی دوباره', 'primary', 'repeat')}${btn('آنالیز بازی', 'secondary', 'eye')}</div>` }),
+    rail: railStd(sc, { status: status('<b>بازی تمام شد.</b> سفید مات کرد و برد (<bdi dir="ltr">1-0</bdi>).', { icon: ic('trophy') }), actions: `<div class="cx-actions" style="grid-template-columns:1fr 1fr">${btn('بازی دوباره', 'primary', 'repeat')}${btn('مرور بازی', 'secondary', 'list')}</div>` }),
     feltHtml: felt(sc, 'w', { w: clock('1:12', 'idle', { who: 'شما' }), b: clock('0:58', 'idle', { who: 'نیلوفر' }) }, {}),
     chat: chatCol({ msgs: [['sys', 'بازی شروع شد. <b>مینا</b> سفید است، <b>نیلوفر</b> سیاه'], ['game', '<i class="bgv-seat seat-1"></i><b>مینا</b> با <span dir="ltr">Rd8#</span> مات کرد'], ['opp', 'آفرین، ردیف آخر رو ندیده بودم'], ['me', 'بازی خوبی بود']] }),
   });
@@ -140,7 +150,7 @@ function oppOffline() {
 }
 function spectator() {
   const sc = S.main;
-  const stand = `<div class="cx-mini" role="table" aria-label="جدول بعد از دور ۲"><span>۱</span><span>آرش</span><span>۲</span><span>${fa('1802')}</span><span>۲</span><span>نیلوفر</span><span>۲</span><span>${fa('1684')}</span><span>۳</span><span>مینا</span><span>۱٫۵</span><span>${fa('1612')}</span><span>۴</span><span>سارا</span><span>۱٫۵</span><span>${fa('1590')}</span><span>۵</span><span>کیان</span><span>۱</span><span>${fa('1655')}</span></div>`;
+  const stand = `<div class="cx-mini" role="table" aria-label="جدول بعد از دور ۲"><span>۱</span><span>آرش</span><span>۲</span><span>${num('1802')}</span><span>۲</span><span>نیلوفر</span><span>۲</span><span>${num('1684')}</span><span>۳</span><span>مینا</span><span>۱٫۵</span><span>${num('1612')}</span><span>۴</span><span>سارا</span><span>۱٫۵</span><span>${num('1590')}</span><span>۵</span><span>کیان</span><span>۱</span><span>${num('1655')}</span></div>`;
   const top = tourStrip({ round: 3, board: 2, more: `<div class="cx-note">سوئیس، ۳+۲. دور بعد وقتی همهٔ میزها تمام شوند شروع می‌شود.</div>${stand}${btn('جدول کامل مسابقه', 'ghost bgv-btn--sm', 'list')}` });
   const P = { w: clock('2:51', 'run', { who: 'مینا' }), b: clock('3:20', 'idle', { who: 'نیلوفر' }) };
   return desk({
@@ -151,25 +161,87 @@ function spectator() {
   });
 }
 
+
+// ---------- v1.3 (2026-11-24): decisions taken from chess.com ----------
+/** Large screen: the board grows with the window (no 688 px cap). 1920×1080 → 880 px. */
+function largeScreen() {
+  const sc = S.main;
+  return desk({
+    frameCls: 'cx-frame--xl', feltStyle: '--b:880px', gb: GB5,
+    rail: railStd(sc, { status: status('<b>نوبت شماست.</b> مهره را بکشید یا رویش کلیک کنید.'), opening: 'گشایش ایتالیایی' }),
+    feltHtml: felt(sc, 'w', { w: clock('3:42', 'run', { who: 'شما' }), b: clock('4:05', 'idle', { who: 'نیلوفر' }) }, {}),
+  });
+}
+/** The opponent asks for a rematch: live card with accept / decline and a shared 30 s countdown. */
+function rematch() {
+  const sc = S.mate;
+  const card = `<section class="cx-offer" role="alertdialog" aria-label="درخواست بازی دوباره"><div class="cx-offer__t">${ic('repeat')}<span><b>نیلوفر بازی دوباره می‌خواهد.</b> همان زمان، رنگ‌ها جابه‌جا.</span><span class="cx-offer__time">${fa('0:24')}</span></div><div class="cx-offer__row">${btn('قبول', 'primary', 'check')}${btn('رد', 'secondary', 'x')}</div></section>`;
+  return desk({
+    gb: { meta: ['بلیتس ۵ دقیقه', 'بازی تمام شد'] },
+    rail: railStd(sc, { status: status('<b>بازی تمام شد.</b> سفید مات کرد و برد (<bdi dir="ltr">1-0</bdi>).', { icon: ic('trophy') }), mid: card, actions: `<div class="cx-actions" style="grid-template-columns:1fr 1fr">${btn('حریف جدید', 'secondary', 'search')}${btn('مرور بازی', 'secondary', 'list')}</div>` }),
+    feltHtml: felt(sc, 'w', { w: clock('1:12', 'idle', { who: 'شما' }), b: clock('0:58', 'idle', { who: 'نیلوفر' }) }, { overlay: `<button class="cx-resultchip" type="button">${aic('crown', 'cx-aic')}بردید! دیدن نتیجه</button>` }),
+    chat: chatCol({ msgs: [['game', '<i class="bgv-seat seat-1"></i><b>مینا</b> با <span dir="ltr">Rd8#</span> مات کرد'], ['game', '<i class="bgv-seat seat-2"></i><b>نیلوفر</b> بازی دوباره خواست'], ['opp', 'یکی دیگه؟']] }),
+  });
+}
+/** Game against a bot: no chat column, so the board gets the space. */
+function botGame() {
+  const sc = S.main;
+  const bot = { name: 'پویا', av: 'پ', rating: 1200, seat: 2, tier: null, tags: ['<span class="cx-pill">ربات</span>'] };
+  return desk({
+    noChat: true, feltStyle: '--b:700px',
+    gb: { meta: ['با ربات', 'متوسط', 'بدون ساعت'] },
+    rail: railStd(sc, { status: status('<b>نوبت شماست.</b> پویا (ربات، حدود ۱,۲۰۰) منتظر حرکت شماست.'), opening: 'گشایش ایتالیایی' }),
+    feltHtml: felt(sc, 'w', { w: '', b: '' }, { sel: 'b3', dots: sc.legal('b3') }, { b: bot }),
+  });
+}
+/** New game, «با ربات» tab: level with approximate rating and colour. */
+function botLobby() {
+  const side = `<h2 class="cx-h">بازی جدید شطرنج</h2>${tabs('bot')}<span class="cx-cat">سطح ربات</span>${botPicker(1)}${colors('random')}<p class="cx-hint">بازی با ربات دوستانه است، ساعت ندارد و روی رتبه اثری ندارد.</p>${btn('بازی کن', 'primary bgv-btn--lg cx-cta', 'zap')}`;
+  const card = `<div class="cx-stagecard"><div class="cx-botcard"><span class="bgv-avatar seat-2">پ</span><div><h3>پویا</h3><p>ربات متوسط، حدود ۱,۲۰۰</p></div></div></div>`;
+  return lobbyFrame(side, ghost() + card);
+}
+/** New game, «با دوست» tab: invite link; the game starts by itself when the friend opens it (no «آماده‌ام»). */
+function friendInvite() {
+  const pk = picker({ sel: '10', more: true, tab: 'friend' });
+  const side = `<h2 class="cx-h">بازی جدید شطرنج</h2>${pk.slice(0, pk.indexOf('<div class="cx-row cx-row--between">'))}${colors('random')}<div style="block-size:8px"></div>${btn('لغو دعوت', 'secondary bgv-btn--lg cx-cta', 'x')}`;
+  const card = `<div class="cx-stagecard"><div class="cx-ring" aria-hidden="true"></div><h3>منتظر دوستتان هستیم…</h3><p>لینک را بفرستید. وقتی دوستتان لینک را باز کند، بازی خودش شروع می‌شود.</p><div class="cx-link"><input class="bgv-input" readonly value="boardgameverse.ir/t/K7Q2MX" aria-label="لینک دعوت">${btn('کپی', 'primary', 'copy')}</div><p style="font-size:13.5px">رپید ۱۰ دقیقه، دوستانه، رنگ تصادفی</p></div>`;
+  return lobbyFrame(side, ghost() + card, ['شطرنج', 'با دوست']);
+}
+/** Illegal attempt (pinned piece): the piece goes back, the king flashes red, «illegal» sound, short message. */
+function illegal() {
+  const sc = S.pin;
+  return desk({
+    gb: GB5,
+    rail: railStd(sc, { status: status('<b>این حرکت مجاز نیست.</b> سرباز f7 میخ شده؛ حرکتش شاه را در کیش می‌گذارد.', { check: true, icon: ic('info') }) }),
+    feltHtml: felt(sc, 'b', { w: clock('4:51', 'idle', { who: 'نیلوفر' }), b: clock('4:47', 'run', { who: 'شما' }) }, { sel: 'f7', flash: 'e8', arrows: [['h5', 'e8']] }),
+  });
+}
+
 const SHOTS = () => [
-  ['lobby', 'انتخاب زمان و پیدا کردن حریف', 'لابی', ['زمان‌ها در سه ردیف بولت، بلیتس و رپید. زمان‌های با اضافه‌زمان زیر «زمان‌های بیشتر» هستند.', 'بعد از «بازی کن» دکمه «لغو» می‌شود و تا پیدا شدن حریف شمارنده نشان داده می‌شود.'], lobby()],
+  ['lobby', 'انتخاب زمان و پیدا کردن حریف', 'لابی', ['زمان‌ها در سه ردیف بولت، بلیتس و رپید. زمان‌های با اضافه‌زمان فقط در «با دوست» و مسابقه هستند و در «آنلاین» دیده نمی‌شوند (تصمیم ۱۶ آبان، دسکتاپ ۱۹).', 'بعد از «بازی کن» دکمه «لغو» می‌شود و تا پیدا شدن حریف شمارنده نشان داده می‌شود. پشت کارت، صفحهٔ کم‌رنگ با چیدمان اولیه.'], lobby()],
   ['turn', 'نوبت شما', 'حرکت‌های مجاز', ['مهرهٔ انتخاب‌شده زرد می‌شود. نقطه یعنی خانهٔ مجاز، حلقه یعنی زدن مهره.', 'زیر اسم هر بازیکن مهره‌هایی که زده و اختلاف امتیاز مهره‌ها (+۱، +۲…) دیده می‌شود.'], myTurn()],
   ['check', 'کیش', '', ['شاهِ کیش‌شده هالهٔ قرمز دارد و فقط حرکت‌هایی مجازند که کیش را رفع کنند.'], check()],
   ['promotion', 'ارتقای سرباز', '', ['روی خانهٔ آخر ستون انتخاب باز می‌شود: وزیر، اسب، رخ، فیل. با ✕ حرکت لغو می‌شود.'], promo()],
   ['premove', 'پری‌موو در نوبت حریف', 'شما با سیاه', ['حرکتِ از قبل چیده‌شده روی دو خانهٔ قرمز دیده می‌شود و به محض رسیدن نوبت زده می‌شود.', 'ساعت شما زیر ۲۰ ثانیه نارنجی می‌شود.'], premove()],
   ['lowtime', 'وقت کم', 'زیر ۱۰ ثانیه', ['ساعت قرمز می‌شود و دهم ثانیه را هم نشان می‌دهد.'], lowTime()],
   ['draw-offer', 'پیشنهاد مساوی از حریف', '', ['پیشنهاد در ستون کنار صفحه می‌آید و صفحه را نمی‌پوشاند. حرکت کردن یعنی رد.'], drawOffer()],
-  ['resign', 'تسلیم و پیشنهاد فرستاده‌شده', '', ['تسلیم همیشه تأیید می‌خواهد. بعد از پیشنهاد مساوی، دکمه تا ۵ حرکت غیرفعال است.'], resign()],
-  ['game-over', 'پایان بازی', 'نتیجه و دلیل', ['پنجرهٔ نتیجه با تغییر رتبهٔ هر دو نفر. «بازی دوباره» با همان زمان و جابه‌جایی رنگ‌ها.', 'همهٔ حالت‌های پایان در جدول زیر.'], gameOver() + reasons()],
+  ['resign', 'تسلیم و پیشنهاد فرستاده‌شده', '', ['تسلیم همیشه تأیید می‌خواهد. بعد از فرستادن پیشنهاد مساوی، دکمه تا جواب حریف «فرستاده شد» است؛ سقفی برای تعداد پیشنهاد نیست (مثل Chess.com).'], resign()],
+  ['game-over', 'پایان بازی', 'نتیجه و دلیل', ['پنجرهٔ نتیجه با تغییر رتبهٔ هر دو نفر. امتیاز به ترتیب نمادگذاری شطرنج: سفید چپ، امتیاز وسط، سیاه راست، برای هر بیننده.', '✕ پنجره را می‌بندد و صفحهٔ آخر دیده می‌شود؛ «بازی دوباره» و «مرور بازی» در ستون کنار می‌مانند. «مرور بازی» حرکت‌به‌حرکت است؛ آنالیز با موتور فاز بعد.', 'همهٔ حالت‌های پایان در جدول زیر.'], gameOver() + reasons()],
   ['reconnect', 'قطع شدن اتصال شما', '', ['ساعت نمی‌ایستد. تا وصل شوید صفحه کم‌رنگ و دکمه‌ها غیرفعال است.'], reconnect()],
   ['opp-offline', 'قطع شدن حریف', '', ['ساعتِ حریفِ قطع‌شده خط‌چین می‌شود و همچنان کم می‌شود.'], oppOffline()],
   ['spectator', 'تماشاچی و مسابقه', 'دور ۳، میز ۲', ['تماشاچی دکمهٔ بازی ندارد. کارت مسابقه دور، میز و جدول را نشان می‌دهد.', 'گفت‌وگوی تماشاچی‌ها جداست و بازیکن‌ها در مسابقه آن را نمی‌بینند.'], spectator()],
   ['dark', 'حالت تیره', 'نوبت شما', null, myTurn('dark')],
   ['en-passant', 'آن‌پاسان', 'زدن در حال عبور', ['تنها حرکت سرباز e5 آن‌پاسان است (e6 بسته است). حلقهٔ روی d5 سربازی را نشان می‌دهد که زده می‌شود.', 'در فهرست حرکت‌ها <span dir="ltr">exd6</span> ثبت می‌شود (موتور: تست‌های E1 تا E4).'], enPassant()],
+  ['large-screen', 'صفحهٔ بزرگ', '۱۹۲۰×۱۰۸۰', ['اندازهٔ صفحه با پنجره بزرگ می‌شود و سقف ۶۸۸ پیکسل ندارد (مثل Chess.com: در ۱۹۲۰×۱۰۸۰ صفحهٔ آن‌ها ۹۴۴ پیکسل است).', 'فرمول: ارتفاع نمد منهای دو نوار بازیکن و فاصله‌ها، و حداکثر عرض نمد بین دو ستون. اینجا ۸۸۰ پیکسل؛ در ۱۴۴۰×۹۰۰ همان ۶۸۸.'], largeScreen()],
+  ['rematch', 'درخواست بازی دوباره', 'دید حریف', ['کارت زنده با «قبول / رد» و شمارش معکوس مشترک ۳۰ ثانیه از لحظهٔ درخواست، با صدای «اعلان». با قبول، بازی تازه با همان زمان و رنگ‌های جابه‌جا شروع می‌شود.', 'پنجرهٔ نتیجه بسته شده؛ چیپ بالای صفحه آن را دوباره باز می‌کند.'], rematch()],
+  ['bot-game', 'بازی با ربات', 'بدون گفت‌وگو', ['ستون گفت‌وگو در بازی با ربات نیست و جایش به صفحه می‌رسد (اینجا ۷۰۰ پیکسل).', 'نوار ربات: نام، برچسب «ربات» و رتبهٔ تقریبی. بازی با ربات ساعت ندارد.', 'نام‌ها و رتبه‌ها نمونه‌اند؛ رتبهٔ واقعی هر سطح از <code>bot.ts</code> کالیبره شود («پویا» نام فعلی ربات سایت است).'], botGame()],
+  ['bot-lobby', 'بازی جدید با ربات', 'سطح و رنگ', ['سه سطح با رتبهٔ تقریبی و انتخاب رنگ (سفید، تصادفی، سیاه). Chess.com هم ربات‌ها را با چهره و رتبه نشان می‌دهد.', 'نام‌ها و رتبه‌ها نمونه‌اند؛ رتبهٔ واقعی هر سطح از <code>bot.ts</code> کالیبره شود («پویا» نام فعلی ربات سایت است).', 'چهرهٔ ربات‌ها فعلاً حرف اول نام است تا تصویرهای GPT برسد (پرامپت در بستهٔ تحویل).'], botLobby()],
+  ['friend-invite', 'دعوت دوست', 'شروع خودکار', ['با «با دوست» لینک ساخته می‌شود. وقتی دوست لینک را باز کند، بازی خودش شروع می‌شود؛ مرحلهٔ «آماده‌ام» نیست (تصمیم مالک، ۳ آذر).', 'زمان‌های با اضافه‌زمان فقط اینجا و در مسابقه هستند (تصمیم ۱۶ آبان).'], friendInvite()],
+  ['illegal-move', 'حرکت غیرمجاز', 'مهرهٔ میخ‌شده', ['مهرهٔ میخ‌شده انتخاب می‌شود ولی نقطهٔ مقصد ندارد. با تلاش برای حرکت: مهره در ۱۵۰ms برمی‌گردد، خانهٔ شاه دو بار قرمز چشمک می‌زند، صدای «غیرمجاز» پخش می‌شود و پیام کوتاه در نوار وضعیت می‌آید.', 'فلش نارنجی فقط برای توضیح در این صفحه است (وزیر h5 که سرباز را میخ کرده).'], illegal()],
 ];
 /** One artboard per screen: { slug, n, title, html }. */
 export function desktopShots() {
-  return SHOTS().map(([slug, title, sub, notes, frame], i) => ({ slug, n: i + 1, title, html: `<div class="cx-doc" data-page="desktop">${shot(i + 1, title, sub, notes, frame)}</div>` }));
+  return SHOTS().map(([slug, title, sub, notes, frame], i) => { const xl = frame.includes('cx-frame--xl'); return { slug, n: i + 1, title, w: xl ? 2000 : 1520, html: `<div class="cx-doc" data-page="desktop">${shot(i + 1, title, sub, notes, frame).replace('class="cx-shot"', xl ? 'class="cx-shot cx-shot--xl"' : 'class="cx-shot"')}</div>` }; });
 }
 export function desktopBody() {
   return desktopShots().map((x) => x.html).join('');

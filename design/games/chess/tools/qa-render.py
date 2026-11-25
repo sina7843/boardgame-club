@@ -5,13 +5,13 @@ from PIL import Image
 
 ROOT = 'E:/AI/Claude/bgv-chess'
 PORT = sys.argv[1] if len(sys.argv) > 1 else '8791'
-OUT = f'{ROOT}/shots/v4'
+OUT = f'{ROOT}/shots/v13'
 os.makedirs(OUT, exist_ok=True)
 names = sorted(f[:-8] for f in os.listdir(f'{ROOT}/canvas/build/project/chess') if f.endswith('.dc.html'))
 jobs = [{'url': f'http://127.0.0.1:{PORT}/preview/{n}.html', 'out': f'{OUT}/{n}.png',
          'width': 470 if n.startswith('P') else 1520, 'height': 900, 'full': True} for n in names]
-json.dump(jobs, open(f'{ROOT}/shots/jobs-v4.json', 'w'))
-subprocess.run(['node', 'E:/AI/Claude/bgv-ds21/tools/render.mjs', f'{ROOT}/shots/jobs-v4.json'], check=True)
+json.dump(jobs, open(f'{ROOT}/shots/jobs-v13.json', 'w'))
+subprocess.run(['node', 'E:/AI/Claude/bgv-ds21/tools/render.mjs', f'{ROOT}/shots/jobs-v13.json'], check=True)
 
 h = {}
 for n in names:

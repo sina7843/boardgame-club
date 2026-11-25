@@ -5,12 +5,13 @@ import { Avatar, Badge, Banner, Button, Card, ChipGroup, Identity, PageHead, Sel
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AvatarArt, userIdentity } from '../lib/bgv.tsx';
 import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
+import { clockLabelFa } from '../games/chessClock.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 interface LiveTable { id: string; gameNameFa: string; pace: 'live' | 'turn'; players: string[]; tournament: { id: string; titleFa: string; round: number } | null }
-interface OpenTable { id: string; gameId: string; gameNameFa: string; pace: 'live' | 'turn'; players: number; capacity: number; turnSeconds: number; minReputation?: number | null; host: { displayName: string; avatarKey: string }; seated: { id: string; name: string; avatarKey: string }[] }
+interface OpenTable { id: string; gameId: string; gameNameFa: string; pace: 'live' | 'turn'; players: number; capacity: number; turnSeconds: number; clock?: string | null; minReputation?: number | null; host: { displayName: string; avatarKey: string }; seated: { id: string; name: string; avatarKey: string }[] }
 
 export function OpenTables() {
   usePageTitle('میزهای باز');
@@ -75,7 +76,7 @@ export function OpenTables() {
                 <li key={t.id} className="pg-orow">
                   <div className="pg-orow__game">
                     <img className="bgv-box bgv-box--sm pg-thumb" style={{ inlineSize: 72, blockSize: 40 }} src={`/covers/box/${t.gameId}.webp`} alt="" />
-                    <div><b>{t.gameNameFa}</b><span className="pg-meta">{PACE_FA[t.pace]}<span className="bgv-sep" />{durationFa(t.turnSeconds)}{t.minReputation ? <><span className="bgv-sep" />حداقل اعتبار {faNum(t.minReputation)}</> : null}</span></div>
+                    <div><b>{t.gameNameFa}</b><span className="pg-meta">{PACE_FA[t.pace]}<span className="bgv-sep" />{clockLabelFa(t.clock) ?? durationFa(t.turnSeconds)}{t.minReputation ? <><span className="bgv-sep" />حداقل اعتبار {faNum(t.minReputation)}</> : null}</span></div>
                   </div>
                   <div className="pg-orow__host"><Identity size="sm" {...userIdentity(t.host)} sub="میزبان" /></div>
                   <div className="pg-orow__seats">

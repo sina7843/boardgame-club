@@ -15,7 +15,7 @@ mkdirSync(OUT, { recursive: true }); mkdirSync(PRE, { recursive: true });
 const H = existsSync('E:/AI/Claude/bgv-chess/canvas/build/heights.json') ? JSON.parse(readFileSync('E:/AI/Claude/bgv-chess/canvas/build/heights.json', 'utf8')) : {};
 const pad = (n) => String(n).padStart(2, '0');
 const boards = [
-  ...desktopShots().map((s) => ({ key: `chess/D${pad(s.n)}-${s.slug}.dc.html`, title: `دسکتاپ ${fa(s.n)}: ${s.title}`, w: 1520, h: H[`D${pad(s.n)}`] ?? 1120, body: s.html, group: 'desk' })),
+  ...desktopShots().map((s) => ({ key: `chess/D${pad(s.n)}-${s.slug}.dc.html`, title: `دسکتاپ ${fa(s.n)}: ${s.title}`, w: s.w ?? 1520, h: H[`D${pad(s.n)}`] ?? 1120, body: s.html, group: 'desk' })),
   ...phoneShots().sort((a, b) => a.n - b.n).map((s) => ({ key: `chess/P${pad(s.n)}.dc.html`, title: `گوشی ${fa(s.n)}: ${s.title}`, w: 470, h: H[`P${pad(s.n)}`] ?? 1020, body: s.html, group: 'phone' })),
   { key: 'chess/Chess-Spec.dc.html', title: 'مشخصات برای تیم فنی', w: 1520, h: H.SPEC ?? 4100, body: specBody(), group: 'spec' },
 ];
@@ -30,9 +30,12 @@ const entries = {}; const notes = {};
 let y = 300;
 const desk = boards.filter((b) => b.group === 'desk');
 notes['chess-title-desk'] = { x: 0, y: 0, text: `شطرنج، دسکتاپ (${fa(desk.length)} صفحه)`, kind: 'title1', maxW: 4720, page: 'chess' };
-for (let i = 0; i < desk.length; i += 3) {
-  const row = desk.slice(i, i + 3); const rh = Math.max(...row.map((b) => b.h));
-  row.forEach((b, j) => { entries[b.key] = { x: j * 1600, y, w: b.w, h: b.h, page: 'chess', title: b.title }; });
+const deskOrder = [...desk.filter((b) => b.w <= 1520), ...desk.filter((b) => b.w > 1520)];
+for (let i = 0; i < deskOrder.length;) {
+  const row = []; let x = 0;
+  while (i < deskOrder.length && row.length < 3 && (row.length === 0 || x + deskOrder[i].w <= 4720)) { row.push([deskOrder[i], x]); x += deskOrder[i].w + 80; i++; if (deskOrder[i - 1].w > 1520) break; }
+  const rh = Math.max(...row.map(([b]) => b.h));
+  row.forEach(([b, bx]) => { entries[b.key] = { x: bx, y, w: b.w, h: b.h, page: 'chess', title: b.title }; });
   y += rh + 120;
 }
 y += 300;

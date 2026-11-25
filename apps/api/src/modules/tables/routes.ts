@@ -191,11 +191,17 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
   r.post('/tables/:id/commands', {
     schema: { tags: ['tables'], summary: 'Submit a game command (idempotent per commandId; actor comes from the session)',
       params: idParams, body: commandBody, response: { 200: commandResult, ...errors } }
-  }, async (req) => {
+  }, async (req, reply) => {
     const { userId } = requireUser(req);
+    const t0 = performance.now();
     const result = await timedCommand('http', req.log, req.params.id, () => executeCommand(db, registry, { userId, tableId: req.params.id, ...req.body }));
+    const t1 = performance.now();
     const ctx = await tableContextAt(db, req.params.id, result.revision);
-    return { ...result, snapshot: await buildTableSnapshot(db, registry, { tableId: req.params.id, userId }, ctx) };
+    const snap = await buildTableSnapshot(db, registry, { tableId: req.params.id, userId }, ctx);
+    // Server-Timing splits the server's share from the network's (browser devtools / fetch): `exec` = the command's
+    // transaction, `view` = building the reply snapshot. Durations only, nothing about the game.
+    void reply.header('Server-Timing', `exec;dur=${(t1 - t0).toFixed(1)}, view;dur=${(performance.now() - t1).toFixed(1)}`);
+    return { ...result, snapshot: snap };
   });
 
   r.get('/tables/:id/commands/:commandId', {

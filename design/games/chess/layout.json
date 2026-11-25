@@ -11,7 +11,8 @@
    "chat": 340
   },
   "gamebar": 56,
-  "board": 688,
+  "board": "fluid (v1.3, like chess.com): min(felt height − 2 × playerBar − 2 × gap − 2 × feltPadding.block, felt width − 32); 688 at 1440×900, 880 at 1920×1080, 700 in a bot game without chat at 1440×900",
+  "boardAt1440": 688,
   "square": 86,
   "playerBar": 52,
   "feltPadding": [
@@ -60,7 +61,47 @@
    "hover": "inset white frame 6% of square",
    "arrow": "#F29E2E @ 80%"
   },
-  "promotion": "white column over the target file from the far edge: Q, N, R, B (rows = 1 square each), ✕ half a square; board dimmed rgba(0,0,0,.38)"
+  "flash": "illegal attempt: king square rgba(229,72,77,.82) with a dark red inner frame, two blinks of 200 ms",
+  "promotion": "white column over the target file from the far edge: Q, N, R, B (rows = 1 square each), ✕ max(44 px, half a square); board dimmed rgba(0,0,0,.38)"
+ },
+ "sounds": {
+  "set": "chesslike",
+  "folder": "sounds/chesslike",
+  "loudest10msRmsDbfs": {
+   "move-self": -20,
+   "move-opponent": -23,
+   "capture": -20,
+   "castle": -19,
+   "move-check": -19,
+   "promote": -21,
+   "game-start": -15,
+   "game-end": -16,
+   "low-time": -18,
+   "illegal": -14,
+   "premove": -27,
+   "notify": -21
+  },
+  "priority": [
+   "move-check",
+   "promote",
+   "castle",
+   "capture",
+   "move"
+  ],
+  "defaultVolume": 0.7
+ },
+ "animation": {
+  "pieceMoveMs": {
+   "off": 0,
+   "slow": 320,
+   "medium": 200,
+   "fast": 100
+  },
+  "default": "medium",
+  "captureFadeMs": 120,
+  "illegalSnapBackMs": 150,
+  "premoveMs": 80,
+  "reducedMotion": "colours only"
  },
  "piece": {
   "set": "classic",

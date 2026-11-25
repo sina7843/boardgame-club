@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>صداهای شطرنج</title>
+<style>
+  :root { --bg:#F3EEE6; --card:#fff; --ink:#142B3B; --muted:#5b6b78; --line:#e2d9cc; --accent:#D8942F; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1b24; --card:#16242f; --ink:#f3eee6; --muted:#9fb0bd; --line:#26394a; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:Tahoma, sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:24px 16px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  p { color:var(--muted); margin:0 0 20px; line-height:1.8; font-size:14px; }
+  table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  th, td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:right; font-size:14px; }
+  th { font-size:13px; color:var(--muted); font-weight:600; }
+  button { font:inherit; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; min-height:44px; }
+  button:hover { border-color:var(--accent); }
+  code { font-family:monospace; font-size:12px; color:var(--muted); }
+  .seq { margin:16px 0 24px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>صداهای شطرنج (chesslike، تأیید مالک ۳ آذر ۱۴۰۵)</h1>
+  <p>کوتاه و خشک، مثل Chess.com؛ همه از صفر ساخته شده‌اند و هیچ فایلی از Chess.com در آن‌ها نیست. هر صدا در دو نسخهٔ mp3 و ogg در <code>sounds/chesslike/</code> است.</p>
+  <div class="seq"><button data-seq="1">▶ یک دست کوتاه</button></div>
+  <table>
+    <thead><tr><th>رویداد</th><th>فایل</th><th></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+<script>
+  const events = [
+    ['move-self','حرکت خودم'], ['move-opponent','حرکت حریف'], ['capture','زدن'], ['castle','قلعه'],
+    ['move-check','کیش'], ['promote','ارتقا'], ['game-start','شروع بازی'], ['game-end','پایان بازی'],
+    ['low-time','وقت کم (۱۰ ثانیه)'], ['illegal','حرکت غیرمجاز'], ['premove','پری‌موو'], ['notify','اعلان']
+  ];
+  const play = (name) => { const a = new Audio('chesslike/' + name + '.mp3'); a.volume = 0.7; a.play(); };
+  document.getElementById('rows').innerHTML = events.map(([id, fa]) =>
+    `<tr><td>${fa}</td><td><code>${id}</code></td><td><button data-ev="${id}" aria-label="پخش ${fa}">▶</button></td></tr>`).join('');
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.ev) play(b.dataset.ev);
+    if (b.dataset.seq) ['game-start','move-self','move-opponent','move-self','capture','move-opponent','castle','move-check','promote','low-time','game-end']
+      .forEach((ev, i) => setTimeout(() => play(ev), i * 650));
+  });
+</script>
+</body>
+</html>

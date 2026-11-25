@@ -27,7 +27,7 @@ test("two players play Fool's Mate to the result; Black sees the board from Blac
   const invite = (await white.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await black.goto(invite);
   await black.getByRole('button', { name: 'پیوستن به میز' }).click();
-  await white.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
+  // U3: the friend joining starts the game by itself; there is no «آماده‌ام» step on a friendly two-player chess table.
 
   await expect(white.locator('.ch-board')).toBeVisible();
   // Orientation: White's bottom-left square is a1; Black's is h8.
@@ -78,10 +78,15 @@ test('undo window: castling moves king and rook at once, and undo moves them bac
   await move(p, 'e2', 'c4');
   await expect(p.getByText(/آموزش: مرحله ۳ از/)).toBeVisible({ timeout: 10_000 });
   await p.waitForTimeout(1500);
-  await motionLog(p);
+  // The captured pawn fades out (CSS animation, livefix C): watch for its short-lived ghost element.
+  await p.evaluate(() => {
+    const w = window as unknown as { __fade: boolean };
+    w.__fade = false;
+    new MutationObserver(() => { if (document.querySelector('.ch-fade[data-motion-ghost="exit"]')) w.__fade = true; })
+      .observe(document.body, { childList: true, subtree: true });
+  });
   await move(p, 'e5', 'd6');
   await expect(square(p, 'd5')).toHaveAttribute('aria-label', /خالی/);
-  await p.waitForTimeout(900);
-  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await expect.poll(() => p.evaluate(() => (window as unknown as { __fade: boolean }).__fade), { timeout: 3000 }).toBe(true);
   await p.context().close();
 });

@@ -25,6 +25,9 @@ function readCookie(header: string | undefined, name: string): string | undefine
   return undefined;
 }
 
+/** After a clean socket close the seat stays «connected» this long, so a reload or reconnect never flashes «قطع». */
+const PRESENCE_GRACE_MS = 5000;
+
 const pino = { warn: () => {}, error: () => {}, info: () => {} } as unknown as FastifyBaseLogger;
 
 const failure = (err: unknown) => {
@@ -42,6 +45,10 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
   const io = new Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData>(httpServer, {
     path: '/api/socket.io',
     serveClient: false,
+    // Presence (chess «قطع»): the engine ping is the heartbeat of BOTH transports (WebSocket and long-polling), so a dead
+    // connection is dropped after pingInterval + pingTimeout = 5 s of silence, not the default 45 s.
+    pingInterval: 2000,
+    pingTimeout: 3000,
     cors: { origin: config.webOrigins, credentials: true },
     // Long-polling needs every request of a session on the same process (sticky sessions); with several API
     // workers only WebSocket is offered, which the web client already tries first.
@@ -91,12 +98,14 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
       touchSession(db, socket.data.auth.sessionId);
       void db.update(schema.tableWatchers).set({ seenAt: sql`now()` }).where(eq(schema.tableWatchers.socketId, socket.id)).catch(() => undefined);
     }, 60_000);
-    socket.on('disconnect', () => {
+    socket.on('disconnect', (reason) => {
       clearInterval(beat);
-      // The tables this socket watched learn at once that a seated player dropped (seat `connected`, chess «قطع»).
-      void db.delete(schema.tableWatchers).where(eq(schema.tableWatchers.socketId, socket.id)).returning({ tableId: schema.tableWatchers.tableId })
+      // The tables this socket watched learn that a seated player dropped (seat `connected`, chess «قطع»). A clean close
+      // (reload, WebSocket → polling swap, brief reconnect) waits PRESENCE_GRACE_MS first; a silent death already waited 5 s.
+      const drop = () => void db.delete(schema.tableWatchers).where(eq(schema.tableWatchers.socketId, socket.id)).returning({ tableId: schema.tableWatchers.tableId })
         .then((rows) => Promise.all(rows.map((r) => db.execute(sql`select pg_notify('table_changed', ${r.tableId})`))))
         .catch(() => undefined);
+      if (reason === 'ping timeout') drop(); else setTimeout(drop, PRESENCE_GRACE_MS).unref();
     });
     socket.emit(ServerEvents.sessionReady, { userId, serverTime: new Date().toISOString() });
 
@@ -118,6 +127,10 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
           if (!(snapshot.table.mySeat === null && admin)) {
             await db.insert(schema.tableWatchers).values({ tableId: parsed.data.tableId, socketId: socket.id, userId })
               .onConflictDoUpdate({ target: [schema.tableWatchers.tableId, schema.tableWatchers.socketId], set: { seenAt: sql`now()` } });
+          }
+          // A seated player (re)connecting: tell the table at once, so «قطع» clears without waiting for the next move.
+          if (snapshot.table.mySeat !== null && snapshot.table.status === 'active' && !wasMember) {
+            void db.execute(sql`select pg_notify('table_changed', ${parsed.data.tableId})`).catch(() => undefined);
           }
           ack?.({ ok: true, snapshot });
         } catch (err) {

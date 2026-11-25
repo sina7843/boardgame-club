@@ -59,6 +59,13 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
     mq.addEventListener('change', on);
     return () => mq.removeEventListener('change', on);
   }, [prefs]);
+  // A game renderer (chess board settings) may write `bg.prefs` itself and announce it with `bg:prefs`; re-read so the
+  // next change made here does not overwrite it.
+  useEffect(() => {
+    const on = () => { try { setPrefs(readPrefs(localStorage.getItem(KEY))); } catch { /* storage unavailable */ } };
+    window.addEventListener('bg:prefs', on);
+    return () => window.removeEventListener('bg:prefs', on);
+  }, []);
   const value = useMemo(() => ({ prefs, update: (p: Partial<Prefs>) => setPrefs((x) => ({ ...x, ...p })) }), [prefs]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

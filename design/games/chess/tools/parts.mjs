@@ -1,5 +1,5 @@
 // Screen building blocks shared by desktop and phone boards.
-import { fa, esc, ic, aic, pc, board, clock, pbar, moveList, moveStrip, navBtns, gamebar } from './lib.mjs';
+import { fa, num, esc, ic, aic, pc, board, clock, pbar, moveList, moveStrip, navBtns, gamebar } from './lib.mjs';
 
 export const ME = { name: 'مینا', av: 'م', rating: 1612, tier: 'gold', tierFa: 'طلا', seat: 1, you: true };
 export const OPP = { name: 'نیلوفر', av: 'ن', rating: 1684, tier: 'diamond', tierFa: 'الماس', seat: 2 };
@@ -69,8 +69,8 @@ export function chatCol(o = {}) {
 }
 
 /** Desktop table frame. */
-export function desk({ theme = 'light', gb = {}, rail, feltHtml, chat, over = '', feltCls = '' }) {
-  return `<div class="cx-frame bgv" data-theme="${theme}" dir="rtl"><div class="cx-desk">${gamebar(gb)}<aside class="cx-rail" aria-label="وضعیت، حرکت‌ها و دکمه‌ها">${rail}</aside><main class="cx-felt ${feltCls}" aria-label="میز شطرنج">${feltHtml}</main>${chat ?? chatCol()}</div>${over}</div>`;
+export function desk({ theme = 'light', gb = {}, rail, feltHtml, chat, over = '', feltCls = '', frameCls = '', feltStyle = '', noChat = false }) {
+  return `<div class="cx-frame bgv${frameCls ? ' ' + frameCls : ''}" data-theme="${theme}" dir="rtl"><div class="cx-desk${noChat ? ' cx-desk--nochat' : ''}">${gamebar(gb)}<aside class="cx-rail" aria-label="وضعیت، حرکت‌ها و دکمه‌ها">${rail}</aside><main class="cx-felt ${feltCls}" aria-label="میز شطرنج"${feltStyle ? ` style="${feltStyle}"` : ''}>${feltHtml}</main>${noChat ? '' : (chat ?? chatCol())}</div>${over}</div>`;
 }
 
 export function railStd(sc, o = {}) {
@@ -80,10 +80,19 @@ export function railStd(sc, o = {}) {
 export const status = (html, o = {}) => `<div class="cx-status${o.check ? ' cx-status--check' : ''}">${o.icon ?? '<i class="cx-dot-turn"></i>'}<span>${html}</span></div>`;
 export const tourStrip = (o = {}) => `<section class="cx-card" style="gap:8px"><div class="cx-round">${ic('trophy')}<span><b>مسابقهٔ شطرنج</b>، دور ${fa(o.round ?? 3)} از ${fa(5)}، میز ${fa(o.board ?? 2)}</span></div>${o.more ?? ''}</section>`;
 
+/**
+ * Result dialog. Score order follows chess notation inside a dir="ltr" row: White left, score, Black right
+ * (decision 2026-11-24, LiveFix row 8), the same for every viewer and in both directions.
+ * o.white = 'me' | 'opp' (who played White). ✕ closes the dialog; a result chip on the board reopens it.
+ */
 export function resultCard(o) {
-  return `<div class="cx-result" role="dialog" aria-label="${esc(o.title)}"><div class="cx-result__head">${aic(o.icon ?? 'crown')}<h3>${o.title}</h3><p>${o.reason}</p></div>
-<div class="cx-vs"><div class="cx-vs__p${o.win === 'me' ? ' is-win' : ''}"><span class="bgv-avatar seat-1 is-you">م</span><b>مینا</b><span class="cx-delta ${o.dMe > 0 ? 'cx-delta--up' : o.dMe < 0 ? 'cx-delta--down' : 'cx-delta--eq'}">${fa(o.rMe)} (${o.dMe > 0 ? '+' : o.dMe < 0 ? '−' : '±'}${fa(Math.abs(o.dMe))})</span></div><span class="cx-vs__score">${o.score}</span><div class="cx-vs__p${o.win === 'opp' ? ' is-win' : ''}"><span class="bgv-avatar seat-2">ن</span><b>نیلوفر</b><span class="cx-delta ${o.dOpp > 0 ? 'cx-delta--up' : o.dOpp < 0 ? 'cx-delta--down' : 'cx-delta--eq'}">${fa(o.rOpp)} (${o.dOpp > 0 ? '+' : o.dOpp < 0 ? '−' : '±'}${fa(Math.abs(o.dOpp))})</span></div></div>
-<div class="cx-result__btns">${o.btns ?? `${btn(o.primary ?? 'بازی دوباره', 'primary', 'repeat')}${btn('حریف جدید', 'secondary', 'search')}${btn('آنالیز بازی', 'secondary', 'eye')}`}</div>
+  const delta = (r, d) => `<span class="cx-delta ${d > 0 ? 'cx-delta--up' : d < 0 ? 'cx-delta--down' : 'cx-delta--eq'}">${num(r)} (${d > 0 ? '+' : d < 0 ? '−' : '±'}${fa(Math.abs(d))})</span>`;
+  const me = `<div class="cx-vs__p${o.win === 'me' ? ' is-win' : ''}"><span class="bgv-avatar seat-1 is-you">م</span><b>مینا <small>(شما)</small></b>${delta(o.rMe, o.dMe)}</div>`;
+  const opp = `<div class="cx-vs__p${o.win === 'opp' ? ' is-win' : ''}"><span class="bgv-avatar seat-2">ن</span><b>نیلوفر</b>${delta(o.rOpp, o.dOpp)}</div>`;
+  const [W, B] = (o.white ?? 'me') === 'me' ? [me, opp] : [opp, me];
+  return `<div class="cx-result" role="dialog" aria-label="${esc(o.title)}"><button class="cx-result__x bgv-btn bgv-btn--icon bgv-btn--ghost bgv-btn--sm" type="button" aria-label="بستن و دیدن صفحه">${ic('x')}</button><div class="cx-result__head">${aic(o.icon ?? 'crown')}<h3>${o.title}</h3><p>${o.reason}</p></div>
+<div class="cx-vs" dir="ltr">${W}<span class="cx-vs__score">${o.score}</span>${B}</div>
+<div class="cx-result__btns">${o.btns ?? `${btn(o.primary ?? 'بازی دوباره', 'primary', 'repeat')}${btn('حریف جدید', 'secondary', 'search')}${btn('مرور بازی', 'secondary', 'list')}`}</div>
 <div class="cx-result__foot">${btn('PGN', 'ghost bgv-btn--sm', 'download')}${btn('اشتراک', 'ghost bgv-btn--sm', 'share')}${btn('گزارش', 'ghost bgv-btn--sm', 'flag')}</div></div>`;
 }
-export { fa, esc, ic, aic, pc, board, clock, pbar, gamebar };
+export { fa, num, esc, ic, aic, pc, board, clock, pbar, gamebar };

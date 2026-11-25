@@ -1680,3 +1680,18 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Health: `/health/ready` `checks.email` is `ok` (SMTP sender configured, not probed) or `disabled`. It is informational and never fails readiness. The `healthResponse` check enum gains `disabled`.
 - Web: «ایمیل» card in Settings → حساب, shown only when `me.email.available`. Add form (TextField type email, primary «ارسال کد»), then the code step (6-digit numeric TextField, «تأیید», ghost «ارسال دوباره» and «تغییر ایمیل»), then the verified view (address in `<bdi dir="ltr">`, success Badge «تأییدشده», secondary «حذف ایمیل», Switch «ایمیل‌های یادآوری»). The DS icon set has no mail icon, so the section uses `send`.
 - Skipped (YAGNI): purging old `email_verifications` rows (small, rate-limited table); probing SMTP in readiness; a per-kind email preference.
+
+## Chess live fix (handoff v1.3, 2026-11-25, branch fix/chess-live-2026-11-23)
+- Presence comes from the socket.io engine heartbeat (pingInterval 2 s + pingTimeout 3 s ≈ 5 s silence); a clean close waits 5 s before «قطع». The old session-based presence check in the chess frame is gone.
+- Chess (own-frame) tables send every move with no undo window (`bg.undoMs` no longer applies there), so a premove leaves the moment the turn arrives. Other games keep the undo window.
+- First-move deadline by class in `packages/play/src/runtime.ts`: bullet 15 s, blitz 20 s, rapid and longer 30 s.
+- Draw offers: no limit in normal games; `options.drawOfferEvery` (own moves) is the hook for tournaments.
+- Draw decline is a client-side status banner and `notify` sound only. Putting it into the table chat needs a system-message sender (a migration): owner question, not done.
+- Invite links stay `/tables/<id>?invite=…` (2026-11-13 decision); `/t/<code>` is the table URL for seated players and public tables, and `/tables/<uuid>` redirects there when allowed.
+- Friendly private two-player chess tables start when the invited friend joins (U3); limited to chess so other games keep their ready step. The phone Dock is hidden on every table page.
+- Achievement/notification popups are held on table pages, `/play` and new-table forms, and shown on the next ordinary page.
+- Bot ratings in the lobby and the bot bar (حدود ۵۰۰ / ۹۰۰ / ۱,۳۰۰) are estimates from the bot search budgets, not measured; the design's 800/1,200/1,600 are samples. Bot personas stay random per table, so the lobby shows level letters, not names. Owner question.
+- Own-move sound plays at the click (optimistic), by the same priority; `ChessView.checking` (legal moves that give check, computed by the rules) lets the renderer pick `move-check` without computing rules. A server rejection (`frame.rejected`) plays `illegal`.
+- Sounds: the owner-approved `chesslike` set, mp3 only (no ogg fallback bundled). The site theme picked in board settings is written to `bg.prefs` and PrefsProvider re-reads it on `bg:prefs`.
+- Move-list first/last buttons use single chevrons: the DS icon set has no double chevron.
+- `Server-Timing: exec, view` on POST /commands so the live 1.35 s move latency can be split into server and network time; the server part was not measured locally (short code path).

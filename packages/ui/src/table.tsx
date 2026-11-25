@@ -76,6 +76,9 @@ export interface TableFrameSeat {
   league?: string | null;
   offline?: boolean;
   bot?: boolean;
+  /** Bot seats: «ربات متوسط» (the lobby's level name) and the approximate rating shown as «حدود N». */
+  botLabel?: string;
+  botRating?: number;
 }
 export interface TableFrame {
   seats: TableFrameSeat[];
@@ -91,9 +94,27 @@ export interface TableFrame {
   /** Shell-built panels the frame places: the result (rematch, rating change, PGN, share, report) and tournament card. */
   result?: ReactNode;
   tournament?: ReactNode;
+  /** The result panel without its action buttons (rating line, PGN, share, report): stays in the panel after the result card closes. */
+  resultInfo?: ReactNode;
+  /** Rematch: `pending` = a request is open (the result card closes); `card` / `bar` are the compact desktop / phone request UI. */
+  rematch?: { pending: boolean; busy: boolean; ask: () => void; card: ReactNode; bar: ReactNode } | null;
+  /** «حریف جدید» target and the share action of the finished game (phone dock). */
+  newGameHref?: string;
+  share?: () => void;
   /** Record download (chess PGN), when the game has one. */
   recordHref?: string;
   /** Opens the table chat sheet (phones / narrow desktop). */
   openChat?: () => void;
   unread?: number;
+  /**
+   * Optimistic moves: `queued` (GameRendererProps) already holds the player's own move from the click until the server
+   * answers (the shell sends chess moves without an undo window), so the renderer shows it at once. `rejected.seq` is
+   * bumped when the server refuses it (the snapshot then no longer contains the move): drop the preview, play `illegal`.
+   */
+  rejected?: { seq: number; errorCode: string } | null;
+  /**
+   * Platform events the renderer turns into the `notify` sound (play once per new `seq`) and may show in its status bar:
+   * `drawDeclined` (the opponent declined my draw offer), `rematchOffer` (the opponent asked for a rematch).
+   */
+  notice?: { seq: number; kind: 'drawDeclined' | 'rematchOffer'; text: string } | null;
 }

@@ -189,7 +189,7 @@ describe('chess table rules: draw offers, FIDE claims, Armageddon', () => {
   const shuffle = ['g1f3', 'g8f6', 'f3g1', 'f6g8'];
 
   it('a draw offer goes with a move, at most once per five of the offerer\'s moves', () => {
-    let s = game();
+    let s = gameWith({ drawOfferEvery: 5 });
     expect(view(s).canOfferDraw).toBe(true);
     s = move(s, 'e2e4', true);
     expect(st(s).drawOffer).toBe(0);
@@ -200,6 +200,22 @@ describe('chess table rules: draw offers, FIDE claims, Armageddon', () => {
     expect(st(s).drawOffer).toBeNull(); // too soon: the offer flag is ignored
     for (const mv of ['b8c6', 'f1b5', 'a7a6', 'b5a4', 'g8f6', 'e1g1', 'f8e7', 'f1e1']) s = move(s, mv);
     expect(view(s).canOfferDraw).toBe(true); // ten plies after the first offer
+  });
+
+  it.each(['new', 'saved'])('allows consecutive draw offers in a %s ordinary game', (snapshot) => {
+    let s = game();
+    if (snapshot === 'saved') {
+      const saved = JSON.parse(JSON.stringify(s));
+      delete saved.state.opts.offerEvery;
+      s = saved;
+    }
+    s = move(s, 'e2e4', true);
+    expect(st(s).drawOffer).toBe(0);
+    s = move(s, 'e7e5');
+    expect(st(s).drawOffer).toBeNull();
+    expect(view(s).canOfferDraw).toBe(true);
+    s = move(s, 'g1f3', true);
+    expect(st(s).drawOffer).toBe(0);
   });
 
   it('draws by agreement can be barred until a move (minDrawMove)', () => {

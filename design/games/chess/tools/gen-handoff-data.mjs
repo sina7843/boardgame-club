@@ -31,9 +31,10 @@ const START = {
   draw: '3r2k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 30', mate: '6k1/p2r1ppp/8/8/8/8/5PPP/3RR1K1 b - - 0 30',
 };
 const USED = {
-  main: ['D02-turn', 'D08-resign', 'D10-reconnect', 'D12-spectator', 'D13-dark', 'P03', 'P09', 'P12', 'P13', 'P15', 'P17'],
+  main: ['D02-turn', 'D08-resign', 'D10-reconnect', 'D12-spectator', 'D13-dark', 'D15-large-screen', 'D17-bot-game', 'P03', 'P09', 'P12', 'P13', 'P15', 'P17', 'P20'],
+  start: ['D01-lobby', 'D18-bot-lobby', 'D19-friend-invite', 'P23'], pin: ['D20-illegal-move'],
   mainB: ['D11-opp-offline', 'P14'], check: ['D03-check', 'P04'], promo: ['D04-promotion', 'P05'], pre: ['D05-premove', 'P06'],
-  low: ['D06-lowtime', 'P07', 'P18'], draw: ['D07-draw-offer', 'P08'], mate: ['D09-game-over', 'P10'], rep: ['P11'], ep: ['D14-en-passant', 'P19'],
+  low: ['D06-lowtime', 'P07', 'P18'], draw: ['D07-draw-offer', 'P08'], mate: ['D09-game-over', 'D16-rematch', 'P10', 'P21'], rep: ['P11'], ep: ['D14-en-passant', 'P19'],
 };
 const highlights = {
   main: { selected: 'b3', note: 'Qb3 selected: dots on its legal targets, ring on b7 (capture), hover frame on b7' },
@@ -41,6 +42,7 @@ const highlights = {
   promo: { selected: 'e7', note: 'promotion column on e8: Q, N, R, B, ✕' },
   pre: { premove: ['f6', 'h5'], note: 'you are Black; premove Nf6-h5 queued during White\'s turn' },
   ep: { selected: 'e5', ring: ['d5'], note: 'en passant: e5xd6, the d5 pawn is removed (ring)' },
+  pin: { selected: 'f7', flash: 'e8', note: 'you are Black; f7 is pinned by Qh5: selectable, no targets; an attempt flashes the king (is-flash) and plays «illegal»' },
 };
 const scenes = {};
 for (const [k, sc] of Object.entries(S)) {
@@ -90,11 +92,14 @@ J('reference/screens.json', { canvas: 'https://claude.ai/artifact/NhRomGy1qHDxcE
 
 const layout = {
   note: 'Sizes in CSS px at the reference widths. Board grid is always dir=ltr. Desktop frame = DS table frame (rail | felt | chat).',
-  desktop: { frame: [1440, 900], columns: { rail: 380, felt: 'minmax(0,1fr)', chat: 340 }, gamebar: 56, board: 688, square: 86, playerBar: 52, feltPadding: [12, 16], gap: 8, breakpoints: { chatToButton: 1199, phone: 899 } },
+  desktop: { frame: [1440, 900], columns: { rail: 380, felt: 'minmax(0,1fr)', chat: 340 }, gamebar: 56, board: 'fluid (v1.3, like chess.com): min(felt height − 2 × playerBar − 2 × gap − 2 × feltPadding.block, felt width − 32); 688 at 1440×900, 880 at 1920×1080, 700 in a bot game without chat at 1440×900', boardAt1440: 688, square: 86, playerBar: 52, feltPadding: [12, 16], gap: 8, breakpoints: { chatToButton: 1199, phone: 899 } },
   phone: { frame: [390, 844], board: 390, square: 48.75, playerBar: 46, dock: { columns: 5, items: ['گزینه‌ها', 'مساوی', 'تسلیم', 'قبلی', 'بعدی'] }, moveStrip: true },
   board: { coordinates: { rank: 'inside left column, top-left of square', file: 'inside bottom row, bottom-right of square', font: 'Manrope 700, 20% of square' },
     overlays: { lastMove: 'rgba(245,230,99,.55)', selected: 'rgba(245,230,99,.72)', legalDot: 'circle 28% of square, rgba(0,0,0,.16)', capture: 'ring 7.5% of square, rgba(0,0,0,.16)', check: 'radial #E5484D .95→0 at 70%', premove: 'rgba(229,72,77,.45)', hover: 'inset white frame 6% of square', arrow: '#F29E2E @ 80%' },
-    promotion: 'white column over the target file from the far edge: Q, N, R, B (rows = 1 square each), ✕ half a square; board dimmed rgba(0,0,0,.38)' },
+    flash: 'illegal attempt: king square rgba(229,72,77,.82) with a dark red inner frame, two blinks of 200 ms',
+    promotion: 'white column over the target file from the far edge: Q, N, R, B (rows = 1 square each), ✕ max(44 px, half a square); board dimmed rgba(0,0,0,.38)' },
+  sounds: { set: 'chesslike', folder: 'sounds/chesslike', loudest10msRmsDbfs: { 'move-self': -20, 'move-opponent': -23, capture: -20, castle: -19, 'move-check': -19, promote: -21, 'game-start': -15, 'game-end': -16, 'low-time': -18, illegal: -14, premove: -27, notify: -21 }, priority: ['move-check', 'promote', 'castle', 'capture', 'move'], defaultVolume: 0.7 },
+  animation: { pieceMoveMs: { off: 0, slow: 320, medium: 200, fast: 100 }, default: 'medium', captureFadeMs: 120, illegalSnapBackMs: 150, premoveMs: 80, reducedMotion: 'colours only' },
   piece: { set: 'classic', fill: '100% of square (art has its own margins)', capturedIcon: 20, capturedOverlap: -7, capturedChip: 'light chip #E9E4DA only behind BLACK captured pieces' },
   clock: { width: { desktop: 136, phone: 104 }, height: { desktop: 46, phone: 38 }, digits: 'Peyda 900, Persian digits, fixed-width box, no tabular-nums', states: ['pre', 'idle', 'run', 'warn', 'crit', 'flag', 'off'],
     thresholds: { warn: 'max(20% of base, 20 s)', crit: '10 s', tenthsBelow: '10 s' } },

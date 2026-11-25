@@ -287,10 +287,46 @@
 @keyframes chl-spin { to { transform: rotate(1turn); } }
 @media (prefers-reduced-motion: reduce) { .chl-ring { animation: none; } }
 .chl-handle, .chl-close, .chl-seek__cancel { display: none; }
+/* D01 / D18 / D19: the faded starting position on the felt, the search / invite / bot card on top of it. */
+.chl__stage > * { grid-area: 1 / 1; }
+.chl-board { --chl-l: #F0EED6; --chl-d: #6F8F4E; /* ds-check-ignore: board squares are game art (same as the renderer's classic board) */
+  --b: min(640px, 100%, calc(100dvh - var(--gamebar-h) - 2 * var(--space-6))); inline-size: var(--b); aspect-ratio: 1; display: grid; grid-template-columns: repeat(8, 1fr); border-radius: var(--radius-xs); overflow: hidden; opacity: .45; user-select: none; pointer-events: none; }
+.chl-sq { position: relative; display: block; }
+.chl-sq.l { background: var(--chl-l); } .chl-sq.d { background: var(--chl-d); }
+.chl-sq img { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
+.chl-co { position: absolute; font: 700 clamp(8px, 1.4cqi, 12px) / 1 var(--font-latin); }
+.chl-co--r { inset-block-start: 5%; left: 6%; } /* ds-check-ignore: board coordinates are literal (dir=ltr) */
+.chl-co--f { inset-block-end: 4%; right: 6%; } /* ds-check-ignore: board coordinates are literal (dir=ltr) */
+.chl-sq.l .chl-co { color: var(--chl-d); } .chl-sq.d .chl-co { color: var(--chl-l); }
+.chl-stagecard { position: relative; z-index: calc(var(--z-felt) + 1); inline-size: min(440px, calc(100% - 2 * var(--space-4))); box-sizing: border-box; padding: var(--space-6) var(--space-8); border-radius: var(--radius-lg); background: var(--felt-plate); color: var(--felt-ink); box-shadow: var(--shadow-ring-felt), var(--shadow-float); }
+.chl-stagecard .chl-seek { padding: 0; background: none; box-shadow: none; }
+.chl-seek p { line-height: 1.7; }
+.chl-seek__meta { font-size: 13.5px; }
+.chl-link { display: flex; align-items: center; gap: var(--space-2); inline-size: 100%; }
+.chl-link .bgv-input { flex: 1; min-inline-size: 0; text-overflow: ellipsis; }
+.chl-botcard { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: center; text-align: start; }
+.chl-botcard h3 { margin: 0; font-size: 22px; font-weight: 900; color: var(--felt-ink); }
+.chl-botcard p { margin: 0; font-size: 15px; color: var(--felt-muted); }
+.chl-bots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.chl-bot { display: grid; justify-items: center; gap: 6px; padding: 14px 6px 12px; border: 0; border-radius: var(--radius-md); background: var(--btn-neutral); color: var(--heading); box-shadow: var(--shadow-tile); font: inherit; cursor: pointer; }
+.chl-bot b { font-size: 16px; font-weight: 900; }
+.chl-bot small { font-size: 12.5px; font-weight: 700; color: var(--text-muted); }
+.chl-bot[aria-checked="true"] { background: var(--primary); color: var(--on-primary); box-shadow: var(--shadow-tile-primary); }
+.chl-bot[aria-checked="true"] small { color: var(--on-primary); }
+.chl-colors { display: inline-flex; gap: 6px; }
+.chl-colors button { display: grid; place-items: center; inline-size: 44px; block-size: 44px; padding: 0; border: 0; border-radius: var(--radius-sm); background: var(--surface-sunken); color: var(--heading); box-shadow: var(--shadow-field); cursor: pointer; }
+.chl-colors button[aria-checked="true"] { background: var(--selected); color: var(--on-selected); box-shadow: var(--shadow-tile-selected-sm); }
+.chl-colors button:disabled { opacity: .45; cursor: not-allowed; }
+.chl-colors img { inline-size: 36px; block-size: 36px; }
 @media (max-width: 899px) {
   /* P01: the new game is a bottom sheet over the felt; P02: searching shows only the felt and the search card. */
   .chl__body { display: flex; flex-direction: column; justify-content: flex-end; background: var(--felt); }
-  .chl__stage { display: none; }
+  .chl__stage { display: grid; place-items: start center; flex: 1; min-block-size: 0; padding: 0; overflow: hidden; }
+  .chl-board { --b: 100%; border-radius: 0; }
+  .chl__stage { order: -1; } /* P01 / P23: the board on top, the sheet below it */
+  .chl--seeking .chl__stage { place-items: center; }
+  .chl:not(.chl--seeking) .chl-stagecard { display: none; } /* the bot card is for the desktop felt; the sheet already names the level */
+  .chl-stagecard { padding: var(--space-5) var(--space-4); }
   .chl__side { padding: var(--space-3) var(--space-4) var(--space-4); border: 0; border-start-start-radius: var(--radius-xl); border-start-end-radius: var(--radius-xl); box-shadow: var(--shadow-float); max-block-size: calc(100dvh - var(--gamebar-h)); gap: var(--space-3); }
   .chl-handle { display: block; inline-size: 40px; block-size: 4px; border-radius: var(--radius-pill); background: var(--line); align-self: center; }
   .chl-close { display: inline-flex; }
@@ -299,6 +335,10 @@
   .chl-tile { block-size: 52px; padding: 4px; }
   .chl-tile b { font-size: 14px; }
   .chl--seeking .chl__side { display: none; }
+  .chl--invite .chl-board { display: none; } /* P22: plain felt behind the invite card */
+  .chl-link { flex-wrap: wrap; }
+  .chl-link .bgv-input { flex: 1 1 100%; }
+  .chl-link .bgv-btn { flex: 1 1 100%; justify-content: center; }
   .chl--seeking .chl__stage { display: grid; flex: 1; }
   .chl-seek__cancel { display: block; inline-size: 100%; }
 }

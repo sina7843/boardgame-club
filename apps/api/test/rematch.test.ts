@@ -5,7 +5,7 @@ import { schema } from '@bg/db';
 import { createDefaultRegistry } from '@bg/game-engine';
 import { fireDeadline, loadTableContext, turnStartedEvent } from '@bg/play';
 import { setup, type TestCtx } from './helpers.ts';
-import { call, command, makeDue, pendingDeadline, startTable, users, view, type Started } from './play-helpers.ts';
+import { call, command, makeDue, pendingDeadline, seatsOf, startTable, users, view, type Started } from './play-helpers.ts';
 
 let ctx: TestCtx;
 beforeAll(async () => { ctx = await setup(); });
@@ -67,6 +67,23 @@ describe('rematch', () => {
     await ctx.db.update(gameTables).set({ settings: st }).where(eq(gameTables.id, t.tableId));
     expect((await view(ctx, t.players[0]!, t.tableId)).table.rematch.closed).toBe(true);
     expect((await vote(t, 1, 'yes')).statusCode).toBe(409);
+  });
+
+  it('chess: the friend joining starts the game by itself, and a rematch swaps colours and keeps the clock', async () => {
+    const t = await startTable(ctx, 'chess', 2, { options: { clock: '5+0', firstMove: 'host' } });
+    const first = await view(ctx, t.players[0]!, t.tableId);
+    expect(first.table.status).toBe('active'); // no «آماده‌ام» step (U3)
+    const white = first.game.view.colors.indexOf('w');
+    const resigner = (await seatsOf(ctx, t.tableId, t.players))(0);
+    expect((await command(ctx, resigner, t.tableId, first.game.revision, { type: 'resign' })).json().status).toBe('accepted');
+    await vote(t, 0, 'yes');
+    const id = (await vote(t, 1, 'yes')).json().table.rematch.newTableId as string;
+    const n = await view(ctx, t.players[0]!, id);
+    const o = await view(ctx, t.players[0]!, t.tableId);
+    expect(n.table.settings.options.clock).toBe('5+0');
+    const userAt = (v: { table: { seats: { seat: number; user: { id: string } }[] } }, seat: number) => v.table.seats.find((x) => x.seat === seat)!.user.id;
+    expect(n.game.view.colors.indexOf('w')).toBe(0);
+    expect(userAt(n, 0)).toBe(userAt(o, 1 - white)); // last game's Black plays White now
   });
 
   it('is not offered on tutorial tables', async () => {
