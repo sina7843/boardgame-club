@@ -23,7 +23,7 @@ export function MorePage() {
       { href: '/tables', label: 'میزهای باز', icon: 'armchair' }, { href: '/play', label: 'بازی سریع', icon: 'zap' },
       { href: '/tournaments', label: 'تورنمنت‌ها', icon: 'trophy' }, { href: '/wiki', label: 'دانشنامه', icon: 'book-open' }]],
     ['پروفایل و پیشرفت', [
-      { href: '/progress', label: 'پیشرفت', icon: 'star' }, { href: '/ranking', label: 'رتبه‌بندی و لیگ', icon: 'crown' },
+      { href: '/progress', label: 'پیشرفت', icon: 'star' }, { href: '/ranking', label: 'رتبه‌بندی و لیگ', icon: 'crown' }, { href: '/events', label: 'رویدادها', icon: 'calendar' },
       { href: '/me/studio', label: 'استودیو پروفایل', icon: 'palette' }, { href: '/me/avatar', label: 'ساخت آواتار', icon: 'smile' },
       { href: '/me/wardrobe', label: 'کمد من', icon: 'shirt' }]],
     ['اجتماعی', [

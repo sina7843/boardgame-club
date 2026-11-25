@@ -15,6 +15,7 @@ import { TablesAdmin } from './AdminTables.tsx';
 import { ADMIN_TABS } from './adminTabs.ts';
 import { SiteAdmin } from './AdminSite.tsx';
 import { TournamentsAdmin } from './AdminTournaments.tsx';
+import { EventsAdmin } from './AdminEvents.tsx';
 
 const STATUS_FA: Record<GameSummary['status'], string> = { draft: 'پیش‌نویس', active: 'فعال', suspended: 'متوقف' };
 export function Admin() {
@@ -35,7 +36,7 @@ export function Admin() {
       {tab === 'games' && <GamesAdmin />}
       {tab === 'players' && <PlayersAdmin />}
       {tab === 'tables' && <TablesAdmin />}
-      {tab === 'progress' && <><MissionsAdmin /><SeasonsAdmin /></>}
+      {tab === 'progress' && <><MissionsAdmin /><EventsAdmin /><SeasonsAdmin /></>}
       {tab === 'tournaments' && <TournamentsAdmin />}
       {tab === 'plans' && <><WelcomePremiumAdmin /><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></>}
       {tab === 'referral' && <ReferralAdmin />}

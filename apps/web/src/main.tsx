@@ -64,6 +64,8 @@ const NotificationsPage = lazy(() => import('./pages/Notifications.tsx').then((m
 const CoinsPage = lazy(() => import('./pages/Coins.tsx').then((m) => ({ default: m.CoinsPage })));
 const ShopPage = lazy(() => import('./pages/Shop.tsx').then((m) => ({ default: m.ShopPage })));
 const WardrobePage = lazy(() => import('./pages/Wardrobe.tsx').then((m) => ({ default: m.WardrobePage })));
+const EventsPage = lazy(() => import('./pages/Events.tsx').then((m) => ({ default: m.EventsPage })));
+const EventPage = lazy(() => import('./pages/Events.tsx').then((m) => ({ default: m.EventPage })));
 const StudioPage = lazy(() => import('./pages/Studio.tsx').then((m) => ({ default: m.StudioPage })));
 
 // Friend invite link (?ref=CODE): remembered until sign-up, whichever page the visitor lands on.
@@ -103,6 +105,8 @@ const router = createBrowserRouter([
       { path: 'search', element: <SearchPage /> },
       { path: 'progress', element: <ProgressPage /> },
       { path: 'ranking', element: <RankingPage /> },
+      { path: 'events', element: <EventsPage /> },
+      { path: 'events/:slug', element: <EventPage /> },
       { path: 'plans', element: <PlansPage /> },
       { path: 'coins', element: <CoinsPage /> },
       { path: 'tournaments', element: <TournamentsPage /> },

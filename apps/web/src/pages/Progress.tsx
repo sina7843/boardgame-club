@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { LEVEL_UP_COINS, RATING_MODE_FA, type Progression } from '@bg/contracts';
+import { LEVEL_UP_COINS, RATING_MODE_FA, type MissionSet, type Progression } from '@bg/contracts';
 import { Badge, Button, Icon, League, PageHead, Progress, Reward, Ring, Segmented, StateBlock, Trophy } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, remainingFa } from '../lib/format.ts';
@@ -8,8 +8,20 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { Hint } from '../shell/Onboarding.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
-export const ruleFa = (ruleId: string) => (ruleId.startsWith('mission.') ? 'مأموریت' : ruleId.startsWith('achievement.') ? 'دستاورد'
-  : { 'xp.match_completed': 'بازی کامل', 'xp.first_place': 'رتبه اول', 'xp.bot_match': 'بازی با ربات', 'xp.bot_win': 'برد مقابل ربات', 'xp.new_title': 'عنوان تازه', 'xp.tutorial': 'آموزش', 'season.badge': 'نشان فصل', manual: 'پاداش دستی' }[ruleId] ?? ruleId);
+export const ruleFa = (ruleId: string) => (ruleId.startsWith('mission.') ? 'مأموریت' : ruleId.startsWith('mission_daily.') ? 'مأموریت روزانه' : ruleId.startsWith('achievement.') ? 'دستاورد'
+  : { 'xp.match_completed': 'بازی کامل', 'xp.first_place': 'رتبه اول', 'xp.bot_match': 'بازی با ربات', 'xp.bot_win': 'برد مقابل ربات', 'xp.new_title': 'عنوان تازه', 'xp.tutorial': 'آموزش', 'season.badge': 'نشان فصل', 'event.reward': 'جایزهٔ رویداد', manual: 'پاداش دستی' }[ruleId] ?? ruleId);
+
+/** One mission row: title, XP (or «کامل»), progress bar. Shared by today's and this week's missions. */
+export function MissionRows({ set }: { set: MissionSet }) {
+  return <>{set.items.map((m) => (
+    <div key={m.key} className="pf-mission" title={m.descriptionFa}>
+      <div className="bgv-row pf-mission__head"><b>{m.titleFa}</b>
+        {m.completed ? <Badge tone="success" icon="check">کامل</Badge> : <span className="t-caption bgv-num pf-mission__xp"><bdi dir="ltr">+{faNum(m.xp)} XP</bdi></span>}</div>
+      <div className="pf-mission__bar"><Progress aria-label={m.titleFa} value={m.progress / Math.max(1, m.target)} />
+        <span className="t-caption bgv-muted bgv-num">{faNum(m.progress)} از {faNum(m.target)}</span></div>
+    </div>
+  ))}</>;
+}
 
 const MASTERY_ORDER = ['new', 'learner', 'player', 'seasoned', 'master'];
 
@@ -66,14 +78,13 @@ export function ProgressPage() {
           <div className="bgv-row"><h2 id="ms-h" className="pf-h2">مأموریت‌های این هفته</h2>
             <Badge icon="calendar">تا {jalaliDate(d.missions.endsAt)}</Badge>
             <Hint id="missions">هر شنبه مأموریت‌های تازه می‌آید. با کامل کردن میزها (حتی با باخت) پیش می‌روند و XP می‌دهند؛ هیچ‌کدام برد اجباری ندارد.</Hint></div>
-          {d.missions.items.map((m) => (
-            <div key={m.key} className="pf-mission" title={m.descriptionFa}>
-              <div className="bgv-row pf-mission__head"><b>{m.titleFa}</b>
-                {m.completed ? <Badge tone="success" icon="check">کامل</Badge> : <span className="t-caption bgv-num pf-mission__xp"><bdi dir="ltr">+{faNum(m.xp)} XP</bdi></span>}</div>
-              <div className="pf-mission__bar"><Progress aria-label={m.titleFa} value={m.progress / Math.max(1, m.target)} />
-                <span className="t-caption bgv-muted bgv-num">{faNum(m.progress)} از {faNum(m.target)}</span></div>
-            </div>
-          ))}
+          <MissionRows set={d.missions} />
+          {d.daily.items.length > 0 && <>
+            <div className="bgv-row"><h3 className="pf-h2">مأموریت‌های امروز</h3>
+              <Badge icon="clock">{remainingFa(d.daily.endsAt)} مانده</Badge></div>
+            <MissionRows set={d.daily} />
+          </>}
+          <a href="/events" className="t-label">رویدادهای زمان‌دار</a>
         </section>
 
         <section className="bgv-card pf-pcard" aria-labelledby="season-h">

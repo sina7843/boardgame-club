@@ -42,6 +42,8 @@ function phoneTop(path: string): { title?: string; back?: string } {
   if (path === '/me/avatar') return { back: '/me/studio' };
   if (path.startsWith('/users/')) return { back: '/friends' };
   if (path.startsWith('/clubs/')) return { back: '/clubs' };
+  if (path === '/events') return { back: '/more' };
+  if (path.startsWith('/events/')) return { back: '/events' };
   if (path.startsWith('/messages/')) return { back: '/messages' };
   if (path.startsWith('/groups/')) return { back: '/groups' };
   return {};

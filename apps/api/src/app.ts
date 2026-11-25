@@ -31,6 +31,7 @@ import { onboardingRoutes } from './modules/onboarding/routes.ts';
 import { siteRoutes } from './modules/site/routes.ts';
 import { referralRoutes } from './modules/referrals/routes.ts';
 import { pushRoutes } from './modules/push/routes.ts';
+import { eventRoutes } from './modules/events/routes.ts';
 
 export interface Deps {
   config: Config;
@@ -136,6 +137,7 @@ export async function buildApp(deps: Deps, opts: { logStream?: { write(msg: stri
     siteRoutes(api, deps);
     referralRoutes(api, deps);
     pushRoutes(api, deps);
+    eventRoutes(api, deps);
     api.get('/openapi.json', { schema: { hide: true } }, async () => app.swagger());
     // Operational metrics (Prometheus text). Not public: the reverse proxy does not route the path (scrape over the
     // internal network) and a token is required, compared in constant time on fixed-length digests.

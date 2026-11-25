@@ -236,16 +236,16 @@ describe('XP, missions and achievements (FR-14)', () => {
   it('admin picks the weekly missions from the catalog; new mission types and achievement progress come from server events', async () => {
     const [a, b, admin] = await users(ctx, 3);
     await grantRole(ctx.db, admin!.mobile, 'admin');
-    const catalog = (await call(ctx, 'GET', '/api/admin/missions', admin)).json().items as { id: string; key: string; active: boolean }[];
+    const catalog = (await call(ctx, 'GET', '/api/admin/missions', admin)).json().items as { id: string; key: string; active: boolean; period: string }[];
     expect(catalog.length).toBeGreaterThanOrEqual(20);
     const idOf = (key: string) => catalog.find((m) => m.key === key)!.id;
-    const before = catalog.filter((m) => m.active).map((m) => m.id);
+    const before = catalog.filter((m) => m.active && m.period === 'weekly').map((m) => m.id);
     const pick = [idOf('weekly_turn_2'), idOf('weekly_friendly_3')];
 
     expect((await call(ctx, 'PUT', '/api/admin/missions/active', a, { ids: pick, reason: 'تست' })).statusCode).toBe(403);
     expect((await call(ctx, 'PUT', '/api/admin/missions/active', admin, { ids: catalog.slice(0, 9).map((m) => m.id), reason: 'زیاد' })).statusCode).toBe(400);
     expect((await call(ctx, 'PUT', '/api/admin/missions/active', admin, { ids: pick, reason: 'مأموریت‌های هفته' })).statusCode).toBe(204);
-    const active = (await call(ctx, 'GET', '/api/admin/missions', admin)).json().items.filter((m: { active: boolean }) => m.active).map((m: { key: string }) => m.key);
+    const active = (await call(ctx, 'GET', '/api/admin/missions', admin)).json().items.filter((m: { active: boolean; period: string }) => m.active && m.period === 'weekly').map((m: { key: string }) => m.key);
     expect(active.sort()).toEqual(['weekly_friendly_3', 'weekly_turn_2']);
 
     for (let i = 0; i < 2; i++) {
@@ -305,7 +305,7 @@ describe('game of the day', () => {
     const [a, b, t] = await users(ctx, 3);
     // a has already hit today's match XP cap: the daily bonus is a separate reward and still arrives.
     await ctx.db.insert(rewardLedger).values({ userId: a!.id, sourceKey: `test-fill:${a!.id}`, ruleId: 'xp.match_completed', ruleVersion: 1, kind: 'xp', amount: 300, reason: 'test fill' });
-    expect((await call(ctx, 'GET', '/api/me/daily', a)).json()).toEqual({ gameId: daily.id, gameNameFa: daily.nameFa, date: tehranDate(), bonusXp: 40, doneToday: false, streak: 0 });
+    expect((await call(ctx, 'GET', '/api/me/daily', a)).json()).toMatchObject({ gameId: daily.id, gameNameFa: daily.nameFa, date: tehranDate(), bonusXp: 40, doneToday: false, streak: 0 });
     expect((await call(ctx, 'GET', '/api/me/daily')).statusCode).toBe(401);
 
     await finishAs('line-three', [a!, b!]); // a test game is never the game of the day

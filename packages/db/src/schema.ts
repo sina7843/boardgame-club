@@ -561,6 +561,27 @@ export const missionProgress = pgTable('mission_progress', {
   completedAt: tsz()
 }, (t) => [primaryKey({ columns: [t.userId, t.missionId, t.periodKey] })]);
 
+/**
+ * Time-limited events («رویداد»). Points and goal progress are derived from reward_ledger rows inside the window (no
+ * per-event counters), so redelivered results never double-count. The reward is an existing catalogue cosmetic key.
+ */
+export const events = pgTable('events', {
+  id: id(),
+  slug: text().notNull().unique(),
+  titleFa: text().notNull(),
+  descriptionFa: text().notNull().default(''),
+  startsAt: tsz().notNull(),
+  endsAt: tsz().notNull(),
+  /** null = every game counts. */
+  gameIds: text().array(),
+  /** `[{ type: MissionType, count }]`: all must be met for the reward. */
+  goals: jsonb().notNull().default([]),
+  rewardCosmetic: text(),
+  active: boolean().notNull().default(false),
+  createdBy: uuid().references(() => users.id),
+  createdAt: createdAt()
+}, (t) => [check('events_window_chk', sql`${t.endsAt} > ${t.startsAt}`), index('events_window_idx').on(t.startsAt, t.endsAt)]);
+
 export const achievementDefinitions = pgTable('achievement_definitions', {
   id: id(),
   key: text().notNull(),

@@ -40,7 +40,7 @@ export async function setup(overrides: Record<string, string> = {}, registry: Ga
 
 /** Wipe mutable data between files; catalog rows are re-seeded fresh. */
 export async function resetData(db: Db): Promise<void> {
-  await db.execute(sql`truncate audit_log, outbox_events, platform_incidents, conversations, payment_events, fake_gateway_transactions, seasons, mission_definitions, achievement_definitions, plans, sessions, otp_challenges, user_roles, user_private, users, game_versions, games restart identity cascade`);
+  await db.execute(sql`truncate audit_log, outbox_events, events, platform_incidents, conversations, payment_events, fake_gateway_transactions, seasons, mission_definitions, achievement_definitions, plans, sessions, otp_challenges, user_roles, user_private, users, game_versions, games restart identity cascade`);
   await seed(db);
 }
 
