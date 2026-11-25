@@ -23,6 +23,7 @@ export function CreateTable() {
   const [turnSeconds, setTurnSeconds] = useState<number>(60);
   const [options, setOptions] = useState<Record<string, string | number | boolean>>({});
   const [reminders, setReminders] = useState(true);
+  const [minRep, setMinRep] = useState<'0' | '70' | '90'>('0');
   const [busy, setBusy] = useState(false);
   const [submitError, setSubmitError] = useState<string>();
   const friends = useApi<{ friends: PublicProfile[] }>(me ? '/me/friends' : null);
@@ -55,7 +56,8 @@ export function CreateTable() {
     e.preventDefault();
     setBusy(true); setSubmitError(undefined);
     try {
-      const { id: tableId } = await api<{ id: string }>('/tables', { method: 'POST', body: { gameId: g.id, pace, visibility, capacity, turnSeconds, reminders, competition: 'friendly', options } });
+      const { id: tableId } = await api<{ id: string }>('/tables', { method: 'POST', body: { gameId: g.id, pace, visibility, capacity, turnSeconds, reminders, competition: 'friendly', options,
+        ...(pace === 'turn' && visibility === 'public' && minRep !== '0' ? { minReputation: Number(minRep) } : {}) } });
       // Friends picked here get a table invitation right away; a failed invite never blocks the new table.
       await Promise.all(invite.map((userId) => api(`/tables/${tableId}/invites`, { method: 'POST', body: { userId } }).catch(() => undefined)));
       navigate(`/tables/${tableId}`);
@@ -183,6 +185,12 @@ export function CreateTable() {
                   <Segmented label="دسترسی" value={visibility} onChange={custom((v: string) => setVisibility(v as 'private' | 'public'))}
                     options={[{ value: 'private', label: 'خصوصی (با لینک دعوت)', icon: 'lock' }, { value: 'public', label: 'عمومی', icon: 'globe' }]} />
                 </div>
+                {pace === 'turn' && visibility === 'public' && (
+                  <div className="pg-field"><span className="bgv-label">حداقل اعتبار</span>
+                    <Segmented label="حداقل اعتبار" value={minRep} onChange={(v) => setMinRep(v as typeof minRep)}
+                      options={[{ value: '0', label: 'بدون شرط' }, { value: '70', label: faNum(70) }, { value: '90', label: faNum(90) }]} />
+                  </div>
+                )}
                 <p className="bgv-hint">میز خصوصی فقط با لینک دعوت باز می‌شود و میز عمومی در «میزهای باز» دیده می‌شود. میز رتبه‌دار از «بازی سریع» ساخته می‌شود.</p>
                 <p className="pg-policy"><b>اتمام زمان: </b>{g.timeoutPolicyFa}</p>
                 <p className="pg-policy"><b>انصراف: </b>{g.resignPolicyFa}</p>
@@ -201,6 +209,7 @@ export function CreateTable() {
                 <div><dt>بازیکنان</dt><dd>{faNum(capacity)} نفر{empty ? `، ${faNum(empty)} صندلی خالی` : ''}</dd></div>
                 <div><dt>رقابت</dt><dd>دوستانه</dd></div>
                 <div><dt>دسترسی</dt><dd>{visibility === 'private' ? 'خصوصی' : 'عمومی'}</dd></div>
+                {pace === 'turn' && visibility === 'public' && minRep !== '0' && <div><dt>حداقل اعتبار</dt><dd>{faNum(Number(minRep))}</dd></div>}
                 {ruleFa && <div><dt>قانون</dt><dd>{ruleFa}</dd></div>}
                 {pace === 'turn' && <div><dt>یادآوری</dt><dd>{reminders ? 'روشن' : 'خاموش'}</dd></div>}
                 {invited.length > 0 && <div><dt>دعوت</dt><dd>{invited.map((f) => f.displayName).join('، ')}</dd></div>}

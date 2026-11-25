@@ -5,6 +5,7 @@ import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
 import { applyRating, rewardMatch, rewardTutorial, type FinishedEvent } from './progression.ts';
 import { fireDeadline } from './runtime.ts';
+import { deliverPush } from './push.ts';
 
 const { scheduledDeadlines, outboxEvents, notifications, platformIncidents, games, auditLog, userSettings, userMutes, blocks, users, behaviorSignals } = schema;
 
@@ -50,8 +51,10 @@ async function notify(db: Db, userIds: unknown, kind: Kind, dedupe: (u: string) 
       if (muted.length || blocked.length) continue;
     }
     const [n] = await db.insert(notifications).values({ userId, kind, payload, dedupeKey: dedupe(userId) })
-      .onConflictDoNothing({ target: notifications.dedupeKey }).returning({ id: notifications.id });
-    if (n) await db.execute(sql`select pg_notify('notification_created', ${n.id})`);
+      .onConflictDoNothing({ target: notifications.dedupeKey }).returning();
+    if (!n) continue;
+    await db.execute(sql`select pg_notify('notification_created', ${n.id})`);
+    await deliverPush(db, n); // never throws; quiet hours skip the push only
   }
 }
 
@@ -72,9 +75,9 @@ export const notificationConsumers: Record<string, Consumer> = {
     await notify(db, p.userIds, 'turn', (u) => `turn:${p.tableId}:${p.revision}:${u}`, { tableId: p.tableId, gameNameFa: await gameName(db, p.gameId) });
   },
   'table.reminder': async (db, e) => {
-    const p = e.payload as { tableId: string; revision: number; gameId: string; userIds: string[]; reminderId?: string; leftSeconds?: number | null };
+    const p = e.payload as { tableId: string; revision: number; gameId: string; userIds: string[]; reminderId?: string; leftSeconds?: number | null; extraTime?: boolean };
     // One notification per reminder (half time, quarter, last hour): the reminder id keeps them apart.
-    await notify(db, p.userIds, 'reminder', (u) => `reminder:${p.tableId}:${p.reminderId ?? p.revision}:${u}`, { tableId: p.tableId, gameNameFa: await gameName(db, p.gameId), leftSeconds: p.leftSeconds ?? null });
+    await notify(db, p.userIds, 'reminder', (u) => `reminder:${p.tableId}:${p.reminderId ?? p.revision}:${u}`, { tableId: p.tableId, gameNameFa: await gameName(db, p.gameId), leftSeconds: p.leftSeconds ?? null, ...(p.extraTime ? { extraTime: true } : {}) });
   },
   'table.finished': async (db, e) => {
     const p = e.payload as { tableId: string; gameId: string; isTutorial: boolean; vsBot?: boolean; reason: string; placements: { userId: string | null; place: number }[] };

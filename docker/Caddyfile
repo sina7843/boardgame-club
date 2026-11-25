@@ -54,6 +54,8 @@
 		# Routes (no file extension) and HTML documents reference hashed assets: always revalidate.
 		@shell path_regexp ^/([^.]*|.*\.html)$
 		header @shell Cache-Control "no-cache"
+		# Web Push service worker: always revalidate so a fix reaches every browser on its next visit.
+		header /sw.js Cache-Control "no-cache"
 		# Public routes are prerendered to <route>/index.html (scripts/seo.ts); every other route gets the SPA shell.
 		# A missing hashed asset must 404, not return the shell under an immutable year-long cache.
 		# (try_files takes no matcher, so this is its expanded form.)

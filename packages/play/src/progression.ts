@@ -3,15 +3,15 @@
 //   TutorialCompleted ← outbox 'tutorial.completed' (server-decided tutorial result)
 //   GameMilestone   ← derived here from verified results (first game, first win, ranked debut, new title)
 // Every award is a reward_ledger row with a unique source_key, so retries and duplicate deliveries award nothing twice.
-import { and, count, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gt, inArray, lte, sql } from 'drizzle-orm';
 import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
 import { DEFAULT_SEASON, displayRating, ELIGIBILITY, leagueFor, newSkill, rate, type SeasonConfig } from './rating.ts';
-import { AppError, ONBOARDING_TOURS, tourComplete, type RatingMode } from '@bg/contracts';
+import { AppError, MISSION_TYPES, ONBOARDING_TOURS, tourComplete, type EventGoal, type MissionType, type RatingMode } from '@bg/contracts';
 import { syncCoins } from './coins.ts';
 
 const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, missionDefinitions, missionProgress,
-  achievementDefinitions, userAchievements, gameResults, gameTables, games, gameVersions, onboardingProgress } = schema;
+  achievementDefinitions, userAchievements, gameResults, gameTables, games, gameVersions, onboardingProgress, events } = schema;
 
 /** Reward rules, versioned. Changing a value means bumping RULES_VERSION (old ledger rows keep their version). */
 export const RULES_VERSION = 1;
@@ -65,12 +65,33 @@ export const tehranDate = (at = new Date()) => new Date(at.getTime() + 3.5 * 360
 // ---------------- Game of the day ----------------
 
 /** Deterministic pick: FNV-1a hash of the Tehran date over the sorted ids. Same date + same catalog → same game. */
+const fnv = (s: string) => {
+  let h = 0x811c9dc5;
+  for (const ch of s) h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193);
+  return h >>> 0;
+};
 export function pickDaily(date: string, ids: readonly string[]): string | null {
   if (!ids.length) return null;
-  let h = 0x811c9dc5;
-  for (const ch of date) h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193);
-  return [...ids].sort()[(h >>> 0) % ids.length]!;
+  return [...ids].sort()[fnv(date) % ids.length]!;
 }
+
+/** Daily missions per Tehran day. */
+export const DAILY_MISSION_COUNT = 3;
+/** Deterministic daily set: FNV-1a of the Tehran date picks a start in the id-sorted pool, then the next ones (wrapping). */
+export function pickDailyMissions<T extends { id: string }>(date: string, defs: readonly T[], n = DAILY_MISSION_COUNT): T[] {
+  const pool = [...defs].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  if (pool.length <= n) return pool;
+  const start = fnv(date) % pool.length;
+  return Array.from({ length: n }, (_, i) => pool[(start + i) % pool.length]!);
+}
+
+/** Today's daily missions: no admin action needed; deactivating a daily definition removes it from the pool. */
+export async function dailyMissions(db: Db | Tx, date = tehranDate()) {
+  const defs = await db.select().from(missionDefinitions).where(and(eq(missionDefinitions.active, true), eq(missionDefinitions.period, 'daily')));
+  return pickDailyMissions(date, defs);
+}
+/** End of a Tehran calendar day (next midnight Tehran, as UTC). */
+export const tehranDayEnd = (date: string) => new Date(Date.parse(date) + 86400_000 - 3.5 * 3600_000);
 
 /** Eligible: active, not a test fixture, with a published (active) version. Free-access games are preferred when any exist. */
 export async function dailyGame(db: Db | Tx, date = tehranDate()): Promise<{ id: string; nameFa: string } | null> {
@@ -99,7 +120,7 @@ export function dailyStreaks(dates: readonly string[], today = tehranDate()): { 
 
 const lockUser = (tx: Tx, userId: string) => tx.execute(sql`select pg_advisory_xact_lock(hashtext(${'progress:' + userId}))`);
 
-async function award(tx: Tx, row: { userId: string; sourceKey: string; ruleId: string; kind: 'xp' | 'achievement' | 'mission' | 'cosmetic' | 'manual';
+export async function award(tx: Tx, row: { userId: string; sourceKey: string; ruleId: string; kind: 'xp' | 'achievement' | 'mission' | 'cosmetic' | 'manual';
   amount: number; reason: string; resultId?: string | null; gameId?: string | null; metadata?: object; createdBy?: string | null }): Promise<boolean> {
   const inserted = await tx.insert(rewardLedger).values({
     userId: row.userId, sourceKey: row.sourceKey, ruleId: row.ruleId, ruleVersion: RULES_VERSION, kind: row.kind, amount: row.amount,
@@ -198,20 +219,43 @@ type MatchMeta = { week?: string; opponents?: string[]; pace?: 'live' | 'turn'; 
 export const ACHIEVEMENT_TYPES = ['matches', 'wins', 'distinct_games', 'tutorials', 'ranked', 'level', 'missions', 'live_matches', 'turn_matches',
   'big_tables', 'one_game', 'win_games', 'daily_total', 'daily_streak', 'onboarding', 'achievements'] as const;
 export type AchievementType = typeof ACHIEVEMENT_TYPES[number];
-/** Weekly mission goals. None may require winning (Requirements: «بدون برد اجباری»). */
-export const MISSION_TYPES = ['complete_tables', 'distinct_games', 'learn_new_game', 'ranked_tables', 'friendly_tables', 'live_tables', 'turn_tables',
-  'big_tables', 'tutorials'] as const;
-export type MissionType = typeof MISSION_TYPES[number];
+export { MISSION_TYPES, type MissionType };
 
-export interface GoalFacts { achievement: Record<AchievementType, number>; mission: Record<MissionType, number> }
+export interface GoalFacts { achievement: Record<AchievementType, number>; mission: Record<MissionType, number>; daily: Record<MissionType, number> }
+
+/** A ledger row goals are measured from; `at` is when the game result was recorded (ledger time when there is no result). */
+export interface FactRow { ruleId: string; kind: string; gameId: string | null; metadata: unknown; at: Date }
+
+export async function factRows(tx: Tx | Db, userId: string): Promise<FactRow[]> {
+  return tx.select({ ruleId: rewardLedger.ruleId, kind: rewardLedger.kind, gameId: rewardLedger.gameId, metadata: rewardLedger.metadata,
+    at: sql<Date>`coalesce(${gameResults.createdAt}, ${rewardLedger.createdAt})`.mapWith(rewardLedger.createdAt) })
+    .from(rewardLedger).leftJoin(gameResults, eq(gameResults.id, rewardLedger.resultId)).where(and(eq(rewardLedger.userId, userId),
+      sql`(${inArray(rewardLedger.ruleId, ['xp.match_completed', 'xp.first_place', 'xp.tutorial', 'xp.new_title', 'xp.daily_game'])} or ${rewardLedger.kind} = 'mission')`));
+}
+
+const metaOf = (r: { metadata: unknown }) => r.metadata as MatchMeta;
+const isBig = (r: { metadata: unknown }) => (metaOf(r).opponents?.length ?? 0) >= 2; // three or more people at the table
+
+/** Mission/event goal values over the rows inside one period (week, Tehran day or an event window). Bot tables never count (separate rule ids). */
+export function missionFacts(rows: readonly FactRow[], inPeriod: (r: FactRow) => boolean): Record<MissionType, number> {
+  const matches = rows.filter((r) => r.ruleId === 'xp.match_completed' && inPeriod(r));
+  return {
+    complete_tables: matches.length,
+    distinct_games: new Set(matches.map((r) => r.gameId!)).size,
+    learn_new_game: rows.filter((r) => (r.ruleId === 'xp.tutorial' || r.ruleId === 'xp.new_title') && inPeriod(r)).length,
+    ranked_tables: matches.filter((r) => metaOf(r).competition === 'ranked').length,
+    friendly_tables: matches.filter((r) => metaOf(r).competition === 'friendly').length,
+    live_tables: matches.filter((r) => metaOf(r).pace === 'live').length,
+    turn_tables: matches.filter((r) => metaOf(r).pace === 'turn').length,
+    big_tables: matches.filter(isBig).length,
+    tutorials: rows.filter((r) => r.ruleId === 'xp.tutorial' && inPeriod(r)).length
+  };
+}
 
 /** Every value a mission or achievement can measure, derived only from server ledger rows (never client claims). */
-export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().key): Promise<GoalFacts> {
-  const rows = await tx.select({ ruleId: rewardLedger.ruleId, kind: rewardLedger.kind, gameId: rewardLedger.gameId, metadata: rewardLedger.metadata })
-    .from(rewardLedger).where(and(eq(rewardLedger.userId, userId),
-      sql`(${inArray(rewardLedger.ruleId, ['xp.match_completed', 'xp.first_place', 'xp.tutorial', 'xp.new_title', 'xp.daily_game'])} or ${rewardLedger.kind} = 'mission')`));
-  const meta = (r: { metadata: unknown }) => r.metadata as MatchMeta;
-  const inWeek = (r: { metadata: unknown }) => meta(r).week === week;
+export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().key, day = tehranDate()): Promise<GoalFacts> {
+  const rows = await factRows(tx, userId);
+  const meta = metaOf;
   const [{ n: ranked } = { n: 0 }] = await tx.select({ n: count() }).from(ratingHistory).where(eq(ratingHistory.userId, userId));
   const [{ n: granted } = { n: 0 }] = await tx.select({ n: count() }).from(userAchievements).where(eq(userAchievements.userId, userId));
   const guides = await tx.select({ tourKey: onboardingProgress.tourKey, steps: onboardingProgress.steps }).from(onboardingProgress)
@@ -220,16 +264,15 @@ export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().ke
   const wins = rows.filter((r) => r.ruleId === 'xp.first_place');
   const tutorials = rows.filter((r) => r.ruleId === 'xp.tutorial');
   const daily = rows.filter((r) => r.ruleId === 'xp.daily_game').map((r) => (r.metadata as { date?: string }).date ?? '').filter(Boolean);
-  const weekMatches = matches.filter(inWeek);
   const perGame = new Map<string, number>();
   for (const m of matches) perGame.set(m.gameId!, (perGame.get(m.gameId!) ?? 0) + 1);
-  const big = (r: { metadata: unknown }) => (meta(r).opponents?.length ?? 0) >= 2; // three or more people at the table
+  const big = isBig;
   const distinct = (rs: typeof rows) => new Set(rs.map((r) => r.gameId!)).size;
   return {
     achievement: {
       matches: matches.length, wins: wins.length, distinct_games: perGame.size, tutorials: tutorials.length, ranked,
       level: levelFor(await totalXp(tx, userId)).level,
-      missions: rows.filter((r) => r.kind === 'mission').length,
+      missions: rows.filter((r) => r.kind === 'mission' && r.ruleId.startsWith('mission.')).length, // weekly missions only
       live_matches: matches.filter((r) => meta(r).pace === 'live').length,
       turn_matches: matches.filter((r) => meta(r).pace === 'turn').length,
       big_tables: matches.filter(big).length,
@@ -240,17 +283,8 @@ export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().ke
       onboarding: ONBOARDING_TOURS.filter((t) => tourComplete(t, guides.find((g) => g.tourKey === t.key)?.steps ?? [])).length,
       achievements: granted
     },
-    mission: {
-      complete_tables: weekMatches.length,
-      distinct_games: distinct(weekMatches),
-      learn_new_game: rows.filter((r) => (r.ruleId === 'xp.tutorial' || r.ruleId === 'xp.new_title') && inWeek(r)).length,
-      ranked_tables: weekMatches.filter((r) => meta(r).competition === 'ranked').length,
-      friendly_tables: weekMatches.filter((r) => meta(r).competition === 'friendly').length,
-      live_tables: weekMatches.filter((r) => meta(r).pace === 'live').length,
-      turn_tables: weekMatches.filter((r) => meta(r).pace === 'turn').length,
-      big_tables: weekMatches.filter(big).length,
-      tutorials: tutorials.filter(inWeek).length
-    }
+    mission: missionFacts(rows, (r) => meta(r).week === week),
+    daily: missionFacts(rows, (r) => tehranDate(r.at) === day)
   };
 }
 
@@ -262,8 +296,9 @@ const META_TYPES: AchievementType[] = ['level', 'missions', 'achievements'];
 /** Missions and achievements are recomputed from ledger facts (not incremented), so re-running is harmless. */
 async function evaluateGoals(tx: Tx, userId: string) {
   const week = weekKey();
-  let f = await goalFacts(tx, userId, week.key);
-  const missions = await tx.select().from(missionDefinitions).where(eq(missionDefinitions.active, true));
+  const day = tehranDate();
+  let f = await goalFacts(tx, userId, week.key, day);
+  const missions = await tx.select().from(missionDefinitions).where(and(eq(missionDefinitions.active, true), eq(missionDefinitions.period, 'weekly')));
   for (const m of missions) {
     const c = m.criteria as Criteria;
     const value = f.mission[c.type];
@@ -278,6 +313,22 @@ async function evaluateGoals(tx: Tx, userId: string) {
         amount: c.xp, reason: `مأموریت «${m.titleFa}» کامل شد.`, metadata: { week: week.key } });
     }
   }
+  // Daily: today's three, same goal types; XP from the definition, coins from COIN_RULES.dailyMission (rule id prefix).
+  for (const m of await dailyMissions(tx, day)) {
+    const c = m.criteria as Criteria;
+    const value = f.daily[c.type];
+    if (value === undefined) continue;
+    const progress = Math.min(value, c.count);
+    const done = progress >= c.count;
+    await tx.insert(missionProgress).values({ userId, missionId: m.id, periodKey: day, progress, completedAt: done ? sql`now()` : null })
+      .onConflictDoUpdate({ target: [missionProgress.userId, missionProgress.missionId, missionProgress.periodKey],
+        set: { progress, completedAt: sql`coalesce(${missionProgress.completedAt}, ${done ? sql`now()` : sql`null`})` } });
+    if (done) {
+      await award(tx, { userId, sourceKey: `mission-daily:${m.key}:v${m.ruleVersion}:${day}:${userId}`, ruleId: `mission_daily.${m.key}`, kind: 'mission',
+        amount: c.xp, reason: `مأموریت روزانهٔ «${m.titleFa}» کامل شد.`, metadata: { day } });
+    }
+  }
+  await evaluateEvents(tx, userId);
   const achievements = await tx.select().from(achievementDefinitions);
   const isMeta = (a: typeof achievements[number]) => META_TYPES.includes((a.criteria as AchievementCriteria).type);
   const grant = async (list: typeof achievements) => {
@@ -293,9 +344,39 @@ async function evaluateGoals(tx: Tx, userId: string) {
     }
   };
   await grant(achievements.filter((a) => !isMeta(a)));
-  f = await goalFacts(tx, userId, week.key); // fresh XP and trophy count after the awards above
+  f = await goalFacts(tx, userId, week.key, day); // fresh XP and trophy count after the awards above
   await grant(achievements.filter(isMeta));
   await syncCoins(tx, userId, levelFor(await totalXp(tx, userId)).level); // coins follow the reward rows written above
+}
+
+// ---------------- Events ----------------
+
+type EventRow = typeof events.$inferSelect;
+/** A fact row inside the event's window and game filter (result time, so a late outbox delivery still counts). */
+export const inEvent = (e: Pick<EventRow, 'startsAt' | 'endsAt' | 'gameIds'>) => (r: FactRow) =>
+  r.at >= e.startsAt && r.at < e.endsAt && (!e.gameIds || (!!r.gameId && e.gameIds.includes(r.gameId)));
+
+export function eventGoalProgress(e: Pick<EventRow, 'startsAt' | 'endsAt' | 'gameIds' | 'goals'>, rows: readonly FactRow[]) {
+  const f = missionFacts(rows, inEvent(e));
+  return (e.goals as EventGoal[]).map((g) => ({ type: g.type, target: g.count, progress: Math.min(f[g.type] ?? 0, g.count) }));
+}
+
+export const eventRewardKey = (eventId: string, userId: string) => `event:${eventId}:${userId}`;
+
+/**
+ * Grant each running (or just ended, for late deliveries) event's cosmetic once all its goals are met. The reward is a
+ * zero-amount 'cosmetic' ledger row (unique source key), read back by cosmetics ownership; no XP, no coins.
+ */
+async function evaluateEvents(tx: Tx, userId: string) {
+  const live = await tx.select().from(events).where(and(eq(events.active, true), lte(events.startsAt, sql`now()`),
+    gt(events.endsAt, sql`now() - interval '1 day'`), sql`${events.rewardCosmetic} is not null`, sql`jsonb_array_length(${events.goals}) > 0`));
+  if (!live.length) return;
+  const rows = await factRows(tx, userId);
+  for (const e of live) {
+    if (!eventGoalProgress(e, rows).every((g) => g.progress >= g.target)) continue;
+    await award(tx, { userId, sourceKey: eventRewardKey(e.id, userId), ruleId: 'event.reward', kind: 'cosmetic', amount: 0,
+      reason: `جایزهٔ رویداد «${e.titleFa}».`, metadata: { eventId: e.id, item: e.rewardCosmetic } });
+  }
 }
 
 /** MatchCompleted: completion XP (also for losses), capped first-place bonus, repeated-opponent and daily limits. */
@@ -357,7 +438,7 @@ export async function rewardMatch(tx: Tx, e: FinishedEvent): Promise<void> {
         and l.metadata->'opponents' = ${JSON.stringify(opponents)}::jsonb`) as unknown as { n: number }[];
     const repeated = (recent[0]?.n ?? 0) >= XP_RULES.repeatedOpponentThreshold;
     let room = Math.max(0, XP_RULES.dailyMatchCap - (await todaysMatchXp(tx, h.userId)));
-    const meta = { week, opponents, place: h.place, pace: e.pace, competition: e.competition };
+    const meta = { week, opponents, place: h.place, pace: e.pace, competition: e.competition, ...(repeated && { repeated: true }) };
 
     let base: number = repeated ? XP_RULES.repeatedOpponentXp : XP_RULES.matchCompleted;
     let reason = repeated ? 'بازی کامل با حریف تکراری؛ XP کاهش‌یافته.' : 'بازی کامل شد.';

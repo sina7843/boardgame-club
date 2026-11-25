@@ -36,6 +36,14 @@ const envSchema = z.object({
   METRICS_TOKEN: z.string().min(24).optional(),
   /** Reverse-proxy hops in front of the API in production (Caddy = 1; Caddy behind Coolify/Traefik = 2). */
   TRUST_PROXY_HOPS: z.coerce.number().int().min(1).max(5).default(1),
+  /** Web Push VAPID public key served by GET /push/key; unset = push disabled (the worker holds the private key). */
+  WEB_PUSH_PUBLIC_KEY: z.string().min(40).optional(),
+  /** SMTP for email (verification code here; digest and tournament reminder in the worker). Host + from unset = email off. */
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: z.coerce.number().int().min(1).max(65535).optional(),
+  SMTP_USER: z.string().min(1).optional(),
+  SMTP_PASSWORD: z.string().min(1).optional(),
+  SMTP_FROM: z.string().min(3).optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info')
 });
 
@@ -77,6 +85,9 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   if (c.OTP_PROVIDER === 'kavenegar' && (!c.KAVENEGAR_API_KEY || !c.KAVENEGAR_VERIFY_TEMPLATE)) {
     throw new Error('Invalid configuration — KAVENEGAR_API_KEY and KAVENEGAR_VERIFY_TEMPLATE are required for OTP_PROVIDER=kavenegar');
   }
+  if ((c.SMTP_HOST || c.SMTP_FROM || c.SMTP_USER || c.SMTP_PASSWORD) && !(c.SMTP_HOST && c.SMTP_FROM)) {
+    throw new Error('Invalid configuration — SMTP_HOST and SMTP_FROM are both required to send email (or leave every SMTP_* empty)');
+  }
   if (c.PAYMENT_PROVIDER === 'zarinpal' && !c.ZARINPAL_MERCHANT_ID) {
     throw new Error('Invalid configuration — ZARINPAL_MERCHANT_ID is required for PAYMENT_PROVIDER=zarinpal');
   }
@@ -98,6 +109,10 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     webOrigins: c.WEB_ORIGINS,
     logLevel: c.LOG_LEVEL,
     metricsToken: c.METRICS_TOKEN ?? null,
+    webPushPublicKey: c.WEB_PUSH_PUBLIC_KEY ?? null,
+    /** SMTP settings, or null = email disabled (the settings card is hidden; nothing is faked). */
+    smtp: c.SMTP_HOST && c.SMTP_FROM ? { host: c.SMTP_HOST, port: c.SMTP_PORT ?? 587, user: c.SMTP_USER ?? null, password: c.SMTP_PASSWORD ?? null, from: c.SMTP_FROM } : null,
+    email: { ttlSeconds: 600, maxAttempts: 5, resendAfterSeconds: 60, maxPerHour: 5 },
     trustProxyHops: c.TRUST_PROXY_HOPS,
     otp: {
       hashSecret: c.OTP_HASH_SECRET,

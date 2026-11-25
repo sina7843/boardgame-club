@@ -12,6 +12,7 @@ import { Catalog } from './pages/Catalog.tsx';
 import { Login } from './pages/Login.tsx';
 import { NotFound } from './pages/NotFound.tsx';
 import { RealtimeProvider } from './lib/realtime.tsx';
+import { registerServiceWorker } from './lib/push.ts';
 import { SITE_LINKS, SitePage } from './pages/SitePage.tsx';
 
 /** The design showcase is an internal tool: admins only (the server enforces nothing here; the page holds no data). */
@@ -32,6 +33,7 @@ const CreateTable = lazy(() => import('./pages/CreateTable.tsx').then((m) => ({ 
 const ChessLobby = lazy(() => import('./pages/ChessLobby.tsx').then((m) => ({ default: m.ChessLobby })));
 const OpenTables = lazy(() => import('./pages/OpenTables.tsx').then((m) => ({ default: m.OpenTables })));
 const TablePage = lazy(() => import('./pages/Table.tsx').then((m) => ({ default: m.TablePage })));
+const ReplayPage = lazy(() => import('./pages/Replay.tsx').then((m) => ({ default: m.ReplayPage })));
 const TableCodePage = lazy(() => import('./games/TableCode.tsx').then((m) => ({ default: m.TableCodePage })));
 const QuickMatch = lazy(() => import('./pages/QuickMatch.tsx').then((m) => ({ default: m.QuickMatch })));
 const FriendsPage = lazy(() => import('./pages/People.tsx').then((m) => ({ default: m.FriendsPage })));
@@ -62,6 +64,8 @@ const NotificationsPage = lazy(() => import('./pages/Notifications.tsx').then((m
 const CoinsPage = lazy(() => import('./pages/Coins.tsx').then((m) => ({ default: m.CoinsPage })));
 const ShopPage = lazy(() => import('./pages/Shop.tsx').then((m) => ({ default: m.ShopPage })));
 const WardrobePage = lazy(() => import('./pages/Wardrobe.tsx').then((m) => ({ default: m.WardrobePage })));
+const EventsPage = lazy(() => import('./pages/Events.tsx').then((m) => ({ default: m.EventsPage })));
+const EventPage = lazy(() => import('./pages/Events.tsx').then((m) => ({ default: m.EventPage })));
 const StudioPage = lazy(() => import('./pages/Studio.tsx').then((m) => ({ default: m.StudioPage })));
 
 // Friend invite link (?ref=CODE): remembered until sign-up, whichever page the visitor lands on.
@@ -83,6 +87,7 @@ const router = createBrowserRouter([
       { path: 't/:code', element: <TableCodePage /> },
       { path: 'notifications', element: <NotificationsPage /> },
       { path: 'tables/:id', element: <TablePage /> },
+      { path: 'tables/:id/replay', element: <ReplayPage /> },
       { path: 'play', element: <QuickMatch /> },
       { path: 'friends', element: <FriendsPage /> },
       { path: 'users/:id', element: <ProfilePage /> },
@@ -100,6 +105,8 @@ const router = createBrowserRouter([
       { path: 'search', element: <SearchPage /> },
       { path: 'progress', element: <ProgressPage /> },
       { path: 'ranking', element: <RankingPage /> },
+      { path: 'events', element: <EventsPage /> },
+      { path: 'events/:slug', element: <EventPage /> },
       { path: 'plans', element: <PlansPage /> },
       { path: 'coins', element: <CoinsPage /> },
       { path: 'tournaments', element: <TournamentsPage /> },
@@ -120,6 +127,7 @@ const router = createBrowserRouter([
   }
 ]);
 
+registerServiceWorker();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <PrefsProvider>

@@ -39,7 +39,7 @@ export function socialRoutes(app: FastifyInstance, { db }: Deps): void {
   r.get('/users/:userId/card', {
     schema: { tags: ['social'], summary: 'Public profile with my relationship to the user, plus the public play record (respects the owner\'s privacy and blocks)', params: userParams, response: { 200: profileCard, ...errors } }
   }, async (req) => {
-    const { userId } = requireUser(req);
+    const { userId, roles } = requireUser(req);
     const rel = await relationship(db, userId, req.params.userId);
     const profile = await requireActiveUser(db, req.params.userId);
     // Blocked in either direction: no play record at all (the other side never learns who blocked whom).
@@ -54,7 +54,7 @@ export function socialRoutes(app: FastifyInstance, { db }: Deps): void {
     let mutual: string[] = [];
     if (viewer === 'other') { const mine = new Set(await friendsOf(userId)); mutual = (await friendsOf(target)).filter((x) => mine.has(x)).slice(0, 8); }
     const people = await profiles(db, mutual);
-    return { ...profile, ...rel, ...(await publicRecord(db, target, viewer)), premium: await isPremium(db, target),
+    return { ...profile, ...rel, ...(await publicRecord(db, target, viewer, roles.includes('moderator') || roles.includes('admin'))), premium: await isPremium(db, target),
       clubs: clubRows, mutualFriends: mutual.map((id) => people.get(id)!).filter(Boolean) };
   });
 

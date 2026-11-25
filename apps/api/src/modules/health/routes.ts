@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { healthResponse } from '@bg/contracts';
 import type { Deps } from '../../app.ts';
 
-export function healthRoutes(app: FastifyInstance, { db }: Deps): void {
+export function healthRoutes(app: FastifyInstance, { db, mail }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get('/health/live', {
@@ -14,7 +14,7 @@ export function healthRoutes(app: FastifyInstance, { db }: Deps): void {
 
   r.get('/health/ready', {
     config: { rateLimit: false },
-    schema: { tags: ['health'], summary: 'Database reachable and migrated', response: { 200: healthResponse, 503: healthResponse } }
+    schema: { tags: ['health'], summary: 'Database reachable and migrated (email: SMTP configured or disabled; informational, never fails readiness)', response: { 200: healthResponse, 503: healthResponse } }
   }, async (_req, reply) => {
     let database: 'ok' | 'fail' = 'fail';
     let migrations: 'ok' | 'fail' = 'fail';
@@ -27,6 +27,6 @@ export function healthRoutes(app: FastifyInstance, { db }: Deps): void {
       // reported as fail below; details stay in server logs only
     }
     const ok = database === 'ok' && migrations === 'ok';
-    return reply.code(ok ? 200 : 503).send({ status: ok ? 'ok' : 'unavailable', checks: { database, migrations } });
+    return reply.code(ok ? 200 : 503).send({ status: ok ? 'ok' : 'unavailable', checks: { database, migrations, email: mail ? 'ok' : 'disabled' } });
   });
 }

@@ -1,25 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router';
-import type { ConversationItem, GameSummary, NotificationItem } from '@bg/contracts';
+import { matchGames, type ConversationItem, type GameSummary, type NotificationItem } from '@bg/contracts';
 import { AccountMenu, Badge, Button, Conversation, Icon, NotificationItem as Notif, SiteFooter, SiteSearch, StateBlock, Tabs, type SiteSearchResult } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { SITE_LINKS } from '../pages/SitePage.tsx';
-
-/** Persian/Arabic letter variants, ZWNJ and case folded away so «كاتان» and «کاتان» meet. */
-const fold = (s: string) => s.toLowerCase().replaceAll('ي', 'ی').replaceAll('ك', 'ک').replace(/[‌\s]+/g, '');
-
-/** Games whose name starts with, contains or (latin) contains the query, in that order; at most six. */
-export function searchGames(games: GameSummary[], q: string): GameSummary[] {
-  const f = fold(q);
-  if (!f) return [];
-  const score = (g: GameSummary) => {
-    const fa = fold(g.nameFa), en = fold(g.nameOriginal);
-    return fa.startsWith(f) ? 0 : fa.includes(f) ? 1 : en.startsWith(f) ? 2 : en.includes(f) ? 3 : -1;
-  };
-  return games.map((g) => ({ g, s: score(g) })).filter((x) => x.s >= 0).sort((a, b) => a.s - b.s).slice(0, 6).map((x) => x.g);
-}
 
 const asResult = (g: GameSummary): SiteSearchResult => ({
   title: g.nameFa, latin: g.nameOriginal, cover: `/covers/box/${g.id}.webp`, href: `/games/${g.id}`, quickHref: `/play?game=${g.id}`,
@@ -35,7 +21,7 @@ export function HeaderSearch({ sheet, onClose }: { sheet?: boolean; onClose?: ()
   const navigate = useNavigate();
   const games = useApi<{ items: GameSummary[] }>(open || sheet ? '/games' : null);
   const all = useMemo(() => (games.data?.items ?? []).filter((g) => !g.isTestGame), [games.data]);
-  const results = useMemo(() => (q ? searchGames(all, q) : all.slice(0, 6)).map(asResult), [all, q]);
+  const results = useMemo(() => (q ? matchGames(q, all) : all).slice(0, 6).map(asResult), [all, q]);
   const empty = q !== '' && results.length === 0;
   const allHref = q.trim() ? `/games?q=${encodeURIComponent(q.trim())}` : '/games';
   // The header popover closes on a click or focus outside it and after navigating (the DS component only closes on Esc).
@@ -56,8 +42,8 @@ export function HeaderSearch({ sheet, onClose }: { sheet?: boolean; onClose?: ()
   return (
     <div ref={box} className="app-search" onKeyDown={onKeyDown}>
       <SiteSearch value={q} onChange={setQ} open={sheet ? true : open} onOpenChange={setOpen} results={results} state={q ? (empty ? 'empty' : 'results') : 'idle'}
-        allHref={allHref} {...(sheet ? { sheet: true, ...(onClose ? { onClose } : {}) } : { expand: true })}
-        emptyTitle={`بازی‌ای با «${q}» پیدا نشد`} emptyText="نام فارسی یا لاتین بازی را امتحان کنید، یا فهرست همهٔ بازی‌ها را ببینید." />
+        allHref={allHref} hint="فارسی، انگلیسی یا فینگلیش بنویسید" {...(sheet ? { sheet: true, ...(onClose ? { onClose } : {}) } : { expand: true })}
+        emptyTitle={`بازی‌ای با «${q}» پیدا نشد`} emptyText="نام دیگری از بازی را امتحان کنید، یا فهرست همهٔ بازی‌ها را ببینید." />
     </div>
   );
 }

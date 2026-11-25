@@ -1,12 +1,14 @@
 import { useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { turnThresholds, type AlertPrefs, type UserSettings } from '@bg/contracts';
+import { turnThresholds, VACATION_MAX_DAYS, type AlertPrefs, type UserSettings } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Button, Card, Clock, Dialog, Icon, Identity, PageHead, PageTabs, Segmented, Select, Slider, StateBlock, Switch, Tag, TextField } from '@bg/ui/bgv';
+import { Badge, Button, Card, Clock, Dialog, Icon, Identity, PageHead, PageTabs, Segmented, Select, Slider, StateBlock, Switch, Tag, TextField } from '@bg/ui/bgv';
 import { userIdentity } from '../lib/bgv.tsx';
+import { faNum, jalaliDate, jalaliDateTime } from '../lib/format.ts';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 import { playAlert } from '../lib/alerts.ts';
+import { notifyFailFa } from '../lib/push.ts';
 import { saveAlertPrefs, useAlertPrefs, usePrefs, type Prefs } from '../lib/prefs.tsx';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -119,6 +121,8 @@ export function Settings() {
               <Button size="sm" variant="leave" className="ac-signout" onClick={() => void logout().then(() => navigate('/'))}>خروج از حساب</Button>
             </div>
           </Section>
+          {me.email?.available && <EmailCard />}
+          <VacationCard />
           <DeleteAccountCard />
         </div></div>
       )}
@@ -172,7 +176,7 @@ function PrivacyForm({ only }: { only: 'privacy' | 'notify' }) {
           <div className="ac-row">
             <span className="ac-tile"><Icon name="bell-off" /></span>
             <div className="ac-row__text"><b id="perm-h">اعلان مرورگر هنوز اجازه ندارد</b><span>بدون آن، نوبت‌ها را فقط وقتی برگه باز است می‌بینید. مرورگر از شما می‌پرسد.</span></div>
-            <Button variant="primary" icon="bell-ring" onClick={async () => { const ok = await setBrowserNotifications(true); setBrowser(ok); if (!ok) toast('error', 'مرورگر اجازه اعلان نداد.'); }}>اجازه‌ی اعلان</Button>
+            <Button variant="primary" icon="bell-ring" onClick={async () => { const ok = await setBrowserNotifications(true); setBrowser(ok); if (!ok) toast('error', notifyFailFa()); }}>اجازه‌ی اعلان</Button>
           </div>
         </Card>
       )}
@@ -186,7 +190,7 @@ function PrivacyForm({ only }: { only: 'privacy' | 'notify' }) {
           <Switch aria-label="اعلان مرورگر" checked={browser} onChange={async (v) => {
             const ok = await setBrowserNotifications(v);
             setBrowser(v && ok);
-            if (v && !ok) toast('error', 'مرورگر اجازه اعلان نداد یا پشتیبانی نمی‌کند.');
+            if (v && !ok) toast('error', notifyFailFa());
           }} />
         </div>
         <p className="ac-cap ac-pad"><Icon name="info" size="sm" /> اعلان‌ها هیچ اطلاعات پنهان بازی یا متن پیام را نشان نمی‌دهند.</p>
@@ -256,6 +260,97 @@ function TurnAlerts() {
       </div>
     </Section>
     </>
+  );
+}
+
+const VACATION_DAYS = Array.from({ length: VACATION_MAX_DAYS }, (_, i) => ({ value: String(i + 1), label: `${faNum(i + 1)} روز` }));
+
+/** Vacation «مرخصی»: turn deadlines on turn-based, non-tournament tables wait until it ends (server enforced). */
+function VacationCard() {
+  const { me, refresh } = useSession();
+  const toast = useToast();
+  const [days, setDays] = useState('3');
+  const [busy, setBusy] = useState(false);
+  const v = me?.vacation;
+  const send = async (method: 'POST' | 'DELETE') => {
+    setBusy(true);
+    try {
+      await api('/me/vacation', method === 'POST' ? { method, body: { days: Number(days) } } : { method });
+      await refresh();
+      toast('success', method === 'POST' ? 'مرخصی شروع شد.' : 'مرخصی تمام شد.');
+    } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
+    finally { setBusy(false); }
+  };
+  return (
+    <Section id="vacation-h" icon="sun" title="مرخصی" extra={v?.until ? <Badge tone="info" icon="sun">در مرخصی تا {jalaliDate(v.until)}</Badge> : undefined}>
+      <div className="ac-sec__body">
+        <p className="t-body-sm" style={{ margin: 0, textWrap: 'pretty' }}>در مرخصی، مهلت نوبت شما در میزهای نوبتی تمام نمی‌شود و یادآوری هم نمی‌گیرید؛ بعد از مرخصی یک نوبت کامل وقت دارید. میزهای زنده و تورنمنت‌ها شامل مرخصی نمی‌شوند. مرخصی دست‌کم ۱ و حداکثر ۷ روز است و بین دو مرخصی باید ۷ روز فاصله باشد.</p>
+        {v?.until ? (
+          <div><Button variant="secondary" loading={busy} onClick={() => void send('DELETE')}>پایان زودتر مرخصی</Button></div>
+        ) : v?.availableAt ? (
+          <StateBlock kind="empty" title="فعلاً نمی‌توانید مرخصی بگیرید" text={`مرخصی بعدی از ${jalaliDateTime(v.availableAt)} ممکن است.`} />
+        ) : (
+          <div className="ac-row">
+            <Select label="مدت مرخصی" value={days} options={VACATION_DAYS} onChange={(e) => setDays(e.target.value)} />
+            <Button variant="primary" loading={busy} onClick={() => void send('POST')}>شروع مرخصی</Button>
+          </div>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+/** Email: add (6-digit code by email) → verify → remove; daily turn digest and tournament reminder on/off. Shown only when SMTP is configured. */
+function EmailCard() {
+  const { me, refresh } = useSession();
+  const toast = useToast();
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const e = me?.email;
+  const run = async (path: string, init: Parameters<typeof api>[1], done: string) => {
+    setBusy(true);
+    try {
+      await api(path, init);
+      await refresh();
+      setCode('');
+      toast('success', done);
+    } catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'انجام نشد.'); }
+    finally { setBusy(false); }
+  };
+  const sendCode = (to: string) => run('/me/email', { method: 'POST', body: { email: to.trim() } }, 'کد تأیید به ایمیل شما فرستاده شد.');
+  if (!e) return null;
+  return (
+    <Section id="email-h" icon="send" title="ایمیل" extra={e.address ? <Badge tone="success" icon="check">تأییدشده</Badge> : undefined}>
+      <div className="ac-sec__body">
+        <p className="t-body-sm" style={{ margin: 0, textWrap: 'pretty' }}>هر روز ساعت ۹ صبح، اگر در میزهای نوبتی نوبت شما باشد، یک ایمیل خلاصه می‌گیرید؛ یک ساعت پیش از شروع تورنمنت‌هایی که ثبت‌نام کرده‌اید هم یادآوری می‌آید. ایمیل شما به هیچ بازیکنی نشان داده نمی‌شود.</p>
+        {e.pending ? (
+          <form className="ac-row" onSubmit={(ev) => { ev.preventDefault(); void run('/me/email/verify', { method: 'POST', body: { code } }, 'ایمیل شما تأیید شد.'); }}>
+            <TextField label="کد ۶ رقمی" hint={<>فرستاده‌شده به <bdi dir="ltr">{e.pending}</bdi></>} value={code} onChange={(ev) => setCode(ev.target.value.replace(/\D/g, '').slice(0, 6))}
+              inputMode="numeric" autoComplete="one-time-code" dir="ltr" />
+            <Button type="submit" variant="primary" loading={busy} disabled={code.length !== 6}>تأیید</Button>
+            <Button variant="ghost" disabled={busy} onClick={() => void sendCode(e.pending!)}>ارسال دوباره</Button>
+            {!e.address && <Button variant="ghost" disabled={busy} onClick={() => void run('/me/email', { method: 'DELETE' }, 'می‌توانید نشانی دیگری وارد کنید.')}>تغییر ایمیل</Button>}
+          </form>
+        ) : e.address ? (
+          <>
+            <div className="ac-row">
+              <div className="ac-row__text"><b>نشانی ایمیل</b><bdi dir="ltr" className="bgv-latin">{e.address}</bdi></div>
+              <Button size="sm" variant="secondary" loading={busy} onClick={() => void run('/me/email', { method: 'DELETE' }, 'ایمیل حذف شد.')}>حذف ایمیل</Button>
+            </div>
+            <div className="ac-row">
+              <div className="ac-row__text"><b>ایمیل‌های یادآوری</b><span>خلاصهٔ روزانهٔ نوبت‌ها و یادآوری تورنمنت</span></div>
+              <Switch aria-label="ایمیل‌های یادآوری" checked={e.digest} disabled={busy} onChange={(digest) => void run('/me/email/digest', { method: 'PUT', body: { digest } }, digest ? 'ایمیل‌های یادآوری روشن شد.' : 'ایمیل‌های یادآوری خاموش شد.')} />
+            </div>
+          </>
+        ) : (
+          <form className="ac-row" onSubmit={(ev) => { ev.preventDefault(); void sendCode(email); }}>
+            <TextField label="نشانی ایمیل" type="email" value={email} onChange={(ev) => setEmail(ev.target.value)} autoComplete="email" dir="ltr" />
+            <Button type="submit" variant="primary" loading={busy} disabled={!email.includes('@')}>ارسال کد</Button>
+          </form>
+        )}
+      </div>
+    </Section>
   );
 }
 

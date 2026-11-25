@@ -3,6 +3,7 @@ import { io, type Socket } from 'socket.io-client';
 import { ClientEvents, ServerEvents, type NotificationItem, type TableSnapshot } from '@bg/contracts';
 import { useToast } from '@bg/ui';
 import { useSession } from './session.tsx';
+import { pushActive, syncPush } from './push.ts';
 
 interface RealtimeValue { socket: Socket | null; connected: boolean }
 const Ctx = createContext<RealtimeValue>({ socket: null, connected: false });
@@ -23,7 +24,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       // Never interrupt the page the notification is about (e.g. a live table) with a toast.
       if (!location.pathname.startsWith(n.href)) toast('info', n.textFa);
       // Optional browser notification: only if the user enabled it in settings and granted permission.
-      if (document.hidden && browserNotificationsEnabled()) {
+      // With Web Push on, the service worker shows it instead (no duplicate).
+      if (document.hidden && browserNotificationsEnabled() && !pushActive()) {
         try { new Notification('بردگیم‌ورس', { body: n.textFa, tag: n.id, lang: 'fa', dir: 'rtl' }); } catch { /* unsupported */ }
       }
       window.dispatchEvent(new CustomEvent('bg:notification', { detail: n }));
@@ -32,6 +34,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     s.on(ServerEvents.conversationRead, (e: unknown) => window.dispatchEvent(new CustomEvent('bg:read', { detail: e })));
     s.on(ServerEvents.conversationTyping, (e: unknown) => window.dispatchEvent(new CustomEvent('bg:typing', { detail: e })));
     setSocket(s);
+    // Re-attach this browser's push subscription to the signed-in account (sign-in, account switch, key change).
+    if (browserNotificationsEnabled()) void syncPush(true);
     return () => { s.close(); setSocket(null); setConnected(false); };
   }, [me?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -45,11 +49,15 @@ const BROWSER_KEY = 'bg.browserNotifications';
 export function browserNotificationsEnabled(): boolean {
   try { return typeof Notification !== 'undefined' && Notification.permission === 'granted' && localStorage.getItem(BROWSER_KEY) === '1'; } catch { return false; }
 }
-/** Must be called from a user gesture (button click); never prompts on its own. */
+/**
+ * Must be called from a user gesture (button click); never prompts on its own. Also subscribes/unsubscribes Web Push
+ * when the server has a key; without one the tab-only Notification stays.
+ */
 export async function setBrowserNotifications(on: boolean): Promise<boolean> {
   if (typeof Notification === 'undefined') return false;
   if (on && Notification.permission !== 'granted' && (await Notification.requestPermission()) !== 'granted') return false;
   try { localStorage.setItem(BROWSER_KEY, on ? '1' : '0'); } catch { /* storage unavailable */ }
+  await syncPush(on);
   return on;
 }
 

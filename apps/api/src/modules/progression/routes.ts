@@ -4,11 +4,11 @@ import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { AppError, apiErrorSchema, ratingModeSchema, dailyGameResponse, leaderboardResponse, progressionResponse, tableRewards, TROPHY_TIERS, trophyTier, type TrophyTier } from '@bg/contracts';
+import { AppError, apiErrorSchema, ratingModeSchema, dailyGameResponse, type MissionSet, leaderboardResponse, progressionResponse, tableRewards, TROPHY_TIERS, trophyTier, type TrophyTier } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
-  ACHIEVEMENT_TYPES, activeSeason, adminRatings, adminSetRating, closeSeason, dailyGame, dailyStreaks, DEFAULT_SEASON, displayRating, ELIGIBILITY, goalFacts, isPremium, levelFor, manualReward, masteryFor,
-  ratingRows, tehranDate, totalXp, weekKey, XP_RULES, type AchievementType, type SeasonConfig
+  ACHIEVEMENT_TYPES, activeSeason, adminRatings, adminSetRating, closeSeason, dailyGame, dailyMissions, dailyStreaks, DEFAULT_SEASON, displayRating, ELIGIBILITY, goalFacts, isPremium, levelFor, manualReward, masteryFor,
+  ratingRows, tehranDate, tehranDayEnd, totalXp, weekKey, XP_RULES, type AchievementType, type SeasonConfig
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -32,6 +32,21 @@ const toLedger = (r: typeof rewardLedger.$inferSelect) => ({ kind: r.kind, ruleI
 
 export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
+
+  /** Missions of one period with my stored progress (mission_progress is written by the reward consumer). */
+  const missionSet = async (userId: string, defs: (typeof missionDefinitions.$inferSelect)[], periodKey: string, endsAt: Date): Promise<MissionSet> => {
+    const progress = defs.length ? await db.select().from(missionProgress).where(and(eq(missionProgress.userId, userId), eq(missionProgress.periodKey, periodKey),
+      inArray(missionProgress.missionId, defs.map((m) => m.id)))) : [];
+    return { periodKey, endsAt: endsAt.toISOString(), items: defs.map((m) => {
+      const c = m.criteria as { count: number; xp: number };
+      const p = progress.find((x) => x.missionId === m.id);
+      return { key: m.key, titleFa: m.titleFa, descriptionFa: m.descriptionFa, progress: p?.progress ?? 0, target: c.count, xp: c.xp, completed: !!p?.completedAt };
+    }) };
+  };
+  const todaysMissions = async (userId: string) => {
+    const day = tehranDate();
+    return missionSet(userId, await dailyMissions(db, day), day, tehranDayEnd(day));
+  };
 
   r.get('/me/progression', {
     schema: { tags: ['progression'], summary: 'Skill ratings, account level/XP, per-game mastery, weekly missions, achievements and recent rewards with reasons',
@@ -60,20 +75,15 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
     });
 
     const week = weekKey();
-    const defs = await db.select().from(missionDefinitions).where(eq(missionDefinitions.active, true));
-    const progress = await db.select().from(missionProgress).where(and(eq(missionProgress.userId, userId), eq(missionProgress.periodKey, week.key)));
-    const missions = defs.map((m) => {
-      const c = m.criteria as { count: number; xp: number };
-      const p = progress.find((x) => x.missionId === m.id);
-      return { key: m.key, titleFa: m.titleFa, descriptionFa: m.descriptionFa, progress: p?.progress ?? 0, target: c.count, xp: c.xp, completed: !!p?.completedAt };
-    });
+    const defs = await db.select().from(missionDefinitions).where(and(eq(missionDefinitions.active, true), eq(missionDefinitions.period, 'weekly')));
     const achDefs = await db.select().from(achievementDefinitions);
     const mine = await db.select().from(userAchievements).where(eq(userAchievements.userId, userId));
     const facts = await goalFacts(db, userId, week.key);
     return {
       xp, level: lvl.level, levelFloor: lvl.currentFloor, nextLevelAt: lvl.nextAt,
       ratings: ratingList, mastery,
-      missions: { periodKey: week.key, endsAt: week.endsAt.toISOString(), items: missions },
+      missions: await missionSet(userId, defs, week.key, week.endsAt),
+      daily: await todaysMissions(userId),
       achievements: achDefs.sort(byTrack).map((a) => {
         const c = a.criteria as AchievementCriteria;
         return { key: a.key, titleFa: a.titleFa, descriptionFa: a.descriptionFa, tier: tierOf(a), target: c.count,
@@ -95,7 +105,7 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
       .where(and(eq(rewardLedger.userId, userId), eq(rewardLedger.ruleId, 'xp.daily_game')));
     const dates = rows.map((x) => (x.metadata as { date?: string }).date ?? '').filter(Boolean);
     return { gameId: g?.id ?? null, gameNameFa: g?.nameFa ?? null, date, bonusXp: XP_RULES.dailyGame,
-      doneToday: dates.includes(date), streak: dailyStreaks(dates, date).current };
+      doneToday: dates.includes(date), streak: dailyStreaks(dates, date).current, missions: await todaysMissions(userId) };
   });
 
   r.get('/me/rewards', {
@@ -283,12 +293,12 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
   });
 
   r.get('/admin/missions', {
-    schema: { tags: ['admin'], summary: 'Mission definitions (versioned)', response: { 200: z.object({ items: z.array(z.object({ id: z.uuid(), key: z.string(), ruleVersion: z.number().int(),
-      titleFa: z.string(), descriptionFa: z.string(), criteria: z.unknown(), active: z.boolean() })) }), ...errors } }
+    schema: { tags: ['admin'], summary: 'Mission definitions (versioned; period weekly or daily)', response: { 200: z.object({ items: z.array(z.object({ id: z.uuid(), key: z.string(), ruleVersion: z.number().int(),
+      titleFa: z.string(), descriptionFa: z.string(), criteria: z.unknown(), period: z.enum(['weekly', 'daily']), active: z.boolean() })) }), ...errors } }
   }, async (req) => {
     requireRole(req, 'admin');
     return { items: (await db.select().from(missionDefinitions).orderBy(missionDefinitions.key)).map((m) => ({ id: m.id, key: m.key, ruleVersion: m.ruleVersion,
-      titleFa: m.titleFa, descriptionFa: m.descriptionFa, criteria: m.criteria, active: m.active })) };
+      titleFa: m.titleFa, descriptionFa: m.descriptionFa, criteria: m.criteria, period: m.period === 'daily' ? 'daily' as const : 'weekly' as const, active: m.active })) };
   });
 
   r.patch('/admin/missions/:id', {
@@ -303,15 +313,16 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
   });
 
   r.put('/admin/missions/active', {
-    schema: { tags: ['admin'], summary: `Choose this week's active missions in one step (1–${MAX_ACTIVE_MISSIONS}); every other mission is deactivated`,
+    schema: { tags: ['admin'], summary: `Choose this week's active missions in one step (1–${MAX_ACTIVE_MISSIONS}); every other weekly mission is deactivated (daily ones are untouched)`,
       body: z.strictObject({ ids: z.array(z.uuid()).min(1).max(MAX_ACTIVE_MISSIONS), reason: z.string().trim().min(3).max(300) }), response: { 204: z.null(), ...errors } }
   }, async (req, reply) => {
     const { userId } = requireRole(req, 'admin');
     const ids = [...new Set(req.body.ids)];
     await db.transaction(async (tx) => {
-      const found = await tx.select({ id: missionDefinitions.id }).from(missionDefinitions).where(inArray(missionDefinitions.id, ids));
+      const weekly = eq(missionDefinitions.period, 'weekly');
+      const found = await tx.select({ id: missionDefinitions.id }).from(missionDefinitions).where(and(inArray(missionDefinitions.id, ids), weekly));
       if (found.length !== ids.length) throw new AppError('NOT_FOUND');
-      await tx.update(missionDefinitions).set({ active: sql`${inArray(missionDefinitions.id, ids)}` });
+      await tx.update(missionDefinitions).set({ active: sql`${inArray(missionDefinitions.id, ids)}` }).where(weekly);
       await tx.insert(auditLog).values({ actorId: userId, action: 'mission.weekly_set', targetType: 'mission', targetId: 'weekly', metadata: { ids, reason: req.body.reason }, requestId: req.id });
     });
     return reply.code(204).send(null);

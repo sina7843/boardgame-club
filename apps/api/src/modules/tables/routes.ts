@@ -4,13 +4,13 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
   AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, adminTables as adminTablesSchema, adminTablesQuery, homeOverview as homeOverviewSchema, liveTableItem, myTableItem, notificationItem, openTableItem,
-  receiptLookup, rematchBody, tableSnapshot, tutorialProgressItem
+  receiptLookup, rematchBody, tableReplay, tableSnapshot, tutorialProgressItem
 } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
   adminTablesList, buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, homeOverview, joinTable, leaveTable, listLiveTables, listMyTables,
   listNotifications, listOpenTables, lookupReceipt, markNotificationsRead, myTutorials, openIncident, setReady,
-  skipTutorial, startTutorial, tableContextAt, tableRecord, voteRematch,
+  skipTutorial, startTutorial, tableContextAt, tableRecord, tableReplay as buildReplay, voteRematch,
   fairPlayReview, listFairPlayReports, recordFocus, reportPlayer, resolveFairPlayReport
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
@@ -142,6 +142,16 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
     const auth = requireUser(req);
     const rec = await tableRecord(db, registry, req.params.id, auth.userId, auth.roles.includes('admin'));
     return reply.header('content-type', `${rec.mimeType}; charset=utf-8`).header('content-disposition', `attachment; filename="${rec.filename}"`).send(rec.text);
+  });
+
+  r.get('/tables/:id/replay', {
+    schema: { tags: ['tables'], summary: 'One revision of a finished game as the spectator sees it (replay viewer). Same access as viewing the table',
+      params: idParams, querystring: z.object({ rev: z.coerce.number().int().min(1).optional() }), response: { 200: tableReplay, ...errors } }
+  }, async (req, reply) => {
+    const auth = requireUser(req);
+    const out = await buildReplay(db, registry, req.params.id, auth.userId, auth.roles.includes('admin'), req.query.rev);
+    // A finished game's snapshots never change.
+    return reply.header('cache-control', 'private, max-age=86400').send(out);
   });
 
   r.post('/tables/:id/join', {

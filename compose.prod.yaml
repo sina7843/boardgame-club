@@ -27,6 +27,14 @@ x-server-env: &server-env
   ALLOW_TEST_PROVIDERS: ${ALLOW_TEST_PROVIDERS:-false}
   ZARINPAL_MERCHANT_ID: ${ZARINPAL_MERCHANT_ID:-}
   ZARINPAL_SANDBOX: ${ZARINPAL_SANDBOX:-false}
+  # Web Push (VAPID). Empty = push disabled (in-app notifications only).
+  WEB_PUSH_PUBLIC_KEY: ${WEB_PUSH_PUBLIC_KEY:-}
+  # Email (SMTP). Empty SMTP_HOST/SMTP_FROM = email disabled (settings card hidden, no digest/reminder).
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM: ${SMTP_FROM:-}
   LOG_LEVEL: ${LOG_LEVEL:-info}
 
 services:
@@ -102,6 +110,10 @@ services:
     environment:
       <<: *server-env
       WORKER_INTERVAL_SECONDS: ${WORKER_INTERVAL_SECONDS:-60}
+      WEB_PUSH_PRIVATE_KEY: ${WEB_PUSH_PRIVATE_KEY:-}
+      WEB_PUSH_SUBJECT: ${WEB_PUSH_SUBJECT:-}
+      # Signs the unsubscribe link in digest/reminder emails (same secret as the API).
+      OTP_HASH_SECRET: ${OTP_HASH_SECRET:?OTP_HASH_SECRET must come from the secret store}
     # edge = outbound access for payment-gateway reconciliation.
     networks: [backend, edge]
     stop_grace_period: 20s

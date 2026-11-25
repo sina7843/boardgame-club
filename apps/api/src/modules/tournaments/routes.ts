@@ -8,6 +8,8 @@ import {
   adminCancelTournament, checkinTournament, createTournament, disqualifyPlayer, listRefunds, listTournaments, markRefundPaid, overrideTableResult,
   registerForTournament, requestBye, tournamentCheckout, tournamentDetail as detail, tournamentRecords, withdrawFromTournament
 } from '@bg/play';
+import { eq } from 'drizzle-orm';
+import { schema } from '@bg/db';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
 import { BAZAAR_NO_SALE_FA, fromBazaarApp } from '../billing/routes.ts';
@@ -16,8 +18,37 @@ const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 
 // Excel needs the byte-order mark to read UTF-8 (Persian) CSV.
 const BOM = String.fromCharCode(0xfeff);
 const idParams = z.object({ id: z.uuid() });
+const { tournaments, games } = schema;
 
-export function tournamentRoutes(app: FastifyInstance, { db, registry, billing }: Deps): void {
+/** RFC 5545 text escaping and 75-octet line folding (never splitting a UTF-8 character). */
+const icsText = (s: string) => s.replace(/[\\;,]/g, (c) => `\\${c}`).replace(/\r?\n/g, '\\n');
+function icsFold(line: string): string {
+  const out: string[] = [];
+  let cur = '', bytes = 0;
+  for (const ch of line) {
+    const n = Buffer.byteLength(ch);
+    if (bytes + n > (out.length ? 74 : 75)) { out.push(cur); cur = ''; bytes = 0; }
+    cur += ch; bytes += n;
+  }
+  out.push(cur);
+  return out.join('\r\n ');
+}
+const icsTime = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+
+/** One VEVENT at the tournament start with a 15-minute reminder. Public fields only. */
+export function tournamentIcs(t: { id: string; titleFa: string; gameNameFa: string; startsAt: Date }, webUrl: string, now = new Date()): string {
+  const url = `${webUrl}/tournaments/${t.id}`;
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//boardgameverse//tournaments//FA', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT', `UID:tournament-${t.id}@${new URL(webUrl).hostname}`, `DTSTAMP:${icsTime(now)}`, `DTSTART:${icsTime(t.startsAt)}`,
+    `SUMMARY:${icsText(t.titleFa)}`, `DESCRIPTION:${icsText(`${t.gameNameFa}\n${url}`)}`, `URL:${url}`,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'TRIGGER:-PT15M', `DESCRIPTION:${icsText(`۱۵ دقیقه تا شروع «${t.titleFa}»`)}`, 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'
+  ];
+  return `${lines.map(icsFold).join('\r\n')}\r\n`;
+}
+
+export function tournamentRoutes(app: FastifyInstance, { db, registry, billing, config }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get('/tournaments', { schema: { tags: ['tournaments'], summary: 'Open, running and recently ended tournaments', response: { 200: z.object({ items: z.array(tournamentSummary) }) } } },
@@ -39,6 +70,14 @@ export function tournamentRoutes(app: FastifyInstance, { db, registry, billing }
         s.disqualified ? 'محروم' : s.eliminatedRound ? `حذف در دور ${s.eliminatedRound}` : ''])];
     return reply.header('content-type', 'text/csv; charset=utf-8').header('content-disposition', `attachment; filename="tournament-${t.id}.csv"`)
       .send(`${BOM}${rows.map((row) => row.map(cell).join(',')).join('\r\n')}\r\n`);
+  });
+
+  r.get('/tournaments/:id/calendar.ics', { schema: { tags: ['tournaments'], summary: 'Tournament start as an iCalendar event (15-minute reminder)', params: idParams } }, async (req, reply) => {
+    const [t] = await db.select({ id: tournaments.id, titleFa: tournaments.titleFa, startsAt: tournaments.startsAt, gameNameFa: games.nameFa })
+      .from(tournaments).innerJoin(games, eq(games.id, tournaments.gameId)).where(eq(tournaments.id, req.params.id));
+    if (!t) throw new AppError('NOT_FOUND');
+    return reply.header('content-type', 'text/calendar; charset=utf-8').header('content-disposition', `attachment; filename="tournament-${t.id}.ics"`)
+      .send(tournamentIcs(t, config.payments.publicWebUrl));
   });
 
   r.post('/tournaments/:id/checkin', {

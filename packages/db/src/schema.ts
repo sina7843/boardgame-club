@@ -42,6 +42,10 @@ export const users = pgTable('users', {
   termsAcceptedAt: tsz(),
   /** Invite code for the friend-referral link; issued on first request. */
   referralCode: text().unique(),
+  /** Vacation «مرخصی» (turn-based, non-tournament tables): turn deadlines due before this are pushed past it. */
+  vacationUntil: tsz(),
+  /** End (planned or early) of the latest vacation; a new one may start 7 days after it. */
+  vacationLastEndedAt: tsz(),
   createdAt: createdAt(),
   updatedAt: createdAt()
 }, (t) => [oneOf('users_status_chk', t.status, ['active', 'suspended', 'deleted'])]);
@@ -50,8 +54,27 @@ export const users = pgTable('users', {
 export const userPrivate = pgTable('user_private', {
   userId: uuid().primaryKey().references(() => users.id, { onDelete: 'cascade' }),
   mobile: text().notNull().unique(),
+  /** Verified email (lowercased); only set after the 6-digit code was confirmed. Never shown to other players. */
+  email: text().unique(),
+  emailVerifiedAt: tsz(),
+  /** Email notifications (daily turn digest and tournament reminder); the signed unsubscribe link turns it off. */
+  emailDigest: boolean().notNull().default(true),
+  /** Tehran date (YYYY-MM-DD) of the last digest sent: one per user per day. */
+  emailDigestDay: text(),
   createdAt: createdAt()
 });
+
+/** Pending email verification codes (HMAC hashed, like otp_challenges); counted for per-user and per-address limits. */
+export const emailVerifications = pgTable('email_verifications', {
+  id: id(),
+  userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  email: text().notNull(),
+  codeHash: text().notNull(),
+  expiresAt: tsz().notNull(),
+  attempts: integer().notNull().default(0),
+  consumedAt: tsz(),
+  createdAt: createdAt()
+}, (t) => [index('email_verifications_user_idx').on(t.userId, t.createdAt), index('email_verifications_email_idx').on(t.email, t.createdAt)]);
 
 export const userRoles = pgTable('user_roles', {
   userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -331,6 +354,8 @@ export const participants = pgTable('participants', {
   userId: uuid().references(() => users.id),
   kind: text().notNull().default('human'),
   ready: boolean().notNull().default(false),
+  /** Turn-based non-tournament tables: the seat already got its one-time extra time «مهلت اضافه». */
+  extraTimeUsed: boolean().notNull().default(false),
   joinedAt: createdAt(),
   leftAt: tsz()
 }, (t) => [
@@ -352,6 +377,8 @@ export const matchmakingTickets = pgTable('matchmaking_tickets', {
   /** Skill estimate used for matching; documented baseline until ratings exist (DRAGON-03). */
   rating: doublePrecision().notNull(),
   status: text().notNull(),
+  /** Turn queues: «حداقل اعتبار» (70 or 90) the other players must meet; null = none. */
+  minReputation: integer(),
   matchedTableId: uuid().references(() => gameTables.id),
   /** Original queue time; kept when re-queued after someone else failed to accept. */
   createdAt: createdAt(),
@@ -552,6 +579,27 @@ export const missionProgress = pgTable('mission_progress', {
   progress: integer().notNull().default(0),
   completedAt: tsz()
 }, (t) => [primaryKey({ columns: [t.userId, t.missionId, t.periodKey] })]);
+
+/**
+ * Time-limited events («رویداد»). Points and goal progress are derived from reward_ledger rows inside the window (no
+ * per-event counters), so redelivered results never double-count. The reward is an existing catalogue cosmetic key.
+ */
+export const events = pgTable('events', {
+  id: id(),
+  slug: text().notNull().unique(),
+  titleFa: text().notNull(),
+  descriptionFa: text().notNull().default(''),
+  startsAt: tsz().notNull(),
+  endsAt: tsz().notNull(),
+  /** null = every game counts. */
+  gameIds: text().array(),
+  /** `[{ type: MissionType, count }]`: all must be met for the reward. */
+  goals: jsonb().notNull().default([]),
+  rewardCosmetic: text(),
+  active: boolean().notNull().default(false),
+  createdBy: uuid().references(() => users.id),
+  createdAt: createdAt()
+}, (t) => [check('events_window_chk', sql`${t.endsAt} > ${t.startsAt}`), index('events_window_idx').on(t.startsAt, t.endsAt)]);
 
 export const achievementDefinitions = pgTable('achievement_definitions', {
   id: id(),
@@ -765,6 +813,8 @@ export const tournamentEntries = pgTable('tournament_entries', {
   byeRounds: jsonb().$type<number[]>().notNull().default([]),
   requestedByes: jsonb().$type<number[]>().notNull().default([]),
   checkedInAt: tsz(),
+  /** Email reminder one hour before the start (sent once). */
+  emailRemindedAt: tsz(),
   /** Display rating for this game and pace when the tournament started (null = unrated); basis of the ARO tie-break. */
   startRating: integer(),
   /** Swiss tie-breaks, filled when the tournament finishes: sum of opponents' points / of beaten opponents' points (+½ drawn). */
@@ -850,6 +900,18 @@ export const notifications = pgTable('notifications', {
   createdAt: createdAt(),
   readAt: tsz()
 }, (t) => [index('notifications_user_idx').on(t.userId, t.createdAt)]);
+
+/** Web Push endpoints per browser (VAPID). A 404/410 from the push service deletes the row. */
+export const pushSubscriptions = pgTable('push_subscriptions', {
+  id: id(),
+  userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  endpoint: text().notNull().unique(),
+  p256dh: text().notNull(),
+  auth: text().notNull(),
+  userAgent: text(),
+  createdAt: createdAt(),
+  lastSuccessAt: tsz()
+}, (t) => [index('push_subscriptions_user_idx').on(t.userId)]);
 
 export const outboxEvents = pgTable('outbox_events', {
   id: bigserial({ mode: 'number' }).primaryKey(),

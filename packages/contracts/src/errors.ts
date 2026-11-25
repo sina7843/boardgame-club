@@ -15,6 +15,7 @@ export const ERRORS = {
   OTP_TOO_MANY_ATTEMPTS: 'تعداد تلاش‌ها بیش از حد مجاز است؛ کد تازه بگیرید.',
   OTP_RESEND_TOO_SOON: 'کمی صبر کنید و سپس دوباره کد بگیرید.',
   OTP_DELIVERY_FAILED: 'ارسال کد ممکن نشد؛ دوباره تلاش کنید.',
+  EMAIL_TAKEN: 'این ایمیل برای حساب دیگری تأیید شده است.',
   NOT_PARTICIPANT: 'شما عضو این میز نیستید.',
   TABLE_FULL: 'ظرفیت این میز تکمیل است.',
   TABLE_NOT_OPEN: 'این میز دیگر پذیرای عضو تازه نیست.',
@@ -72,6 +73,10 @@ export const ERRORS = {
   ACCOUNT_DELETE_ADMIN: 'حساب مدیر یا ناظر را نمی‌توان حذف کرد؛ ابتدا نقش آن برداشته شود.',
   ONBOARDING_STEP_NOT_DONE: 'این مرحله هنوز انجام نشده است؛ کار خواسته‌شده را انجام دهید.',
   SEASON_CLOSED: 'این فصل بسته شده است و فقط از مسیر اصلاح ثبت‌شده تغییر می‌کند.',
+  VACATION_ACTIVE: 'مرخصی شما هنوز تمام نشده است.',
+  VACATION_COOLDOWN: 'بین دو مرخصی دست‌کم ۷ روز فاصله لازم است.',
+  REPUTATION_TOO_LOW: 'اعتبار شما برای این میز کافی نیست',
+  REPLAY_NOT_AVAILABLE: 'بازپخش فقط برای بازی‌های تمام‌شده در دسترس است.',
   SERVICE_UNAVAILABLE: 'سرویس موقتاً در دسترس نیست.',
   INTERNAL_ERROR: 'خطای غیرمنتظره رخ داد؛ دوباره تلاش کنید.'
 } as const;
@@ -102,7 +107,8 @@ const STATUS: Partial<Record<ErrorCode, number>> = {
   OWNER_REQUIRED: 403, INVITE_ONLY: 403, CANNOT_TARGET_SELF: 400,
   OTP_DELIVERY_FAILED: 502, PAYMENT_PROVIDER_ERROR: 502, SERVICE_UNAVAILABLE: 503, PAYMENT_UNAVAILABLE: 409, SEASON_CLOSED: 409, ONBOARDING_STEP_NOT_DONE: 409, ACCOUNT_HAS_ACTIVE_GAMES: 409, ACCOUNT_DELETE_ADMIN: 409,
   TOURNAMENT_NOT_OPEN: 409, TOURNAMENT_FULL: 409, ALREADY_REGISTERED: 409, NOT_REGISTERED: 409, TOURNAMENT_PAY_ONLINE: 409, TOURNAMENT_SETTINGS_INVALID: 400,
-  TOURNAMENT_CHECKIN_CLOSED: 409, TOURNAMENT_BYE_INVALID: 409, PLAYER_DISQUALIFIED: 409
+  TOURNAMENT_CHECKIN_CLOSED: 409, TOURNAMENT_BYE_INVALID: 409, PLAYER_DISQUALIFIED: 409, VACATION_ACTIVE: 409, VACATION_COOLDOWN: 409,
+  REPUTATION_TOO_LOW: 403, REPLAY_NOT_AVAILABLE: 409, EMAIL_TAKEN: 409
 };
 
 /** Server-side domain error; rendered as the standard envelope by the API error handler. */
