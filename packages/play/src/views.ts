@@ -127,23 +127,28 @@ async function spectatorCount(db: Db, tableId: string): Promise<number> {
   return r?.n ?? 0;
 }
 
+/**
+ * Table access for one viewer: throws FORBIDDEN when they may not see it; true = lobby only (a private table before
+ * start, reached through an invite). Members always see their table; admins see any.
+ */
+export async function viewAccess(db: Db, table: TableContext['table'], mySeat: number | null, req: ViewRequest): Promise<boolean> {
+  if (mySeat !== null || req.admin) return false;
+  if (table.isTutorial) throw new AppError('FORBIDDEN');
+  // Tournament tables are private (nobody can join) but open to spectators: a tournament is meant to be watched.
+  const isTournament = !!(table.settings as { tournament?: unknown }).tournament;
+  if (table.visibility !== 'private' || isTournament) return false;
+  // A private table is visible only to its members — or, before start, to holders of the invite link.
+  const [invited] = await db.select().from(tableInvites).where(and(eq(tableInvites.tableId, table.id), eq(tableInvites.userId, req.userId)));
+  if (table.status === 'open' && (invited || (req.inviteCode && req.inviteCode === table.inviteCode))) return true;
+  throw new AppError('FORBIDDEN');
+}
+
 export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: ViewRequest, ctx?: TableContext): Promise<TableSnapshot> {
   const { table, version, game, seats, incident, snap, readyDue, turnDue, result } = ctx ?? await loadTableContext(db, req.tableId);
   const mine = seats.find((s) => s.p.userId === req.userId);
   const mySeat = mine ? mine.p.seat : null;
 
-  let lobbyOnly = false;
-  if (mySeat === null && !req.admin) {
-    if (table.isTutorial) throw new AppError('FORBIDDEN');
-    // Tournament tables are private (nobody can join) but open to spectators: a tournament is meant to be watched.
-    const isTournament = !!(table.settings as { tournament?: unknown }).tournament;
-    if (table.visibility === 'private' && !isTournament) {
-      // A private table is visible only to its members — or, before start, to holders of the invite link.
-      const [invited] = await db.select().from(tableInvites).where(and(eq(tableInvites.tableId, table.id), eq(tableInvites.userId, req.userId)));
-      if (table.status === 'open' && (invited || (req.inviteCode && req.inviteCode === table.inviteCode))) lobbyOnly = true;
-      else throw new AppError('FORBIDDEN');
-    }
-  }
+  const lobbyOnly = await viewAccess(db, table, mySeat, req);
 
   const botCfg = (table.settings as { bot?: { level: BotLevel; personas?: number[] } }).bot;
   const botSeat = (seat: number) => {
@@ -184,7 +189,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       disconnectFa: `${table.isTutorial ? DISCONNECT_FA.tutorial : DISCONNECT_FA[table.pace as 'live' | 'turn']} ${table.isTutorial ? '' : INCIDENT_FA}`.trim()
     },
     variants: describeVariants(registry, table, version.rulesVersion),
-    createdAt: table.createdAt.toISOString(),
+    createdAt: table.createdAt.toISOString(), finishedAt: table.finishedAt?.toISOString() ?? null,
     rematch: rematchOf(table)
   };
 
@@ -354,7 +359,7 @@ export async function markNotificationsRead(db: Db, userId: string, id?: string)
 }
 
 /** The snapshot contract caps a move-log line at 40 characters; a longer line from a game would fail the whole response. */
-function clampSummary<T extends { moves?: { seat: number; text: string }[] } | null>(s: T): T {
+export function clampSummary<T extends { moves?: { seat: number; text: string }[] } | null>(s: T): T {
   if (!s?.moves?.some((m) => m.text.length > 40)) return s;
   return { ...s, moves: s.moves.map((m) => (m.text.length > 40 ? { ...m, text: `${m.text.slice(0, 39)}…` } : m)) };
 }

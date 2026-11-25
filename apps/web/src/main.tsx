@@ -33,6 +33,7 @@ const CreateTable = lazy(() => import('./pages/CreateTable.tsx').then((m) => ({ 
 const ChessLobby = lazy(() => import('./pages/ChessLobby.tsx').then((m) => ({ default: m.ChessLobby })));
 const OpenTables = lazy(() => import('./pages/OpenTables.tsx').then((m) => ({ default: m.OpenTables })));
 const TablePage = lazy(() => import('./pages/Table.tsx').then((m) => ({ default: m.TablePage })));
+const ReplayPage = lazy(() => import('./pages/Replay.tsx').then((m) => ({ default: m.ReplayPage })));
 const TableCodePage = lazy(() => import('./games/TableCode.tsx').then((m) => ({ default: m.TableCodePage })));
 const QuickMatch = lazy(() => import('./pages/QuickMatch.tsx').then((m) => ({ default: m.QuickMatch })));
 const FriendsPage = lazy(() => import('./pages/People.tsx').then((m) => ({ default: m.FriendsPage })));
@@ -84,6 +85,7 @@ const router = createBrowserRouter([
       { path: 't/:code', element: <TableCodePage /> },
       { path: 'notifications', element: <NotificationsPage /> },
       { path: 'tables/:id', element: <TablePage /> },
+      { path: 'tables/:id/replay', element: <ReplayPage /> },
       { path: 'play', element: <QuickMatch /> },
       { path: 'friends', element: <FriendsPage /> },
       { path: 'users/:id', element: <ProfilePage /> },

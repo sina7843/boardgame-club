@@ -148,6 +148,7 @@ export const tableLobby = z.object({
   /** Rule variants of this table in words (chosen at creation, or the game's defaults for matchmade tables). */
   variants: z.array(z.object({ labelFa: z.string(), valueFa: z.string() })),
   createdAt: z.iso.datetime(),
+  finishedAt: z.iso.datetime().nullable().optional(),
   rematch: rematchView.nullable()
 });
 export type TableLobby = z.infer<typeof tableLobby>;
@@ -206,6 +207,18 @@ export const tableSnapshot = z.object({
   serverTime: z.iso.datetime()
 });
 export type TableSnapshot = z.infer<typeof tableSnapshot>;
+
+/** One step of a finished game's replay: always the spectator projection of that revision (no hidden information). */
+export const tableReplay = z.object({
+  tableId: z.uuid(), gameId: z.string(), gameNameFa: z.string(), gameNameOriginal: z.string(), clientBundleRef: z.string(),
+  finishedAt: z.iso.datetime().nullable(),
+  seats: z.array(z.object({ seat: z.number().int(), name: z.string() })),
+  revision: z.number().int(), total: z.number().int(),
+  view: z.unknown(),
+  publicSummary: publicSummarySchema.nullable(),
+  result: outcomeSchema.nullable()
+});
+export type TableReplay = z.infer<typeof tableReplay>;
 
 export const commandBody = z.strictObject({
   commandId: z.uuid(),

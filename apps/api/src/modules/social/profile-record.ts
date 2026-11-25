@@ -14,7 +14,7 @@ export async function privacyOf(db: Db, userId: string): Promise<ProfilePrivacy>
 }
 
 // The player's place comes from the stored outcome's placements, matched by seat.
-const FINISHED = sql`select t.game_id, t.visibility, t.finished_at,
+const FINISHED = sql`select t.id as table_id, t.game_id, t.visibility, t.finished_at,
     (select (p->>'place')::int from jsonb_array_elements(r.outcome->'placements') p where (p->>'seat')::int = pa.seat limit 1) as place,
     jsonb_array_length(r.outcome->'placements') as field
   from participants pa join game_tables t on t.id = pa.table_id join game_results r on r.table_id = t.id`;
@@ -59,11 +59,11 @@ export async function publicRecord(db: Db, userId: string, viewer: 'self' | 'oth
 
   if (privacy.showRecent) {
     // Public tables only: a private table never shows up on someone's profile.
-    const rows = rowsOf<{ game_id: string; name_fa: string; place: number; field: number; finished_at: Date | string }>(await db.execute(sql`
-      select f.game_id, g.name_fa, f.place, f.field, f.finished_at from (${FINISHED}
+    const rows = rowsOf<{ table_id: string; game_id: string; name_fa: string; place: number; field: number; finished_at: Date | string }>(await db.execute(sql`
+      select f.table_id, f.game_id, g.name_fa, f.place, f.field, f.finished_at from (${FINISHED}
         where pa.user_id = ${userId} and t.status = 'finished' and not t.is_tutorial and t.visibility = 'public') f
       join games g on g.id = f.game_id where f.place is not null order by f.finished_at desc limit 5`));
-    out.recent = rows.map((r) => ({ gameId: r.game_id, gameNameFa: r.name_fa, place: r.place, fieldSize: r.field, finishedAt: new Date(r.finished_at).toISOString() }));
+    out.recent = rows.map((r) => ({ tableId: r.table_id, gameId: r.game_id, gameNameFa: r.name_fa, place: r.place, fieldSize: r.field, finishedAt: new Date(r.finished_at).toISOString() }));
   }
   return out;
 }

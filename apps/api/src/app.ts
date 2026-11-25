@@ -89,7 +89,8 @@ export async function buildApp(deps: Deps, opts: { logStream?: { write(msg: stri
   app.addHook('onSend', async (req, reply) => {
     reply.header('x-request-id', req.id);
     reply.header('x-content-type-options', 'nosniff');
-    reply.header('cache-control', 'no-store');
+    // Default no-store; a route may opt into caching immutable data (finished-game replay).
+    if (!reply.hasHeader('cache-control')) reply.header('cache-control', 'no-store');
   });
 
   await app.register(cookie);

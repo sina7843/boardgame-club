@@ -9,6 +9,7 @@ import {
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
 import { usePresence } from '../lib/presence.ts';
+import { shareResultImage } from '../lib/resultImage.ts';
 import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
 import { CONFIRMS_IN_RENDERER, GROUP_FRAME, OWN_FRAME, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
@@ -296,6 +297,9 @@ function ResultCard({ snap, onHide, onSnap }: { snap: TableSnapshot; onHide: () 
         <Button variant="primary" icon="plus" href={`/games/${t.gameId}/new`}>{t.isTutorial ? 'ساخت میز واقعی' : 'میز تازه'}</Button>
         <Button variant="secondary" icon="house" href="/">بازگشت به خانه</Button>
         <Button variant="ghost" icon="share-2" onClick={() => void share()}>اشتراک نتیجه</Button>
+        {!t.isTutorial && <Button variant="ghost" icon="image" onClick={() => void shareResultImage({ gameNameFa: t.gameNameFa, gameNameLatin: t.gameNameOriginal,
+          places: sorted.map((p) => ({ place: p.place, name: name(p.seat), score: p.score })), date: t.finishedAt ?? new Date().toISOString() }, `${t.gameId}-${t.id.slice(0, 8)}.png`)}>تصویر نتیجه</Button>}
+        {!t.isTutorial && <Button variant="ghost" icon="play" href={`/tables/${t.id}/replay`}>بازپخش</Button>}
         <Button variant="ghost" icon="history" onClick={onHide}>تاریخچهٔ حرکت‌ها و صفحهٔ بازی</Button>
       </>}>
       {snap.game?.tutorial && <p className="t-body-sm" style={{ margin: 0, textAlign: 'center' }}>{snap.game.tutorial.instructionFa}</p>}
@@ -1425,6 +1429,10 @@ function OwnFrameResult({ snap, onSnap, onReport, toast }: { snap: TableSnapshot
         <div className="tbl-ownres__foot">
           <Button variant="ghost" size="sm" icon="download" href={`/api/tables/${t.id}/record`}>PGN</Button>
           <Button variant="ghost" size="sm" icon="share-2" onClick={() => void share()}>اشتراک</Button>
+          {snap.game?.result && <Button variant="ghost" size="sm" icon="image" onClick={() => void shareResultImage({ gameNameFa: t.gameNameFa, gameNameLatin: t.gameNameOriginal,
+            places: [...snap.game!.result!.placements].sort((a, b) => a.place - b.place).map((p) => ({ place: p.place, name: seatNameOf(t)(p.seat), score: p.score })),
+            date: t.finishedAt ?? new Date().toISOString() }, `${t.gameId}-${t.id.slice(0, 8)}.png`)}>تصویر نتیجه</Button>}
+          <Button variant="ghost" size="sm" icon="play" href={`/tables/${t.id}/replay`}>بازپخش</Button>
           {t.mySeat !== null && <Button variant="ghost" size="sm" icon="flag" onClick={onReport}>گزارش</Button>}
         </div>
       )}

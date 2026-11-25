@@ -416,6 +416,7 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
                       <div className="pf-mrow__text"><a href={`/games/${g.gameId}`}><b>{g.gameNameFa}</b></a>
                         <span className="t-caption bgv-muted">{faNum(g.fieldSize)} نفر<span className="bgv-sep" />{jalaliDate(g.finishedAt)}</span></div>
                       <Badge tone={g.place === 1 ? 'success' : 'neutral'} icon={g.place === 1 ? 'crown' : undefined}>{g.place === 1 ? 'اول' : `${faNum(g.place)} از ${faNum(g.fieldSize)}`}</Badge>
+                      <Button size="sm" variant="ghost" iconOnly icon="play" href={`/tables/${g.tableId}/replay`} aria-label={`بازپخش ${g.gameNameFa}`}>بازپخش</Button>
                     </li>
                   ))}
                 </ul>

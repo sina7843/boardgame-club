@@ -58,7 +58,7 @@ export const publicRecord = z.object({
   bestLeague: leagueSchema.nullable(),
   /** Leaderboard-eligible ratings only (never provisional ones). */
   ratings: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), mode: z.string(), rating: z.number().int(), games: z.number().int(), league: leagueSchema.nullable() })).nullable(),
-  recent: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), place: z.number().int(), fieldSize: z.number().int(), finishedAt: z.iso.datetime() })).nullable(),
+  recent: z.array(z.object({ tableId: z.uuid(), gameId: z.string(), gameNameFa: z.string(), place: z.number().int(), fieldSize: z.number().int(), finishedAt: z.iso.datetime() })).nullable(),
   mastery: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), tier: z.string(), tierFa: z.string() })).nullable(),
   /** Reputation band, shown even when stats are hidden (a trust signal); null only when blocked. Number: own profile and moderators. */
   reputation: reputationView.nullable()

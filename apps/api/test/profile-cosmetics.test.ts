@@ -19,19 +19,21 @@ async function finished(host: User, guest: User, visibility: 'public' | 'private
   const { tableId } = await startTable(ctx, 'chess', 2, { players: [host, guest] });
   await ctx.db.insert(gameResults).values({ tableId, reason: 'win', outcome: { reason: 'win', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }] } });
   await ctx.db.update(gameTables).set({ status: 'finished', visibility, finishedAt: new Date() }).where(eq(gameTables.id, tableId));
+  return tableId;
 }
 
 describe('public profile record', () => {
   it('shows stats, level and recent PUBLIC games only; private tables are counted but never listed', async () => {
     const [a, b, viewer] = await users(ctx, 3) as [User, User, User];
-    await finished(a, b, 'public');
-    await finished(a, b, 'private');
+    const pub = await finished(a, b, 'public');
+    const priv = await finished(a, b, 'private');
     const c = (await card(viewer, a.id)).json();
     expect(c.stats).toEqual({ gamesPlayed: 2, wins: 2, winRate: 100 });
     expect(c.level).toBeGreaterThanOrEqual(1);
     expect(c.recent).toHaveLength(1);
-    expect(c.recent[0]).toMatchObject({ gameId: 'chess', place: 1, fieldSize: 2 });
-    expect(JSON.stringify(c)).not.toContain('tableId');
+    // The public table's id links its replay; the private table's id never appears.
+    expect(c.recent[0]).toMatchObject({ tableId: pub, gameId: 'chess', place: 1, fieldSize: 2 });
+    expect(JSON.stringify(c)).not.toContain(priv);
     expect((await card(viewer, b.id)).json().stats).toMatchObject({ gamesPlayed: 2, wins: 0, winRate: 0 });
   });
 
