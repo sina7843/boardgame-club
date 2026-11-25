@@ -72,6 +72,11 @@ export function Settings() {
             <Segmented label="حرکت و انیمیشن" value={prefs.motion} onChange={(motion) => update({ motion: motion as Prefs['motion'] })}
               options={[{ value: 'system', label: 'مطابق دستگاه' }, { value: 'reduce', label: 'کاهش‌یافته' }, { value: 'full', label: 'کامل' }]} />
           </div>
+          <div className="ac-row">
+            <div className="ac-row__text"><b>زبان اصطلاحات بازی</b><span>فقط داخل میز بازی‌ها. «فارسی بردگیمی» اصطلاحات رایج مثل <bdi>Worker Placement</bdi> را به لاتین نشان می‌دهد.</span></div>
+            <Segmented label="زبان اصطلاحات بازی" value={prefs.terms} onChange={(terms) => update({ terms: terms as Prefs['terms'] })}
+              options={[{ value: 'fa', label: 'فارسی' }, { value: 'fa-bg', label: 'فارسی بردگیمی' }]} />
+          </div>
           <div className="ac-row ac-row--stack">
             <div className="ac-row__text"><b>زمان انصراف حرکت</b><span>پس از هر حرکت مهم (بازی کردن کارت، جابه‌جایی مهره، خرید) تا این مدت می‌توانید «انصراف» بزنید. تاس، کشیدن کارت، پایان نوبت و «رد» همیشه بی‌درنگ فرستاده می‌شوند.</span></div>
             <Segmented block label="زمان انصراف حرکت" value={prefs.undo} onChange={(undo) => update({ undo: undo as Prefs['undo'] })}
