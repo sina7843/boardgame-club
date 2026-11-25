@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { DEFAULT_ALERT_PREFS, type AlertPrefs } from '@bg/contracts';
+import { setTermsLang } from '@bg/ui';
 import { api } from './api.ts';
 
 /** Per-device display preferences (localStorage). Game sounds read `muted` once they exist (DRAGON-01). */
@@ -34,6 +35,7 @@ export function readPrefs(raw: string | null): Prefs {
 }
 
 function apply(p: Prefs): void {
+  setTermsLang(p.terms);
   const root = document.documentElement;
   // BGV tokens switch only on data-theme, so "system" resolves the device scheme (kept live by PrefsProvider).
   root.dataset.theme = p.theme === 'system' ? (matchMedia(DARK).matches ? 'dark' : 'light') : p.theme;

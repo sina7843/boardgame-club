@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { readPrefs } from '../src/lib/prefs.tsx';
-import { renderTerm, termText } from '../src/lib/terms.tsx';
+import { renderTerm, termText } from '@bg/ui';
 
 const wp = { fa: 'جانمایی کارگر', bg: 'Worker Placement' };
 describe('game terms', () => {
