@@ -135,6 +135,19 @@ function Popular({ games }: { games: GameSummary[] }) {
   );
 }
 
+/** «بازی‌های جدی، نوبتی»: hard games (catalog difficulty) that can be played turn by turn, from the catalog itself. */
+const isHeavyTurn = (g: GameSummary) => g.difficulty === 'hard' && g.paces.includes('turn');
+function HeavyTurn({ games }: { games: GameSummary[] }) {
+  if (!games.length) return null;
+  return (
+    <section className="cx-b-sec" id="heavy" aria-labelledby="heavy-h">
+      <Head id="heavy-h" icon="hourglass" title="بازی‌های جدی، نوبتی" sub="بردگیم‌های سنگین، سر فرصت و نوبتی؛ هر وقت رسیدی حرکتت را بزن."
+        more={['همهٔ بازی‌های سنگین نوبتی', '/games?difficulty=hard&mode=turn']} />
+      <div className="cx-b-shelf">{games.slice(0, 6).map((g) => <ShelfCard key={g.id} game={g} />)}</div>
+    </section>
+  );
+}
+
 function Party({ games }: { games: GameSummary[] }) {
   if (!games.length) return null;
   return (
@@ -326,7 +339,7 @@ function GuestHero({ count, home }: { count: number; home: HomeOverview | undefi
           <span className="cx-e-kicker"><img src="/brand/symbol-reversed-small.svg" alt="" />بردگیم آنلاین به فارسی</span>
           <span className="cx-e-display">امشب چی<br />بازی کنیم؟</span>
         </h1>
-        <p className="cx-b-hero__sub">{count ? `${faNum(count)} بردگیم` : 'بردگیم‌های'} محبوب و آنلاین؛ با دوستانت میز بساز یا هم‌بازی پیدا کن.</p>
+        <p className="cx-b-hero__sub">{count ? `${faNum(count)} بردگیم` : 'بردگیم‌های'} محبوب، از دورهمی تا سنگین؛ زنده یا نوبتی و کامل فارسی. با دوستانت میز بساز یا هم‌بازی پیدا کن.</p>
         <div className="cx-b-hero__ctas">
           <Button variant="primary" size="lg" icon="zap" href={loginTo('/play')}>بازی سریع</Button>
           <Button variant="secondary" size="lg" icon="user-plus" href={loginTo('/games')}>ساخت میز با دوستان</Button>
@@ -359,6 +372,7 @@ function GuestHome({ all, home }: { all: GameSummary[]; home: HomeOverview | und
     <div className="cx-guest">
       <GuestHero count={all.length} home={home} />
       <Popular games={popular} />
+      <HeavyTurn games={popular.filter(isHeavyTurn)} />
       <OpenTables items={home?.open ?? []} total={home?.openTables ?? 0} online={home?.onlineNow ?? null} games={all} member={false} />
       <LiveTables data={home} member={false} />
       <Party games={popular.filter(isParty)} />
@@ -472,6 +486,7 @@ function MemberHome({ all, home }: { all: GameSummary[]; home: HomeOverview | un
       <OpenTables items={home?.open ?? []} total={home?.openTables ?? 0} online={home?.onlineNow ?? null} games={all} member />
       <LiveTables data={home} member />
       <Popular games={popular} />
+      <HeavyTurn games={popular.filter(isHeavyTurn)} />
       <Party games={popular.filter(isParty)} />
       <LeagueBand data={home} member />
       <FinalBand count={all.length} member />
