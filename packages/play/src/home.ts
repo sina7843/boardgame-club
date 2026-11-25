@@ -50,6 +50,7 @@ export async function homeOverview(db: Db, registry: GameRegistry, userId: strin
     live.push({
       id: table.id, gameId: game.id, gameNameFa: game.nameFa, pace: table.pace as 'live' | 'turn', competition: table.competition as 'friendly' | 'ranked',
       turnSeconds: (table.settings as { turnSeconds?: number }).turnSeconds ?? null,
+      clock: typeof (table.settings as { options?: { clock?: unknown } }).options?.clock === 'string' ? (table.settings as { options?: { clock?: unknown } }).options?.clock as string : null,
       seats: seats.map(({ name, avatarKey }) => ({ name, avatarKey })),
       turnName: pending.length === 1 ? seats.find((s) => s.seat === pending[0])?.name ?? null : null,
       deadline: deadlines.find((d) => d.tableId === table.id)?.dueAt.toISOString() ?? null,

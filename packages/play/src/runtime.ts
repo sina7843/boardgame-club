@@ -2,7 +2,7 @@
 // Every state change goes through persistStep inside a transaction that holds the table row lock.
 import { createHash, randomInt, randomUUID } from 'node:crypto';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
-import { AppError, botPersona, ratingModeOf } from '@bg/contracts';
+import { AppError, botPersona, clockClass, ratingModeOf } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { failMatch } from './matchmaking.ts';
 import { botTakeover, startTournamentTable } from './tournaments.ts';
@@ -61,6 +61,11 @@ export const LAG_QUOTA_REGAIN_MS = 100;
 
 /** Time for each side's first move (design/games/chess ENGINE.md P1): the bank only starts with that move. */
 export const FIRST_MOVE_SECONDS = 30;
+/** chess.com: bullet 15 s, blitz 20 s, rapid and longer 30 s (class from the table's `clock` option, see clockClass). */
+export const firstMoveSeconds = (table: { settings: unknown }): number => {
+  const c = clockClass((table.settings as { options?: { clock?: unknown } }).options?.clock);
+  return c === 'bullet' ? 15 : c === 'blitz' ? 20 : FIRST_MOVE_SECONDS;
+};
 /** The running seat has not made its first move yet (tables from before this rule have no `moved`: all count as moved). */
 export const firstMovePending = (table: { clock: (typeof gameTables.$inferSelect)['clock'] }) =>
   !!table.clock?.moved && table.clock.seat !== null && !table.clock.moved[table.clock.seat];
@@ -112,7 +117,7 @@ function chessClock(table: typeof gameTables.$inferSelect, pending: number[]): n
   const seat = pending[0]!;
   table.clock = { left, since: now, seat, ...(st?.lagQuota ? { lagQuota: st.lagQuota } : {}), ...(moved ? { moved } : {}) };
   // Before a side's first move only the first-move countdown runs (its bank waits).
-  if (moved && !moved[seat]) return Math.min(FIRST_MOVE_SECONDS, Math.max(1, left[seat]! / 1000));
+  if (moved && !moved[seat]) return Math.min(firstMoveSeconds(table), Math.max(1, left[seat]! / 1000));
   return Math.max(1, left[seat]!) / 1000;
 }
 

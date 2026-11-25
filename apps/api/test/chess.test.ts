@@ -36,11 +36,11 @@ describe('chess through the platform', () => {
     const bySeat = await seatsOf(ctx, t.tableId, t.players);
     const v = await view(ctx, t.players[0]!, t.tableId);
     const white = v.game.view.colors.indexOf('w') as number;
-    // ENGINE.md P1: before the first move only a 30 s first-move countdown runs; the bank waits.
+    // ENGINE.md P1: before the first move only a first-move countdown runs (blitz 20 s, livefix row 7); the bank waits.
     expect(v.game.clocks).toMatchObject({ running: white, initialMs: 180_000, left: [180_000, 180_000], first: true });
     const due0 = new Date(v.game.deadline.dueAt).getTime() - Date.now();
-    expect(due0).toBeGreaterThan(25_000);
-    expect(due0).toBeLessThanOrEqual(31_000);
+    expect(due0).toBeGreaterThan(15_000);
+    expect(due0).toBeLessThanOrEqual(21_000);
     await command(ctx, bySeat(white), t.tableId, v.game.revision, { type: 'move', from: 'e2', to: 'e4' });
     let a = await view(ctx, t.players[0]!, t.tableId);
     // The first move is free (no charge, no increment); Black is now on its own first-move countdown.

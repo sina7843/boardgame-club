@@ -11,7 +11,7 @@ export const chess = defineGame({
     options: [{
       key: 'firstMove', labelFa: 'مهره سفید',
       descriptionFa: 'سفید حرکت اول را انجام می‌دهد.',
-      choices: [{ value: 'random', labelFa: 'تصادفی' }, { value: 'host', labelFa: 'میزبان سفید باشد' }],
+      choices: [{ value: 'random', labelFa: 'تصادفی' }, { value: 'host', labelFa: 'میزبان سفید باشد' }, { value: 'guest', labelFa: 'میزبان سیاه باشد' }],
       default: 'random'
     }, {
       key: 'clock', labelFa: 'کنترل زمان (بازی زنده)',

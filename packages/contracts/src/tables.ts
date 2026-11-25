@@ -29,7 +29,9 @@ export type CreateTableBody = z.infer<typeof createTableBody>;
 export const createBotTableBody = z.strictObject({
   gameId: z.string().min(1).max(64),
   level: botLevelSchema,
-  playerCount: z.number().int().min(2).max(16).default(2)
+  playerCount: z.number().int().min(2).max(16).default(2),
+  /** Games with sides (chess): the human's colour. Omitted = the game's default (random). */
+  color: z.enum(['white', 'random', 'black']).optional()
 });
 export type CreateBotTableBody = z.infer<typeof createBotTableBody>;
 
@@ -229,6 +231,8 @@ export const myTableItem = z.object({
   turnSeats: z.array(z.number().int()),
   /** Last public move «name: text» from the game's summary (games that publish moves), for the home turn cards. */
   lastMove: z.string().nullable().optional(),
+  /** Chess-clock tables: the `clock` option («10+5»), for the pace label. Null/absent for per-turn tables. */
+  clock: z.string().nullable().optional(),
   result: z.object({ place: z.number().int(), fieldSize: z.number().int(), ratingDelta: z.number().int().nullable() }).nullable(),
   finishedAt: z.iso.datetime().nullable()
 });
@@ -237,6 +241,8 @@ export type MyTableItem = z.infer<typeof myTableItem>;
 export const openTableItem = z.object({
   id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, players: z.number().int(),
   capacity: z.number().int(), turnSeconds: z.number().int(), host: publicProfile,
+  /** Chess-clock tables: the `clock` option («10+5»), for the pace label. Null/absent for per-turn tables. */
+  clock: z.string().nullable().optional(),
   seated: z.array(z.object({ id: z.uuid(), name: z.string(), avatarKey: z.string() }))
 });
 export type OpenTableItem = z.infer<typeof openTableItem>;
@@ -258,7 +264,7 @@ export const homeOverview = z.object({
   openByGame: z.record(z.string(), z.number().int()),
   live: z.array(z.object({
     id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, competition: z.enum(['friendly', 'ranked']),
-    turnSeconds: z.number().int().nullable(),
+    turnSeconds: z.number().int().nullable(), clock: z.string().nullable().optional(),
     seats: z.array(z.object({ name: z.string(), avatarKey: z.string() })),
     /** Whose move it is when exactly one seat is pending. */
     turnName: z.string().nullable(), deadline: z.iso.datetime().nullable(), spectators: z.number().int()

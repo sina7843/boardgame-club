@@ -253,6 +253,7 @@ export async function listMyTables(db: Db, registry: GameRegistry, userId: strin
       players: mine.length, capacity: table.capacity, updatedRevision: table.revision,
       mySeat: seat, seats, turnSeats,
       lastMove: last ? `${seats.find((x) => x.seat === last.seat)?.name ?? ''}: ${last.text}` : null,
+      clock: typeof (table.settings as { options?: { clock?: unknown } }).options?.clock === 'string' ? (table.settings as { options?: { clock?: unknown } }).options?.clock as string : null,
       result: place !== undefined ? { place, fieldSize: mine.length, ratingDelta: delta ? Math.round(60 * (delta.after - delta.before)) : null } : null,
       finishedAt: table.finishedAt?.toISOString() ?? null
     });
@@ -272,6 +273,7 @@ export async function listOpenTables(db: Db, gameId?: string) {
   return open.map(({ table, game, host, players }) => ({
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, pace: table.pace as 'live' | 'turn', players, capacity: table.capacity,
     turnSeconds: (table.settings as { turnSeconds: number }).turnSeconds,
+    clock: typeof (table.settings as { options?: { clock?: unknown } }).options?.clock === 'string' ? (table.settings as { options?: { clock?: unknown } }).options?.clock as string : null,
     host: { id: host.id, displayName: host.displayName, avatarKey: host.avatarKey as never, joinedAt: host.createdAt.toISOString() },
     seated: seated.filter((x) => x.tableId === table.id).map((x) => ({ id: x.id, name: x.name, avatarKey: x.avatarKey }))
   }));

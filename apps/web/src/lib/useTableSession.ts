@@ -25,6 +25,9 @@ export function useTableSession(tableId: string, invite: string | null) {
   const [loadError, setLoadError] = useState<ApiFailure>();
   const [pending, setPending] = useState<PendingCommand | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  /** Bumped on every refused command: renderers that show a move before the server answers roll it back and play `illegal`. */
+  const [rejection, setRejection] = useState<{ seq: number; errorCode: string } | null>(null);
+  const reject = useCallback((errorCode: string) => setRejection((r) => ({ seq: (r?.seq ?? 0) + 1, errorCode })), []);
   const [clockOffset, setClockOffset] = useState(0);
   const latest = useRef(0);
 
@@ -56,16 +59,17 @@ export function useTableSession(tableId: string, invite: string | null) {
       const r = await api<CommandResult>(`/tables/${tableId}/commands`, { method: 'POST', body: { commandId: cmd.commandId, expectedRevision: cmd.expectedRevision, action: cmd.action, lagMs: Math.min(lagEstimateMs(), 5000) } });
       accept(r.snapshot);
       setPending(null);
-      if (r.status === 'rejected') setNotice(GAME_ERRORS_FA[r.errorCode ?? ''] ?? 'حرکت پذیرفته نشد.');
+      if (r.status === 'rejected') { reject(r.errorCode ?? 'REJECTED'); setNotice(GAME_ERRORS_FA[r.errorCode ?? ''] ?? 'حرکت پذیرفته نشد.'); }
     } catch (e) {
       if (e instanceof ApiFailure && e.status !== 0) {
         setPending(null);
+        reject(e.body.errorCode);
         setNotice(e.messageFa);
       } else {
         setPending({ ...cmd, status: 'unknown' });
       }
     }
-  }, [tableId, accept]);
+  }, [tableId, accept, reject]);
 
   // Undo window: a move waits UNDO_MS before it is sent, so renderers act on a single tap without a confirm step.
   const [queued, setQueued] = useState<{ cmd: PendingCommand; ms: number } | null>(null);
@@ -91,18 +95,18 @@ export function useTableSession(tableId: string, invite: string | null) {
         const r = await api<{ found: boolean; status?: string; errorCode?: string | null }>(`/tables/${tableId}/commands/${pending.commandId}`);
         if (r.found) {
           setPending(null);
-          if (r.status === 'rejected') setNotice(GAME_ERRORS_FA[r.errorCode ?? ''] ?? 'حرکت پذیرفته نشد.');
+          if (r.status === 'rejected') { reject(r.errorCode ?? 'REJECTED'); setNotice(GAME_ERRORS_FA[r.errorCode ?? ''] ?? 'حرکت پذیرفته نشد.'); }
           void reload();
         }
       } catch { /* still offline; keep waiting */ }
     }, 2500);
     return () => clearInterval(t);
-  }, [pending, tableId, reload]);
+  }, [pending, tableId, reload, reject]);
 
   const resendPending = useCallback(() => { if (pending) void send(pending); }, [pending, send]);
   const dropPending = useCallback(() => { setPending(null); void reload(); }, [reload]);
 
-  return { snapshot, accept, loadError, reload, pending, queued, cancelQueued, notice, setNotice, act, resendPending, dropPending, live, clockOffset };
+  return { snapshot, accept, loadError, reload, pending, queued, rejection, cancelQueued, notice, setNotice, act, resendPending, dropPending, live, clockOffset };
 }
 
 /**

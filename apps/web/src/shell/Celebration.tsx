@@ -9,6 +9,7 @@ import { Button, Dialog, Icon, Reward, Trophy as BgvTrophy } from '@bg/ui/bgv';
 import { api } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { LevelBadge, TIER_FA } from '../lib/rewards.tsx';
+import { noPopupPath } from '../lib/realtime.tsx';
 import { useSession } from '../lib/session.tsx';
 
 type Moment = { kind: 'level'; level: number } | { kind: 'achievement'; key: string; titleFa: string; descriptionFa: string; tier: TrophyTier };
@@ -42,7 +43,7 @@ export function Celebration() {
   const [prog, setProg] = useState<Progression>();
   const lastCheck = useRef(0);
   const ref = useRef<HTMLDialogElement>(null);
-  const onTable = pathname.startsWith('/tables/');
+  const onTable = noPopupPath(pathname); // tables (also /t/<code>) and the new-table forms: queue, show later
   const userId = me?.id;
 
   const check = useCallback(async (force = false) => {

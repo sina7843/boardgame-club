@@ -35,7 +35,9 @@ export async function startTable(ctx: TestCtx, gameId: string, n: number, opts: 
     if (j.statusCode !== 200) throw new Error(`join failed ${j.body}`);
   }
   // Joiners sit ready; the host's «آماده‌ام» starts the game.
-  const snap = (await call(ctx, 'POST', `/api/tables/${tableId}/ready`, players[0], { ready: true })).json();
+  // (A friendly private two-player chess table already started when the friend joined: no ready step.)
+  const readied = await call(ctx, 'POST', `/api/tables/${tableId}/ready`, players[0], { ready: true });
+  const snap = readied.statusCode === 200 ? readied.json() : await view(ctx, players[0]!, tableId);
   return { tableId, players, revision: snap.game.revision };
 }
 

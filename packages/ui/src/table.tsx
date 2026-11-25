@@ -96,4 +96,15 @@ export interface TableFrame {
   /** Opens the table chat sheet (phones / narrow desktop). */
   openChat?: () => void;
   unread?: number;
+  /**
+   * Optimistic moves: `queued` (GameRendererProps) already holds the player's own move from the click until the server
+   * answers (the shell sends chess moves without an undo window), so the renderer shows it at once. `rejected.seq` is
+   * bumped when the server refuses it (the snapshot then no longer contains the move): drop the preview, play `illegal`.
+   */
+  rejected?: { seq: number; errorCode: string } | null;
+  /**
+   * Platform events the renderer turns into the `notify` sound (play once per new `seq`) and may show in its status bar:
+   * `drawDeclined` (the opponent declined my draw offer), `rematchOffer` (the opponent asked for a rematch).
+   */
+  notice?: { seq: number; kind: 'drawDeclined' | 'rematchOffer'; text: string } | null;
 }

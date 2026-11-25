@@ -4,6 +4,9 @@ import { ClientEvents, ServerEvents, type NotificationItem, type TableSnapshot }
 import { useToast } from '@bg/ui';
 import { useSession } from './session.tsx';
 
+/** Pages nothing may pop up over (rewards, missions, achievements): tables (/tables/<id>, /t/<code>) and the new-table forms. */
+export const noPopupPath = (p: string) => /^\/(t|tables)\//.test(p) || /^\/games\/[^/]+\/new/.test(p) || p === '/play';
+
 interface RealtimeValue { socket: Socket | null; connected: boolean }
 const Ctx = createContext<RealtimeValue>({ socket: null, connected: false });
 
@@ -16,12 +19,15 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!me) return;
+    // Notices that arrive on a no-popup page wait here and show on the first page that allows them (after the game, home…).
+    const deferred: string[] = [];
+    const flush = setInterval(() => { if (deferred.length && !noPopupPath(location.pathname)) for (const t of deferred.splice(0)) toast('info', t); }, 1000);
     const s = io({ path: '/api/socket.io', withCredentials: true, transports: ['websocket', 'polling'] });
     s.on('connect', () => setConnected(true));
     s.on('disconnect', () => setConnected(false));
     s.on(ServerEvents.notificationCreated, (n: NotificationItem) => {
       // Never interrupt the page the notification is about (e.g. a live table) with a toast.
-      if (!location.pathname.startsWith(n.href)) toast('info', n.textFa);
+      if (!location.pathname.startsWith(n.href)) { if (noPopupPath(location.pathname)) deferred.push(n.textFa); else toast('info', n.textFa); }
       // Optional browser notification: only if the user enabled it in settings and granted permission.
       if (document.hidden && browserNotificationsEnabled()) {
         try { new Notification('بردگیم‌ورس', { body: n.textFa, tag: n.id, lang: 'fa', dir: 'rtl' }); } catch { /* unsupported */ }
@@ -32,7 +38,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     s.on(ServerEvents.conversationRead, (e: unknown) => window.dispatchEvent(new CustomEvent('bg:read', { detail: e })));
     s.on(ServerEvents.conversationTyping, (e: unknown) => window.dispatchEvent(new CustomEvent('bg:typing', { detail: e })));
     setSocket(s);
-    return () => { s.close(); setSocket(null); setConnected(false); };
+    return () => { clearInterval(flush); s.close(); setSocket(null); setConnected(false); };
   }, [me?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const value = useMemo(() => ({ socket, connected }), [socket, connected]);

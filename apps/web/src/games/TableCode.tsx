@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { Button, Icon, StateBlock } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { TablePage } from '../pages/Table.tsx';
 
 /** «کد میز داری؟» (DS v2.4 T-join): a short table code opens /t/<code>. */
 export function TableCodeForm({ className = '' }: { className?: string }) {
@@ -24,15 +25,17 @@ export function TableCodeForm({ className = '' }: { className?: string }) {
 export function TableCodePage() {
   const { code = '' } = useParams();
   usePageTitle(`میز ${code.toUpperCase()}`);
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [id, setId] = useState<string | null>(null);
   useEffect(() => {
     let live = true;
+    setId(null); setError(null);
     api<{ id: string }>(`/t/${encodeURIComponent(code)}`)
-      .then((r) => { if (live) navigate(`/tables/${r.id}${location.search}`, { replace: true }); })
+      .then((r) => { if (live) setId(r.id); })
       .catch((e) => { if (live) setError(e instanceof ApiFailure && e.status === 404 ? 'میزی با این کد پیدا نشد.' : 'ارتباط با سرور برقرار نشد.'); });
     return () => { live = false; };
-  }, [code, navigate]);
+  }, [code]);
+  if (id) return <TablePage key={id} id={id} />; // the URL stays /t/<code>
   if (error) return <StateBlock kind="empty" title={error} text="کد را دوباره بررسی کنید؛ میزهای خصوصی فقط با لینک دعوت باز می‌شوند." action={<Button href="/tables">میزهای باز</Button>} />;
   return <StateBlock kind="loading" title="در حال باز کردن میز…" />;
 }

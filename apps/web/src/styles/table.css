@@ -6,6 +6,11 @@ html[data-immersive] .bgv-app__main { padding-block: 0 !important; } /* the site
 /* !important: the DS shell's own responsive rules (several :not() classes) are more specific than any sane selector here. */
 html[data-immersive] :is(.bgv-app > .bgv-siteheader, .bgv-app__top, .bgv-app__dock, .app-page__foot, .app-page > .bgv-banner) { display: none !important; }
 html[data-immersive] .bgv-app__main { max-inline-size: none; }
+/* U3: on phones the site's bottom navigation never shows on a table page (lobby, game, result); the lobby's own «آماده‌ام» bar must not sit on it. */
+@media (max-width: 899px) {
+  html[data-tablepage] .bgv-app__dock { display: none !important; }
+  html[data-tablepage] .bgv-app__main { padding-block-end: 0 !important; }
+}
 html[data-immersive] .app-page { gap: 0; }
 
 /* Lobby */

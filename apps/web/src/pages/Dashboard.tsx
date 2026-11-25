@@ -12,15 +12,16 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { userIdentity } from '../lib/bgv.tsx';
 import { byUrgency, DeadlineClock, useMyTables } from './MyTables.tsx';
 import { TableCodeForm } from '../games/TableCode.tsx';
+import { clockLabelFa } from '../games/chessClock.ts';
 
 type Seat = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 const seatNo = (i: number) => ((i % 10) + 1) as Seat;
 /** «۳ تا ۴ نفر» (the design's wording); one number when both ends match. */
 const span = (a: number, b: number, unit: string) => (a === b ? `${faNum(a)} ${unit}` : `${faNum(a)} تا ${faNum(b)} ${unit}`);
 const COMPETITION: Record<'friendly' | 'ranked', string> = { friendly: 'دوستانه', ranked: 'رتبه‌ای' };
-const timeFa = (pace: 'live' | 'turn', sec: number | null) =>
-  sec === null ? PACE_FA[pace] : sec >= 86400 && sec % 86400 === 0 ? `${faNum(sec / 86400)} روز هر نوبت` : sec >= 3600 ? `${faNum(Math.round(sec / 3600))} ساعت هر نوبت`
-    : sec >= 60 && sec % 60 === 0 ? `${faNum(sec / 60)} دقیقه هر نوبت` : `${faNum(sec)} ثانیه هر نوبت`;
+const timeFa = (pace: 'live' | 'turn', sec: number | null, clock?: string | null) =>
+  clockLabelFa(clock) ?? (sec === null ? PACE_FA[pace] : sec >= 86400 && sec % 86400 === 0 ? `${faNum(sec / 86400)} روز هر نوبت` : sec >= 3600 ? `${faNum(Math.round(sec / 3600))} ساعت هر نوبت`
+    : sec >= 60 && sec % 60 === 0 ? `${faNum(sec / 60)} دقیقه هر نوبت` : `${faNum(sec)} ثانیه هر نوبت`);
 /** «با سارا» · «با آرش و نیما» · «با رضا، لیلا و ۲ نفر دیگر». */
 const withNames = (names: string[]) => (names.length <= 2 ? `با ${names.join(' و ')}` : `با ${names.slice(0, 2).join('، ')} و ${faNum(names.length - 2)} نفر دیگر`);
 const daysLeft = (iso: string) => Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86400_000));
@@ -164,7 +165,7 @@ function OpenTables({ items, total, online, games, member }: { items: OpenTableI
                     <Thumb gameId={t.gameId} small />
                     <div className="cx-b-id">
                       <b className="cx-b-name">{t.gameNameFa}{g && <small dir="ltr">{g.nameOriginal}</small>}</b>
-                      <span className="cx-meta"><Icon name={t.pace === 'live' ? 'zap' : 'hourglass'} size="sm" />{PACE_FA[t.pace]}<span className="bgv-sep" />{timeFa(t.pace, t.turnSeconds)}</span>
+                      <span className="cx-meta"><Icon name={t.pace === 'live' ? 'zap' : 'hourglass'} size="sm" />{PACE_FA[t.pace]}<span className="bgv-sep" />{timeFa(t.pace, t.turnSeconds, t.clock)}</span>
                     </div>
                   </div>
                   <div role="group" className="cx-b-seats" aria-label={`${faNum(t.players)} از ${faNum(t.capacity)} صندلی پر`}>
@@ -199,7 +200,7 @@ function LiveTables({ data, member }: { data: HomeOverview | undefined; member: 
                 <Thumb gameId={t.gameId} small />
                 <div className="cx-b-id">
                   <b className="cx-b-name">{t.gameNameFa}</b>
-                  <span className="cx-meta">{COMPETITION[t.competition]}<span className="bgv-sep" />{timeFa(t.pace, t.turnSeconds)}</span>
+                  <span className="cx-meta">{COMPETITION[t.competition]}<span className="bgv-sep" />{timeFa(t.pace, t.turnSeconds, t.clock)}</span>
                 </div>
                 <span className="bgv-badge bgv-badge--danger bgv-badge--sm"><span className="cx-b-dot" />زنده</span>
               </div>

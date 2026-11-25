@@ -285,9 +285,17 @@ test('D3', 'Draw offer', 'the offering player cannot accept their own offer', ()
   const s = play(game(), 'e2e4=');
   eq(M.validate(s, W, { type: 'acceptDraw' }).ok, false);
 });
-test('D4', 'Draw offer', 'anti-spam: one offer per 5 own moves', () => {
+test('D4', 'Draw offer', 'normal game: no limit on offers (chess.com); prize events can set drawOfferEvery', () => {
   const s = play(game(), 'e2e4=', 'e7e5', 'g1f3=');
-  eq(s.drawOffer, null);
+  eq(s.drawOffer, 0); // second offer two plies after the first is allowed
+  const t = play(game(null, { drawOfferEvery: 5 }), 'e2e4=', 'e7e5', 'g1f3=');
+  eq(t.drawOffer, null); // tournament setting: once per 5 own moves
+  eq(M.validate(t, W, { type: 'offerDraw' }).errorCode, 'DRAW_OFFER_COOLDOWN');
+});
+test('D4b', 'Draw offer', 'a declined offer can be repeated at once', () => {
+  const s = play(game(), 'e2e4', 'e7e5');
+  M.apply(s, W, { type: 'offerDraw' }); M.apply(s, B, { type: 'declineDraw' });
+  eq(M.validate(s, W, { type: 'offerDraw' }).ok, true);
 });
 test('D5', 'Draw offer', 'minDrawMove 30: no agreement before move 30', () => {
   const s = play(game(null, { minDrawMove: '30' }), 'e2e4=');
@@ -309,7 +317,7 @@ test('D7', 'Draw offer', 'offer while it is the opponent’s turn (chess.com / F
   eq(M.legalActions(s, W).some((a) => a.type === 'acceptDraw'), true);
   eq(M.legalActions(s, W).some((a) => a.type === 'declineDraw'), true);
   M.apply(s, W, { type: 'declineDraw' }); eq(s.drawOffer, null);
-  eq(M.validate(s, B, { type: 'offerDraw' }).errorCode, 'DRAW_OFFER_COOLDOWN');
+  eq(M.validate(s, B, { type: 'offerDraw' }).ok, true); // no cooldown in normal games
   // White offers on Black's turn after its move; Black accepts on White's turn (receiver, any turn).
   const t = play(game(), 'e2e4');
   M.apply(t, W, { type: 'offerDraw' });
@@ -375,6 +383,17 @@ test('N4', 'Notation', 'Armageddon draw in PGN', () => {
 // ---------- report ----------
 const pad = (s, n) => (s + ' '.repeat(n)).slice(0, n);
 let pass = 0, fail = 0, note = 0;
+test('FM1', 'Setup', 'firstMove guest: the host (seat 0) plays Black; host: White', () => {
+  eq(M.setup({ playerCount: 2, rng, options: { firstMove: 'guest' } }).colors, ['b', 'w']);
+  eq(M.setup({ playerCount: 2, rng, options: { firstMove: 'host' } }).colors, ['w', 'b']);
+});
+test('V1', 'View', 'pinned squares: a pinned piece is listed, none while in check', () => {
+  const s = game('4k3/4r3/8/8/8/8/4B3/4K3 w - - 0 1');
+  eq(M.project(s).pinned, ['e2']);
+  eq(M.project(game('4k3/8/8/8/8/8/4r3/4K3 w - - 0 1')).pinned, []);
+});
+
+
 for (const r of results) {
   const status = r.ok && !r.note ? 'PASS' : r.ok ? 'PASS*' : (r.note.startsWith('engine') || r.note.startsWith('not ') || r.note.startsWith('claim') || r.note.startsWith('PGN') || r.note.startsWith('Termination')) ? 'GAP' : 'FAIL';
   r.status = status;

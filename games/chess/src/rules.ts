@@ -34,10 +34,11 @@ export interface ChessOptions {
   fideClaims: boolean;
   /** Playoff game: a draw of any kind counts as a win for Black; no draw agreements. */
   armageddon: boolean;
+  /** Prize events only (`options.drawOfferEvery`): a player may offer a draw once per this many of their own moves. 0 = unlimited (every normal game; chess.com). */
+  offerEvery: number;
 }
-const DEFAULT_OPTIONS: ChessOptions = { minDrawMove: 0, fideClaims: false, armageddon: false };
-/** A player may make a draw offer at most once per this many plies (5 of their own moves). */
-const OFFER_EVERY_PLIES = 10;
+const DEFAULT_OPTIONS: ChessOptions = { minDrawMove: 0, fideClaims: false, armageddon: false, offerEvery: 0 };
+const NEVER = -1_000_000; // «has not offered yet»
 
 export interface ChessState {
   opts?: ChessOptions;
@@ -76,6 +77,10 @@ export interface ChessView {
   /** The side to move may attach a draw offer to its move now (not before the table's minimum move, not in a playoff, not too often). */
   canOfferDraw: boolean;
   inCheck: boolean;
+  /** Squares of the side to move's pieces that are pinned to their king (display only: selectable, no targets, «illegal» feedback). */
+  pinned: string[];
+  /** Legal moves of the side to move that give check, as `from+to` (e.g. "f1b5"): lets the renderer play `move-check` for an optimistic own move without computing rules. */
+  checking: string[];
   lastMove: { from: string; to: string } | null;
   history: HistoryEntry[];
   captured: { w: Piece[]; b: Piece[] };
@@ -145,6 +150,25 @@ export function attacked(board: (Piece | null)[], sq: number, by: Color): boolea
 
 const kingSquare = (board: (Piece | null)[], c: Color) => board.indexOf(`${c}K`);
 export const inCheck = (pos: Position, c: Color = pos.turn) => attacked(pos.board, kingSquare(pos.board, c), other(c));
+
+/** Pieces of the side to move whose removal would put their king in check (absolute pins). Empty while in check. */
+/** `from+to` of every legal move that gives check (SAN ends in + or #). */
+export function checkingMoves(pos: Position): string[] {
+  const legal = legalMoves(pos);
+  return [...new Set(legal.filter((m) => /[+#]$/.test(san(pos, m, legal))).map((m) => sqName(m.from) + sqName(m.to)))];
+}
+
+export function pinnedSquares(pos: Position): string[] {
+  const c = pos.turn, k = kingSquare(pos.board, c);
+  if (k < 0 || inCheck(pos)) return [];
+  const out: string[] = [];
+  pos.board.forEach((p, i) => {
+    if (!p || colorOf(p) !== c || i === k) return;
+    const b = pos.board.slice(); b[i] = null;
+    if (attacked(b, k, other(c))) out.push(sqName(i));
+  });
+  return out;
+}
 
 function pseudoMoves(pos: Position): Move[] {
   const { board, turn: c } = pos;
@@ -321,7 +345,7 @@ const drawOutcome = (s: ChessState): Outcome =>
 /** Draw by agreement allowed now? (`plies` = moves made so far, including the one being played when offering.) */
 const agreementAllowed = (s: ChessState, plies: number) => !optsOf(s).armageddon && Math.floor(plies / 2) >= optsOf(s).minDrawMove;
 const offerAllowed = (s: ChessState, seat: number, plies = s.history.length + 1) =>
-  agreementAllowed(s, plies) && s.history.length - (s.lastOffer?.[seat] ?? -OFFER_EVERY_PLIES) >= OFFER_EVERY_PLIES;
+  agreementAllowed(s, plies) && (optsOf(s).offerEvery === 0 || s.history.length - (s.lastOffer?.[seat] ?? NEVER) >= optsOf(s).offerEvery * 2);
 /** Why a standalone offer (D7) is not possible now, or null when it is. */
 const offerBlock = (s: ChessState, seat: number): string | null =>
   optsOf(s).armageddon ? 'DRAW_NOT_ALLOWED'
@@ -346,15 +370,15 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
 
   setup({ playerCount, rng, options }) {
     if (playerCount !== 2) throw new Error('chess needs exactly 2 players');
-    // Variant "firstMove" (who plays White): random (default) or the host. The RNG is drawn either way.
+    // Variant "firstMove" (who plays White): random (default), the host (White) or the guest (the host plays Black). The RNG is drawn either way.
     const drawn = rng.nextInt(2);
-    const white = options.firstMove === 'host' ? 0 : drawn;
+    const white = options.firstMove === 'host' ? 0 : options.firstMove === 'guest' ? 1 : drawn; // guest: the host plays Black
     const pos = fromFen(typeof options.fen === 'string' ? options.fen : START_FEN);
     const colors: [Color, Color] = white === 0 ? ['w', 'b'] : ['b', 'w'];
     const opts: ChessOptions = {
-      minDrawMove: Number(options.minDrawMove) || 0, fideClaims: options.drawRule === 'fide', armageddon: options.armageddon === true
+      minDrawMove: Number(options.minDrawMove) || 0, fideClaims: options.drawRule === 'fide', armageddon: options.armageddon === true, offerEvery: Math.max(0, Math.floor(Number(options.drawOfferEvery) || 0))
     };
-    return { opts, lastOffer: [-OFFER_EVERY_PLIES, -OFFER_EVERY_PLIES], pos, colors, history: [], seen: { [positionKey(pos)]: 1 }, drawOffer: null, timeouts: [0, 0], end: null, outcome: null };
+    return { opts, lastOffer: [NEVER, NEVER], pos, colors, history: [], seen: { [positionKey(pos)]: 1 }, drawOffer: null, timeouts: [0, 0], end: null, outcome: null };
   },
 
   validate(s, actor, a) {
@@ -385,7 +409,7 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     }
     if (a.type === 'offerDraw') {
       s.drawOffer = seat;
-      s.lastOffer = [...(s.lastOffer ?? [-OFFER_EVERY_PLIES, -OFFER_EVERY_PLIES])] as [number, number];
+      s.lastOffer = [...(s.lastOffer ?? [NEVER, NEVER])] as [number, number];
       s.lastOffer[seat] = s.history.length;
       return { nextState: s, internalEvents: [{ type: 'drawOffered', seat }], scheduleChanges: [] };
     }
@@ -415,7 +439,7 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     const offer = !!a.offerDraw && s.drawOffer === null && offerAllowed({ ...s, history: s.history.slice(0, -1) }, seat);
     if (s.drawOffer === 1 - seat) s.drawOffer = null;
     if (offer) s.drawOffer = seat;
-    if (offer) { s.lastOffer = [...(s.lastOffer ?? [-OFFER_EVERY_PLIES, -OFFER_EVERY_PLIES])] as [number, number]; s.lastOffer[seat] = s.history.length - 1; }
+    if (offer) { s.lastOffer = [...(s.lastOffer ?? [NEVER, NEVER])] as [number, number]; s.lastOffer[seat] = s.history.length - 1; }
     const key = positionKey(s.pos);
     s.seen[key] = (s.seen[key] ?? 0) + 1;
     const events: Events = [{ type: 'moved', seat, san: notation }];
@@ -448,6 +472,8 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
       current: s.outcome ? null : seatOf(s, s.pos.turn),
       canOfferDraw: !s.outcome && offerAllowed(s, seatOf(s, s.pos.turn)),
       inCheck: inCheck(s.pos),
+      pinned: s.outcome ? [] : pinnedSquares(s.pos),
+      checking: s.outcome ? [] : checkingMoves(s.pos),
       lastMove: last ? { from: last.from, to: last.to } : null,
       history: s.history.slice(), captured, drawOffer: s.drawOffer, halfmove: s.pos.halfmove,
       end: s.end, outcome: s.outcome

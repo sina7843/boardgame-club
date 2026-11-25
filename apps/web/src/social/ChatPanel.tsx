@@ -84,6 +84,15 @@ const dayOf = (iso: string) => {
 /** A game event shown in the table chat (never stored as a message). */
 export interface ChatEvent { id: string; at: string; text: string; seat?: number }
 
+/**
+ * First pages of table chats, kept in memory: a table preloads its chat on entry (`preloadChat`) so the sheet opens with
+ * messages at once and only refreshes them in the background (no «در حال بارگذاری» wait).
+ */
+const pageCache = new Map<string, Page>();
+export function preloadChat(load: string): void {
+  api<Page>(load).then((p) => { pageCache.set(load, p); }, () => { /* the panel loads it itself */ });
+}
+
 export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people, head, clubSlug, events, sub, quickOnly }: {
   load: string; post: string; conversationId?: string; title?: string; compact?: boolean; quick?: boolean;
   onClose?: () => void; sheet?: boolean; icon?: string; className?: string;
@@ -106,8 +115,8 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
   const { socket } = useRealtime();
   const toast = useToast();
   const draftKey = `bg.draft.${load}`;
-  const [items, setItems] = useState<MessageItem[]>([]);
-  const [meta, setMeta] = useState<Omit<Page, 'items'>>();
+  const [items, setItems] = useState<MessageItem[]>(() => pageCache.get(load)?.items ?? []);
+  const [meta, setMeta] = useState<Omit<Page, 'items'> | undefined>(() => { const c = pageCache.get(load); if (!c) return undefined; const { items: _, ...rest } = c; return rest; });
   const [error, setError] = useState<ApiFailure>();
   const [text, setText] = useState(() => readDraft(draftKey));
   const [pending, setPending] = useState<Pending[]>([]);
@@ -127,6 +136,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
     try {
       const p = await api<Page>(`${load}${before ? `${load.includes('?') ? '&' : '?'}before=${encodeURIComponent(before)}` : ''}`);
       setItems((old) => (before ? [...p.items, ...old] : p.items));
+      if (!before) pageCache.set(load, p);
       const { items: _, ...rest } = p;
       setMeta(rest);
       setError(undefined);

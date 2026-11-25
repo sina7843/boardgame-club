@@ -6,7 +6,7 @@ import { AppError, type RematchView } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
 import { assertLimits, startTable, type PlayConfig } from './tables.ts';
-import { lockTable } from './runtime.ts';
+import { loadSnapshot, lockTable } from './runtime.ts';
 
 const { gameTables, participants } = schema;
 
@@ -48,14 +48,23 @@ export async function voteRematch(db: Db, registry: GameRegistry, cfg: PlayConfi
 
     if (vote === 'yes' && humans.every((s) => state.votes[String(s.seat)] === 'yes')) {
       // Same seats: players sit where they sat, bots keep their level and personas (both live in settings).
-      const { rematch: _r, eligibility: _e, ...settings } = table.settings as Record<string, unknown>;
+      const { rematch: _r, eligibility: _e, ...rest } = table.settings as Record<string, unknown>;
+      let settings = rest;
+      let seatOf = (seat: number) => seat;
+      if (table.gameId === 'chess' && !rest.bot) { // bot tables: the bot seat has no colour option, they keep their settings
+        // Chess: colours swap. Seat 0 is White when `firstMove` is 'host', so whoever had Black moves to seat 0 (the clock
+        // option `a/b+i` follows the seat, i.e. the colour). Bots keep their persona and level (they live in settings).
+        const colors = (await loadSnapshot(tx, table.id, table.revision)).state as { colors?: string[] };
+        if (colors.colors?.[0] === 'w') seatOf = (seat) => 1 - seat;
+        settings = { ...rest, options: { ...((rest.options as object | undefined) ?? {}), firstMove: 'host' } };
+      }
       for (const h of humans) await assertLimits(tx, h.userId!, table.pace as 'live' | 'turn', cfg);
       const [t] = await tx.insert(gameTables).values({
         gameId: table.gameId, gameVersionId: table.gameVersionId, pace: table.pace, competition: table.competition,
         visibility: table.visibility, status: 'open', hostId: table.hostId, capacity: table.capacity, settings,
         inviteCode: table.visibility === 'private' ? randomBytes(12).toString('base64url') : null
       }).returning();
-      await tx.insert(participants).values(seats.map((s) => ({ tableId: t!.id, seat: s.seat, userId: s.userId, kind: s.kind, ready: true })));
+      await tx.insert(participants).values(seats.map((s) => ({ tableId: t!.id, seat: seatOf(s.seat), userId: s.userId, kind: s.kind, ready: true })));
       await startTable(tx, { table: t!, version, module });
       state.newTableId = t!.id;
     }
