@@ -8,6 +8,7 @@ import {
   LoginSheet, ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill, emojify,
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
+import { useLocalizedSummary } from '../games/summaryTerms.ts';
 import { usePresence } from '../lib/presence.ts';
 import { shareResultImage } from '../lib/resultImage.ts';
 import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
@@ -631,7 +632,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const clockProps = clock ? { time: clock.time, p: clock.p, state: clock.state, label: 'مهلت نوبت', ...(clock.state === 'stale' ? { sub: 'در حال اتصال دوباره' } : {}) } : undefined;
 
   const placeOf = (seat: number) => g.result?.placements.find((p) => p.seat === seat);
-  const sum = g.summary;
+  const sum = useLocalizedSummary(t.gameId, g.summary);
   const STATUS_FA = { out: 'حذف شد', passed: 'پاس داد', done: 'آماده', winner: 'برنده', playing: undefined } as const;
   const online = usePresence(finished ? [] : t.seats.map((x) => (x.seat === t.mySeat ? null : x.user?.id)));
   // Chess clock: every seat shows its own bank; only the running one counts down (and holds while offline).
@@ -917,7 +918,7 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
     return () => { seen.disconnect(); html.style.removeProperty('--gf-scroll-top'); html.style.removeProperty('--gf-scroll-bottom'); };
   }, [notPhone, full.max]);
   const online = usePresence(finished ? [] : t.seats.map((x) => (x.seat === t.mySeat ? null : x.user?.id)));
-  const sum = g.summary;
+  const sum = useLocalizedSummary(t.gameId, g.summary);
   const kind = wanted === 'duel' && t.seats.length === 2 ? 'duel' : 'seats';
 
   const { queued, cancelQueued } = s;

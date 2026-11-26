@@ -8,6 +8,8 @@ import { RENDERERS } from '../games/renderers.tsx';
 import { ApiFailure, api } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { replayKey } from '../lib/replay.ts';
+import { useTermsLang } from '@bg/ui';
+import { localizeSummary } from '../games/summaryTerms.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { GuestState } from '../shell/GuestState.tsx';
@@ -20,6 +22,7 @@ export function ReplayPage() {
   const navigate = useNavigate();
   const cache = useRef(new Map<number, Promise<TableReplay>>());
   const [rev, setRev] = useState(1);
+  const lang = useTermsLang(); // re-render when the terms language changes
   const [step, setStep] = useState<TableReplay | null>(null);
   const [error, setError] = useState<ApiFailure | Error | null>(null);
   const [nonce, setNonce] = useState(0);
@@ -76,7 +79,7 @@ export function ReplayPage() {
   const Renderer = RENDERERS[step.clientBundleRef];
   const nameOf = (seat: number) => step.seats.find((s) => s.seat === seat)?.name ?? `جایگاه ${faNum(seat + 1)}`;
   const last = cur === total;
-  const sum = step.publicSummary;
+  const sum = step.publicSummary ? localizeSummary(step.gameId, step.publicSummary, lang) : step.publicSummary;
   const players: PlayerCardProps[] = step.seats.map((s) => {
     const ss = sum?.seats.find((x) => x.seat === s.seat);
     const place = last ? step.result?.placements.find((p) => p.seat === s.seat) : undefined;
