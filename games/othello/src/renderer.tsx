@@ -2,7 +2,8 @@
 // the outflanked discs turn over one after another, rippling out from the new disc.
 import './renderer.css';
 import { useRef } from 'react';
-import { RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { RailSlot, T, TurnIndicator, ZoomBoard, tx, useInFrame, usePop, useTermsLang, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import discB from './art/othello-black-disc.png';
 import discW from './art/othello-white-disc.png';
 import boardArt from './art/othello-board.png';
@@ -27,6 +28,7 @@ function place(view: OthelloView, sq: number, d: Disc): OthelloView {
 }
 
 export default function OthelloRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<OthelloView>) {
+  useTermsLang(); // re-render when the terms language changes
   const pendingSq = queued?.type === 'place' && mySeat !== null ? (queued.sq as number) : null;
   const view = pendingSq === null ? real : place(real, pendingSq, real.colors[mySeat!]!);
   // Every change of the board animates from the board shown before it: new discs land, turned discs flip (also back
@@ -54,7 +56,7 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
   const total = view.counts.b + view.counts.w;
   const lastPass = view.passes.at(-1);
   const passNote = lastPass && lastPass.after === view.history.length && !view.outcome
-    ? (lastPass.seat === mySeat ? 'حرکتی نداشتید؛ نوبت شما رد شد' : `${seatName(lastPass.seat)} حرکتی نداشت؛ نوبت دوباره با ${who(view.turn)}`)
+    ? (lastPass.seat === mySeat ? `حرکتی نداشتید؛ نوبت شما ${tx(terms.passed)}` : `${seatName(lastPass.seat)} حرکتی نداشت؛ نوبت دوباره با ${who(view.turn)}`)
     : null;
 
   const framed = useInFrame() !== null; // inside the shared table frame the shell draws players, scores and whose-turn
@@ -70,7 +72,7 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>هر حرکت باید دست‌کم یک ردیف مهرهٔ حریف را بین مهرهٔ تازه و مهرهٔ دیگری از شما بگیرد؛ همهٔ مهره‌های گیرافتاده برمی‌گردند.</p>
+          <p>هر حرکت باید دست‌کم یک ردیف <T t={terms.discEz} /> حریف را بین <T t={terms.discEz} /> تازه و <T t={terms.discEz} /> دیگری از شما بگیرد؛ همهٔ <T t={terms.discs} /> گیرافتاده <T t={terms.flip} />.</p>
           {passNote && <p role="status">{passNote}</p>}
         </RailSlot>
       )}
@@ -106,7 +108,7 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
             const gain = isLegal ? flips(view.board, i, myDisc).length : 0;
             return (
               <g key={i} role="gridcell" tabIndex={isLegal ? 0 : -1}
-                aria-label={`${name(i)}: ${d ? (d === myDisc ? 'مهره شما' : 'مهره حریف') : isLegal ? `خالی، می‌توانید بگذارید (${fa(gain)} مهره برمی‌گردد)` : 'خالی'}`}
+                aria-label={`${name(i)}: ${d ? (d === myDisc ? `${tx(terms.disc)} شما` : `${tx(terms.disc)} حریف`) : isLegal ? `خالی، می‌توانید بگذارید (${fa(gain)} ${tx(terms.disc)} ${tx(terms.flipOne)})` : 'خالی'}`}
                 className={['oth-sq', isLegal ? 'oth-sq--legal' : '', hint === i ? 'oth-sq--hint' : ''].join(' ')}
                 onClick={() => { if (isLegal) onAction({ type: 'place', sq: i }); }}
                 onKeyDown={(e) => { if (isLegal && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onAction({ type: 'place', sq: i }); } }}>

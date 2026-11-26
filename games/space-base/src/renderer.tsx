@@ -30,8 +30,9 @@ const shipArt = (x: Ship): CSSProperties => ({ backgroundImage: `url(${ships})`,
 
 /** A die; `n` null = the roll is still pending (undo window / server), so it tumbles with no pips. */
 export function Die({ n, i = 0 }: { n: number | null; i?: number }) {
-  if (n !== null && DIE_ART[n]) return <img className="sb-die-img bg-roll" style={{ ['--i' as string]: i }} src={DIE_ART[n]} alt={`تاس ${fa(n)}`} draggable={false} />;
-  return <span className={`sb-die ${n === null ? 'bg-tumble' : 'bg-roll'}`} style={{ ['--i' as string]: i }} aria-label={n === null ? 'تاس در حال چرخش' : `تاس ${fa(n)}`}>{Array.from({ length: 9 }, (_, i) => <i key={i} data-pip="" className={n !== null && PIPS[n]!.includes(i) ? 'on' : ''} />)}</span>;
+  useTermsLang();
+  if (n !== null && DIE_ART[n]) return <img className="sb-die-img bg-roll" style={{ ['--i' as string]: i }} src={DIE_ART[n]} alt={`${tx(terms.die)} ${fa(n)}`} draggable={false} />;
+  return <span className={`sb-die ${n === null ? 'bg-tumble' : 'bg-roll'}`} style={{ ['--i' as string]: i }} aria-label={n === null ? `${tx(terms.die)} در حال چرخش` : `${tx(terms.die)} ${fa(n)}`}>{Array.from({ length: 9 }, (_, i) => <i key={i} data-pip="" className={n !== null && PIPS[n]!.includes(i) ? 'on' : ''} />)}</span>;
 }
 
 type Queued = { type: string; use?: 'separate' | 'sum'; ship?: number };
@@ -61,14 +62,14 @@ export function ShipCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }
   useTermsLang();
   const x = SHIPS[id]!;
   return (
-    <span className={`sb-ship sb-ship--${size} sb-l--${x.level}`} aria-label={`${x.name}، بخش ${fa(x.sector)}${x.cost ? `، ${fa(x.cost)} ${tx(terms.credits)}` : ''}`}>
+    <span className={`sb-ship sb-ship--${size} sb-l--${x.level}`} aria-label={`${x.name}، ${tx(terms.sector)} ${fa(x.sector)}${x.cost ? `، ${fa(x.cost)} ${tx(terms.credits)}` : ''}`}>
       <span className="sb-ship__art" style={shipArt(x)} aria-hidden="true" />
       <b className="sb-ship__sec">{fa(x.sector)}</b>
       {x.cost > 0 && <b className="sb-ship__cost">{fa(x.cost)}</b>}
       <span className="sb-ship__name">{x.name}</span>
       <span className="sb-ship__blue">{rw(x.blue)}</span>
       {size === 'md' && <span className="sb-ship__red">{rw(x.red)}</span>}
-      {size === 'md' && x.onBuy && <span className="sb-ship__buy">خرید: {[x.onBuy.income ? `+${fa(x.onBuy.income)} ${tx(terms.income)}` : '', x.onBuy.vp ? `${fa(x.onBuy.vp)}★` : ''].filter(Boolean).join(' ')}</span>}
+      {size === 'md' && x.onBuy && <span className="sb-ship__buy">{tx(terms.buy)}: {[x.onBuy.income ? `+${fa(x.onBuy.income)} ${tx(terms.income)}` : '', x.onBuy.vp ? `${fa(x.onBuy.vp)}★` : ''].filter(Boolean).join(' ')}</span>}
     </span>
   );
 }
@@ -103,9 +104,9 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : has('roll') ? { tone: 'mine' as const, text: 'تاس‌ها را بریزید' }
-      : has('choose') ? { tone: 'mine' as const, text: 'دو بخش جدا یا جمع دو تاس؟' }
-        : has('pass') ? { tone: 'mine' as const, text: `یک ${tx(terms.ship)} بخرید یا نوبت را تمام کنید` }
+    : has('roll') ? { tone: 'mine' as const, text: `${tx(terms.dicePl)} را ${tx(terms.rollYou)}` }
+      : has('choose') ? { tone: 'mine' as const, text: `دو ${tx(terms.sector)} جدا یا ${tx(terms.sum)} دو ${tx(terms.die)}؟` }
+        : has('pass') ? { tone: 'mine' as const, text: `یک ${tx(terms.ship)} ${tx(terms.buyYou)} یا نوبت را تمام کنید` }
           : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const gain = (s: number) => view.gains.find((g) => g.seat === s);
   const [open] = useState(wideScreen);
@@ -122,10 +123,10 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
   const Bays = ({ seat, compact }: { seat: number; compact?: boolean }) => {
     const b = view.boards[seat]!;
     return (
-      <div className={`sb-bays ${compact ? 'sb-bays--compact' : 'sb-bays--board'}`} dir="ltr" role="list" aria-label="بخش‌های ۱ تا ۱۲">
+      <div className={`sb-bays ${compact ? 'sb-bays--compact' : 'sb-bays--board'}`} dir="ltr" role="list" aria-label={`${tx(terms.sectorsPl)} ۱ تا ۱۲`}>
         {b.station.map((st, i) => {
           const x = SHIPS[st]!, dep = b.deployed[i]!;
-          const label = `بخش ${fa(i + 1)}: ${x.name}، آبی ${rw(x.blue)}${dep.length ? `، ${fa(dep.length)} ${tx(terms.ship)} مستقر، قرمز ${rw(redSum(dep))}` : ''}`;
+          const label = `${tx(terms.sector)} ${fa(i + 1)}: ${x.name}، آبی ${rw(x.blue)}${dep.length ? `، ${fa(dep.length)} ${tx(terms.ship)} ${tx(terms.deployed)}، قرمز ${rw(redSum(dep))}` : ''}`;
           return (
             <span key={i} role="listitem" aria-label={label} className={`sb-bay ${lit.includes(i + 1) ? 'sb-bay--lit' : ''}`} data-flip={compact ? flipOf(st) : undefined}>
               <b className="sb-bay__n">{fa(i + 1)}</b>
@@ -161,13 +162,13 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
     const b = view.boards[seat]!, g = gain(seat);
     return (
       <div className={`sb-ledger ${compact ? 'sb-ledger--compact' : ''}`}>
-        <div className="sb-vptrack" role="meter" aria-valuemin={0} aria-valuemax={GOAL} aria-valuenow={Math.min(b.vp, GOAL)} aria-label="امتیاز">
+        <div className="sb-vptrack" role="meter" aria-valuemin={0} aria-valuemax={GOAL} aria-valuenow={Math.min(b.vp, GOAL)} aria-label={tx(terms.vp)}>
           <span className="sb-vptrack__fill" style={{ inlineSize: `${Math.min(b.vp, GOAL) / GOAL * 100}%` }} />
           {!compact && Array.from({ length: GOAL / 5 + 1 }, (_, k) => <i key={k} className="sb-vptrack__tick" style={{ insetInlineStart: `${k * 12.5}%` }}><small>{fa(k * 5)}</small></i>)}
           <span className="sb-vptrack__mark" style={{ insetInlineStart: `${Math.min(b.vp, GOAL) / GOAL * 100}%` }} />
         </div>
         <span className="sb-readouts">
-          <Num className="sb-vp" v={b.vp}>★ {compact ? fa(b.vp) : `${fa(b.vp)} از ${fa(GOAL)} امتیاز`}</Num>
+          <Num className="sb-vp" v={b.vp}>★ {compact ? fa(b.vp) : `${fa(b.vp)} از ${fa(GOAL)} ${tx(terms.vp)}`}</Num>
           <Num className="sb-credits" v={b.credits}><i className="sb-cube" aria-hidden="true" />{fa(b.credits)}¢ <T t={terms.credits} /></Num>
           <Num className="sb-income" v={b.income}><i className="sb-cube sb-cube--inc" aria-hidden="true" /><T t={terms.income} /> {fa(b.income)}</Num>
           {g && (g.credits || g.vp) ? <span className="sb-gain">+{rw(g)}</span> : null}
@@ -178,7 +179,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
 
   return (
     <div className="sb" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تاس بریزید و بخش‌ها را فعال کنید؛ آبی در نوبت شما و قرمز در نوبت رقیبان پرداخت می‌شود. اول به {fa(GOAL)} امتیاز برسد می‌برد.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>{`${tx(terms.die)} ${tx(terms.rollYou)} و ${tx(terms.sectorPl)} را ${tx(terms.activate)}؛ آبی در نوبت شما و قرمز در نوبت رقیبان پرداخت می‌شود. اول به ${fa(GOAL)} ${tx(terms.vp)} برسد می‌برد.`}</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {!framed && <ul className="sb-rivals" aria-label="بازیکنان">
@@ -197,21 +198,21 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
         )))}
       </ul>}
 
-      <section className="sb-console" aria-label="تاس‌ها">
+      <section className="sb-console" aria-label={tx(terms.dicePl)}>
         {rolling ? <span className="sb-dice" key="pending"><Die n={null} /><Die n={null} i={1} /></span>
-          : view.dice ? <span className="sb-dice" key={roll.current.n}><Die n={view.dice[0]} /><Die n={view.dice[1]} i={1} /></span> : <small>هنوز تاسی ریخته نشده</small>}
-        {has('roll') && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'roll' })}>ریختن تاس‌ها</Button></DockSlot>}
+          : view.dice ? <span className="sb-dice" key={roll.current.n}><Die n={view.dice[0]} /><Die n={view.dice[1]} i={1} /></span> : <small>هنوز <T t={terms.diceOne} /> ریخته نشده</small>}
+        {has('roll') && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'roll' })}><T t={terms.rollGer} /> <T t={terms.dicePl} /></Button></DockSlot>}
         {has('choose') && view.dice && <>
-          <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.use === 'separate' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'separate' })}>بخش {fa(view.dice[0])} و {fa(view.dice[1])}</Button></DockSlot>
-          <DockSlot><Button size="sm" disabled={busy} className={hint?.use === 'sum' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'sum' })}>بخش {fa(view.dice[0] + view.dice[1])} (جمع)</Button></DockSlot>
+          <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.use === 'separate' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'separate' })}><T t={terms.sector} /> {fa(view.dice[0])} و {fa(view.dice[1])}</Button></DockSlot>
+          <DockSlot><Button size="sm" disabled={busy} className={hint?.use === 'sum' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'sum' })}><T t={terms.sector} /> {fa(view.dice[0] + view.dice[1])} (<T t={terms.sum} />)</Button></DockSlot>
         </>}
-        {has('pass') && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پایان نوبت بدون خرید</Button></DockSlot>}
+        {has('pass') && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پایان نوبت بدون <T t={terms.buy} /></Button></DockSlot>}
       </section>
 
-      <section className="sb-yard" aria-label={`کارگاه ${tx(terms.ship)}`}>
+      <section className="sb-yard" aria-label={`${tx(terms.yard)} ${tx(terms.ship)}`}>
         {view.shop.map((row, l) => (
           <div key={l} className="sb-yard__row">
-            <span className="sb-yard__lvl" data-flip-anchor={`deck-${l}`} role="img" aria-label={`دستهٔ ${['سبک', 'میانه', 'سنگین'][l]}، ${fa(view.deckCounts[l]!)} ${tx(terms.ship)}`}><img src={DECK_BACK[l]} alt="" draggable={false} /><b>{fa(view.deckCounts[l]!)}</b></span>
+            <span className="sb-yard__lvl" data-flip-anchor={`deck-${l}`} role="img" aria-label={`${tx(terms.deckEz)} ${['سبک', 'میانه', 'سنگین'][l]}، ${fa(view.deckCounts[l]!)} ${tx(terms.ship)}`}><img src={DECK_BACK[l]} alt="" draggable={false} /><b>{fa(view.deckCounts[l]!)}</b></span>
             {row.map((id) => {
               const can = buyable.has(id);
               return <button key={id} type="button" data-flip={`s${id}`} data-flip-from={`deck-${l}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', ship: id })}

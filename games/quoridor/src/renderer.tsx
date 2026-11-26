@@ -3,7 +3,8 @@
 import './renderer.css';
 import { Segmented } from '@bg/ui/bgv';
 import { useEffect, useState } from 'react';
-import { DockSlot, RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { DockSlot, RailSlot, T, TurnIndicator, ZoomBoard, tx, useInFrame, usePop, useTermsLang, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import { BOARD, PAWN_SRC, WALL_H, WALL_V } from './pieces.ts';
 import { distance, N, wallOk, type Orient, type QuoridorView, type Side, type Wall } from './rules.ts';
 
@@ -20,7 +21,7 @@ const wallBox = (w: Wall) => w.o === 'h'
 
 function Walls({ n }: { n: number }) {
   return (
-    <span key={n} className={`qd-pl__walls ${usePop(n)}`} aria-label={`${fa(n)} دیوار مانده`}>
+    <span key={n} className={`qd-pl__walls ${usePop(n)}`} aria-label={`${fa(n)} ${tx(terms.wall)} مانده`}>
       {Array.from({ length: n }, (_, k) => <i key={k} />)}
     </span>
   );
@@ -35,6 +36,7 @@ function preview(v: QuoridorView, q: { type: string; to?: number; r?: number; c?
 }
 
 export default function QuoridorRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<QuoridorView>) {
+  useTermsLang(); // re-render when the terms language changes
   const view = preview(served, queued as Parameters<typeof preview>[1], mySeat);
   const framed = useInFrame() !== null; // the shell draws players, walls left, distances and the move log
   const me = mySeat ?? 0;
@@ -76,7 +78,7 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: mode === 'wall' ? 'یک نقطه طلایی را بزنید' : 'نوبت شما: حرکت یا دیوار' }
+    : myTurn ? { tone: 'mine' as const, text: mode === 'wall' ? 'یک نقطه طلایی را بزنید' : `نوبت شما: حرکت یا ${tx(terms.wall)}` }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 
   // Goal edge of each seat's side, drawn in the frame margin of the art.
@@ -94,9 +96,9 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
   const tools = (
     <div className="qd__tools" role="toolbar" aria-label="نوع حرکت">
       <Segmented label="نوع حرکت" value={segValue} onChange={pick} options={[
-        { value: 'move', label: 'مهره', disabled: off },
-        { value: 'wh', label: <>دیوار افقی <span className="qd__left">{wallsLabel}</span></>, disabled: off || !canWall },
-        { value: 'wv', label: <>دیوار عمودی <span className="qd__left">{wallsLabel}</span></>, disabled: off || !canWall }
+        { value: 'move', label: tx(terms.pawn), disabled: off },
+        { value: 'wh', label: <><T t={terms.wallH} /> <span className="qd__left">{wallsLabel}</span></>, disabled: off || !canWall },
+        { value: 'wv', label: <><T t={terms.wallV} /> <span className="qd__left">{wallsLabel}</span></>, disabled: off || !canWall }
       ]} />
       <span className="qd__hint">کلید R: چرخاندن دیوار</span>
     </div>
@@ -104,10 +106,10 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
 
   // Walls left as tick marks (reference seat display), one row per seat.
   const ticks = (
-    <ul className="qd-ticks" aria-label="دیوارهای باقی‌مانده">
+    <ul className="qd-ticks" aria-label={`${tx(terms.walls)} باقی‌مانده`}>
       {view.wallsLeft.map((n, seat) => (
         <li key={seat}><bdi>{who(seat)}</bdi>
-          <span className="qd-ticks__row" role="img" aria-label={`${fa(n)} دیوار`}>{Array.from({ length: n }, (_, k) => <i key={k} />)}</span>
+          <span className="qd-ticks__row" role="img" aria-label={`${fa(n)} ${tx(terms.wall)}`}>{Array.from({ length: n }, (_, k) => <i key={k} />)}</span>
           <b>{fa(n)}</b></li>
       ))}
     </ul>
@@ -119,8 +121,8 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
       {framed && (
         <RailSlot>
           <p>{mode === 'wall' && myTurn
-            ? <>نقطهٔ روی شیار را بزنید تا <b>دیوار دوخانه‌ای</b> بیفتد؛ دیوار نباید همهٔ راه‌های یک مهره را ببندد.</>
-            : <>هر نوبت یا <b>یک خانه</b> حرکت کنید یا یک دیوار بگذارید. اگر پشت مهرهٔ حریف دیوار باشد، <b>کناری</b> می‌پرید.</>}</p>
+            ? <>نقطهٔ روی شیار را بزنید تا <b><T t={terms.wallTwo} /></b> بیفتد؛ <T t={terms.wall} /> نباید همهٔ راه‌های یک <T t={terms.pawn} /> را ببندد.</>
+            : <>هر نوبت یا <b>یک خانه</b> حرکت کنید یا یک <T t={terms.wall} /> بگذارید. اگر پشت <T t={terms.pawnEz} /> حریف <T t={terms.wall} /> باشد، <b>کناری</b> <T t={terms.jump} />.</>}</p>
           {ticks}
         </RailSlot>
       )}
@@ -131,7 +133,7 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
               <img className="qd-pl__pawn" src={PAWN_SRC[s]} alt="" />
               <bdi className="qd-pl__name">{who(s)}</bdi>
               <Walls n={view.wallsLeft[s]!} />
-              {view.distances[s] !== null && <span className="qd-pl__dist">{fa(view.distances[s]!)} قدم تا هدف</span>}
+              {view.distances[s] !== null && <span className="qd-pl__dist">{fa(view.distances[s]!)} قدم تا <T t={terms.goal} /></span>}
             </li>
           ))}
         </ul>
@@ -149,7 +151,7 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
               const lit = moves.has(i) && mode === 'move' && !busy;
               const hint = expected?.type === 'move' && expected.to === i;
               return (
-                <g key={i} role="gridcell" tabIndex={lit ? 0 : -1} data-d={lit ? distance(view.walls, i, view.sides[me]!) ?? 99 : undefined} aria-label={`ردیف ${fa(r + 1)}، ستون ${fa(c + 1)}${lit ? '، می‌توانید بروید' : ''}`}
+                <g key={i} role="gridcell" tabIndex={lit ? 0 : -1} data-d={lit ? distance(view.walls, i, view.sides[me]!) ?? 99 : undefined} aria-label={`${tx(terms.row)} ${fa(r + 1)}، ${tx(terms.column)} ${fa(c + 1)}${lit ? '، می‌توانید بروید' : ''}`}
                   className={['qd-tile', lit ? 'qd-tile--lit' : '', hint ? 'qd-tile--hint' : ''].join(' ')}
                   onClick={() => lit && onAction({ type: 'move', to: i })} onKeyDown={(e) => { if (lit && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onAction({ type: 'move', to: i }); } }}>
                   <rect x={cx(c) - 30} y={cy(r) - 29.5} width="60" height="59" className="qd-tile__hit" />
@@ -192,7 +194,7 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
               // Crossing point of the grooves: the wall's centre.
               return (
                 <g key={`x${k}`} className={['qd-x', ok ? 'qd-x--ok' : 'qd-x--no', hint ? 'qd-x--hint' : ''].join(' ')} role="button" tabIndex={ok ? 0 : -1}
-                  aria-label={`دیوار ${orient === 'h' ? 'افقی' : 'عمودی'} در تقاطع ${fa(r + 1)}-${fa(c + 1)}${ok ? '' : ' (مجاز نیست)'}`}
+                  aria-label={`${tx(terms.wall)} ${orient === 'h' ? 'افقی' : 'عمودی'} در تقاطع ${fa(r + 1)}-${fa(c + 1)}${ok ? '' : ' (مجاز نیست)'}`}
                   onPointerEnter={() => ok && setHover(w)} onPointerLeave={() => setHover(null)} onFocus={() => ok && setHover(w)} onBlur={() => setHover(null)}
                   onClick={() => ok && place(w)} onKeyDown={(e) => { if (ok && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); place(w); } }}>
                   <circle cx={px} cy={py} r="26" fill="transparent" />
@@ -206,7 +208,7 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
 
       {/* Mode bar stays in view on the opponent's turn too (disabled), in the frame's dock row so it never pushes the board below the stage. */}
       {!view.outcome && (framed ? <DockSlot>{tools}</DockSlot> : tools)}
-      {view.winner !== null && !framed && <p className="qd__end" role="status">{view.winner === mySeat ? 'به هدف رسیدید!' : <><bdi>{seatName(view.winner)}</bdi> به هدف رسید</>}</p>}
+      {view.winner !== null && !framed && <p className="qd__end" role="status">{view.winner === mySeat ? <>به <T t={terms.goal} /> رسیدید!</> : <><bdi>{seatName(view.winner)}</bdi> به <T t={terms.goal} /> رسید</>}</p>}
     </div>
   );
 }

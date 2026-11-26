@@ -32,16 +32,17 @@ const BOX = [
   { left: 1.14, top: 65.48, width: 78.03, height: 28.71 }
 ];
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const effText = (e: Effect) => [e.dmg ? `${fa(e.dmg)} آسیب` : '', e.heal ? `+${fa(e.heal)} جان` : '', e.cp ? `+${fa(e.cp)} CP` : '', e.steal ? `دزدی ${fa(e.steal)} CP` : '',
-  e.wound ? `زخم ${fa(e.wound)}` : '', e.stun ? tx(terms.stun) : '', e.shield ? tx(terms.shield) : '', e.undefendable ? tx(terms.undefendable) : ''].filter(Boolean).join('، ');
-const needText = (h: Hero, a: Ability) => (a.need.sym ? `${a.need.counts!.map(fa).join('/')}× ${h.symFa[a.need.sym]}` : a.need.combo ? Object.entries(a.need.combo).map(([s, c]) => `${fa(c)}× ${h.symFa[s]}`).join(' + ') : a.need.straight === 5 ? 'ردیف بلند (۵)' : 'ردیف کوتاه (۴)');
+export const effText = (e: Effect) => [e.dmg ? `${fa(e.dmg)} ${tx(terms.damage)}` : '', e.heal ? `+${fa(e.heal)} ${tx(terms.health)}` : '', e.cp ? `+${fa(e.cp)} CP` : '', e.steal ? `${tx(terms.steal)} ${fa(e.steal)} CP` : '',
+  e.wound ? `${tx(terms.wound)} ${fa(e.wound)}` : '', e.stun ? tx(terms.stun) : '', e.shield ? tx(terms.shield) : '', e.undefendable ? tx(terms.undefendable) : ''].filter(Boolean).join('، ');
+const needText = (h: Hero, a: Ability) => (a.need.sym ? `${a.need.counts!.map(fa).join('/')}× ${h.symFa[a.need.sym]}` : a.need.combo ? Object.entries(a.need.combo).map(([s, c]) => `${fa(c)}× ${h.symFa[s]}`).join(' + ') : a.need.straight === 5 ? `${tx(terms.largeStraight)} (۵)` : `${tx(terms.smallStraight)} (۴)`);
 
 export function DieFace({ hero, n, kept, rolling, tumble }: { hero: Hero; n: number; kept?: boolean; rolling?: boolean; tumble?: boolean }) {
+  useTermsLang();
   const sym = symOf(hero, n);
   const art = DIE_ART[hero.key]?.[n];
   // tumble: the server has not rolled yet; the faces are hidden (bg-tumble hides [data-pip]) and not announced.
   return (
-    <span className={`dt-die dt-h--${hero.key} ${kept ? 'is-kept is-lock' : ''} ${rolling ? 'bg-roll' : ''} ${tumble ? 'bg-tumble' : ''}`} aria-label={tumble ? 'در حال ریختن' : `تاس ${fa(n)}: ${hero.symFa[sym]}`}>
+    <span className={`dt-die dt-h--${hero.key} ${kept ? 'is-kept is-lock' : ''} ${rolling ? 'bg-roll' : ''} ${tumble ? 'bg-tumble' : ''}`} aria-label={tumble ? 'در حال ریختن' : `${tx(terms.die)} ${fa(n)}: ${hero.symFa[sym]}`}>
       {art ? <img data-pip src={art} alt="" draggable={false} /> : <><b data-pip>{hero.symFa[sym]}</b><small data-pip>{fa(n)}</small></>}
     </span>
   );
@@ -63,13 +64,13 @@ function HeroBoard({ seat, label, active, mine, ctx }: { seat: number; label: st
   if (f.hp < hit.current.hp) hit.current.at = view.seq;
   hit.current.hp = f.hp;
   const attacking = view.current === seat && view.phase !== 'pick' && view.rolled;
-  const tokens = [{ key: 'wound', src: wound, fa: 'زخم', n: f.wound }, { key: 'stun', src: stun, fa: tx(terms.stun), n: f.stun ? 1 : 0 }, { key: 'shield', src: shieldArt, fa: tx(terms.shield), n: f.shield ? 1 : 0 }];
+  const tokens = [{ key: 'wound', src: wound, fa: tx(terms.wound), n: f.wound }, { key: 'stun', src: stun, fa: tx(terms.stun), n: f.stun ? 1 : 0 }, { key: 'shield', src: shieldArt, fa: tx(terms.shield), n: f.shield ? 1 : 0 }];
   return (
-    <section className={`dt-banner dt-board ${mine ? 'dt-board--mine' : 'dt-board--opp'} ${hero ? `dt-h--${hero.key}` : ''} ${active ? 'dt-banner--now' : ''}`} aria-label={`صفحهٔ ${label}${hero ? `، ${hero.name}` : ''}`}>
+    <section className={`dt-banner dt-board ${mine ? 'dt-board--mine' : 'dt-board--opp'} ${hero ? `dt-h--${hero.key}` : ''} ${active ? 'dt-banner--now' : ''}`} aria-label={`${tx(terms.board)} ${label}${hero ? `، ${hero.name}` : ''}`}>
       {hero ? (
         <div className="dt-side">
           <div key={hit.current.at} className={`${hit.current.at ? 'bg-hit ' : ''}dt-b ${mine ? '' : 'dt-b--opp'}`}>
-            <img src={BOARD[hero.key]} alt={`صفحهٔ ${hero.name}، ${label}`} draggable={false} />
+            <img src={BOARD[hero.key]} alt={`${tx(terms.board)} ${hero.name}، ${label}`} draggable={false} />
             {hero.abilities.map((a, i) => {
               const met = attacking && !!abilityEffect(hero, a, view.dice);
               const can = mine && ctx.attacks.has(i);
@@ -84,14 +85,14 @@ function HeroBoard({ seat, label, active, mine, ctx }: { seat: number; label: st
             })}
           </div>
           <div className="dt-stats">
-            <div className="dt-hp" role="meter" aria-valuemin={0} aria-valuemax={MAX_HP} aria-valuenow={Math.max(0, f.hp)} aria-label="جان"><b>{fa(Math.max(0, f.hp))}</b><small>جان</small></div>
+            <div className="dt-hp" role="meter" aria-valuemin={0} aria-valuemax={MAX_HP} aria-valuenow={Math.max(0, f.hp)} aria-label={tx(terms.health)}><b>{fa(Math.max(0, f.hp))}</b><small><T t={terms.health} /></small></div>
             <div className="dt-cp" aria-label={tx(terms.combatPoints)}><b>{fa(f.cp)}</b><small>CP</small></div>
-            <div className="dt-st" aria-label="نشانه‌های وضعیت">
+            <div className="dt-st" aria-label={tx(terms.statusTokens)}>
               {tokens.map((t) => <span key={t.key} className={t.n ? '' : 'is-zero'} aria-label={`${t.fa}: ${t.n ? fa(t.n) : 'ندارد'}`}><img src={t.src} alt="" />{fa(t.n)}</span>)}
             </div>
           </div>
         </div>
-      ) : <small>بدون قهرمان</small>}
+      ) : <small>بدون <T t={terms.hero} /></small>}
     </section>
   );
 }
@@ -139,22 +140,22 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : picks.length ? { tone: 'mine' as const, text: 'قهرمانتان را انتخاب کنید' }
-      : canDefend ? { tone: 'mine' as const, text: `${atkHero?.abilities[view.pending!.ability]!.name}: دفاع کنید` }
-        : view.phase === 'offense' && view.current === me ? { tone: 'mine' as const, text: view.rolled ? 'تاس نگه دارید و دوباره بریزید یا حمله کنید' : 'تاس‌ها را بریزید' }
-          : { tone: 'wait' as const, text: view.phase === 'pick' ? `${seatName(view.current)} قهرمان انتخاب می‌کند` : view.phase === 'defense' ? `${seatName(1 - view.current)} دفاع می‌کند` : `نوبت ${seatName(view.current)}` };
+    : picks.length ? { tone: 'mine' as const, text: `${tx(terms.heroYour)} را انتخاب کنید` }
+      : canDefend ? { tone: 'mine' as const, text: `${atkHero?.abilities[view.pending!.ability]!.name}: ${tx(terms.defense)} کنید` }
+        : view.phase === 'offense' && view.current === me ? { tone: 'mine' as const, text: view.rolled ? `${tx(terms.die)} ${tx(terms.keepImp)} و دوباره ${tx(terms.rollImp)} یا ${tx(terms.attack)} کنید` : `${tx(terms.dice)} را ${tx(terms.rollImp)}` }
+          : { tone: 'wait' as const, text: view.phase === 'pick' ? `${seatName(view.current)} ${tx(terms.hero)} انتخاب می‌کند` : view.phase === 'defense' ? `${seatName(1 - view.current)} ${tx(terms.defense)} می‌کند` : `نوبت ${seatName(view.current)}` };
 
   const ctx: AbCtx = { attacks, busy, hint, onAction, view };
   const framed = useInFrame() !== null;
 
   return (
     <div className="dt" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تا سه بار تاس بریزید و تاس‌هایی را که می‌خواهید نگه دارید؛ هر ریختن اضافه ۲ CP خرج دارد. جور شدن ترکیب، توانایی را روشن می‌کند.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تا سه بار <T t={terms.die} /> <T t={terms.rollImp} /> و <T t={terms.diceYi} /> را که می‌خواهید <T t={terms.keepImp} />؛ هر <T t={terms.extraRoll} /> ۲ CP خرج دارد. جور شدن <T t={terms.combo} />، <T t={terms.ability} /> را روشن می‌کند.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <HeroBoard seat={opp} label={who(opp)} active={view.current === opp && !view.outcome} mine={false} ctx={ctx} />
 
       {view.phase === 'pick' ? (
-        <section className="dt-heroes" aria-label="قهرمان‌ها">
+        <section className="dt-heroes" aria-label={tx(terms.heroes)}>
           {HEROES.map((h, i) => {
             const can = picks.includes(i);
             const taken = view.fighters.some((f) => f.hero === i) || (queued?.type === 'pickHero' && queued.hero === i);
@@ -167,7 +168,7 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
           })}
         </section>
       ) : atkHero && (
-        <section className="dt-tray" aria-label="تاس‌ها">
+        <section className="dt-tray" aria-label={tx(terms.dice)}>
           <div className="dt-dice">
             {view.dice.map((d, i) => {
               const mine = view.current === me && view.phase === 'offense' && view.rolled && !busy && !rolling;
@@ -181,7 +182,7 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
               );
             })}
           </div>
-          {view.phase === 'offense' && <small className="dt-rolls">{view.rolled ? `${fa(view.rollsLeft)} ریختن مانده` : 'هنوز نریخته'}</small>}
+          {view.phase === 'offense' && <small className="dt-rolls">{view.rolled ? `${fa(view.rollsLeft)} ${tx(terms.roll)} مانده` : 'هنوز نریخته'}</small>}
           {defending && defHero ? (
             <div className="dt-defdice"><small><T t={terms.defense} />:</small>{Array.from({ length: defHero.defense.dice }, (_, i) => <DieFace key={`t${i}`} hero={defHero} n={1} tumble />)}</div>
           ) : view.defenseDice.length > 0 && defHero && view.phase !== 'defense' && (
@@ -190,9 +191,9 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
             ))}</div>
           )}
           <div className="dt-bar">
-            {roll && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'dt-hint' : ''} onClick={() => onAction({ type: 'roll', keep: view.rolled ? keep : [false, false, false, false, false] })}>{roll.extra ? 'ریختن اضافه (۲ CP)' : view.rolled ? 'ریختن دوباره' : 'ریختن تاس‌ها'}</Button></DockSlot>}
+            {roll && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'dt-hint' : ''} onClick={() => onAction({ type: 'roll', keep: view.rolled ? keep : [false, false, false, false, false] })}>{roll.extra ? `${tx(terms.extraRoll)} (۲ CP)` : view.rolled ? tx(terms.rollAgain) : tx(terms.rollDice)}</Button></DockSlot>}
             {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>بدون حمله</Button></DockSlot>}
-            {canDefend && <Button size="sm" disabled={busy} className="dt-defend" onClick={() => onAction({ type: 'defend' })}><T t={terms.defense} /> ({fa(defHero?.defense.dice ?? 0)} تاس)</Button>}
+            {canDefend && <Button size="sm" disabled={busy} className="dt-defend" onClick={() => onAction({ type: 'defend' })}><T t={terms.defense} /> ({fa(defHero?.defense.dice ?? 0)} <T t={terms.die} />)</Button>}
           </div>
         </section>
       )}

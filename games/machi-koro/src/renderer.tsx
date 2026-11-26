@@ -49,14 +49,15 @@ const LM_T: Record<Landmark, Term> = { station: terms.station, mall: terms.mall,
 export const cardName = (k: CardKey) => tx(CARD_T[k]);
 export const landmarkName = (k: Landmark) => tx(LM_T[k]);
 const effectOf = (k: CardKey): string => ({
-  wheat: '+۱', ranch: '+۱', bakery: '+۱', cafe: '۱ از تاس‌انداز', store: '+۳', forest: '+۱', stadium: '۲ از هر نفر', tv: '۵ از یک نفر', business: 'جابه‌جایی کارت',
-  cheese: `+۳ هر ${tx(terms.ranch)}`, furniture: `+۳ هر ${tx(terms.forest)}/${tx(terms.mine)}`, mine: '+۵', restaurant: '۲ از تاس‌انداز', orchard: '+۳', market: `+۲ هر ${tx(terms.wheat)}/باغ`
+  wheat: '+۱', ranch: '+۱', bakery: '+۱', cafe: `۱ از ${tx(terms.roller)}`, store: '+۳', forest: '+۱', stadium: '۲ از هر نفر', tv: '۵ از یک نفر', business: tx(terms.swapCard),
+  cheese: `+۳ هر ${tx(terms.ranch)}`, furniture: `+۳ هر ${tx(terms.forest)}/${tx(terms.mine)}`, mine: '+۵', restaurant: `۲ از ${tx(terms.roller)}`, orchard: '+۳', market: `+۲ هر ${tx(terms.wheat)}/${tx(terms.orchardSh)}`
 } as Record<CardKey, string>)[k];
 
 const Die = ({ v, i, tumble }: { v: number; i: number; tumble?: boolean }) => {
+  useTermsLang();
   const pips: Record<number, [number, number][]> = { 1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]], 4: [[-1, -1], [1, -1], [-1, 1], [1, 1]], 5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]], 6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]] };
-  if (!tumble && DIE_ART[v]) return <img src={DIE_ART[v]} className="mk-die bg-roll" style={{ ['--i' as string]: i }} alt={`تاس ${fa(v)}`} draggable={false} />;
-  return <svg viewBox="-12 -12 24 24" className={`mk-die ${tumble ? 'bg-tumble' : 'bg-roll'}`} style={{ ['--i' as string]: i }} aria-label={tumble ? 'در حال ریختن' : `تاس ${fa(v)}`}><rect x="-11" y="-11" width="22" height="22" rx="4" />{pips[v]!.map(([x, y], i) => <circle key={i} cx={x * 6} cy={y * 6} r="2.2" />)}</svg>;
+  if (!tumble && DIE_ART[v]) return <img src={DIE_ART[v]} className="mk-die bg-roll" style={{ ['--i' as string]: i }} alt={`${tx(terms.die)} ${fa(v)}`} draggable={false} />;
+  return <svg viewBox="-12 -12 24 24" className={`mk-die ${tumble ? 'bg-tumble' : 'bg-roll'}`} style={{ ['--i' as string]: i }} aria-label={tumble ? tx(terms.rolling) : `${tx(terms.die)} ${fa(v)}`}><rect x="-11" y="-11" width="22" height="22" rx="4" />{pips[v]!.map(([x, y], i) => <circle key={i} cx={x * 6} cy={y * 6} r="2.2" />)}</svg>;
 };
 
 export function TownCard({ k, count, flip }: { k: CardKey; count?: number; flip?: { id: string; from?: string; exit?: string } }) {
@@ -65,15 +66,16 @@ export function TownCard({ k, count, flip }: { k: CardKey; count?: number; flip?
   const pop = usePop(count);
   return (
     <span className={`mk-card mk-col--${d.color}`} title={cardName(k)} {...(flip ? { 'data-flip': flip.id, ...(flip.from ? { 'data-flip-from': flip.from } : {}), ...(flip.exit ? { 'data-flip-exit': flip.exit } : {}) } : {})}>
-      <img className="mk-card__art" src={ART[k]} alt={`${cardName(k)}، عدد ${d.rolls.map(fa).join(' یا ')}، ${effectOf(k)}`} draggable={false} />
+      <img className="mk-card__art" src={ART[k]} alt={`${cardName(k)}، ${tx(terms.number)} ${d.rolls.map(fa).join(' یا ')}، ${effectOf(k)}`} draggable={false} />
       {count !== undefined && <i className={`mk-card__count ${pop}`} key={count}>×{fa(count)}</i>}
     </span>
   );
 }
 
 function Coins({ n }: { n: number }) {
+  useTermsLang();
   const pop = usePop(n);
-  return <span className={`mk-pl__coins ${pop}`} key={n}><img src={coins} alt="" draggable={false} />{fa(n)} سکه</span>;
+  return <span className={`mk-pl__coins ${pop}`} key={n}><img src={coins} alt="" draggable={false} />{fa(n)} <T t={terms.coins} /></span>;
 }
 
 type Queued = { type: string; dice?: number; card?: CardKey; landmark?: Landmark; target?: number };
@@ -132,7 +134,7 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? {
       tone: 'mine' as const,
-      text: view.phase === 'roll' ? 'تاس بریزید' : view.phase === 'reroll' ? 'دوباره می‌ریزید یا همین را نگه می‌دارید؟' : view.phase === 'tv' ? 'از چه کسی ۵ سکه می‌گیرید؟' : view.phase === 'swap' ? 'یک کارت را عوض می‌کنید؟' : `یک مغازه یا ${tx(terms.landmark)} بسازید`
+      text: view.phase === 'roll' ? tx(terms.rollDice) : view.phase === 'reroll' ? `${tx(terms.rerollQ)} یا ${tx(terms.keepQ)}؟` : view.phase === 'tv' ? `از چه کسی ۵ ${tx(terms.coins)} می‌گیرید؟` : view.phase === 'swap' ? `یک ${tx(terms.card)} را ${tx(terms.swapQ)}؟` : `یک ${tx(terms.establishment)} یا ${tx(terms.landmark)} ${tx(terms.buildV)}`
     }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const others = view.coins.map((_, k) => k).filter((k) => k !== me);
@@ -147,8 +149,8 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
 
   const city = (s: number) => (
           <li key={s} className={['mk-pl', view.current === s && !view.outcome ? 'mk-pl--turn' : '', s === me ? 'mk-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'mk-pl--win' : ''].join(' ')}>
-            <div className="mk-pl__head"><bdi className="mk-pl__name">{s === me ? 'شهر شما' : who(s)}</bdi><Coins n={view.coins[s]!} /></div>
-            <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={`${l.key}-${view.landmarks[s]![l.key]}`} className={`mk-lm ${view.landmarks[s]![l.key] ? `mk-lm--on${view.seq !== seq0.current ? ' bg-land' : ''}` : ''}`} title={landmarkName(l.key)}><img src={LM_ART[l.key][view.landmarks[s]![l.key] ? 1 : 0]} alt={`${landmarkName(l.key)}${view.landmarks[s]![l.key] ? '، ساخته شده' : ''}`} draggable={false} /></span>)}</div>
+            <div className="mk-pl__head"><bdi className="mk-pl__name">{s === me ? `${tx(terms.city)} شما` : who(s)}</bdi><Coins n={view.coins[s]!} /></div>
+            <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={`${l.key}-${view.landmarks[s]![l.key]}`} className={`mk-lm ${view.landmarks[s]![l.key] ? `mk-lm--on${view.seq !== seq0.current ? ' bg-land' : ''}` : ''}`} title={landmarkName(l.key)}><img src={LM_ART[l.key][view.landmarks[s]![l.key] ? 1 : 0]} alt={`${landmarkName(l.key)}${view.landmarks[s]![l.key] ? `، ${tx(terms.built)}` : ''}`} draggable={false} /></span>)}</div>
             <div className="mk-pl__cards">{CARD_DEFS.filter((d) => view.cards[s]![d.key]).map((d) => <TownCard key={d.key} k={d.key} count={view.cards[s]![d.key]} flip={flipOf(s, d.key)} />)}</div>
           </li>
   );
@@ -157,10 +159,10 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
 
   return (
     <div className={framed ? 'mk mk--framed' : 'mk'} data-seq={view.seq} data-phase={view.phase} ref={root}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تاس بریزید، درآمد کارت‌ها پرداخت می‌شود، بعد یک کارت یا <T t={terms.landmark} /> بسازید. اولین نفری که هر چهار بنا را بسازد می‌برد.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p><T t={terms.rollDice} />، <T t={terms.income} /> <T t={terms.cards} /> پرداخت می‌شود، بعد یک <T t={terms.card} /> یا <T t={terms.landmark} /> <T t={terms.buildV} />. اولین نفری که هر چهار <T t={terms.landmarkSh} /> را <T t={terms.buildV2} /> می‌برد.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <section className="mk__dice" aria-label="تاس‌ها">
+      <section className="mk__dice" aria-label={tx(terms.dice)}>
         {rolling
           ? <span className="mk__diceRow" key="tumble">{Array.from({ length: rolling }, (_, i) => <Die key={i} v={1} i={i} tumble />)}</span>
           : <span className="mk__diceRow" key={rollAt.current}>{view.dice.length ? view.dice.map((v, i) => <Die key={i} v={v} i={i} />) : null}</span>}
@@ -170,29 +172,29 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
 
       {myTurn && (rolls.length > 0 || canKeep) && (
         <div className="mk__bar">
-          {rolls.map((n) => <DockSlot key={n}><Button size="sm" disabled={busy} className={hint?.type === 'roll' && hint.dice === n ? 'mk-hint' : ''} onClick={() => onAction({ type: 'roll', dice: n })}>{view.phase === 'reroll' ? 'دوباره' : 'ریختن'} {fa(n)} تاس</Button></DockSlot>)}
-          {canKeep && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'keep' })}>همین را نگه دار</Button></DockSlot>}
+          {rolls.map((n) => <DockSlot key={n}><Button size="sm" disabled={busy} className={hint?.type === 'roll' && hint.dice === n ? 'mk-hint' : ''} onClick={() => onAction({ type: 'roll', dice: n })}>{view.phase === 'reroll' ? <T t={terms.rerollB} /> : <T t={terms.rollB} />} {fa(n)} <T t={terms.die} /></Button></DockSlot>)}
+          {canKeep && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'keep' })}><T t={terms.keepB} /></Button></DockSlot>}
         </div>
       )}
       {myTurn && view.phase === 'tv' && (
-        <div className="mk__bar">{others.map((k) => <DockSlot key={k}><Button size="sm" disabled={busy} onClick={() => onAction({ type: 'tv', target: k })}>از <bdi>{who(k)}</bdi> ({fa(view.coins[k]!)} سکه)</Button></DockSlot>)}</div>
+        <div className="mk__bar">{others.map((k) => <DockSlot key={k}><Button size="sm" disabled={busy} onClick={() => onAction({ type: 'tv', target: k })}>از <bdi>{who(k)}</bdi> ({fa(view.coins[k]!)} <T t={terms.coins} />)</Button></DockSlot>)}</div>
       )}
       {myTurn && view.phase === 'swap' && (
         <div className="mk__bar mk__swap">
-          <select value={give} onChange={(e) => setGive(e.target.value as CardKey)} aria-label="کارتی که می‌دهید"><option value="">کارت شما…</option>{CARD_DEFS.filter((d) => d.color !== 'purple' && view.cards[me]![d.key]).map((d) => <option key={d.key} value={d.key}>{cardName(d.key)}</option>)}</select>
+          <select value={give} onChange={(e) => setGive(e.target.value as CardKey)} aria-label={`${tx(terms.cardIndef)} که می‌دهید`}><option value="">{tx(terms.card)} شما…</option>{CARD_DEFS.filter((d) => d.color !== 'purple' && view.cards[me]![d.key]).map((d) => <option key={d.key} value={d.key}>{cardName(d.key)}</option>)}</select>
           <select value={target} onChange={(e) => { setTarget(Number(e.target.value)); setTake(''); }} aria-label="بازیکن"><option value={-1}>با…</option>{others.map((k) => <option key={k} value={k}>{who(k)}</option>)}</select>
-          <select value={take} onChange={(e) => setTake(e.target.value as CardKey)} aria-label="کارتی که می‌گیرید" disabled={target < 0}><option value="">کارت او…</option>{target >= 0 && CARD_DEFS.filter((d) => d.color !== 'purple' && view.cards[target]![d.key]).map((d) => <option key={d.key} value={d.key}>{cardName(d.key)}</option>)}</select>
-          <DockSlot><Button size="sm" disabled={!swapOk || busy} onClick={() => onAction({ type: 'swap', give: give as CardKey, target, take: take as CardKey })}>عوض کن</Button></DockSlot>
+          <select value={take} onChange={(e) => setTake(e.target.value as CardKey)} aria-label={`${tx(terms.cardIndef)} که می‌گیرید`} disabled={target < 0}><option value="">{tx(terms.card)} او…</option>{target >= 0 && CARD_DEFS.filter((d) => d.color !== 'purple' && view.cards[target]![d.key]).map((d) => <option key={d.key} value={d.key}>{cardName(d.key)}</option>)}</select>
+          <DockSlot><Button size="sm" disabled={!swapOk || busy} onClick={() => onAction({ type: 'swap', give: give as CardKey, target, take: take as CardKey })}><T t={terms.swapB} /></Button></DockSlot>
           <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'noSwap' })}>نه</Button></DockSlot>
         </div>
       )}
 
       <div className="mk__top">
       {!view.outcome && (
-        <section className="mk__supply" aria-label="بازار ساخت">
+        <section className="mk__supply" aria-label={tx(terms.supply)}>
           {CARD_DEFS.map((d) => (
             <button key={d.key} type="button" data-flip-anchor={`buy-${d.key}`} className={['mk-buy', hint?.card === d.key ? 'mk-hint' : ''].join(' ')} disabled={!builds.has(d.key) || busy}
-              onClick={() => onAction({ type: 'build', card: d.key })} aria-label={`ساختن ${cardName(d.key)} به قیمت ${fa(d.cost)}، ${fa(view.supply[d.key])} مانده`}>
+              onClick={() => onAction({ type: 'build', card: d.key })} aria-label={`${tx(terms.buildN)} ${cardName(d.key)} به ${tx(terms.cost)} ${fa(d.cost)}، ${fa(view.supply[d.key])} ${tx(terms.left)}`}>
               <TownCard k={d.key} />
               {/* Reference: the pile count is a corner badge on the card (the cost is printed on the art). */}
               <i className="mk-buy__left" aria-hidden="true">{fa(view.supply[d.key])}</i>
@@ -201,18 +203,18 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
           ))}
         </section>
       )}
-      {side && <ul className="mk__players mk__players--side" aria-label="شهر حریف‌ها">{others.map(city)}</ul>}
+      {side && <ul className="mk__players mk__players--side" aria-label={`${tx(terms.city)} حریف‌ها`}>{others.map(city)}</ul>}
       </div>
       {myTurn && view.phase === 'build' && (
         <div className="mk__bar">
           {LANDMARKS.filter((l) => !view.landmarks[me]![l.key]).map((l) => (
             <DockSlot key={l.key}><Button size="sm" disabled={!lms.has(l.key) || busy} className={hint?.landmark === l.key ? 'mk-hint' : ''} onClick={() => onAction({ type: 'build', landmark: l.key })}>{landmarkName(l.key)} ({fa(l.cost)})</Button></DockSlot>
           ))}
-          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>چیزی نمی‌سازم</Button></DockSlot>}
+          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}><T t={terms.passB} /></Button></DockSlot>}
         </div>
       )}
 
-      <ul className="mk__players" aria-label="شهرها">
+      <ul className="mk__players" aria-label={tx(terms.cities)}>
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : side ? (me >= 0 ? [me] : []) : [...others, ...(me >= 0 ? [me] : [])]).map(city)}
       </ul>
     </div>

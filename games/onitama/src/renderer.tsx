@@ -3,7 +3,7 @@
 // card first narrows the targets to that card.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePieceIds, usePrevious, useTermsLang, tx, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePieceIds, usePrevious, useTermsLang, tx, T, type GameRendererProps } from '@bg/ui';
 import { terms } from './terms.ts';
 // Board, pieces and cards: design/games/group-a/art/onitama, copied as-is (the design ships 7 of the 16 card faces).
 import rM from './art/onitama-red-master.png';
@@ -83,9 +83,9 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
   const status = view.outcome ? null
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : view.current === mySeat
-      ? { tone: 'mine' as const, text: passes.length ? 'حرکتی ممکن نیست: یک کارت را عوض کنید' : from === null ? 'نوبت شما: یک مهره را بزنید' : 'یک خانه روشن را بزنید' }
+      ? { tone: 'mine' as const, text: passes.length ? `حرکتی ممکن نیست: یک ${tx(terms.card)} را عوض کنید` : from === null ? `نوبت شما: یک ${tx(terms.piece)} را بزنید` : 'یک خانه روشن را بزنید' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
-  const endText = view.end && { stone: `${tx(terms.master)} زده شد (${tx(terms.wayStone)})`, stream: `${tx(terms.master)} به ${tx(terms.temple)} رسید (${tx(terms.wayStream)})`, resign: 'انصراف', timeout: 'اتمام زمان', repetition: 'تکرار سه‌باره — مساوی' }[view.end.kind];
+  const endText = view.end && { stone: `${tx(terms.master)} زده شد (${tx(terms.wayStone)})`, stream: `${tx(terms.master)} به ${tx(terms.temple)} رسید (${tx(terms.wayStream)})`, resign: 'انصراف', timeout: 'اتمام زمان', repetition: `${tx(terms.threefold)} — ${tx(terms.draw)}` }[view.end.kind];
 
   // Rail card «استاد / شاگرد» (reference): my piece art and the students left on each side.
   const mine = (t: 'M' | 'S') => `${me === 0 ? 'r' : 'b'}${t}` as Piece;
@@ -97,7 +97,7 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
       {framed && (
         <RailSlot>
           <p>{view.current === mySeat && !view.outcome
-            ? <>اول <b>یک مهره</b> و بعد یک خانهٔ روشن را بزنید، یا اول <b>کارت</b> را بزنید تا فقط حرکت‌های همان کارت پیدا شود.</>
+            ? <>اول <b>یک <T t={terms.piece} /></b> و بعد یک خانهٔ روشن را بزنید، یا اول <b><T t={terms.card} /></b> را بزنید تا فقط حرکت‌های همان <T t={terms.card} /> پیدا شود.</>
             : <>برنده کسی است که <b>{tx(terms.master)} حریف را بزند</b> یا {tx(terms.master)} خود را به <b>{tx(terms.temple)} حریف</b> برساند.</>}</p>
           <div className="oni-kinds">
             <div><img src={ART[mine('M')]} alt="" /><span><b>{tx(terms.master)}</b>زدنش یعنی برد</span></div>
@@ -106,7 +106,7 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
         </RailSlot>
       )}
 
-      <div className="oni__hand oni__hand--them" aria-label={`کارت‌های ${who(1 - me)}`}>
+      <div className="oni__hand oni__hand--them" aria-label={`${tx(terms.cards)} ${who(1 - me)}`}>
         {view.hands[1 - me as 0 | 1].map((id) => <MoveCard key={id} id={id} upside />)}
       </div>
 
@@ -149,13 +149,13 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
             })}
           </svg>
         </ZoomBoard>
-        <div className="oni__side" aria-label="کارت کنار صفحه">
-          <span className="oni__side-label">کارت بعدی برای {view.current === me ? 'حریف' : 'شما'}</span>
+        <div className="oni__side" aria-label={tx(terms.sideCard)}>
+          <span className="oni__side-label"><T t={terms.nextCard} /> برای {view.current === me ? 'حریف' : 'شما'}</span>
           <MoveCard key={view.side} id={view.side} upside={view.current !== me} />
         </div>
       </div>
 
-      <div className="oni__hand oni__hand--mine" role="group" aria-label="کارت‌های شما">
+      <div className="oni__hand oni__hand--mine" role="group" aria-label={`${tx(terms.cards)} شما`}>
         {view.hands[me as 0 | 1].map((id) => (
           <MoveCard key={id} id={id} selectable={view.current === mySeat && !busy && moves.some((m) => m.card === id)} selected={card === id}
             onSelect={() => { setCard(card === id ? null : id); setChoice(null); }} />
@@ -163,14 +163,14 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
       </div>
 
       {choice && (
-        <div className="oni__choice" role="group" aria-label="کدام کارت؟">
-          <span>با کدام کارت؟</span>
+        <div className="oni__choice" role="group" aria-label={`کدام ${tx(terms.card)}؟`}>
+          <span>با کدام <T t={terms.card} />؟</span>
           {choice.map((m) => <Button key={m.card} size="sm" disabled={busy} onClick={() => go(m)}>{cardName(m.card)}</Button>)}
         </div>
       )}
       {passes.length > 0 && (
-        <div className="oni__choice" role="group" aria-label="عوض کردن کارت">
-          {passes.map((id) => <Button key={id} size="sm" disabled={busy} onClick={() => onAction({ type: 'pass', card: id })}>عوض کردن «{cardName(id)}»</Button>)}
+        <div className="oni__choice" role="group" aria-label={`${tx(terms.swap)} ${tx(terms.card)}`}>
+          {passes.map((id) => <Button key={id} size="sm" disabled={busy} onClick={() => onAction({ type: 'pass', card: id })}><T t={terms.swap} /> «{cardName(id)}»</Button>)}
         </div>
       )}
       {endText && <p className="oni__end" role="status">{endText}</p>}
@@ -199,7 +199,7 @@ function MoveCard({ id, upside, selectable, selected, onSelect }: { id: string; 
     </>
   ) : <strong className="oni-card__name">{tx({ fa: c.nameFa, bg: c.nameEn })}</strong>;
   const cls = ['oni-card', art ? 'oni-card--art' : '', upside && art ? 'oni-card--upside' : '', selected ? 'oni-card--sel' : ''].join(' ');
-  const label = `کارت ${tx({ fa: c.nameFa, bg: c.nameEn })}: ${c.moves.map(([dx, dy]) => `${dy > 0 ? `${dy} جلو` : dy < 0 ? `${-dy} عقب` : ''}${dx ? ` ${Math.abs(dx)} ${dx > 0 ? 'راست' : 'چپ'}` : ''}`.trim()).join('، ')}`;
+  const label = `${tx(terms.card)} ${tx({ fa: c.nameFa, bg: c.nameEn })}: ${c.moves.map(([dx, dy]) => `${dy > 0 ? `${dy} جلو` : dy < 0 ? `${-dy} عقب` : ''}${dx ? ` ${Math.abs(dx)} ${dx > 0 ? 'راست' : 'چپ'}` : ''}`.trim()).join('، ')}`;
   return selectable
     ? <button type="button" data-flip={`card-${id}`} className={cls} aria-pressed={selected} aria-label={label} onClick={onSelect}>{body}</button>
     : <div data-flip={`card-${id}`} className={cls} role="img" aria-label={label}>{body}</div>;

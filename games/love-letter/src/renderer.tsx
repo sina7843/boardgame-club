@@ -2,7 +2,7 @@
 // protection and discards; your two cards — tap one, then (if needed) a target and, for the Guard, a guess.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, type Term } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, type Term } from '@bg/ui';
 import { terms } from './terms.ts';
 import { type LogEntry, type LoveLetterView } from './rules.ts';
 
@@ -10,8 +10,8 @@ const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const CARD_T: Record<number, Term> = { 1: terms.guard, 2: terms.priest, 3: terms.baron, 4: terms.handmaid, 5: terms.prince, 6: terms.king, 7: terms.countess, 8: terms.princess };
 const cardFa = (v: number) => tx(CARD_T[v]!);
 const EFFECT_FA = (): Record<number, string> => ({
-  1: 'کارت یک نفر را حدس بزنید', 2: 'دست یک نفر را ببینید', 3: 'دست‌ها را مقایسه کنید', 4: 'تا نوبت بعد در امانید',
-  5: 'یک نفر کارتش را عوض کند', 6: 'دست‌تان را عوض کنید', 7: `با ${tx(terms.king)} یا ${tx(terms.prince)} باید بازی شود`, 8: 'دور بیندازید، می‌بازید'
+  1: `${tx(terms.card)} یک نفر را ${tx(terms.guessV)}`, 2: `${tx(terms.hand)} یک نفر را ${tx(terms.lookV)}`, 3: `${tx(terms.handsPl)} را ${tx(terms.compareV)}`, 4: `تا نوبت بعد ${tx(terms.protectedV)}`,
+  5: `یک نفر ${tx(terms.cardPos)} را عوض کند`, 6: `${tx(terms.handYour)} را ${tx(terms.tradeV)}`, 7: `با ${tx(terms.king)} یا ${tx(terms.prince)} باید ${tx(terms.playN)} شود`, 8: `${tx(terms.discardV)}، می‌بازید`
 });
 const effectFa = (v: number) => EFFECT_FA()[v];
 
@@ -80,19 +80,19 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: card === null ? 'یک کارت را بازی کنید' : target === null ? 'هدف را انتخاب کنید' : 'کارت او را حدس بزنید' }
+    : myTurn ? { tone: 'mine' as const, text: card === null ? `یک ${tx(terms.card)} را ${tx(terms.playV)}` : target === null ? `${tx(terms.target)} را انتخاب کنید` : `${tx(terms.card)} او را ${tx(terms.guessV)}` }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : seatName(view.current)}` };
 
   const framed = useInFrame() !== null; // the shell draws seats, tokens, whose-turn and the events log
   const describe = (e: LogEntry) => {
     if (e.t === 'play') {
-      const base = `${who(e.seat)} «${cardFa(e.card)}» بازی کرد${e.target !== null ? ` روی ${who(e.target)}` : ''}`;
+      const base = `${who(e.seat)} «${cardFa(e.card)}» ${tx(terms.playP)}${e.target !== null ? ` روی ${who(e.target)}` : ''}`;
       if (e.card === 1 && e.guess) return `${base} و «${cardFa(e.guess)}» گفت — ${e.result === 'out' ? 'درست بود!' : 'اشتباه بود'}`;
-      if (e.result === 'tie') return `${base}: مساوی`;
+      if (e.result === 'tie') return `${base}: ${tx(terms.tie)}`;
       return base;
     }
-    if (e.t === 'out') return `${who(e.seat)} با «${cardFa(e.card)}» از دور بیرون رفت`;
-    if (e.t === 'round') return `دور ${fa(e.round)} را ${e.winners.map(who).join(' و ')} برد`;
+    if (e.t === 'out') return `${who(e.seat)} با «${cardFa(e.card)}» از ${tx(terms.round)} بیرون رفت`;
+    if (e.t === 'round') return `${tx(terms.round)} ${fa(e.round)} را ${e.winners.map(who).join(' و ')} برد`;
     if (e.t === 'timeout') return `زمان ${who(e.seat)} تمام شد`;
     return `${who(e.seat)} کنار رفت`;
   };
@@ -103,7 +103,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>{card !== null ? effectFa(card) : `یک کارت بازی کنید و اثرش را اجرا کنید؛ در پایان دور بالاترین کارت می‌برد. با ${tx(terms.prince)} یا ${tx(terms.king)}، ${tx(terms.princess)} را هرگز نگه ندارید.`}</p>
+          <p>{card !== null ? effectFa(card) : `یک ${tx(terms.card)} ${tx(terms.playV)} و اثرش را اجرا کنید؛ در پایان ${tx(terms.round)} بالاترین ${tx(terms.card)} می‌برد. با ${tx(terms.prince)} یا ${tx(terms.king)}، ${tx(terms.princess)} را هرگز نگه ندارید.`}</p>
         </RailSlot>
       )}
 
@@ -116,9 +116,9 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
             <li key={s} data-flip-anchor={s === mySeat ? 'hand' : `seat-${s}`} className={['ll-pl', s === knocked ? 'bg-hit' : '', s === view.current && !view.outcome ? 'll-pl--turn' : '', view.inRound[s] ? '' : 'll-pl--out', s === mySeat ? 'll-pl--me' : ''].join(' ')}>
               {framed ? <bdi className="ll-pl__name">{who(s)}</bdi> : <div className="ll-pl__head">
                 <bdi className="ll-pl__name">{who(s)}</bdi>
-                {view.protectedSeats[s] && <span className="ll-pl__shield" title="در امان">🛡</span>}
-                {!view.inRound[s] && view.active[s] && <span className="ll-pl__state">بیرون از دور</span>}
-                <span className="ll-pl__tokens" aria-label={`${fa(t)} نشان از ${fa(view.goal)}`}>
+                {view.protectedSeats[s] && <span className="ll-pl__shield" title={tx(terms.protectedTitle)}>🛡</span>}
+                {!view.inRound[s] && view.active[s] && <span className="ll-pl__state">بیرون از <T t={terms.round} /></span>}
+                <span className="ll-pl__tokens" aria-label={`${fa(t)} ${tx(terms.tokenN)} از ${fa(view.goal)}`}>
                   {Array.from({ length: view.goal }, (_, k) => <i key={`${k}-${k < t}`} className={k < t ? 'on bg-pop' : ''} />)}
                 </span>
               </div>}
@@ -134,20 +134,20 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
       </ul>
 
       <div className="ll__table">
-        <div className="ll-deck" data-flip-anchor="deck" aria-label={`${fa(view.deckCount)} کارت در دسته`}>
+        <div className="ll-deck" data-flip-anchor="deck" aria-label={`${fa(view.deckCount)} ${tx(terms.card)} در ${tx(terms.deck)}`}>
           <img className="ll-deck__back" src={gc('back')} alt="" aria-hidden="true" /><span className="ll-deck__n">{fa(view.deckCount)}</span>
         </div>
-        {view.faceUp.length > 0 && <div className="ll__faceup" aria-label="کارت‌های رو کنار گذاشته">{view.faceUp.map((c, k) => <LLCard key={k} v={c} size="sm" flip={`f-${view.round}-${k}`} flipFrom="deck" />)}</div>}
+        {view.faceUp.length > 0 && <div className="ll__faceup" aria-label={`${tx(terms.cardsEz)} رو کنار گذاشته`}>{view.faceUp.map((c, k) => <LLCard key={k} v={c} size="sm" flip={`f-${view.round}-${k}`} flipFrom="deck" />)}</div>}
       </div>
 
       {view.seen && (
         <p key={view.seen.seq} className="ll__seen" role="status">
-          فقط شما می‌بینید: کارت <bdi>{who(view.seen.seat)}</bdi> «{cardFa(view.seen.card)}» است.
+          فقط شما می‌بینید: <T t={terms.card} /> <bdi>{who(view.seen.seat)}</bdi> «{cardFa(view.seen.card)}» است.
         </p>
       )}
 
       {card === 1 && target !== null && (
-        <div className="ll__guess" role="group" aria-label="حدس کارت">
+        <div className="ll__guess" role="group" aria-label={`${tx(terms.guessN)} ${tx(terms.card)}`}>
           {[2, 3, 4, 5, 6, 7, 8].map((g) => (
             <button key={g} type="button" className={hint?.guess === g ? 'll-guess ll-guess--hint' : 'll-guess'} disabled={busy} onClick={() => send(1, target, g)}>
               <img src={gc(`guess-${g}`)} alt="" aria-hidden="true" width={28} height={28} />{fa(g)} {cardFa(g)}
@@ -157,7 +157,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
       )}
 
       {view.hand && view.inRound[mySeat ?? 0] && !view.outcome && (
-        <div className="ll__hand" data-flip-anchor="hand" role="group" aria-label="دست شما">
+        <div className="ll__hand" data-flip-anchor="hand" role="group" aria-label={`${tx(terms.hand)} شما`}>
           {view.hand.map((c, k) => (
             <LLCard key={handIds[k]} flip={handIds[k]} flipFrom="deck" v={c} onClick={myTurn && plays.some((p) => p.card === c) && !busy ? () => pickCard(c) : undefined}
               selected={card === c} hint={hint?.card === c && card === null} />
@@ -166,7 +166,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
         </div>
       )}
 
-      {!framed && <ol className="ll__log" aria-label="رویدادها">{view.log.slice(-4).map((e) => <li key={e.seq}>{describe(e)}</li>)}</ol>}
+      {!framed && <ol className="ll__log" aria-label={tx(terms.log)}>{view.log.slice(-4).map((e) => <li key={e.seq}>{describe(e)}</li>)}</ol>}
     </div>
   );
 }

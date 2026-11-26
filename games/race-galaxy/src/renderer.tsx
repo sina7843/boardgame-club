@@ -24,9 +24,9 @@ const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const PHASE_T: Record<Phase, Term> = { explore: terms.explore, develop: terms.develop, settle: terms.settle, consume: terms.consume, produce: terms.produce };
 export const phaseName = (p: Phase) => tx(PHASE_T[p]);
 const phaseDesc = (p: Phase): string => ({
-  explore: 'دو کارت بکش، یکی نگه دار (انتخاب‌کننده: چهار)', develop: `یک ${tx(terms.development)} بگذار (انتخاب‌کننده: ۱ ارزان‌تر)`,
-  settle: `یک ${tx(terms.world)} بگذار (انتخاب‌کننده: یک کارت جایزه)`, consume: `${tx(terms.goodsPl)} امتیاز می‌شوند (انتخاب‌کننده: دو برابر)`,
-  produce: `${tx(terms.world)}‌های ${tx(terms.production)} کالا می‌گیرند (انتخاب‌کننده: ${tx(terms.windfall)}‌ها هم)`
+  explore: `دو ${tx(terms.card)} ${tx(terms.draw)}، یکی ${tx(terms.keepImp)} (${tx(terms.chooser)}: چهار)`, develop: `یک ${tx(terms.development)} ${tx(terms.placeImp)} (${tx(terms.chooser)}: ۱ ارزان‌تر)`,
+  settle: `یک ${tx(terms.world)} ${tx(terms.placeImp)} (${tx(terms.chooser)}: یک ${tx(terms.card)} ${tx(terms.bonus)})`, consume: `${tx(terms.goodsPl)} ${tx(terms.vp)} می‌شوند (${tx(terms.chooser)}: دو برابر)`,
+  produce: `${tx(terms.world)}‌های ${tx(terms.production)} کالا می‌گیرند (${tx(terms.chooser)}: ${tx(terms.windfall)}‌ها هم)`
 } as Record<Phase, string>)[p];
 const PHASE_ART: Record<Phase, string> = { explore: ph0, develop: ph1, settle: ph2, consume: ph3, produce: ph4 };
 const powerName = (k: string): string => ({ devCost: `${tx(terms.develop)} −۱`, settleCost: `${tx(terms.settle)} −۱`, military: tx(terms.military), explore: `${tx(terms.explore)} +۱`, consume: `${tx(terms.consume)} +۱` } as Record<string, string>)[k]!;
@@ -39,10 +39,10 @@ export function GalaxyCard({ id, good, size = 'md' }: { id: number; good?: boole
   useTermsLang();
   const c = CARDS[id]!;
   const face = PRINTED[c.name];
-  if (face) return <span className={`rg-card rg-card--${size} rg-card--face`} aria-label={`${c.name}، هزینه ${fa(c.cost)}، ${fa(c.vp)} امتیاز${good ? '، دارای کالا' : ''}`}><img src={face} alt="" draggable={false} />{good && c.good && <img className="rg-good bg-land" src={GOOD_ART[c.good]} alt="" />}</span>;
+  if (face) return <span className={`rg-card rg-card--${size} rg-card--face`} aria-label={`${c.name}، ${tx(terms.cost)} ${fa(c.cost)}، ${fa(c.vp)} ${tx(terms.vp)}${good ? `، دارای ${tx(terms.goods)}` : ''}`}><img src={face} alt="" draggable={false} />{good && c.good && <img className="rg-good bg-land" src={GOOD_ART[c.good]} alt="" />}</span>;
   const tag = c.type === 'dev' ? (c.power ? `${powerName(c.power)}${c.mil ? ` +${fa(c.mil)}` : ''}` : tx(terms.development)) : c.kind === 'mil' ? `${tx(terms.military)} ${fa(c.cost)}` : c.kind === 'wind' ? tx(terms.windfall) : tx(terms.production);
   return (
-    <span className={`rg-card rg-card--${size} ${c.type === 'dev' ? 'rg-dev' : `rg-w--${c.good} rg-k--${c.kind}`}`} aria-label={`${c.name}، ${tag}، هزینه ${fa(c.cost)}، ${fa(c.vp)} امتیاز${good ? '، دارای کالا' : ''}`}>
+    <span className={`rg-card rg-card--${size} ${c.type === 'dev' ? 'rg-dev' : `rg-w--${c.good} rg-k--${c.kind}`}`} aria-label={`${c.name}، ${tag}، ${tx(terms.cost)} ${fa(c.cost)}، ${fa(c.vp)} ${tx(terms.vp)}${good ? `، دارای ${tx(terms.goods)}` : ''}`}>
       <span className="rg-card__orb" aria-hidden>{c.type === 'dev' ? '⬢' : ''}{good && c.good && <img className="rg-good bg-land" src={GOOD_ART[c.good]} alt="" />}</span>
       {size === 'md' && c.good && <img className="rg-card__gt" src={GOOD_ART[c.good]} alt="" aria-hidden="true" />}
       <span className="rg-card__name">{c.name}</span>
@@ -100,20 +100,20 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : choosing ? { tone: 'mine' as const, text: 'پنهانی یک مرحله انتخاب کنید' }
-      : keeps.length ? { tone: 'mine' as const, text: 'یکی از کارت‌های کشیده را نگه دارید' }
-        : placing ? { tone: 'mine' as const, text: sel === null ? `کارتی برای ${phaseName(view.stage as Phase)} انتخاب کنید یا صرف‌نظر کنید` : `${fa(price)} کارت برای پرداخت انتخاب کنید` }
-          : { tone: 'wait' as const, text: view.stage === 'select' ? 'منتظر انتخاب دیگران…' : `منتظر بقیه در مرحلهٔ ${phaseName(view.stage as Phase)}` };
+    : choosing ? { tone: 'mine' as const, text: `پنهانی یک ${tx(terms.phase)} انتخاب کنید` }
+      : keeps.length ? { tone: 'mine' as const, text: `یکی از ${tx(terms.drawnCards)} را ${tx(terms.keepYou)}` }
+        : placing ? { tone: 'mine' as const, text: sel === null ? `${tx(terms.cardOne)} برای ${phaseName(view.stage as Phase)} انتخاب کنید یا ${tx(terms.skipYou)}` : `${fa(price)} ${tx(terms.card)} برای ${tx(terms.pay)} انتخاب کنید` }
+          : { tone: 'wait' as const, text: view.stage === 'select' ? 'منتظر انتخاب دیگران…' : `منتظر بقیه در ${tx(terms.phaseEz)} ${phaseName(view.stage as Phase)}` };
   const framed = useInFrame() !== null; // the shell draws the seat strip, scores and whose turn
   const chosenNow = view.stage !== 'select' ? new Set(view.chosen.flat()) : new Set<Phase>();
 
   return (
     <div className={framed ? 'rg rg--framed' : 'rg'} ref={root} data-seq={view.seq} data-stage={view.stage}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نفر پنهانی یک مرحله انتخاب می‌کند؛ مرحله‌های انتخاب‌شده برای همه اجرا می‌شود و انتخاب‌کننده امتیاز ویژه می‌گیرد. دست بیش از ۱۰ کارت در پایان دور کم می‌شود.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>{`هر نفر پنهانی یک ${tx(terms.phase)} انتخاب می‌کند؛ ${tx(terms.phasePlEz)} انتخاب‌شده برای همه اجرا می‌شود و ${tx(terms.chooser)} ${tx(terms.vp)} ویژه می‌گیرد. ${tx(terms.hand)} بیش از ۱۰ ${tx(terms.card)} در پایان ${tx(terms.round)} کم می‌شود.`}</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className={framed ? 'visually-hidden' : 'rg-info'} data-flip-anchor="deck">دور {fa(view.round)}<span className="bgv-sep" />بانک امتیاز <Num v={view.pool}>{fa(view.pool)}</Num><span className="bgv-sep" />دسته <Num v={view.deckCount}>{fa(view.deckCount)}</Num></p>
+      <p className={framed ? 'visually-hidden' : 'rg-info'} data-flip-anchor="deck"><T t={terms.round} /> {fa(view.round)}<span className="bgv-sep" /><T t={terms.vpBank} /> <Num v={view.pool}>{fa(view.pool)}</Num><span className="bgv-sep" /><T t={terms.deck} /> <Num v={view.deckCount}>{fa(view.deckCount)}</Num></p>
 
-      <section className="rg-phases" aria-label="مرحله‌ها">
+      <section className="rg-phases" aria-label={tx(terms.phasePl)}>
         {PHASES.map((ph) => {
           const active = view.stage === ph;
           const on = chosenNow.has(ph);
@@ -131,14 +131,14 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
         })}
       </section>
       {/* Reference §1: the pile and VP-pool chips under the phase cards. */}
-      {framed && <p className="rg-chips"><span className="rg-chip">دسته: <Num v={view.deckCount}>{fa(view.deckCount)}</Num></span><span className="rg-chip">دورریخته: <Num v={view.discardCount}>{fa(view.discardCount)}</Num></span><span className="rg-chip">مخزن امتیاز: <Num v={view.pool}>{fa(view.pool)}</Num></span></p>}
+      {framed && <p className="rg-chips"><span className="rg-chip"><T t={terms.deck} />: <Num v={view.deckCount}>{fa(view.deckCount)}</Num></span><span className="rg-chip"><T t={terms.discard} />: <Num v={view.discardCount}>{fa(view.discardCount)}</Num></span><span className="rg-chip"><T t={terms.vpPool} />: <Num v={view.pool}>{fa(view.pool)}</Num></span></p>}
 
-      <ul className="rg-empires" aria-label="امپراتوری‌ها">
+      <ul className="rg-empires" aria-label={tx(terms.empires)}>
         {view.empires.map((e, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['rg-empire', k === me ? 'is-me' : '', (view.stage === 'select' ? !e.chose : !e.done) && !view.outcome ? 'is-waiting' : ''].join(' ')}>
             <div className="rg-empire__head">
               <bdi>{who(k)}</bdi><Num className="rg-vp" v={e.vp}>{fa(e.vp)}★</Num>
-              <small>{fa(e.tableau.length)}/۱۲ کارت<span className="bgv-sep" /><T t={terms.military} /> {fa(e.military)}<span className="bgv-sep" />{fa(e.chips)} نشان<span className="bgv-sep" />دست {fa(e.hand)}</small>
+              <small>{fa(e.tableau.length)}/۱۲ <T t={terms.card} /><span className="bgv-sep" /><T t={terms.military} /> {fa(e.military)}<span className="bgv-sep" />{fa(e.chips)} <T t={terms.chip} /><span className="bgv-sep" /><T t={terms.hand} /> {fa(e.hand)}</small>
             </div>
             <div className="rg-row">{e.tableau.map((id) => <span key={id} className="rg-fly" data-flip={`g${id}`} data-flip-from={`seat-${k}`}><GalaxyCard id={id} size="sm" good={e.goods.includes(id)} /></span>)}</div>
           </li>
@@ -146,13 +146,13 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
       </ul>
 
       {keeps.length > 0 && view.drawn && (
-        <section className="rg-drawn" aria-label="کارت‌های کشیده">
+        <section className="rg-drawn" aria-label={tx(terms.drawnCards)}>
           {view.drawn.map((id) => <button key={id} type="button" data-flip={`g${id}`} data-flip-from="deck" data-flip-exit="drop" className="rg-pick is-can" disabled={busy} onClick={() => onAction({ type: 'keep', card: id })}><GalaxyCard id={id} /></button>)}
         </section>
       )}
 
       {view.hand && !view.outcome && (
-        <section className="rg-hand" aria-label="دست شما">
+        <section className="rg-hand" aria-label={tx(terms.handYou)}>
           <div className="rg-row">
             {hand.map((id, i) => {
               const placeable = places.some((x) => x.card === id);
@@ -169,12 +169,12 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
                   className={['rg-pick', placeable && sel === null ? 'is-can' : '', isSel ? 'is-sel' : '', isPay ? 'is-pay' : ''].join(' ')}><GalaxyCard id={id} /></button>
               );
             })}
-            {!hand.length && <small>دستتان خالی است</small>}
+            {!hand.length && <small><T t={terms.handYour} /> خالی است</small>}
           </div>
           {placing && (
             <div className="rg-bar">
-              {sel !== null && <DockSlot><Button size="sm" disabled={busy || pay.length !== price} className={hint?.type === 'place' && (hint.card ?? -1) >= 0 ? 'rg-hint' : ''} onClick={() => onAction({ type: 'place', card: sel, pay })}>گذاشتن {CARDS[sel]!.name} ({fa(pay.length)}/{fa(price)})</Button></DockSlot>}
-              <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'place', card: -1, pay: [] })}>صرف‌نظر</Button></DockSlot>
+              {sel !== null && <DockSlot><Button size="sm" disabled={busy || pay.length !== price} className={hint?.type === 'place' && (hint.card ?? -1) >= 0 ? 'rg-hint' : ''} onClick={() => onAction({ type: 'place', card: sel, pay })}><T t={terms.placeGer} /> {CARDS[sel]!.name} ({fa(pay.length)}/{fa(price)})</Button></DockSlot>}
+              <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'place', card: -1, pay: [] })}><T t={terms.skip} /></Button></DockSlot>
             </div>
           )}
         </section>

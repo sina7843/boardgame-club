@@ -2,7 +2,7 @@
 // generated sprite sheet, see DECISIONS.md). Colour is never the only signal: every face carries
 // the colour's Persian initial and a full spoken label.
 import type { CSSProperties } from 'react';
-import { tx } from '@bg/ui';
+import { tx, useTermsLang } from '@bg/ui';
 import { terms } from './terms.ts';
 import type { Card, Color } from './rules.ts';
 import skipArt from './art/uno-skip.webp';
@@ -93,6 +93,7 @@ export function CardFace({ card, size = 'md', state, onClick, disabled, hint, st
   disabled?: boolean;
   hint?: boolean;
 }) {
+  useTermsLang();
   const art = FACE_ART[faceKey(card)];
   const cls = ['uno-card', `uno-card--${size}`, art ? 'uno-card--img' : '', card.color ? `uno-card--${card.color}` : 'uno-card--wild', state ? `uno-card--${state}` : '', hint ? 'uno-card--hint' : ''].join(' ');
   const inner = art ? <img className="uno-face" src={art} alt="" draggable={false} /> : (
@@ -107,7 +108,7 @@ export function CardFace({ card, size = 'md', state, onClick, disabled, hint, st
   if (!onClick) return <span className={cls} role="img" aria-label={cardLabel(card)} style={style} data-flip={flip} data-flip-from={flipFrom}>{inner}</span>;
   return (
     <button type="button" className={cls} style={style} data-flip={flip} data-flip-from={flipFrom} onClick={onClick} aria-disabled={disabled || undefined} aria-pressed={state === 'selected'}
-      aria-label={`${cardLabel(card)}${disabled ? ' (قابل بازی نیست)' : ''}`}>
+      aria-label={`${cardLabel(card)}${disabled ? tx(terms.notPlayable) : ''}`}>
       {inner}
     </button>
   );

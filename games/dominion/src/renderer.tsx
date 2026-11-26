@@ -4,7 +4,7 @@
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, DockSlot } from '@bg/ui';
-import { terms } from './terms.ts';
+import { CARD_EN, terms } from './terms.ts';
 import { CARDS, KINGDOM, type CardId, type DomView } from './rules.ts';
 
 // Card art: design/games/group-d/art/dominion (full card faces, text is part of the image).
@@ -28,15 +28,17 @@ import cardBack from './art/dominion-back.png';
 import coin from './art/dominion-coin.png';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
+const cardName = (c: CardId) => tx({ fa: CARDS[c].name, bg: CARD_EN[c]! });
 
 const ART: Record<CardId, string> = { copper: copperArt, silver: silverArt, gold: goldArt, estate: estateArt, duchy: duchyArt, province: provinceArt, cellar: cellarArt, moat: moatArt, merchant: merchantArt, village: villageArt, workshop: workshopArt, militia: militiaArt, remodel: remodelArt, smithy: smithyArt, market: marketArt, mine: mineArt };
 
 export function DomCard({ c, size = 'md', count }: { c: CardId; size?: 'sm' | 'md'; count?: number }) {
+  useTermsLang();
   const info = CARDS[c];
   return (
-    <span className={`dm-p dm-p--${size}`} aria-label={`${info.name}، قیمت ${fa(info.cost)}${count !== undefined ? `، ${fa(count)} مانده` : ''}`}>
+    <span className={`dm-p dm-p--${size}`} aria-label={`${cardName(c)}، ${tx(terms.cost)} ${fa(info.cost)}${count !== undefined ? `، ${fa(count)} مانده` : ''}`}>
       <img src={ART[c]} alt="" draggable={false} />
-      <span className="visually-hidden">{info.name}</span>
+      <span className="visually-hidden">{cardName(c)}</span>
       {count !== undefined && <b key={count} className="bg-pop">{fa(count)}</b>}
     </span>
   );
@@ -124,10 +126,10 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : militia ? { tone: 'mine' as const, text: `سپاه محلی: ${fa(militia.count)} کارت دور بریزید` }
-      : mode ? { tone: 'mine' as const, text: mode.card === 'cellar' ? 'کارت‌هایی را که می‌خواهید دور بریزید انتخاب کنید' : mode.card === 'workshop' ? 'کارتی تا قیمت ۴ از بازار انتخاب کنید' : 'کارتی از دست برای نابودی و کارتی از بازار انتخاب کنید' }
-        : myTurn && view.militia.some((n) => n > 0) ? { tone: 'wait' as const, text: 'دیگران کارت دور می‌ریزند…' }
-          : myTurn ? { tone: 'mine' as const, text: view.phase === 'action' && playable.size ? `کارت ${tx(terms.action)} بازی کنید یا ${tx(terms.treasures)} را رو کنید` : 'خرید کنید یا نوبت را تمام کنید' }
+    : militia ? { tone: 'mine' as const, text: `${cardName('militia')}: ${fa(militia.count)} ${tx(terms.card)} ${tx(terms.discardImp)}` }
+      : mode ? { tone: 'mine' as const, text: mode.card === 'cellar' ? `${tx(terms.cardsYi)} را که می‌خواهید ${tx(terms.discardImp)} انتخاب کنید` : mode.card === 'workshop' ? `${tx(terms.cardOne)} تا ${tx(terms.cost)} ۴ از ${tx(terms.supply)} انتخاب کنید` : `${tx(terms.cardOne)} از ${tx(terms.hand)} برای ${tx(terms.trash)} و ${tx(terms.cardOne)} از ${tx(terms.supply)} انتخاب کنید` }
+        : myTurn && view.militia.some((n) => n > 0) ? { tone: 'wait' as const, text: `دیگران ${tx(terms.card)} ${tx(terms.discardPl)}…` }
+          : myTurn ? { tone: 'mine' as const, text: view.phase === 'action' && playable.size ? `${tx(terms.card)} ${tx(terms.action)} ${tx(terms.playImp)} یا ${tx(terms.treasures)} را رو کنید` : 'خرید کنید یا نوبت را تمام کنید' }
             : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const piles: CardId[][] = [['copper', 'silver', 'gold', 'estate', 'duchy', 'province'], KINGDOM];
   const framed = useInFrame() !== null;
@@ -137,7 +139,7 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>هر نوبت: یک <T t={terms.action} />، رو کردن <T t={terms.treasures} /> و یک <T t={terms.buy} />. بازی با خالی شدن دستهٔ ایالت یا سه دسته از بازار تمام می‌شود.</p>
+          <p>هر نوبت: یک <T t={terms.action} />، رو کردن <T t={terms.treasures} /> و یک <T t={terms.buy} />. بازی با خالی شدن <T t={terms.pileEz} /> <T t={terms.province} /> یا سه <T t={terms.pile} /> از <T t={terms.supply} /> تمام می‌شود.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -148,8 +150,8 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
             <bdi className="dm-player__name">{who(k)}</bdi>
             <span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} /><T t={terms.deck} /> <b key={o.deck} className="bg-pop">{fa(o.deck)}</b></span><span><T t={terms.hand} /> <b key={o.hand} className="bg-pop">{fa(o.hand)}</b></span><span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} /><T t={terms.discard} /> <b key={o.discard} className="bg-pop">{fa(o.discard)}</b></span>
             {o.top && (view.last?.kind === 'buy' && view.last.seat === k && view.last.card === o.top
-              ? <span className="dm-player__top" data-flip={`gain-${k}-${o.discard}`} data-flip-from={`pile-${o.top}`}>{CARDS[o.top].name}</span>
-              : <span className="dm-player__top">{CARDS[o.top].name}</span>)}
+              ? <span className="dm-player__top" data-flip={`gain-${k}-${o.discard}`} data-flip-from={`pile-${o.top}`}>{cardName(o.top)}</span>
+              : <span className="dm-player__top">{cardName(o.top)}</span>)}
             {view.vp && <b key={view.vp[k]} className="dm-player__vp bg-pop">{fa(view.vp[k]!)} امتیاز</b>}
           </li>
         ))}
@@ -183,7 +185,7 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
               <bdi className="dm-player__name">{who(k)}</bdi>
               <span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />{fa(o.deck)} <T t={terms.deck} /></span>
               <span>{fa(o.hand)} <T t={terms.hand} /></span>
-              <span>{o.top ? <img className="dm-ico dm-ico--back" src={ART[o.top]} alt={CARDS[o.top].name} draggable={false} /> : null}{fa(o.discard)} <T t={terms.discarded} /></span>
+              <span>{o.top ? <img className="dm-ico dm-ico--back" src={ART[o.top]} alt={cardName(o.top)} draggable={false} /> : null}{fa(o.discard)} <T t={terms.discarded} /></span>
             </li>
           ))}
         </ul>
@@ -191,7 +193,7 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
       </div>
 
       {(framed || view.inPlay.length > 0) && (
-        <div className={view.inPlay.length ? 'dm__play' : 'dm__play dm__play--empty'} aria-label="کارت‌های بازی‌شده">{framed && <small className="dm__play-label"><T t={terms.inPlay} /></small>}{!view.inPlay.length && <small>هنوز کارتی بازی نشده</small>}{view.inPlay.map((c, i) => {
+        <div className={view.inPlay.length ? 'dm__play' : 'dm__play dm__play--empty'} aria-label={`${tx(terms.cardsEz)} بازی‌شده`}>{framed && <small className="dm__play-label"><T t={terms.inPlay} /></small>}{!view.inPlay.length && <small>هنوز <T t={terms.cardOne} /> بازی نشده</small>}{view.inPlay.map((c, i) => {
           const mine = view.current === me;
           const id = flipId(mine ? `me${gen(me)}-` : `p${view.current}t${gen(view.current)}-`, c);
           return <span key={i} className="dm__play-card" data-flip={id} data-flip-from={mine ? undefined : `seat-${view.current}`} data-flip-exit={`seat-${view.current}`}><DomCard c={c} size="sm" /></span>;
@@ -199,14 +201,14 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
       )}
 
       {view.hand && !view.outcome && (
-        <section className="dm__me" aria-label="دست شما">
+        <section className="dm__me" aria-label={`${tx(terms.hand)} شما`}>
           {(myTurn || framed) && (
             <div className="dm__row">
               <p className="dm__tally"><span><T t={terms.actions} /> {fa(view.actions)}</span><span><T t={terms.buys} /> {fa(view.buys)}</span><span className="dm-coins bg-pop" key={view.coins}><img className="dm-ico" src={coin} alt="" draggable={false} />{fa(view.coins)} <T t={terms.coins} /></span></p>
               {framed && me >= 0 && view.others[me] && (
                 <p className="dm__mine" data-flip-anchor={`seat-${me}`}>
-                  <span className="dm__pile-mini" aria-label={`${tx(terms.deck)} شما: ${fa(view.others[me]!.deck)} کارت`}><img src={cardBack} alt="" draggable={false} /><b>{fa(view.others[me]!.deck)}</b></span>
-                  <span className="dm__pile-mini" aria-label={`${tx(terms.discarded)} شما: ${fa(view.others[me]!.discard)} کارت`}>{view.others[me]!.top ? <img src={ART[view.others[me]!.top!]} alt="" draggable={false} /> : <i />}<b>{fa(view.others[me]!.discard)}</b></span>
+                  <span className="dm__pile-mini" aria-label={`${tx(terms.deck)} شما: ${fa(view.others[me]!.deck)} ${tx(terms.card)}`}><img src={cardBack} alt="" draggable={false} /><b>{fa(view.others[me]!.deck)}</b></span>
+                  <span className="dm__pile-mini" aria-label={`${tx(terms.discarded)} شما: ${fa(view.others[me]!.discard)} ${tx(terms.card)}`}>{view.others[me]!.top ? <img src={ART[view.others[me]!.top!]} alt="" draggable={false} /> : <i />}<b>{fa(view.others[me]!.discard)}</b></span>
                 </p>
               )}
             </div>
@@ -223,16 +225,16 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
                 </button>
               );
             })}
-            {!hand.length && <small>دستتان خالی است</small>}
+            {!hand.length && <small><T t={terms.handYour} /> خالی است</small>}
           </div>
           <div className="dm__bar">
-            {militia && <Button size="sm" disabled={busy || picked.length !== militia.count} onClick={() => onAction({ type: 'militiaDiscard', discard: picked })}>دور ریختن {fa(picked.length)} از {fa(militia.count)}</Button>}
+            {militia && <Button size="sm" disabled={busy || picked.length !== militia.count} onClick={() => onAction({ type: 'militiaDiscard', discard: picked })}><T t={terms.discardV} /> {fa(picked.length)} از {fa(militia.count)}</Button>}
             {mode && <>
-              <Button size="sm" disabled={busy || !ready} onClick={send}>بازی {CARDS[mode.card].name}</Button>
+              <Button size="sm" disabled={busy || !ready} onClick={send}><T t={terms.playV} /> {cardName(mode.card)}</Button>
               <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setMode(null); setPicked([]); setGain(null); }}>انصراف</Button>
             </>}
             {!mode && !militia && canTreasures && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'treasures' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'treasures' })}>رو کردن <T t={terms.treasures} /></Button></DockSlot>}
-            {!mode && !militia && canEnd && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>}
+            {!mode && !militia && canEnd && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'endTurn' })}><T t={terms.endTurn} /></Button></DockSlot>}
           </div>
         </section>
       )}

@@ -102,11 +102,11 @@ export default function SantoriniRenderer({ view: served, legalActions, mySeat, 
       {framed ? (
         <RailSlot>
           <p>{stage === 'place' ? <>{tx(terms.workers)} را روی <b>خانه‌های خالی</b> بگذارید.</>
-            : stage === 'build' ? <>حالا روی یکی از خانه‌های کنار {tx(terms.worker)} <b>بسازید</b>؛ طبقهٔ چهارم {tx(terms.dome)} است.</>
-              : <>اول <b>حرکت</b> (یک خانه، حداکثر یک طبقه بالاتر)، بعد <b>{tx(terms.build)}</b>. رسیدن به طبقهٔ سوم یعنی برد.</>}</p>
-          <p>قطعه‌های مانده: طبقهٔ اول {fa(view.supply[1])}، دوم {fa(view.supply[2])}، سوم {fa(view.supply[3])}، {tx(terms.dome)} {fa(view.supply.dome)}</p>
+            : stage === 'build' ? <>حالا روی یکی از خانه‌های کنار {tx(terms.worker)} <b>{tx(terms.buildImp)}</b>؛ {tx(terms.levelEz)} چهارم {tx(terms.dome)} است.</>
+              : <>اول <b>حرکت</b> (یک خانه، حداکثر یک طبقه بالاتر)، بعد <b>{tx(terms.build)}</b>. رسیدن به {tx(terms.levelEz)} سوم یعنی برد.</>}</p>
+          <p>قطعه‌های مانده: {tx(terms.levelEz)} اول {fa(view.supply[1])}، دوم {fa(view.supply[2])}، سوم {fa(view.supply[3])}، {tx(terms.dome)} {fa(view.supply.dome)}</p>
         </RailSlot>
-      ) : <span className="sto__supply">بلوک‌ها: {fa(view.supply[1])}<span className="bgv-sep" />{fa(view.supply[2])}<span className="bgv-sep" />{fa(view.supply[3])}<span className="bgv-sep" />{tx(terms.dome)} {fa(view.supply.dome)}</span>}
+      ) : <span className="sto__supply">{tx(terms.blocks)}: {fa(view.supply[1])}<span className="bgv-sep" />{fa(view.supply[2])}<span className="bgv-sep" />{fa(view.supply[3])}<span className="bgv-sep" />{tx(terms.dome)} {fa(view.supply.dome)}</span>}
 
       <ZoomBoard label="جزیره سانتورینی">
         <svg className="sto-board" viewBox={`0 0 ${W} ${H}`} role="grid" aria-label="جزیره سانتورینی" style={{ direction: 'ltr' }}>
@@ -118,7 +118,7 @@ export default function SantoriniRenderer({ view: served, legalActions, mySeat, 
             const tappable = isLit || (playing && view.workers[me as 0 | 1].includes(i));
             return (
               <g key={i} role="gridcell" tabIndex={tappable ? 0 : -1}
-                aria-label={`${'abcde'[i % 5]}${Math.floor(i / 5) + 1}: ${view.height[i] === 4 ? tx(terms.dome) : view.height[i] ? `طبقه ${fa(view.height[i]!)}` : 'زمین'}${occupied(i) ? `، ${tx(terms.worker)} ${view.workers[me as 0 | 1].includes(i) ? 'شما' : 'حریف'}` : ''}${isLit ? '، قابل انتخاب' : ''}`}
+                aria-label={`${'abcde'[i % 5]}${Math.floor(i / 5) + 1}: ${view.height[i] === 4 ? tx(terms.dome) : view.height[i] ? `${tx(terms.level)} ${fa(view.height[i]!)}` : tx(terms.ground)}${occupied(i) ? `، ${tx(terms.worker)} ${view.workers[me as 0 | 1].includes(i) ? 'شما' : 'حریف'}` : ''}${isLit ? '، قابل انتخاب' : ''}`}
                 className={['sto-sq', isLit ? `sto-sq--lit sto-sq--${stage}` : '', from === i ? 'sto-sq--sel' : '', hintSq === i ? 'sto-sq--hint' : ''].join(' ')}
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
                 <rect x={x - S / 2} y={y - S / 2} width={S} height={S} className="sto-tile" />
@@ -156,7 +156,7 @@ export default function SantoriniRenderer({ view: served, legalActions, mySeat, 
       <div className="sto__actions">
         {(from !== null || to !== null) && !busy && <Button size="sm" variant="ghost" onClick={() => { setFrom(null); setTo(null); }}>انتخاب دوباره</Button>}
       </div>
-      {view.end && <p className="sto__end" role="status">{{ climb: 'به طبقه سوم رسید!', stuck: 'حریف حرکتی نداشت', resign: 'انصراف', timeout: 'اتمام زمان' }[view.end.kind]}</p>}
+      {view.end && <p className="sto__end" role="status">{{ climb: `به ${tx(terms.level)} سوم رسید!`, stuck: 'حریف حرکتی نداشت', resign: 'انصراف', timeout: 'اتمام زمان' }[view.end.kind]}</p>}
     </div>
   );
 }

@@ -106,7 +106,7 @@ function Kingdom({ id, k, was, from, big, onCell, ok, preview, hint }: { id: str
         const style = fresh ? { ['--i' as string]: n++ } : undefined;
         const inner = <Square cell={pv ?? cell} size={big ? 'md' : 'sm'} seat={Number(id.slice(1))} />;
         return onCell && !cell
-          ? <button key={key} type="button" className={cls} data-ok={ok?.has(key) ? '1' : undefined} style={style} onClick={() => onCell(r, c)} aria-label={`خانهٔ ${fa(r + 1)}، ${fa(c + 1)}`}>{inner}</button>
+          ? <button key={key} type="button" className={cls} data-ok={ok?.has(key) ? '1' : undefined} style={style} onClick={() => onCell(r, c)} aria-label={`${tx(terms.squareEz)} ${fa(r + 1)}، ${fa(c + 1)}`}>{inner}</button>
           : <span key={key} className={cls} style={style} {...(cell ? { 'data-flip': `${id}-${key}` } : {})} {...(fresh && from ? { 'data-flip-from': from, 'data-flip-exit': from } : {})}>{inner}</span>;
       }))}
     </div>
@@ -114,7 +114,7 @@ function Kingdom({ id, k, was, from, big, onCell, ok, preview, hint }: { id: str
 }
 
 /** A score that bumps when it changes (never on first render). */
-function Score({ v, suffix = '' }: { v: number; suffix?: string }) {
+function Score({ v, suffix = '' }: { v: number; suffix?: ReactNode }) {
   const pop = usePop(v);
   return <b key={v} className={pop}>{fa(v)}{suffix}</b>;
 }
@@ -174,8 +174,8 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : pickHint ? { tone: 'mine' as const, text: `یک ${tx(terms.domino)} از ردیف بعد انتخاب کنید` }
-      : playHint ? { tone: 'mine' as const, text: playHint.canPlace ? (at ? (needSlot && slot === null ? `${tx(terms.dominoOf)} بعدی‌تان را انتخاب کنید` : 'تأیید کنید') : 'بچرخانید و جای نیمهٔ اول را بزنید') : `این ${tx(terms.domino)} جا نمی‌شود: دور بیندازید` }
+    : pickHint ? { tone: 'mine' as const, text: `یک ${tx(terms.domino)} از ${tx(terms.line)} بعد انتخاب کنید` }
+      : playHint ? { tone: 'mine' as const, text: playHint.canPlace ? (at ? (needSlot && slot === null ? `${tx(terms.dominoOf)} بعدی‌تان را انتخاب کنید` : 'تأیید کنید') : `${tx(terms.rotateV)} و جای نیمهٔ اول را بزنید`) : `این ${tx(terms.domino)} جا نمی‌شود: ${tx(terms.discardV)}` }
         : { tone: 'wait' as const, text: `نوبت ${view.actor === null ? '' : who(view.actor)}` };
   const send = () => {
     if (!playHint || busy) return;
@@ -186,7 +186,7 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
 
   const line = (slots: KingdominoView['current'], kind: 'cur' | 'next') => (
     <div className={`kd-line kd-line--${kind}`}>
-      <span className="kd-line__label">{kind === 'cur' ? 'این دور' : 'دور بعد'}</span>
+      <span className="kd-line__label">{kind === 'cur' ? <T t={terms.thisRound} /> : <T t={terms.nextRound} />}</span>
       {slots.map((x, i) => {
         const active = kind === 'cur' && view.phase === 'play' && i === view.idx && !view.outcome;
         const free = x.owner === null;
@@ -204,13 +204,13 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
   const framed = useInFrame() !== null;
   return (
     <div className={framed ? 'kd kd--framed' : 'kd'} data-seq={view.seq} ref={root}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p><T t={terms.domino} /> را کنار زمین‌های هم‌نوع بگذارید (یا کنار <T t={terms.castle} />)؛ <T t={terms.kingdom} /> ۵ در ۵ است. امتیاز هر ناحیه خانه‌ها ضربدر <T t={terms.crown} />‌هاست.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p><T t={terms.domino} /> را کنار <T t={terms.terrains} /> هم‌نوع بگذارید (یا کنار <T t={terms.castle} />)؛ <T t={terms.kingdom} /> ۵ در ۵ است. امتیاز هر <T t={terms.area} /> <T t={terms.squares} /> ضربدر <T t={terms.crownsIs} />.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!view.outcome && (
-        <section className="kd__lines" aria-label={`${tx(terms.domino)}ها`}>
+        <section className="kd__lines" aria-label={tx(terms.dominoes)}>
           {view.phase === 'play' && line(view.current, 'cur')}
           {view.next.length > 0 && line(view.next, 'next')}
-          <span className="kd__deck" data-flip-anchor="deck">{fa(view.deckCount)} <T t={terms.domino} /> در کیسه</span>
+          <span className="kd__deck" data-flip-anchor="deck">{fa(view.deckCount)} <T t={terms.domino} /> در <T t={terms.bag} /></span>
         </section>
       )}
 
@@ -220,12 +220,12 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
           <span className="kd__mine"><Domino dom={playHint.dom} /></span>
           {framed ? (
             <DockSlot>
-              {playHint.canPlace && <Button variant="secondary" className={`kd-rot ${rotHint ? 'kd-hint' : ''}`} onClick={() => { setDir((dir + 1) % 4); setAt(null); }}>چرخاندن</Button>}
-              <Button variant="primary" disabled={!ready || busy} className={hint?.type === 'play' && ready ? 'kd-hint' : ''} onClick={send}>{playHint.canPlace ? 'تأیید جا' : 'دور انداختن'}</Button>
+              {playHint.canPlace && <Button variant="secondary" className={`kd-rot ${rotHint ? 'kd-hint' : ''}`} onClick={() => { setDir((dir + 1) % 4); setAt(null); }}><T t={terms.rotate} /></Button>}
+              <Button variant="primary" disabled={!ready || busy} className={hint?.type === 'play' && ready ? 'kd-hint' : ''} onClick={send}>{playHint.canPlace ? 'تأیید جا' : <T t={terms.discard} />}</Button>
             </DockSlot>
           ) : <>
-            {playHint.canPlace && <Button size="sm" variant="secondary" className={`kd-rot ${rotHint ? 'kd-hint' : ''}`} onClick={() => { setDir((dir + 1) % 4); setAt(null); }}>چرخش ↻</Button>}
-            <Button size="sm" disabled={!ready || busy} className={hint?.type === 'play' && ready ? 'kd-hint' : ''} onClick={send}>{playHint.canPlace ? 'تأیید' : 'دور انداختن'}</Button>
+            {playHint.canPlace && <Button size="sm" variant="secondary" className={`kd-rot ${rotHint ? 'kd-hint' : ''}`} onClick={() => { setDir((dir + 1) % 4); setAt(null); }}><T t={terms.rotation} /> ↻</Button>}
+            <Button size="sm" disabled={!ready || busy} className={hint?.type === 'play' && ready ? 'kd-hint' : ''} onClick={send}>{playHint.canPlace ? 'تأیید' : <T t={terms.discard} />}</Button>
           </>}
         </div>
       )}
@@ -263,14 +263,14 @@ function Realm({ s, name, k, me, turn, place, children }: { s: number; name: str
         <bdi>{name}</bdi>
         {!framed && turn && <span className="kd-player__turn">در نوبت</span>}
         {!framed && place !== undefined && <span className="kd-player__place">رتبهٔ {fa(place)}</span>}
-        {!framed && <Score v={sc.total} suffix=" امتیاز" />}
+        {!framed && <Score v={sc.total} suffix={<> <T t={terms.score} /></>} />}
         {!me && <button type="button" className="kd-player__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن ${tx(terms.kingdom)} ${name}` : `باز کردن ${tx(terms.kingdom)} ${name}`}>{open ? '▴' : '▾'}</button>}
       </div>
       {open && children}
-      {!framed && <ul className="kd-tally" aria-label="شمارش">
-        <li title={`${tx(terms.crown)}‌ها`}><span className="kd-crowns kd-crowns--tally" aria-hidden="true"><i /></span><T t={terms.crown} /> <b>{fa(sc.crowns)}</b></li>
+      {!framed && <ul className="kd-tally" aria-label={tx(terms.tally)}>
+        <li title={tx(terms.crowns)}><span className="kd-crowns kd-crowns--tally" aria-hidden="true"><i /></span><T t={terms.crown} /> <b>{fa(sc.crowns)}</b></li>
         <li title={tx(terms.largestArea)}><T t={terms.largestArea} /> <b>{fa(sc.largest)}</b></li>
-        <li title="خانه‌های پر از ۲۴">زمین <b>{fa(filled)}/۲۴</b></li>
+        <li title={`${tx(terms.squaresEz)} پر از ۲۴`}><T t={terms.land} /> <b>{fa(filled)}/۲۴</b></li>
       </ul>}
     </section>
   );

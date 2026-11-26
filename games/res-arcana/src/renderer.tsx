@@ -31,7 +31,7 @@ export function ArcCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' })
     <span className={`ra-card ra-card--${size} ra-k--${c.kind}`} aria-label={c.name}>
       <span className="ra-card__name">{c.name}</span>
       {c.vp > 0 && <b className="ra-card__vp">{fa(c.vp)}★</b>}
-      {size === 'md' && c.kind !== 'mage' && <span className="ra-card__row"><small>هزینه</small><Gems pile={c.cost} empty="رایگان" /></span>}
+      {size === 'md' && c.kind !== 'mage' && <span className="ra-card__row"><small><T t={terms.cost} /></small><Gems pile={c.cost} empty={tx(terms.free)} /></span>}
       {Object.keys(c.collect).length > 0 && <span className="ra-card__row"><small><T t={terms.collect} /></small><Gems pile={c.collect} /></span>}
       {c.power && <span className="ra-card__row ra-card__pw"><small><T t={terms.power} /></small><Gems pile={c.power.pay} empty="·" /><i>←</i><Gems pile={c.power.gain} empty="" />{c.power.vp ? <b>{fa(c.power.vp)}★</b> : null}</span>}
     </span>
@@ -93,19 +93,19 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
   const mine = view.mages[me]!;
   const framed = useInFrame() !== null; // the shell draws the seat strip, scores and whose turn
   const status = view.outcome ? null
-    : myTurn ? { tone: 'mine' as const, text: dropping !== null ? `کدام ${tx(terms.essence)} را می‌خواهید؟` : 'یک کار انجام دهید یا رد کنید' }
+    : myTurn ? { tone: 'mine' as const, text: dropping !== null ? `کدام ${tx(terms.essence)} را می‌خواهید؟` : `یک کار انجام دهید یا ${tx(terms.passYou)}` }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 
   return (
     <div className={framed ? 'ra ra--framed' : 'ra'} ref={root} data-seq={view.seq}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نوبت یک کار: بازی کردن کارت، خریدن <T t={terms.placeOfPower} /> یا <T t={terms.monument} />، فعال کردن <T t={terms.power} />، یا دور انداختن کارت برای <T t={terms.essence} />. با «رد کردن» از این دور بیرون می‌روید. اول به ۱۰ امتیاز برسد می‌برد.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نوبت یک کار: <T t={terms.playGer} /> <T t={terms.card} />، <T t={terms.buyGer} /> <T t={terms.placeOfPower} /> یا <T t={terms.monument} />، <T t={terms.tap} /> <T t={terms.power} />، یا <T t={terms.discard} /> <T t={terms.card} /> برای <T t={terms.essence} />. با «<T t={terms.pass} />» از این <T t={terms.round} /> بیرون می‌روید. اول به ۱۰ <T t={terms.vp} /> برسد می‌برد.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      {!framed && <p className="ra-round">دور {fa(view.round)}</p>}
+      {!framed && <p className="ra-round"><T t={terms.round} /> {fa(view.round)}</p>}
 
       <ul className="ra-rivals" aria-label={tx(terms.mages)}>
         {view.mages.map((g, k) => (k === me ? null : (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['ra-rival', k === view.current && !view.outcome ? 'is-now' : '', g.passed ? 'is-passed' : ''].join(' ')}>
-            <div className="ra-rival__head"><bdi>{who(k)}</bdi><Num className="ra-vp" v={g.vp}>{fa(g.vp)}★</Num><Gems pile={g.ess} empty={tx(terms.noEssence)} pop />{burst(k)}<small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
+            <div className="ra-rival__head"><bdi>{who(k)}</bdi><Num className="ra-vp" v={g.vp}>{fa(g.vp)}★</Num><Gems pile={g.ess} empty={tx(terms.noEssence)} pop />{burst(k)}<small>{g.passed ? tx(terms.passed) : `${fa(g.hand)} ${tx(terms.card)}`}</small></div>
             <div className="ra-row">{g.table.map((id) => <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${k}`} data-flip-anchor={`c${id}`} className={view.tapped.includes(id) ? 'is-tapped' : ''}><ArcCard id={id} size="sm" /></span>)}</div>
           </li>
         )))}
@@ -123,8 +123,8 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
         <small className="ra-shelf__left"><T t={terms.monumentsOf} /> دیگر: {fa(view.monumentsLeft)}</small>
       </section>
 
-      <section data-flip-anchor={`seat-${me}`} className={`ra-me ${myTurn ? 'is-now' : ''}`} aria-label="میز شما">
-        {framed && <h3 className="ra-label">میز شما</h3>}
+      <section data-flip-anchor={`seat-${me}`} className={`ra-me ${myTurn ? 'is-now' : ''}`} aria-label={tx(terms.table)}>
+        {framed && <h3 className="ra-label"><T t={terms.table} /></h3>}
         <div className={framed ? 'ra-me__head ra-me__head--framed' : 'ra-me__head'}><bdi>{who(me)}</bdi><Num className="ra-vp ra-vp--lg" v={mine.vp}>{fa(mine.vp)} از ۱۰ ★</Num><Gems pile={mine.ess} empty={tx(terms.noEssence)} pop />{burst(me)}</div>
         <div className="ra-row">
           {mine.table.map((id) => {
@@ -132,19 +132,19 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
             return (
               <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${me}`} data-flip-anchor={`c${id}`} className={`ra-slot ${view.tapped.includes(id) ? 'is-tapped' : ''}`}>
                 <ArcCard id={id} />
-                {CARDS[id]!.power && <button type="button" className={`ra-mini ${hint?.type === 'tap' && hint.card === id ? 'ra-hint' : ''}`} disabled={busy || !ok} onClick={() => onAction({ type: 'tap', card: id })}>{view.tapped.includes(id) ? 'استفاده شد' : 'فعال کردن'}</button>}
+                {CARDS[id]!.power && <button type="button" className={`ra-mini ${hint?.type === 'tap' && hint.card === id ? 'ra-hint' : ''}`} disabled={busy || !ok} onClick={() => onAction({ type: 'tap', card: id })}>{view.tapped.includes(id) ? tx(terms.tapped) : tx(terms.tap)}</button>}
               </span>
             );
           })}
         </div>
         {view.hand && !view.outcome && (
-          <div className="ra-hand" aria-label="دست شما">
+          <div className="ra-hand" aria-label={tx(terms.hand)}>
             {view.hand.map((id) => (
               <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${me}`} data-flip-exit="drop" className="ra-slot">
                 <ArcCard id={id} />
                 <span className="ra-slot__acts">
-                  <button type="button" className={`ra-mini ${hint?.type === 'play' && hint.card === id ? 'ra-hint' : ''}`} disabled={busy || !can('play', id)} onClick={() => onAction({ type: 'play', card: id })}>بازی</button>
-                  <button type="button" className="ra-mini" disabled={busy || !can('discard', id)} aria-pressed={dropping === id} onClick={() => setDropping(dropping === id ? null : id)}>دور انداختن</button>
+                  <button type="button" className={`ra-mini ${hint?.type === 'play' && hint.card === id ? 'ra-hint' : ''}`} disabled={busy || !can('play', id)} onClick={() => onAction({ type: 'play', card: id })}><T t={terms.play} /></button>
+                  <button type="button" className="ra-mini" disabled={busy || !can('discard', id)} aria-pressed={dropping === id} onClick={() => setDropping(dropping === id ? null : id)}><T t={terms.discard} /></button>
                 </span>
                 {dropping === id && (
                   <span className="ra-drop">
@@ -155,7 +155,7 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
             ))}
           </div>
         )}
-        {myTurn && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'ra-hint' : ''} onClick={() => onAction({ type: 'pass' })}>رد کردن (یک کارت بکشید)</Button></DockSlot>}
+        {myTurn && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'ra-hint' : ''} onClick={() => onAction({ type: 'pass' })}>{`${tx(terms.pass)} (یک ${tx(terms.card)} ${tx(terms.drawYou)})`}</Button></DockSlot>}
       </section>
     </div>
   );

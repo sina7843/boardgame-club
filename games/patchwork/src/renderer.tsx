@@ -73,7 +73,7 @@ function Quilt({ board, q, was, big, preview, ok, onCell, hintCell, anchor }: { 
         const cls = ['pw-cell', fabric(id) ?? '', pv ? (ok ? 'pw-cell--ok' : 'pw-cell--bad') : '', hintCell && hintCell[0] === r && hintCell[1] === c ? 'pw-hint' : '', fresh ? 'bg-land' : ''].join(' ');
         const style = { ...(id !== null && id >= 0 && id < 98 ? cloth(id) : {}), ...(fresh ? { ['--i' as string]: (r + c) % 6 } : {}) };
         return onCell
-          ? <button key={k} type="button" className={cls} style={style} onClick={() => onCell(r, c)} aria-label={`ردیف ${fa(r + 1)} ستون ${fa(c + 1)}`} />
+          ? <button key={k} type="button" className={cls} style={style} onClick={() => onCell(r, c)} aria-label={`${tx(terms.row)} ${fa(r + 1)} ${tx(terms.column)} ${fa(c + 1)}`} />
           : <span key={k} className={cls} style={style} />;
       }))}
     </div>
@@ -139,8 +139,8 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : leather ? { tone: 'mine' as const, text: `${tx(terms.leather)} ۱×۱: یک خانهٔ خالی ${tx(terms.quilt)} را بزنید` }
-      : myTurn ? { tone: 'mine' as const, text: pick === null ? `${tx(terms.patch)} بخرید یا جلو بروید` : `جای گوشهٔ ${tx(terms.patch)} را روی ${tx(terms.quilt)} بزنید` }
+    : leather ? { tone: 'mine' as const, text: `${tx(terms.leather)} ۱×۱: یک ${tx(terms.emptySquare)} ${tx(terms.quilt)} را بزنید` }
+      : myTurn ? { tone: 'mine' as const, text: pick === null ? `${tx(terms.patch)} ${tx(terms.buyV)} یا ${tx(terms.advanceV)}` : `جای ${tx(terms.cornerEz)} ${tx(terms.patch)} را روی ${tx(terms.quilt)} بزنید` }
         : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
 
   const onCell = (r: number, c: number) => {
@@ -151,7 +151,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
 
   return (
     <div className={framed ? 'pw pw--framed' : 'pw'} data-seq={view.seq} ref={root}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>یک تکه از سه تکهٔ بعد از مهرهٔ خنثی بخرید یا جلوتر از حریف بروید. خانهٔ خالی در پایان ۲ امتیاز کم می‌کند.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>یک <T t={terms.patch} /> از سه <T t={terms.patchOf} /> بعد از <T t={terms.neutral} /> <T t={terms.buyV} /> یا <T t={terms.advanceTo} />. <T t={terms.emptySquare} /> در پایان ۲ امتیاز کم می‌کند.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="pw-track" aria-label={tx(terms.timeTrack)} style={{ backgroundImage: `url(${timeBoard})` }}>
@@ -188,13 +188,13 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
       {pick !== null && (
         <div className="pw__tools">
           <span className="pw__preview"><Shape id={pick} rot={rot} flip={flip} cell={1} /></span>
-          <Button size="sm" variant="secondary" onClick={() => { setRot((rot + 1) % 4); setAt(null); }}>چرخاندن</Button>
-          <Button size="sm" variant="secondary" onClick={() => { setFlip(!flip); setAt(null); }}>برعکس کردن</Button>
-          <DockSlot><Button size="sm" disabled={!fitsHere || busy} className={hint?.type === 'buy' && fitsHere ? 'pw-hint' : ''} onClick={() => at && onAction({ type: 'buy', patch: pick, rot, flip, row: at[0], col: at[1] })}>بدوز</Button></DockSlot>
+          <Button size="sm" variant="secondary" onClick={() => { setRot((rot + 1) % 4); setAt(null); }}><T t={terms.rotate} /></Button>
+          <Button size="sm" variant="secondary" onClick={() => { setFlip(!flip); setAt(null); }}><T t={terms.flip} /></Button>
+          <DockSlot><Button size="sm" disabled={!fitsHere || busy} className={hint?.type === 'buy' && fitsHere ? 'pw-hint' : ''} onClick={() => at && onAction({ type: 'buy', patch: pick, rot, flip, row: at[0], col: at[1] })}><T t={terms.place} /></Button></DockSlot>
         </div>
       )}
 
-      {framed && <span className={['pw-bonus', view.bonus7 !== null ? 'pw-bonus--gone' : ''].join(' ')} title={view.bonus7 === null ? 'کاشی ۷×۷ هنوز آزاد است' : 'کاشی ۷×۷ گرفته شد'}><img src={bonusArt} alt="کاشی ۷×۷" draggable={false} /><small>{view.bonus7 === null ? '۷×۷ آزاد، +۷' : view.bonus7 === me ? '۷×۷ مال شما' : '۷×۷ گرفته شد'}</small></span>}
+      {framed && <span className={['pw-bonus', view.bonus7 !== null ? 'pw-bonus--gone' : ''].join(' ')} title={view.bonus7 === null ? `${tx(terms.tile)} ۷×۷ ${tx(terms.stillFree)}` : `${tx(terms.tile)} ۷×۷ ${tx(terms.taken)}`}><img src={bonusArt} alt={`${tx(terms.tile)} ۷×۷`} draggable={false} /><small>{view.bonus7 === null ? <>۷×۷ <T t={terms.free} />، +۷</> : view.bonus7 === me ? '۷×۷ مال شما' : <>۷×۷ <T t={terms.taken} /></>}</small></span>}
       <div className="pw__quilts">
         <QuiltBoard view={view} k={me} me name={who(me)} buttonsPop={!!beforeBtns && beforeBtns[me] !== view.buttons[me]}>
           <Quilt board={boardBlue} q={q} was={before?.[me]} anchor="quilt-me" big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
@@ -207,7 +207,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
 
       {canAdvance && !view.outcome && (
         <div className="pw__actions">
-          <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'advance' ? 'pw-hint' : ''} onClick={() => onAction({ type: 'advance' })}>جلو رفتن (+{fa(advanceGain)} <T t={terms.button} />)</Button></DockSlot>
+          <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'advance' ? 'pw-hint' : ''} onClick={() => onAction({ type: 'advance' })}><T t={terms.advance} /> (+{fa(advanceGain)} <T t={terms.button} />)</Button></DockSlot>
         </div>
       )}
     </div>
@@ -262,27 +262,27 @@ function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: Patchwo
         <i className={`pw-pawn ${me ? 'pw-pawn--me' : 'pw-pawn--opp'}`} aria-hidden="true" />
         <bdi className="pw-board__name">{name}</bdi>
         {turn && <span className="pw-board__turn">در نوبت</span>}
-        <Pop n={score(view, k)} className="pw-board__score">امتیاز <bdi dir="ltr">{score(view, k) < 0 ? `−${fa(-score(view, k))}` : fa(score(view, k))}</bdi></Pop>
+        <Pop n={score(view, k)} className="pw-board__score"><T t={terms.score} /> <bdi dir="ltr">{score(view, k) < 0 ? `−${fa(-score(view, k))}` : fa(score(view, k))}</bdi></Pop>
         {!me && <button type="button" className="pw-board__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن ${tx(terms.quilt)} ${name}` : `باز کردن ${tx(terms.quilt)} ${name}`}>{open ? '▴' : '▾'}</button>}
       </header>}
       <div className="pw-board__body">
         {open && <div className="pw-board__quilt">{children}</div>}
-        {!framed && <ul className="pw-pocket" aria-label="جیب دکمه">
+        {!framed && <ul className="pw-pocket" aria-label={tx(terms.pocket)}>
           <li className="pw-pocket__btns" title={`${tx(terms.buttons)} در دست`}><b className="pw-btn pw-btn--big" aria-hidden="true" /><span className={buttonsPop ? 'bg-pop' : ''} key={view.buttons[k]}>{fa(view.buttons[k]!)}</span><small><T t={terms.button} /></small></li>
-          <li className="pw-pocket__inc" title="درآمد دکمه‌ای لحاف در هر خانهٔ درآمد">
+          <li className="pw-pocket__inc" title={`${tx(terms.income)} ${tx(terms.buttonAdj)} ${tx(terms.quilt)} در هر ${tx(terms.spaceEz)} ${tx(terms.income)}`}>
             <small><T t={terms.income} /></small>
             <span className="pw-pocket__row" aria-hidden="true">{Array.from({ length: Math.min(inc, 8) }, (_, i) => <b key={i} className="pw-btn" />)}</span>
             <b>{fa(inc)}</b>
           </li>
-          <li className="pw-pocket__time" title={`جای مهره روی ${tx(terms.timeTrack)}`}>
+          <li className="pw-pocket__time" title={`جای ${tx(terms.pawn)} روی ${tx(terms.timeTrack)}`}>
             <small><T t={terms.time} /></small><b>{fa(pos)}/{fa(END)}</b>
             <span className="pw-pocket__bar" aria-hidden="true"><span style={{ inlineSize: `${(pos / END) * 100}%` }} /></span>
-            {nextInc !== undefined && <small><T t={terms.income} /> بعدی: {fa(nextInc - pos)} خانه</small>}
+            {nextInc !== undefined && <small><T t={terms.income} /> بعدی: {fa(nextInc - pos)} <T t={terms.spaces} /></small>}
           </li>
-          <li className="pw-pocket__empty" title="هر خانهٔ خالی در پایان −۲"><small>خالی</small><b>{fa(empty)}</b><small>(−{fa(empty * 2)})</small></li>
+          <li className="pw-pocket__empty" title={`هر ${tx(terms.emptySquare)} در پایان −۲`}><small><T t={terms.empty} /></small><b>{fa(empty)}</b><small>(−{fa(empty * 2)})</small></li>
           <li className={['pw-tile7', view.bonus7 === k ? 'pw-tile7--on' : view.bonus7 !== null ? 'pw-tile7--gone' : ''].join(' ')}
-            title={view.bonus7 === k ? 'کاشی ۷×۷: +۷' : view.bonus7 !== null ? 'کاشی ۷×۷ را حریف گرفت' : 'کاشی ۷×۷ هنوز آزاد است'}>
-            <b>۷×۷</b><small>{view.bonus7 === k ? '+۷' : view.bonus7 !== null ? 'رفت' : 'آزاد'}</small>
+            title={view.bonus7 === k ? `${tx(terms.tile)} ۷×۷: +۷` : view.bonus7 !== null ? `${tx(terms.tile)} ۷×۷ را حریف گرفت` : `${tx(terms.tile)} ۷×۷ ${tx(terms.stillFree)}`}>
+            <b>۷×۷</b><small>{view.bonus7 === k ? '+۷' : view.bonus7 !== null ? <T t={terms.goneW} /> : <T t={terms.free} />}</small>
           </li>
         </ul>}
       </div>

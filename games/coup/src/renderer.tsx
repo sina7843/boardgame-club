@@ -19,15 +19,19 @@ const ROLE_T: Record<Role, Term> = { duke: terms.duke, assassin: terms.assassin,
 const ACT_T: Record<Act, Term> = { income: terms.income, foreignAid: terms.foreignAid, coup: terms.coup, tax: terms.tax, assassinate: terms.assassinate, steal: terms.steal, exchange: terms.exchange };
 const roleFa = (r: Role) => tx(ROLE_T[r]);
 const actFa = (a: Act) => tx(ACT_T[a]);
-const ACT_NOTE: Record<Act, string> = { income: '+۱ سکه', foreignAid: '+۲ سکه', coup: '۷ سکه', tax: '+۳ سکه', assassinate: '۳ سکه', steal: '۲ سکه از حریف', exchange: '۲ کارت از دسته' };
+const actNote = (a: Act): string => {
+  const c = tx(terms.coin);
+  return { income: `+۱ ${c}`, foreignAid: `+۲ ${c}`, coup: `۷ ${c}`, tax: `+۳ ${c}`, assassinate: `۳ ${c}`, steal: `۲ ${c} از حریف`, exchange: `۲ ${tx(terms.card)} از ${tx(terms.deck)}` }[a];
+};
 
 // Printed cards from design/games/group-c/art/coup (the whole card, back included).
 const ART: Record<Role, string> = { duke, assassin, captain, ambassador, contessa };
 
 function Card({ role, lost, size = 'md', fresh, flip, flipFrom, exit }: { role: Role | null; lost?: boolean; size?: 'sm' | 'md'; fresh?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
+  useTermsLang();
   return (
     <span className={['cp-card', `cp-card--${size}`, role ? `cp-card--${role}` : 'cp-card--back', lost ? 'cp-card--lost' : '', fresh ? 'bg-flip-in' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flip && exit ? exit : undefined}>
-      <img className="cp-card__img" src={role ? ART[role] : cardBack} alt={role ? roleFa(role) : 'کارت پشت‌ورو'} draggable={false} />
+      <img className="cp-card__img" src={role ? ART[role] : cardBack} alt={role ? roleFa(role) : `${tx(terms.card)} ${tx(terms.facedown)}`} draggable={false} />
       {lost && <span className="cp-card__x" aria-hidden="true" />}
     </span>
   );
@@ -36,8 +40,9 @@ function Card({ role, lost, size = 'md', fresh, flip, flipFrom, exit }: { role: 
 const Thumb = ({ role }: { role: Role }) => <img className="cp-thumb" src={ART[role]} alt="" aria-hidden="true" />;
 
 function Coins({ n }: { n: number }) {
+  useTermsLang();
   const pop = usePop(n);
-  return <span className="cp-coins" aria-label={`${fa(n)} سکه`}><span className="cp-coin" aria-hidden="true" /><b key={n} className={pop}>{fa(n)}</b></span>;
+  return <span className="cp-coins" aria-label={`${fa(n)} ${tx(terms.coin)}`}><span className="cp-coin" aria-hidden="true" /><b key={n} className={pop}>{fa(n)}</b></span>;
 }
 
 type Queued = { type: string; act?: Act; target?: number; card?: number; roles?: Role[]; role?: Role };
@@ -82,19 +87,19 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : mine ? {
       tone: 'mine' as const,
-      text: view.phase === 'lose' ? `یک ${tx(terms.influence)} از دست می‌دهید: کارتی را که رو می‌شود انتخاب کنید`
-        : view.phase === 'exchange' ? `${fa(keepHint?.keep ?? 1)} کارت نگه دارید`
-          : view.phase === 'respond' ? (p!.stage === 'blockRespond' ? `${tx(terms.block)} را قبول می‌کنید یا ${tx(terms.challenge)}؟` : `قبول، ${tx(terms.challenge)} یا ${tx(terms.block)}؟`)
-            : aim ? `هدف «${actFa(aim)}» را انتخاب کنید` : 'نوبت شماست: یک کار انتخاب کنید'
+      text: view.phase === 'lose' ? `یک ${tx(terms.influence)} ${tx(terms.loseV)}: ${tx(terms.cardYi)} را که ${tx(terms.revealV)} انتخاب کنید`
+        : view.phase === 'exchange' ? `${fa(keepHint?.keep ?? 1)} ${tx(terms.card)} ${tx(terms.keep)}`
+          : view.phase === 'respond' ? (p!.stage === 'blockRespond' ? `${tx(terms.block)} را ${tx(terms.allowQ)} یا ${tx(terms.challenge)}؟` : `${tx(terms.allow)}، ${tx(terms.challenge)} یا ${tx(terms.block)}؟`)
+            : aim ? `${tx(terms.target)} «${actFa(aim)}» را انتخاب کنید` : `نوبت شماست: یک ${tx(terms.action)} انتخاب کنید`
     }
       : { tone: 'wait' as const, text: `منتظر ${waitingOn.map(who).join('، ')}` };
 
   const banner = p && view.phase !== 'action' && !view.outcome ? (
     <div className="cp-claim" role="status" key={`${p.actor}-${p.act}-${p.block?.by ?? ''}`}>
       <span className="cp-claim__who"><bdi>{who(p.actor)}</bdi></span>
-      {p.claim ? <> ادعای <b className={`cp-tag cp-tag--${p.claim}`}><Thumb role={p.claim} />{roleFa(p.claim)}</b> — </> : ' '}
+      {p.claim ? <> <T t={terms.claimEz} /> <b className={`cp-tag cp-tag--${p.claim}`}><Thumb role={p.claim} />{roleFa(p.claim)}</b> — </> : ' '}
       <b>{actFa(p.act)}</b>{p.target !== null && <> روی <bdi>{who(p.target)}</bdi></>}
-      {p.block && <span className="cp-claim__block"><bdi>{who(p.block.by)}</bdi> با ادعای <b className={`cp-tag cp-tag--${p.block.role}`}><Thumb role={p.block.role} />{roleFa(p.block.role)}</b> جلویش را گرفت</span>}
+      {p.block && <span className="cp-claim__block"><bdi>{who(p.block.by)}</bdi> با <T t={terms.claimEz} /> <b className={`cp-tag cp-tag--${p.block.role}`}><Thumb role={p.block.role} />{roleFa(p.block.role)}</b> <T t={terms.blockedIt} /></span>}
     </div>
   ) : null;
 
@@ -102,19 +107,19 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
     <div className="cp" ref={root} data-seq={lastSeq} data-phase={view.phase}>
       {framed && (
         <RailSlot>
-          <p>هر ادعا را می‌شود به <T t={terms.challenge} /> کشید؛ ادعای دروغ یک <T t={terms.influence} /> هزینه دارد. با ۱۰ سکه <T t={terms.coup} /> اجباری است.</p>
+          <p>هر <T t={terms.claim} /> را می‌شود به <T t={terms.challenge} /> کشید؛ <T t={terms.claimEz} /> دروغ یک <T t={terms.influence} /> هزینه دارد. با ۱۰ سکه <T t={terms.coup} /> اجباری است.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {framed && (
         <div className="cp-center" aria-label="میز">
-          <div className="cp-treasury"><span className="cp-treasury__coin" aria-hidden="true" /><b>{fa(Math.max(0, 50 - view.coins.reduce((a, b) => a + b, 0)))}</b><span>سکهٔ خزانه</span></div>
-          <div className="cp-deck"><img className="cp-deck__img" src={cardBack} alt="" draggable={false} /><span>دربار<span className="bgv-sep" />{fa(view.deckCount)} کارت</span></div>
+          <div className="cp-treasury"><span className="cp-treasury__coin" aria-hidden="true" /><b>{fa(Math.max(0, 50 - view.coins.reduce((a, b) => a + b, 0)))}</b><span><T t={terms.treasuryCoin} /></span></div>
+          <div className="cp-deck"><img className="cp-deck__img" src={cardBack} alt="" draggable={false} /><span><T t={terms.court} /><span className="bgv-sep" />{fa(view.deckCount)} <T t={terms.card} /></span></div>
         </div>
       )}
       {banner}
       {framed && aim && targets.length > 0 && (
-        <div className="cp-resp" role="group" aria-label={`هدف ${actFa(aim)}`}>
+        <div className="cp-resp" role="group" aria-label={`${tx(terms.target)} ${actFa(aim)}`}>
           {targets.map((s) => <button key={s} type="button" className={['cp-resp__btn', hint?.type === 'act' && hint.target === s ? 'cp-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'act', act: aim, target: s })}><bdi>{who(s)}</bdi></button>)}
         </div>
       )}
@@ -144,8 +149,8 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
       </ul>}
 
       {mySeat !== null && view.myCards && (
-        <section className="cp__me" aria-label="دست شما">
-          <div className="cp-me__head" data-flip-anchor="deck" hidden={framed}><bdi className="cp-pl__name">شما</bdi><Coins n={view.coins[mySeat]!} /><span className="cp-me__deck">دسته دربار: {fa(view.deckCount)}</span></div>
+        <section className="cp__me" aria-label={`${tx(terms.hand)} شما`}>
+          <div className="cp-me__head" data-flip-anchor="deck" hidden={framed}><bdi className="cp-pl__name">شما</bdi><Coins n={view.coins[mySeat]!} /><span className="cp-me__deck"><T t={terms.deck} /> <T t={terms.court} />: {fa(view.deckCount)}</span></div>
           {keepHint && q?.type !== 'keep' && (
             <div className="cp-ex" role="group" aria-label={tx(terms.exchange)}>
               <div className="cp-ex__cards">
@@ -154,20 +159,20 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
                     onClick={() => setKeep(keep.includes(i) ? keep.filter((k) => k !== i) : [...keep, i].slice(-keepHint.keep))}><Card role={r} size="sm" flip={`ex-${i}`} flipFrom="deck" exit="deck" /></button>
                 ))}
               </div>
-              <Button size="sm" disabled={busy || keep.length !== keepHint.keep} onClick={() => onAction({ type: 'keep', roles: keep.map((i) => keepHint.options[i]!) })}>نگه داشتن {fa(keep.length)} از {fa(keepHint.keep)}</Button>
+              <Button size="sm" disabled={busy || keep.length !== keepHint.keep} onClick={() => onAction({ type: 'keep', roles: keep.map((i) => keepHint.options[i]!) })}><T t={terms.keepN} /> {fa(keep.length)} از {fa(keepHint.keep)}</Button>
             </div>
           )}
 
           {(canChallenge || blocks.length > 0 || canPass) && (
-            <div className="cp-resp" role="group" aria-label="پاسخ">
-              {canChallenge && <button type="button" className={['cp-resp__btn cp-resp__btn--challenge', hint?.type === 'challenge' ? 'cp-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'challenge' })}><T t={terms.challenge} />! «دروغ می‌گویی»</button>}
+            <div className="cp-resp" role="group" aria-label={tx(terms.response)}>
+              {canChallenge && <button type="button" className={['cp-resp__btn cp-resp__btn--challenge', hint?.type === 'challenge' ? 'cp-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'challenge' })}><T t={terms.challenge} />! «<T t={terms.liar} />»</button>}
               {blocks.map((r) => <button key={r} type="button" className={['cp-resp__btn cp-resp__btn--block', `cp-tag--${r}`, hint?.type === 'block' && hint.role === r ? 'cp-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'block', role: r })}><Thumb role={r} /><T t={terms.block} /> با {roleFa(r)}</button>)}
-              {canPass && <button type="button" className="cp-resp__btn cp-resp__btn--pass" disabled={busy} onClick={() => onAction({ type: 'pass' })}>قبول</button>}
+              {canPass && <button type="button" className="cp-resp__btn cp-resp__btn--pass" disabled={busy} onClick={() => onAction({ type: 'pass' })}><T t={terms.allow} /></button>}
             </div>
           )}
 
           {acts.size > 0 && (
-            <div className="cp-acts" role="group" aria-label="کارها">
+            <div className="cp-acts" role="group" aria-label={tx(terms.actions)}>
               {ACTS.map((a) => {
                 const ok = acts.has(a);
                 const claim = CLAIM[a];
@@ -175,16 +180,16 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
                   <button key={a} type="button" disabled={busy || !ok} aria-pressed={aim === a}
                     className={['cp-act', `cp-act--${a}`, claim ? `cp-tag--${claim}` : 'cp-act--plain', aim === a ? 'cp-act--on' : '', hint?.type === 'act' && hint.act === a ? 'cp-hint' : ''].join(' ')} onClick={() => pick(a)}>
                     <span className="cp-act__name">{actFa(a)}</span>
-                    <span className="cp-act__note">{claim ? `${roleFa(claim)}، ` : ''}{ACT_NOTE[a]}</span>
+                    <span className="cp-act__note">{claim ? `${roleFa(claim)}، ` : ''}{actNote(a)}</span>
                   </button>
                 );
               })}
             </div>
           )}
           {/* Own influence cards sit under the actions, as in the reference (QA round 2). */}
-          <div className={['cp-me__cards', lastReveal?.seat === mySeat ? 'bg-hit' : ''].join(' ')} key={lastReveal?.seat === mySeat ? lastSeq : 'm'} role="group" aria-label={`کارت‌های ${tx(terms.influence)} شما`}>
+          <div className={['cp-me__cards', lastReveal?.seat === mySeat ? 'bg-hit' : ''].join(' ')} key={lastReveal?.seat === mySeat ? lastSeq : 'm'} role="group" aria-label={`${tx(terms.cardsEz)} ${tx(terms.influence)} شما`}>
             {view.myCards.map((c, i) => loseCards.has(i)
-              ? <button key={i} type="button" className="cp-lose" disabled={busy} onClick={() => onAction({ type: 'lose', card: i })} aria-label={`از دست دادن ${roleFa(c.role)}`}><Card role={c.role} /><span className="cp-lose__cta">رو کن</span></button>
+              ? <button key={i} type="button" className="cp-lose" disabled={busy} onClick={() => onAction({ type: 'lose', card: i })} aria-label={`${tx(terms.loseN)} ${roleFa(c.role)}`}><Card role={c.role} /><span className="cp-lose__cta"><T t={terms.revealImp} /></span></button>
               : <Card key={i} role={c.role} lost={c.revealed} flip={c.flip} fresh={c.revealed && ((lastReveal?.seat === mySeat && lastReveal.role === c.role) || (q?.type === 'lose' && q.card === i))} />)}
           </div>
 
@@ -192,7 +197,7 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
       )}
 
       {!framed && view.log.length > 0 && (
-        <ol className="cp-log" aria-label="رویدادها">
+        <ol className="cp-log" aria-label={tx(terms.log)}>
           {view.log.filter((e) => e.t !== 'resolve').slice(-5).reverse().map((e) => <li key={e.seq}>{line(e, who)}</li>)}
         </ol>
       )}
@@ -231,13 +236,13 @@ function preview(v: CoupView, q: Queued | null | undefined, me: number | null): 
 function line(e: CoupView['log'][number], who: (s: number) => string) {
   const r = (x: unknown) => roleFa(x as Role);
   switch (e.t) {
-    case 'act': return <><bdi>{who(e.seat)}</bdi>: {actFa(e.act as Act)}{e.claim ? ` (ادعای ${r(e.claim)})` : ''}{e.target !== null && e.target !== undefined ? <> ← <bdi>{who(e.target as number)}</bdi></> : null}</>;
-    case 'challenge': return <><bdi>{who(e.seat)}</bdi> ادعای {r(e.role)} <bdi>{who(e.of as number)}</bdi> را به <T t={terms.challenge} /> کشید — {e.truthful ? 'راست بود!' : 'بلوف بود!'}</>;
-    case 'block': return <><bdi>{who(e.seat)}</bdi> با ادعای {r(e.role)} جلوی کار را گرفت</>;
-    case 'blocked': return <>کار متوقف شد</>;
+    case 'act': return <><bdi>{who(e.seat)}</bdi>: {actFa(e.act as Act)}{e.claim ? ` (${tx(terms.claimEz)} ${r(e.claim)})` : ''}{e.target !== null && e.target !== undefined ? <> ← <bdi>{who(e.target as number)}</bdi></> : null}</>;
+    case 'challenge': return <><bdi>{who(e.seat)}</bdi> <T t={terms.claimEz} /> {r(e.role)} <bdi>{who(e.of as number)}</bdi> را به <T t={terms.challenge} /> کشید — {e.truthful ? tx(terms.truth) : tx(terms.bluff)} بود!</>;
+    case 'block': return <><bdi>{who(e.seat)}</bdi> با <T t={terms.claimEz} /> {r(e.role)} جلوی <T t={terms.action} /> را گرفت</>;
+    case 'blocked': return <><T t={terms.action} /> متوقف شد</>;
     case 'reveal': return <><bdi>{who(e.seat)}</bdi> «{r(e.role)}» را از دست داد</>;
     case 'eliminated': return <><bdi>{who(e.seat)}</bdi> از بازی بیرون رفت</>;
-    case 'exchanged': return <><bdi>{who(e.seat)}</bdi> کارت‌هایش را با دسته عوض کرد</>;
+    case 'exchanged': return <><bdi>{who(e.seat)}</bdi> <T t={terms.cardsPos} /> را با <T t={terms.deck} /> عوض کرد</>;
     case 'resolve': return <>{actFa(e.act as Act)} انجام شد</>;
     default: return null;
   }

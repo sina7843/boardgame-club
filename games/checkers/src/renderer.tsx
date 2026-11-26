@@ -133,19 +133,19 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
   if (!view.outcome) {
     const mustCapture = paths.some((p) => p.length > 2 || Math.abs(rowOf(p[0]!) - rowOf(p[1]!)) > 1);
     status = queued ? { tone: 'wait', text: 'حرکت شما در حال ثبت است…' } : myTurn
-      ? { tone: 'mine', text: prefix.length ? 'خانه روشن بعدی را بزنید' : mustCapture ? 'نوبت شماست: زدن اجباری است' : 'نوبت شماست: یک مهره را بزنید' }
+      ? { tone: 'mine', text: prefix.length ? 'خانه روشن بعدی را بزنید' : mustCapture ? `نوبت شماست: ${tx(terms.capture)} اجباری است` : `نوبت شماست: یک ${tx(terms.piece)} را بزنید` }
       : { tone: 'wait', text: `نوبت ${view.current === null ? '' : seatName(view.current)}` };
   }
   const endText = view.end && {
-    win: 'همه مهره‌ها زده شد', blocked: 'حریف حرکتی نداشت', resign: 'انصراف', timeout: 'اتمام زمان',
-    draw: view.end.draw === 'repetition' ? 'تکرار سه‌باره — مساوی' : view.end.draw === 'quiet' ? '۴۰ حرکت بدون زدن — مساوی' : 'توافق — مساوی'
+    win: `همه ${tx(terms.pieces)} زده شد`, blocked: 'حریف حرکتی نداشت', resign: 'انصراف', timeout: 'اتمام زمان',
+    draw: view.end.draw === 'repetition' ? `${tx(terms.threefold)} — ${tx(terms.draw)}` : view.end.draw === 'quiet' ? `۴۰ حرکت بدون ${tx(terms.capture)} — ${tx(terms.draw)}` : `توافق — ${tx(terms.draw)}`
   }[view.end.kind];
 
   // Draw offer travels with my next move (the engine has no stand-alone offer), so «مساوی» is a toggle.
   const drawBtn = myTurn && !busy && !view.outcome
-    ? <DsButton key="draw" className="ck-drawbtn" variant="secondary" icon="handshake" pressed={offer} onClick={() => setOffer(!offer)}>{offer ? 'مساوی با حرکت بعد' : 'مساوی'}</DsButton>
-    : view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome ? <span key="draw" className="ck-ml__note">پیشنهاد مساوی شما ارسال شد</span> : null;
-  const acceptBtn = legalActions.some((a) => a.type === 'acceptDraw') ? <DsButton key="acc" disabled={busy} icon="handshake" onClick={() => onAction({ type: 'acceptDraw' })}>پذیرفتن مساوی</DsButton> : null;
+    ? <DsButton key="draw" className="ck-drawbtn" variant="secondary" icon="handshake" pressed={offer} onClick={() => setOffer(!offer)}>{offer ? `${tx(terms.draw)} با حرکت بعد` : tx(terms.draw)}</DsButton>
+    : view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome ? <span key="draw" className="ck-ml__note">پیشنهاد {tx(terms.draw)} شما ارسال شد</span> : null;
+  const acceptBtn = legalActions.some((a) => a.type === 'acceptDraw') ? <DsButton key="acc" disabled={busy} icon="handshake" onClick={() => onAction({ type: 'acceptDraw' })}>پذیرفتن {tx(terms.draw)}</DsButton> : null;
   const redoBtn = prefix.length > 0 && !busy ? <DsButton key="redo" variant="ghost" onClick={() => setPrefix([])}>انتخاب دوباره</DsButton> : null;
 
   return (
@@ -154,7 +154,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>{view.variant === 'brazilian' ? <><b>قوانین برزیلی:</b> مهره و {tx(terms.king)} به عقب هم می‌زنند و {tx(terms.flyingKing)} است؛ زدن بیشترین مهره اجباری است.</> : <><b>قوانین انگلیسی: گرفتن اجباری است.</b> مهره فقط به جلو و مورب می‌رود. مهره‌ای که به ردیف آخر برسد {tx(terms.king)} می‌شود و نوبت تمام می‌شود.</>}</p>
+          <p>{view.variant === 'brazilian' ? <><b>قوانین برزیلی:</b> {tx(terms.piece)} و {tx(terms.king)} به عقب هم می‌زنند و {tx(terms.flyingKing)} است؛ {tx(terms.capture)} بیشترین {tx(terms.piece)} اجباری است.</> : <><b>قوانین انگلیسی: {tx(terms.jump)} اجباری است.</b> {tx(terms.piece)} فقط به جلو و مورب می‌رود. {tx(terms.pieceIndef)} که به {tx(terms.kingRow)} برسد {tx(terms.king)} می‌شود و نوبت تمام می‌شود.</>}</p>
           <section className="ck-ml" aria-label="حرکت‌ها">
             <h3>حرکت‌ها<span className="ck-ml__note">شمارهٔ خانه‌ها ۱ تا ۳۲</span></h3>
             <div className="ck-ml__grid" role="list">
@@ -175,8 +175,8 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
           <div key={c} className={['ck-side', view.turn === c && !view.outcome ? 'ck-side--turn' : ''].join(' ')}>
             <span className={`ck-side__chip ck-side__chip--${c}`} aria-hidden="true" />
             <bdi className="ck-side__name">{who(c)}</bdi>
-            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? `، ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} ${tx(terms.king)}` : ''}</Stat>
-            <span className="ck-side__caps" aria-label={`${fa(captured[c === 'd' ? 'l' : 'd'])} مهره زده`}>
+            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} {tx(terms.piece)}{view.counts[c.toUpperCase() as 'D' | 'L'] ? `، ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} ${tx(terms.king)}` : ''}</Stat>
+            <span className="ck-side__caps" aria-label={`${fa(captured[c === 'd' ? 'l' : 'd'])} ${tx(terms.piece)} زده`}>
               <Caps n={captured[c === 'd' ? 'l' : 'd']} color={c === 'd' ? 'l' : 'd'} />
             </span>
           </div>
@@ -247,10 +247,10 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
 
       {!framed && <div className="ck__actions">
         {myTurn && !busy && (
-          <label className="ck-offer"><input type="checkbox" checked={offer} onChange={(e) => setOffer(e.target.checked)} /> پیشنهاد تساوی همراه حرکت</label>
+          <label className="ck-offer"><input type="checkbox" checked={offer} onChange={(e) => setOffer(e.target.checked)} /> پیشنهاد {tx(terms.drawAlt)} همراه حرکت</label>
         )}
-        {legalActions.some((a) => a.type === 'acceptDraw') && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'acceptDraw' })}>پذیرفتن تساوی</Button>}
-        {view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome && <span className="ck__note">پیشنهاد تساوی شما ارسال شد</span>}
+        {legalActions.some((a) => a.type === 'acceptDraw') && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'acceptDraw' })}>پذیرفتن {tx(terms.drawAlt)}</Button>}
+        {view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome && <span className="ck__note">پیشنهاد {tx(terms.drawAlt)} شما ارسال شد</span>}
         {prefix.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={() => setPrefix([])}>انتخاب دوباره</Button>}
       </div>}
       {!framed && endText && <p className="ck__end" role="status">{endText}</p>}
@@ -263,7 +263,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
   );
 }
 
-const pieceFa = (p: Piece, mine: Color) => `${(p.toLowerCase() === mine) ? 'مهره شما' : 'مهره حریف'}${p === 'D' || p === 'L' ? ` (${tx(terms.king)})` : ''}`;
+const pieceFa = (p: Piece, mine: Color) => `${(p.toLowerCase() === mine) ? `${tx(terms.piece)} شما` : `${tx(terms.piece)} حریف`}${p === 'D' || p === 'L' ? ` (${tx(terms.king)})` : ''}`;
 
 function Disc({ x, y, p }: { x: number; y: number; p: Piece }) {
   const w = S * 0.82;

@@ -3,14 +3,23 @@
 // below with prices in energy.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, T, TurnIndicator, tx, useInFrame, useFlip, useTermsLang, type GameRendererProps, DockSlot } from '@bg/ui';
-import { terms } from './terms.ts';
+import { Button, RailSlot, T, TurnIndicator, tx, useInFrame, useFlip, useTermsLang, getTermsLang, type GameRendererProps, type Term, DockSlot } from '@bg/ui';
+import { MONSTER_EN, POWER_EN, terms } from './terms.ts';
 import { POWERS, type Face, type KotView } from './rules.ts';
 import { Bolt, DieGlyph, Monster } from './art.tsx';
 import cardBack from './art/kot-back.png';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const MONSTERS = ['اژدها', 'ربات', 'گوریل', 'هیولای دریا', 'بیگانه', 'دایناسور'];
+const monsterName = (i: number) => tx({ fa: MONSTERS[i % 6]!, bg: MONSTER_EN[i % 6]! });
+const powerName = (id: number) => tx({ fa: POWERS[id]!.nameFa, bg: POWER_EN[id] ?? POWERS[id]!.nameFa });
+// Card texts are Persian sentences from the rules data; in «فارسی بردگیمی» the game words inside them turn Latin.
+const TEXT_TERMS: Term[] = [terms.energy, terms.health, terms.hit];
+const powerText = (id: number) => {
+  const text = POWERS[id]!.textFa;
+  if (getTermsLang() !== 'fa-bg') return text;
+  return TEXT_TERMS.reduce((t, w) => t.replace(new RegExp(`(?<![\u0600-\u06FF\u200c])${w.fa}(?![\u0600-\u06FF\u200c\u0654\u06c0])`, 'g'), w.bg), text);
+};
 const HUE = [350, 200, 30, 170, 280, 100];
 
 export function DieFace({ f, tumble }: { f: Face; tumble?: boolean }) {
@@ -24,7 +33,8 @@ export function DieFace({ f, tumble }: { f: Face; tumble?: boolean }) {
  *  printed large on the hub (heart = health, star = victory points). Numbers come from the view, never from art. */
 function Dial({ kind, value, max }: { kind: 'hp' | 'vp'; value: number; max: number }) {
   const n = max + 1, step = 360 / n, v = Math.max(0, Math.min(max, value));
-  const label = kind === 'hp' ? 'جان' : 'امتیاز';
+  useTermsLang();
+  const label = kind === 'hp' ? tx(terms.health) : 'امتیاز';
   return (
     <span className={`kt-dial kt-dial--${kind}`} role="meter" aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} aria-label={`${label}: ${fa(value)} از ${fa(max)}`}>
       <svg viewBox="-50 -50 100 100" aria-hidden="true">
@@ -46,12 +56,13 @@ function Dial({ kind, value, max }: { kind: 'hp' | 'vp'; value: number; max: num
 }
 
 export function PowerCard({ id }: { id: number }) {
+  useTermsLang();
   const p = POWERS[id]!;
   return (
     <span className={`kt-card ${p.effect.kind === 'keep' ? 'kt-card--keep' : ''}`}>
       <b className="kt-card__cost">{fa(p.cost)}<Bolt /></b>
-      <span className="kt-card__name">{p.nameFa}</span>
-      <small>{p.textFa}</small>
+      <span className="kt-card__name">{powerName(id)}</span>
+      <small>{powerText(id)}</small>
     </span>
   );
 }
@@ -97,38 +108,38 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : canYield ? { tone: 'mine' as const, text: 'ضربه خوردید! در شهر می‌مانید یا بیرون می‌روید؟' }
-      : myTurn ? { tone: 'mine' as const, text: view.phase === 'roll' ? (view.rolls ? `تاس‌ها را نگه دارید و دوباره بریزید (${fa(3 - view.rolls)} بار مانده) یا حساب کنید` : 'تاس بریزید') : 'کارت بخرید یا نوبت را تمام کنید' }
+    : canYield ? { tone: 'mine' as const, text: `ضربه خوردید! در ${tx(terms.tokyo)} می‌مانید یا بیرون می‌روید؟` }
+      : myTurn ? { tone: 'mine' as const, text: view.phase === 'roll' ? (view.rolls ? `${tx(terms.dice)} را ${tx(terms.keepImp)} و دوباره ${tx(terms.rollImp)} (${fa(3 - view.rolls)} بار مانده) یا حساب کنید` : `${tx(terms.die)} ${tx(terms.rollImp)}`) : 'کارت بخرید یا نوبت را تمام کنید' }
         : { tone: 'wait' as const, text: view.phase === 'yield' ? `منتظر تصمیم ${who(view.tokyo!)}` : `نوبت ${who(view.current)}` };
 
   const framed = useInFrame() !== null;
   return (
     <div className={framed ? 'kt kt--framed' : 'kt'} data-seq={view.seq} data-phase={view.phase} ref={root}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تا سه بار تاس بریزید و تاس‌های دلخواه را نگه دارید. <T t={terms.claw} /> به همه در شهر (یا بیرون آن) آسیب می‌زند؛ سه تاس هم‌عدد امتیاز می‌دهد. ۲۰ امتیاز یا آخرین غول زنده برنده است.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تا سه بار <T t={terms.die} /> <T t={terms.rollImp} /> و <T t={terms.diceYi} /> دلخواه را <T t={terms.keepImp} />. <T t={terms.claw} /> به همه در <T t={terms.tokyo} /> (یا بیرون آن) <T t={terms.damage} /> می‌زند؛ سه <T t={terms.die} /> هم‌عدد امتیاز می‌دهد. ۲۰ امتیاز یا آخرین <T t={terms.monster} /> زنده برنده است.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <section className="kt__arena" aria-label="شهر">
+      <section className="kt__arena" aria-label={tx(terms.tokyo)}>
         {view.tokyo !== null
-          ? <span className="kt__king" style={{ ['--h' as string]: HUE[view.tokyo % 6] }} key={view.tokyo} data-flip={`king-${view.tokyo}`} data-flip-from={`mon-${view.tokyo}`}><span className="kt__burst" aria-hidden="true" /><Monster k={view.tokyo} className="kt-art--king" /><b>{MONSTERS[view.tokyo % 6]}</b><bdi>{who(view.tokyo)}</bdi> در شهر</span>
-          : <span className="kt__empty">شهر خالی است</span>}
+          ? <span className="kt__king" style={{ ['--h' as string]: HUE[view.tokyo % 6] }} key={view.tokyo} data-flip={`king-${view.tokyo}`} data-flip-from={`mon-${view.tokyo}`}><span className="kt__burst" aria-hidden="true" /><Monster k={view.tokyo} className="kt-art--king" /><b>{monsterName(view.tokyo % 6)}</b><bdi>{who(view.tokyo)}</bdi> در <T t={terms.tokyo} /></span>
+          : <span className="kt__empty"><T t={terms.tokyo} /> خالی است</span>}
       </section>
 
       {/* Framed (reference §1): your monster board — portrait (painted art), health and points dials, energy. */}
       {framed && me >= 0 && (
-        <section className={['kt__mine', hitAt[me] ? 'bg-hit' : ''].join(' ')} key={`m${hitAt[me]}`} data-flip-anchor={`mon-${me}`} aria-label={`غول شما: ${MONSTERS[me % 6]}`}>
+        <section className={['kt__mine', hitAt[me] ? 'bg-hit' : ''].join(' ')} key={`m${hitAt[me]}`} data-flip-anchor={`mon-${me}`} aria-label={`${tx(terms.monster)} شما: ${monsterName(me)}`}>
           <span className="kt__mine-pic" style={{ ['--h' as string]: HUE[me % 6] }}><Monster k={me} /></span>
-          <b className="kt__mine-name">{MONSTERS[me % 6]}</b>
+          <b className="kt__mine-name">{monsterName(me % 6)}</b>
           <Dial kind="hp" value={view.hp[me]!} max={view.maxHp[me]!} />
           <Dial kind="vp" value={view.vp[me]!} max={20} />
           <span className="kt-badge kt-badge--en" role="img" aria-label={`${fa(view.energy[me]!)} ${tx(terms.energy)}`}><Bolt /><em>{fa(view.energy[me]!)}</em></span>
         </section>
       )}
-      {framed && view.kept.some((ids) => ids.length > 0) && <div className="kt__kept" aria-label={tx(terms.keepCards)}>{view.kept.flatMap((ids, k) => ids.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market" title={POWERS[id]!.textFa}><bdi>{who(k)}</bdi>: {POWERS[id]!.nameFa}</small>))}</div>}
-      {!framed && <ul className="kt__monsters" aria-label="صفحه‌های غول">
+      {framed && view.kept.some((ids) => ids.length > 0) && <div className="kt__kept" aria-label={tx(terms.keepCards)}>{view.kept.flatMap((ids, k) => ids.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market" title={powerText(id)}><bdi>{who(k)}</bdi>: {powerName(id)}</small>))}</div>}
+      {!framed && <ul className="kt__monsters" aria-label={tx(terms.monsterBoards)}>
         {/* My monster board first and full size; the others follow as compact boards. */}
         {(me >= 0 ? [me, ...view.hp.map((_, k) => k).filter((k) => k !== me)] : view.hp.map((_, k) => k)).map((k) => (
           <li key={`${k}-${hitAt[k]}`} data-flip-anchor={`mon-${k}`} className={['kt-mon', k === me ? 'kt-mon--me' : '', hitAt[k] ? 'bg-hit' : '', view.current === k && !view.outcome ? 'kt-mon--turn' : '', !view.alive[k] ? 'kt-mon--dead' : '', view.tokyo === k ? 'kt-mon--tokyo' : '', view.outcome?.placements[0]?.seat === k ? 'kt-mon--win' : ''].join(' ')} style={{ ['--h' as string]: HUE[k % 6] }}>
-            <div className="kt-mon__head"><b>{MONSTERS[k % 6]}</b><bdi>{who(k)}</bdi>{!view.alive[k] && <small>بیرون</small>}</div>
+            <div className="kt-mon__head"><b>{monsterName(k % 6)}</b><bdi>{who(k)}</bdi>{!view.alive[k] && <small>بیرون</small>}</div>
             <Dial kind="hp" value={view.hp[k]!} max={view.maxHp[k]!} />
             <div className="kt-mon__pic"><Monster k={k} /></div>
             <Dial kind="vp" value={view.vp[k]!} max={20} />
@@ -136,17 +147,17 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
               <span className="kt-badge kt-badge--en"><Bolt /><em className="bg-pop" key={view.energy[k]}>{fa(view.energy[k]!)}</em></span>
               <span className="kt-cubes">{Array.from({ length: Math.min(view.energy[k]!, 12) }, (_, i) => <i key={i} />)}</span>
             </div>
-            {view.kept[k]!.length > 0 && <div className="kt-mon__kept" aria-label={tx(terms.keepCards)}>{view.kept[k]!.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market" title={POWERS[id]!.textFa}>{POWERS[id]!.nameFa}</small>)}</div>}
+            {view.kept[k]!.length > 0 && <div className="kt-mon__kept" aria-label={tx(terms.keepCards)}>{view.kept[k]!.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market" title={powerText(id)}>{powerName(id)}</small>)}</div>}
           </li>
         ))}
       </ul>}
 
       {/* Reference: the dice tray is on the table before the first roll too (six blank dice). */}
       {framed && !view.outcome && view.dice.length === 0 && !rollingKeep && (
-        <section className="kt__dice kt__dice--idle" aria-label="تاس‌ها، هنوز ریخته نشده">{Array.from({ length: 6 }, (_, i) => <span key={i} className="kt-keep"><span className="kt-die kt-die--blank" /></span>)}</section>
+        <section className="kt__dice kt__dice--idle" aria-label={`${tx(terms.dice)}، هنوز ریخته نشده`}>{Array.from({ length: 6 }, (_, i) => <span key={i} className="kt-keep"><span className="kt-die kt-die--blank" /></span>)}</section>
       )}
       {(view.dice.length > 0 || rollingKeep) && (
-        <section className="kt__dice" aria-label="تاس‌ها">
+        <section className="kt__dice" aria-label={tx(terms.dice)}>
           {(rollingKeep ? Array.from({ length: 6 }, (_, i) => view.dice[i] ?? '1') : view.dice).map((f, i) => (tumbling(i)
             ? <span key={`t${i}`} className="kt-keep" style={{ ['--i' as string]: i }}><DieFace f={f} tumble /></span>
             // One element type for a die whether it can be kept or not, so a die is thrown again only when it was rerolled.
@@ -157,14 +168,14 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
 
       {(canRoll || canResolve) && (
         <div className="kt__bar">
-          {canRoll && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'kt-hint' : ''} onClick={() => { const k = view.rolls ? keep : [false, false, false, false, false, false]; setAsked(k); onAction({ type: 'roll', keep: k }); }}>{view.rolls ? 'دوباره بریز' : 'بریز'} ({fa(view.rolls + 1)} از ۳)</Button></DockSlot>}
-          {canResolve && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'resolve' ? 'kt-hint' : ''} onClick={() => onAction({ type: 'resolve' })}>همین‌ها</Button></DockSlot>}
+          {canRoll && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'kt-hint' : ''} onClick={() => { const k = view.rolls ? keep : [false, false, false, false, false, false]; setAsked(k); onAction({ type: 'roll', keep: k }); }}>{view.rolls ? <T t={terms.rollAgain} /> : <T t={terms.roll} />} ({fa(view.rolls + 1)} از ۳)</Button></DockSlot>}
+          {canResolve && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'resolve' ? 'kt-hint' : ''} onClick={() => onAction({ type: 'resolve' })}><T t={terms.resolve} /></Button></DockSlot>}
         </div>
       )}
       {canYield && (
         <div className="kt__bar">
-          <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'yield', leave: false })}>می‌مانم</Button>
-          <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'yield', leave: true })}>از شهر بیرون می‌روم</Button>
+          <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'yield', leave: false })}><T t={terms.stay} /></Button>
+          <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'yield', leave: true })}><T t={terms.leave} /></Button>
         </div>
       )}
 
@@ -173,13 +184,13 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
           {view.market.map((id, i) => (
             <button key={id} type="button" data-flip={`card-${id}`} data-flip-exit="drop" className={['kt-buy', hint?.type === 'buy' && hint.slot === i ? 'kt-hint' : ''].join(' ')} disabled={!buys.has(i) || busy} onClick={() => onAction({ type: 'buy', slot: i })}><PowerCard id={id} /></button>
           ))}
-          <span className="kt__pile" role="img" aria-label={`دستهٔ کارت: ${fa(view.deckCount)}`}><img src={cardBack} alt="" draggable={false} /><b>{fa(view.deckCount)}</b></span>
+          <span className="kt__pile" role="img" aria-label={`${tx(terms.deckCard)}: ${fa(view.deckCount)}`}><img src={cardBack} alt="" draggable={false} /><b>{fa(view.deckCount)}</b></span>
         </section>
       )}
       {(canSweep || canEnd) && (
         <div className="kt__bar">
-          {canSweep && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'sweep' })}>کارت‌های تازه (۲ϟ)</Button></DockSlot>}
-          {canEnd && <DockSlot><Button size="sm" disabled={busy} onClick={() => onAction({ type: 'end' })}>پایان نوبت</Button></DockSlot>}
+          {canSweep && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'sweep' })}><T t={terms.sweep} /> (۲ϟ)</Button></DockSlot>}
+          {canEnd && <DockSlot><Button size="sm" disabled={busy} onClick={() => onAction({ type: 'end' })}><T t={terms.endTurn} /></Button></DockSlot>}
         </div>
       )}
     </div>

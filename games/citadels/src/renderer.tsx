@@ -4,8 +4,8 @@
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
 import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameRendererProps, DockSlot } from '@bg/ui';
-import { terms } from './terms.ts';
-import { CHARACTERS, DISTRICTS, type CitadelsView } from './rules.ts';
+import { CHAR_T, DISTRICT_T, terms } from './terms.ts';
+import { DISTRICTS, type CitadelsView } from './rules.ts';
 // Handoff art: characters (cit-c-1..8) and district cards are full printed faces (cost and name included).
 import c1 from './art/cit-c-1.png';
 import c2 from './art/cit-c-2.png';
@@ -42,11 +42,13 @@ const DISTRICT_ART: Record<string, string> = {
 };
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
+const distName = (name: string) => (DISTRICT_T[name] ? tx(DISTRICT_T[name]) : name);
 
 export function DistrictCard({ id, size = 'md', from, exit }: { id: number; size?: 'sm' | 'md'; from?: string; exit?: string }) {
+  useTermsLang();
   const d = DISTRICTS[id]!;
   return (
-    <span className={`ct2-d ct2-d--${size} ct2-c--${d.color}`} data-flip={from ? `d-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={`${d.name}، ${fa(d.cost)} طلا`}>
+    <span className={`ct2-d ct2-d--${size} ct2-c--${d.color}`} data-flip={from ? `d-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={`${distName(d.name)}، ${fa(d.cost)} ${tx(terms.gold)}`}>
       <img className="ct2-d__face" src={DISTRICT_ART[d.name]} alt="" draggable={false} />
     </span>
   );
@@ -55,7 +57,8 @@ export function DistrictCard({ id, size = 'md', from, exit }: { id: number; size
 const Thumb = ({ c }: { c: number }) => <img className="ct2-thumb" src={PORTRAIT[c - 1]} alt="" draggable={false} />;
 
 export function CharToken({ c, state, from }: { c: number; state?: string; from?: string }) {
-  return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`} data-flip={from ? `pk-${c}` : undefined} data-flip-from={from}><img className="ct2-ch__art" src={PORTRAIT[c - 1]} alt={`${CHARACTERS[c]}، رتبه ${fa(c)}`} draggable={false} /></span>;
+  useTermsLang();
+  return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`} data-flip={from ? `pk-${c}` : undefined} data-flip-from={from}><img className="ct2-ch__art" src={PORTRAIT[c - 1]} alt={`${tx(CHAR_T[c]!)}، ${tx(terms.rank)} ${fa(c)}`} draggable={false} /></span>;
 }
 
 export default function CitadelsRenderer({ view: real, legalActions: realLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CitadelsView>) {
@@ -84,10 +87,10 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : pick ? { tone: 'mine' as const, text: `یک ${tx(terms.character)} مخفیانه انتخاب کنید` }
-      : income ? { tone: 'mine' as const, text: `نوبت ${CHARACTERS[view.calling]} شما: ۲ طلا یا دو کارت؟` }
-        : keep ? { tone: 'mine' as const, text: 'یکی از دو کارت را نگه دارید' }
-          : canEnd ? { tone: 'mine' as const, text: `${tx(terms.district)} بسازید${ability ? ` یا از ${tx(terms.ability)} استفاده کنید` : ''}، بعد نوبت را تمام کنید` }
-            : { tone: 'wait' as const, text: view.phase === 'draft' ? 'انتخاب شخصیت‌ها…' : `${CHARACTERS[view.calling]} بازی می‌کند` };
+      : income ? { tone: 'mine' as const, text: `نوبت ${tx(CHAR_T[view.calling]!)} شما: ۲ ${tx(terms.gold)} یا دو ${tx(terms.card)}؟` }
+        : keep ? { tone: 'mine' as const, text: `یکی از دو ${tx(terms.card)} را ${tx(terms.keepImp)}` }
+          : canEnd ? { tone: 'mine' as const, text: `${tx(terms.district)} ${tx(terms.buildImp)}${ability ? ` یا از ${tx(terms.ability)} استفاده کنید` : ''}، بعد نوبت را تمام کنید` }
+            : { tone: 'wait' as const, text: view.phase === 'draft' ? `${tx(terms.draft)}…` : `${tx(CHAR_T[view.calling]!)} بازی می‌کند` };
   const charState = (c: number) => (view.faceUp.includes(c) ? 'is-out' : c === view.killed ? 'is-dead' : view.calling === c && view.phase !== 'draft' ? 'is-now' : view.revealed.includes(c) ? 'is-done' : '');
 
   return (
@@ -95,11 +98,11 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>دور {fa(view.round)}<span className="bgv-sep" /> <T t={terms.crown} />: <bdi>{who(view.crown)}</bdi><span className="bgv-sep" /> دسته: {fa(view.deckCount)}. هر محله به اندازهٔ قیمتش امتیاز دارد؛ با ساختن هشتمین محله بازی در پایان همین دور تمام می‌شود.</p>
+          <p><T t={terms.round} /> {fa(view.round)}<span className="bgv-sep" /> <T t={terms.crown} />: <bdi>{who(view.crown)}</bdi><span className="bgv-sep" /> <T t={terms.deck} />: {fa(view.deckCount)}. هر <T t={terms.district} /> به اندازهٔ قیمتش امتیاز دارد؛ با ساختن هشتمین <T t={terms.district} /> بازی در پایان همین دور تمام می‌شود.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className={framed ? 'visually-hidden' : 'ct2__round'} data-flip-anchor="deck">دور {fa(view.round)}، <T t={terms.crown} />: <bdi>{who(view.crown)}</bdi>، دسته: {fa(view.deckCount)}</p>
+      <p className={framed ? 'visually-hidden' : 'ct2__round'} data-flip-anchor="deck"><T t={terms.round} /> {fa(view.round)}، <T t={terms.crown} />: <bdi>{who(view.crown)}</bdi>، <T t={terms.deck} />: {fa(view.deckCount)}</p>
 
       {/* While you pick, the pool is the character strip; showing the full 1–8 track too duplicated it. */}
       {!(pick && view.pool) && <section className="ct2__track" aria-label={tx(terms.characters)}>
@@ -107,7 +110,7 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
           <span key={c} className={c === view.killed ? 'ct2-slot bg-hit' : 'ct2-slot'}>
             <CharToken c={c} state={charState(c)} />
             {view.holders[c] !== undefined && view.holders[c]! >= 0 && <bdi className="ct2-slot__who">{who(view.holders[c]!)}</bdi>}
-            {view.robbed?.char === c && <small className="ct2-slot__tag">دزدیده</small>}
+            {view.robbed?.char === c && <small className="ct2-slot__tag"><T t={terms.robbed} /></small>}
           </span>
         ))}
       </section>}
@@ -119,8 +122,8 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
       )}
       {income && (
         <div className="ct2__bar">
-          <Button size="sm" disabled={busy} className={hint?.take === 'gold' ? 'ct2-hint' : ''} onClick={() => onAction({ type: 'income', take: 'gold' })}>۲ طلا</Button>
-          <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'income', take: 'cards' })}>دو کارت</Button>
+          <Button size="sm" disabled={busy} className={hint?.take === 'gold' ? 'ct2-hint' : ''} onClick={() => onAction({ type: 'income', take: 'gold' })}>۲ <T t={terms.gold} /></Button>
+          <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'income', take: 'cards' })}>دو <T t={terms.card} /></Button>
         </div>
       )}
       {keep && view.drawn && (
@@ -129,49 +132,49 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
 
       {ability && (
         <section className="ct2__ability" aria-label={tx(terms.ability)}>
-          <small><T t={terms.ability} /> {CHARACTERS[ability.char]}:</small>
-          {ability.char === 1 && [2, 3, 4, 5, 6, 7, 8].map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'kill', char: c })}><Thumb c={c} />کشتن {CHARACTERS[c]}</button>)}
-          {ability.char === 2 && [3, 4, 5, 6, 7, 8].filter((c) => c !== view.killed).map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'rob', char: c })}><Thumb c={c} />دزدی از {CHARACTERS[c]}</button>)}
+          <small><T t={terms.ability} /> {tx(CHAR_T[ability.char]!)}:</small>
+          {ability.char === 1 && [2, 3, 4, 5, 6, 7, 8].map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'kill', char: c })}><Thumb c={c} /><T t={terms.kill} /> {tx(CHAR_T[c]!)}</button>)}
+          {ability.char === 2 && [3, 4, 5, 6, 7, 8].filter((c) => c !== view.killed).map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'rob', char: c })}><Thumb c={c} /><T t={terms.rob} /> {tx(CHAR_T[c]!)}</button>)}
           {ability.char === 3 && <>
-            {others.map((k) => <button key={k} type="button" disabled={busy} onClick={() => onAction({ type: 'swap', target: k })}>عوض کردن دست با <bdi>{who(k)}</bdi></button>)}
-            <button type="button" disabled={busy || !redraw.length} onClick={() => onAction({ type: 'redraw', cards: redraw })}>کشیدن دوبارهٔ {fa(redraw.length)} کارت انتخابی</button>
+            {others.map((k) => <button key={k} type="button" disabled={busy} onClick={() => onAction({ type: 'swap', target: k })}><T t={terms.swapHand} /> <bdi>{who(k)}</bdi></button>)}
+            <button type="button" disabled={busy || !redraw.length} onClick={() => onAction({ type: 'redraw', cards: redraw })}><T t={terms.redraw} /> {fa(redraw.length)} <T t={terms.card} /> انتخابی</button>
           </>}
           {ability.char === 8 && view.phase === 'act' && others.flatMap((k) => (view.cities[k]!.length >= 8 ? [] : view.cities[k]!.map((id) => (
-            <button key={`${k}-${id}`} type="button" disabled={busy || view.gold[me]! < DISTRICTS[id]!.cost - 1} onClick={() => onAction({ type: 'destroy', target: k, card: id })}>تخریب {DISTRICTS[id]!.name} <bdi>{who(k)}</bdi> ({fa(DISTRICTS[id]!.cost - 1)})</button>
+            <button key={`${k}-${id}`} type="button" disabled={busy || view.gold[me]! < DISTRICTS[id]!.cost - 1} onClick={() => onAction({ type: 'destroy', target: k, card: id })}><T t={terms.destroy} /> {distName(DISTRICTS[id]!.name)} <bdi>{who(k)}</bdi> ({fa(DISTRICTS[id]!.cost - 1)})</button>
           ))))}
           {[4, 5, 6, 7].includes(ability.char) && <span>(خودکار اعمال شده)</span>}
         </section>
       )}
 
-      <ul className="ct2__cities" aria-label="شهرها">
+      <ul className="ct2__cities" aria-label={tx(terms.cities)}>
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.cities.map((_, k) => k)).map((s) => (
           <li key={s} data-flip-anchor={s === me ? 'hand' : `seat-${s}`} className={['ct2-city', s === me ? 'ct2-city--me' : '', view.outcome?.placements[0]?.seat === s ? 'ct2-city--win' : ''].join(' ')}>
             <div className="ct2-city__head">
               {view.crown === s && <img className="ct2-crown" src={crown} alt={tx(terms.crown)} title={tx(terms.crown)} />}
               <bdi className="ct2-city__name">{who(s)}</bdi>
-              {!framed && <Pop n={view.gold[s]!} className="ct2-gold"><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</Pop>}
-              {!framed && <Pop n={view.handCount[s]!}>{fa(view.handCount[s]!)} کارت</Pop>}
+              {!framed && <Pop n={view.gold[s]!} className="ct2-gold"><img src={coin} alt="" />{fa(view.gold[s]!)} <T t={terms.gold} /></Pop>}
+              {!framed && <Pop n={view.handCount[s]!}>{fa(view.handCount[s]!)} <T t={terms.card} /></Pop>}
               {!framed && <Pop n={view.scores[s]!} className="ct2-score">{fa(view.scores[s]!)} امتیاز</Pop>}
               <span>{fa(view.cities[s]!.length)}/۸</span>
             </div>
-            <div className="ct2-city__row">{view.cities[s]!.map((id) => <DistrictCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} exit="drop" />)}{!view.cities[s]!.length && <small>هنوز محله‌ای نیست</small>}</div>
+            <div className="ct2-city__row">{view.cities[s]!.map((id) => <DistrictCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} exit="drop" />)}{!view.cities[s]!.length && <small>هنوز <T t={terms.districtAny} /> نیست</small>}</div>
           </li>
         ))}
       </ul>
 
       {view.hand && !view.outcome && (
-        <section className="ct2__me" aria-label="دست شما">
+        <section className="ct2__me" aria-label={`${tx(terms.hand)} شما`}>
           {view.myPicks.length > 0 && <div className="ct2__mine"><T t={terms.characters} /> شما: {view.myPicks.map((c) => <CharToken key={c} c={c} from="pool" />)}</div>}
           <div className="ct2__hand" data-flip-anchor="hand">
             {view.hand.map((id) => {
               const selecting = ability?.char === 3;
               return builds.has(id) && !selecting
-                ? <button key={id} type="button" className={`ct2-pick ct2-pick--can ${hint?.card === id ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'build', card: id })} aria-label={`ساختن ${DISTRICTS[id]!.name}`}><DistrictCard id={id} from="deck" exit="deck" /></button>
+                ? <button key={id} type="button" className={`ct2-pick ct2-pick--can ${hint?.card === id ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'build', card: id })} aria-label={`${tx(terms.build)} ${distName(DISTRICTS[id]!.name)}`}><DistrictCard id={id} from="deck" exit="deck" /></button>
                 : selecting ? <button key={id} type="button" className={`ct2-pick ${redraw.includes(id) ? 'ct2-pick--on' : ''}`} aria-pressed={redraw.includes(id)} onClick={() => setRedraw(redraw.includes(id) ? redraw.filter((x) => x !== id) : [...redraw, id])}><DistrictCard id={id} from="deck" exit="deck" /></button>
                   : <span key={id} className="ct2-pick"><DistrictCard id={id} from="deck" exit="deck" /></span>;
             })}
           </div>
-          {canEnd && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' ? 'ct2-hint' : ''} onClick={() => onAction({ type: 'end' })}>پایان نوبت</Button></DockSlot>}
+          {canEnd && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' ? 'ct2-hint' : ''} onClick={() => onAction({ type: 'end' })}><T t={terms.endTurn} /></Button></DockSlot>}
         </section>
       )}
     </div>

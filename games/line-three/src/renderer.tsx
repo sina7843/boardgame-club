@@ -2,9 +2,10 @@
 // One tap places the mark; the table shell holds every move for a short undo window before sending it.
 import './renderer.css';
 import { useRef, type KeyboardEvent } from 'react';
-import { ActionBar, RailSlot, TurnIndicator, useFlip, useFresh, useInFrame, type GameRendererProps } from '@bg/ui';
+import { ActionBar, RailSlot, T, TurnIndicator, tx, useFlip, useFresh, useInFrame, useTermsLang, type GameRendererProps } from '@bg/ui';
 import { Badge } from '@bg/ui/bgv';
 import type { LineThreeView } from './rules.ts';
+import { terms } from './terms.ts';
 // Board and marks: design/games/group-a/art/line-three, copied as-is.
 import markX from './art/line-three-x.png';
 import markO from './art/line-three-o.png';
@@ -12,9 +13,10 @@ import boardArt from './art/line-three-board.png';
 
 const ROW = ['بالا', 'وسط', 'پایین'];
 const COL = ['چپ', 'وسط', 'راست'];
-const cellName = (i: number) => `ردیف ${ROW[Math.floor(i / 3)]}، ستون ${COL[i % 3]}`;
+const cellName = (i: number) => `${tx(terms.row)} ${ROW[Math.floor(i / 3)]}، ${tx(terms.column)} ${COL[i % 3]}`;
 
 export default function LineThreeRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LineThreeView>) {
+  useTermsLang(); // re-render when the terms language changes
   const framed = useInFrame() !== null; // the shell draws players and whose-turn
   const cells = useRef<(HTMLButtonElement | null)[]>([]);
   const mySymbol = mySeat === null ? null : view.symbols[mySeat];
@@ -50,10 +52,10 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
           <ul className="lt-sym" aria-label="نشان بازیکنان">
             {([0, 1] as const).map((seat) => { const sym = view.symbols[seat]; return (
               <li key={seat}><img src={sym === 'X' ? markX : markO} alt={sym} draggable={false} />
-                <span><b><bdi>{seat === mySeat ? 'شما' : seatName(seat)}</bdi></b> <bdi dir="ltr">{sym}</bdi>، {sym === 'X' ? 'شروع‌کننده' : 'نفر دوم'}</span></li>
+                <span><b><bdi>{seat === mySeat ? 'شما' : seatName(seat)}</bdi></b> <bdi dir="ltr">{sym}</bdi>، {sym === 'X' ? tx(terms.firstPlayer) : tx(terms.secondPlayer)}</span></li>
             ); })}
           </ul>
-          <p>هر کس زودتر <b>سه نشان</b> خود را در یک ردیف، ستون یا قطر بچیند برنده است؛ جدول پر شود و خطی کامل نشود، مساوی است.</p>
+          <p>هر کس زودتر <b>سه <T t={terms.mark} /></b> خود را در یک <T t={terms.row} />، <T t={terms.column} /> یا <T t={terms.diagonal} /> بچیند برنده است؛ جدول پر شود و خطی کامل نشود، <T t={terms.draw} /> است.</p>
         </RailSlot>
       )}
       <div className="lt__board" role="grid" aria-label="جدول سه‌در‌سه" dir="ltr" style={{ backgroundImage: `url(${boardArt})` }}>
@@ -84,7 +86,7 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
       </div>
       {!framed && myTurn && !busy && qCell === null && (
         <ActionBar>
-          <span className="muted">یک خانه خالی را بزنید</span>
+          <span className="muted">یک <T t={terms.cell} /> خالی را بزنید</span>
         </ActionBar>
       )}
     </div>

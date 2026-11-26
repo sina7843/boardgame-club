@@ -28,9 +28,10 @@ const ART: Record<string, string | undefined> = {
   'mat0-1': p1m0, 'mat0-2': p2m0, 'mat0-4': p4m0, 'mat1-1': p1m1, 'mat1-3': p3m1
 };
 type Face = Disc | 'back';
-const txt = (f: Face) => (f === 'rose' ? tx(terms.rose) : f === 'skull' ? tx(terms.skull) : 'دیسک');
+const txt = (f: Face) => (f === 'rose' ? tx(terms.rose) : f === 'skull' ? tx(terms.skull) : tx(terms.disc));
 
 function Coaster({ face, seat, size = 'md', flip }: { face: Face; seat: number; size?: 'sm' | 'md'; flip?: boolean }) {
+  useTermsLang();
   const src = ART[`${face}-${seat + 1}`];
   return src
     ? <img className={['sk-disc', `sk-disc--${size}`, flip ? 'bg-flip-in' : ''].join(' ')} src={src} alt="" draggable={false} />
@@ -86,12 +87,12 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : view.phase === 'reveal' ? (myTurn ? { tone: 'mine' as const, text: `${fa(view.bid!.n - view.turned.length)} دیسک دیگر رو کنید` } : { tone: 'wait' as const, text: `${who(view.bid!.seat)} دیسک‌ها را رو می‌کند` })
-      : myTurn ? { tone: 'mine' as const, text: view.phase === 'first' ? 'یک دیسک رو به پایین بگذارید' : view.phase === 'bid' ? 'عدد بالاتر بگویید یا کنار بکشید' : 'دیسک بگذارید یا پیشنهاد بدهید' }
+    : view.phase === 'reveal' ? (myTurn ? { tone: 'mine' as const, text: `${fa(view.bid!.n - view.turned.length)} ${tx(terms.flipMore)}` } : { tone: 'wait' as const, text: `${who(view.bid!.seat)} ${tx(terms.flipsDiscs)}` })
+      : myTurn ? { tone: 'mine' as const, text: view.phase === 'first' ? tx(terms.placeFirst) : view.phase === 'bid' ? tx(terms.raiseOrPass) : tx(terms.placeOrBid) }
         : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
   const rule = view.phase === 'reveal'
-    ? 'اول دیسک‌های خودتان رو می‌شود؛ از هر دستهٔ دیگر فقط دیسک بالایی را رو کنید. به جمجمه که برسید یک دیسک از دست می‌دهید.'
-    : 'دیسک‌ها رو به پایین‌اند. پیشنهاد یعنی قول می‌دهید این تعداد دیسک را بدون رسیدن به جمجمه رو کنید.';
+    ? tx(terms.ruleReveal)
+    : tx(terms.ruleBid);
 
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${lastSeq}|${qKey}`);
@@ -103,7 +104,7 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {framed && <RailSlot><p>{rule}</p></RailSlot>}
       {view.bid && view.phase !== 'first' && (
-        <p className="sk-banner" role="status"><span className="sk-banner__n"><Pop v={view.bid.n} /></span><span><b><T t={terms.bid} /> <bdi>{who(view.bid.seat)}</bdi></b><br /><small>{fa(view.maxBid)} دیسک روی میز است</small></span></p>
+        <p className="sk-banner" role="status"><span className="sk-banner__n"><Pop v={view.bid.n} /></span><span><b><T t={terms.bid} /> <bdi>{who(view.bid.seat)}</bdi></b><br /><small>{fa(view.maxBid)} <T t={terms.discs} /> <T t={terms.onTable} /></small></span></p>
       )}
 
       <ul className="sk-mats" aria-label="بازیکنان">
@@ -118,8 +119,8 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
           const body = (
             <>
               <span className="sk-mat__bg">
-                {mat ? <img className="sk-mat__img" src={mat} alt={won > 0 ? 'زیرانداز (یک امتیاز)' : 'زیرانداز'} /> : <span className="sk-mat__img sk-ph" aria-hidden="true">زیرانداز</span>}
-                <span className="sk-stack" role="img" aria-label={`${fa(stack)} دیسک روی میز`}>
+                {mat ? <img className="sk-mat__img" src={mat} alt={won > 0 ? tx(terms.matOne) : tx(terms.mat)} /> : <span className="sk-mat__img sk-ph" aria-hidden="true"><T t={terms.mat} /></span>}
+                <span className="sk-stack" role="img" aria-label={`${fa(stack)} ${tx(terms.discs)} روی میز`}>
                   {Array.from({ length: stack }, (_, k) => {
                     const shown = turned[stack - 1 - k];
                     const own = s === mySeat && view.myStack ? view.myStack[k] : null;
@@ -132,8 +133,8 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
                 </span>
               </span>
               <span className="sk-mat__l">
-                <b><bdi>{who(s)}</bdi></b> {fa(owned)} دیسک
-                {owned === 0 ? <><span className="bgv-sep" /><em>بیرون</em></> : null}
+                <b><bdi>{who(s)}</bdi></b> {fa(owned)} <T t={terms.discs} />
+                {owned === 0 ? <><span className="bgv-sep" /><em><T t={terms.out} /></em></> : null}
                 {view.phase === 'bid' && view.passed[s] ? <><span className="bgv-sep" /><T t={terms.pass} /></> : null}
                 {view.bid?.seat === s && !view.outcome && view.phase !== 'first' ? <><span className="bgv-sep" /><em><T t={terms.bid} /> {fa(view.bid.n)}</em></> : null}
               </span>
@@ -143,7 +144,7 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
           return (
             <li key={s} data-flip-anchor={`seat-${s}`} className={cls}>
               {canFlip
-                ? <button type="button" className={['sk-mat__btn', hint?.type === 'flip' && hint.seat === s ? 'sk-hint' : ''].join(' ')} onClick={() => onAction({ type: 'flip', seat: s })} aria-label={`رو کردن دیسک بالایی ${who(s)}`}>{body}<span className="sk-mat__cta">رو کن</span></button>
+                ? <button type="button" className={['sk-mat__btn', hint?.type === 'flip' && hint.seat === s ? 'sk-hint' : ''].join(' ')} onClick={() => onAction({ type: 'flip', seat: s })} aria-label={`${tx(terms.flipTop)} ${who(s)}`}>{body}<span className="sk-mat__cta"><T t={terms.flip} /></span></button>
                 : body}
             </li>
           );
@@ -152,23 +153,23 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
 
       {view.hand && view.owned[me] && !view.outcome ? (
         <div className="sk__mine">
-          <div className="sk__hand" data-flip-anchor="hand" role="group" aria-label="دیسک‌های دست شما">
+          <div className="sk__hand" data-flip-anchor="hand" role="group" aria-label={tx(terms.handDiscs)}>
             {view.hand.map((d, k) => (
               <button key={k} type="button" data-flip={`hd-${d}-${view.hand!.slice(0, k).filter((x) => x === d).length}`} className={['sk-handdisc', hint?.type === 'place' && hint.disc === d ? 'sk-hint' : ''].join(' ')} disabled={busy || !placeable.has(d)}
-                onClick={() => onAction({ type: 'place', disc: d })} aria-label={d === 'skull' ? `گذاشتن ${tx(terms.skull)}` : `گذاشتن ${tx(terms.rose)}`}>
+                onClick={() => onAction({ type: 'place', disc: d })} aria-label={`${tx(terms.place)} ${tx(d === 'skull' ? terms.skull : terms.rose)}`}>
                 <Coaster face={d} seat={me} size="sm" />
               </button>
             ))}
           </div>
           {bidHint && (
-            <div className="sk-bid" role="group" aria-label="پیشنهاد">
+            <div className="sk-bid" role="group" aria-label={tx(terms.bid)}>
               {Array.from({ length: bidHint.max - bidHint.min + 1 }, (_, k) => bidHint.min + k).map((n) => (
                 <button key={n} type="button" aria-pressed={chosenBid === n} className={['sk-n sk-num', chosenBid === n ? 'is-sel' : '', hint?.type === 'bid' && hint.n === n ? 'sk-hint' : ''].join(' ')} onClick={() => setBid(n)}>{fa(n)}</button>
               ))}
               <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'bid', n: chosenBid })}><T t={terms.bid} /> {fa(chosenBid)}</Button>
             </div>
           )}
-          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>کنار می‌کشم</Button></DockSlot>}
+          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}><T t={terms.passMe} /></Button></DockSlot>}
         </div>
       ) : null}
       {view.lostLast && lastLose && lastLose.seat === mySeat && <p className="sk__lost" role="status">یک {tx(view.lostLast === 'skull' ? terms.skull : terms.rose)} از دست دادید (فقط شما می‌دانید).</p>}

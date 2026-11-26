@@ -21,6 +21,7 @@ const art = (col: number, row: number) => ({ backgroundImage: `url(${cardsArt})`
 function Glyph({ c }: { c: Color }) { return <image href={SYM[c]} x="-16" y="-16" width="32" height="32" />; }
 
 export function Card({ id, size = 'md', back, flip, flipFrom, exit }: { id?: CardId; size?: 'sm' | 'md'; back?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
+  useTermsLang();
   if (back || !id) return <span className={`lc-card lc-card--${size} lc-card--back`} aria-hidden="true"><i className="lc-card__art" style={gc('back') ? { backgroundImage: `url(${gc('back')})`, backgroundSize: '100% 100%' } : art(0, 5)} /></span>;
   const c = color(id);
   const v = value(id);
@@ -55,8 +56,8 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : placing ? { tone: 'mine' as const, text: sel ? `روی ${tx(terms.expedition)} بگذارید یا دور بیندازید` : 'یک کارت از دستتان انتخاب کنید' }
-      : draws.size ? { tone: 'mine' as const, text: 'یک کارت بردارید: از دسته یا کپه‌ها' }
+    : placing ? { tone: 'mine' as const, text: sel ? `روی ${tx(terms.expedition)} ${tx(terms.playV)} یا ${tx(terms.discardV)}` : `یک ${tx(terms.card)} از ${tx(terms.handYour)} انتخاب کنید` }
+      : draws.size ? { tone: 'mine' as const, text: `یک ${tx(terms.card)} ${tx(terms.drawV)}: از ${tx(terms.deck)} یا ${tx(terms.piles)}` }
         : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
   const last = view.last;
   const framed = useInFrame() !== null; // the shell draws seats, scores, whose-turn and the events log
@@ -73,15 +74,15 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>کارت‌های هر <T t={terms.expedition} /> باید از کارت قبلی بزرگ‌تر باشند و «<T t={terms.wager} />» فقط پیش از اولین عدد می‌آید. هر سفرِ شروع‌شده ۲۰ امتیاز خرج دارد؛ هشت کارت در یک <T t={terms.expedition} /> ۲۰ امتیاز جایزه دارد.</p>
+          <p><T t={terms.cardsEz} /> هر <T t={terms.expedition} /> باید از <T t={terms.card} /> قبلی بزرگ‌تر باشند و «<T t={terms.wager} />» فقط پیش از اولین عدد می‌آید. هر <T t={terms.expeditionEz} /> شروع‌شده ۲۰ امتیاز خرج دارد؛ هشت <T t={terms.card} /> در یک <T t={terms.expedition} /> ۲۰ امتیاز <T t={terms.bonus} /> دارد.</p>
         </RailSlot>
       )}
       {!framed && <p className="lc__score" data-flip-anchor="seat-opp">
-        دست {fa(view.round)} از {fa(view.rounds)}، <bdi>{who(opp)}</bdi> <b key={view.scores[opp]! + (view.outcome ? 0 : COLORS.reduce((a, c) => a + expScore(view.exp[opp]![c]), 0))} className="bg-pop">{fa(view.scores[opp]! + (view.outcome ? 0 : COLORS.reduce((a, c) => a + expScore(view.exp[opp]![c]), 0)))}</b>
+        <T t={terms.round} /> {fa(view.round)} از {fa(view.rounds)}، <bdi>{who(opp)}</bdi> <b key={view.scores[opp]! + (view.outcome ? 0 : COLORS.reduce((a, c) => a + expScore(view.exp[opp]![c]), 0))} className="bg-pop">{fa(view.scores[opp]! + (view.outcome ? 0 : COLORS.reduce((a, c) => a + expScore(view.exp[opp]![c]), 0)))}</b>
         {' '}— شما <b key={view.scores[me]! + (view.outcome ? 0 : COLORS.reduce((a, c) => a + expScore(myExp[c]), 0))} className="bg-pop">{fa(view.scores[me]! + (view.outcome ? 0 : COLORS.reduce((a, c) => a + expScore(myExp[c]), 0)))}</b>
       </p>}
 
-      <div className="lc__board" role="group" aria-label="سفرها">
+      <div className="lc__board" role="group" aria-label={tx(terms.expeditions)}>
         {COLORS.map((c) => {
           const top = view.discard[c].at(-1);
           const canDraw = draws.has(c) && !busy;
@@ -94,7 +95,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
               <button type="button" data-flip-anchor={`pile-${c}`} className={['lc-pile', canDraw ? 'lc-pile--can' : '', placing && sel && color(sel) === c ? 'lc-pile--target' : '', hint?.type === 'draw' && hint.from === c ? 'lc-hint' : ''].join(' ')}
                 disabled={!(canDraw || (placing && sel && color(sel) === c)) || busy}
                 onClick={() => (canDraw ? onAction({ type: 'draw', from: c }) : sel && onAction({ type: 'discard', card: sel }))}
-                aria-label={canDraw ? `برداشتن از کپهٔ ${COLOR_FA[c]}` : `کپهٔ دور ریختهٔ ${COLOR_FA[c]}`}>
+                aria-label={canDraw ? `${tx(terms.drawN)} از ${tx(terms.pileEz)} ${COLOR_FA[c]}` : `${tx(terms.discardPileEz)} ${COLOR_FA[c]}`}>
                 {!top && <svg viewBox="-20 -20 40 40" className="lc-pile__g" aria-hidden="true"><Glyph c={c} /></svg>}
                 {top ? <Card id={top} key={top + view.discard[c].length} flip={value(top) ? `c-${top}` : `c-${top}.p${view.discard[c].length}`} flipFrom={lastSeat} exit="seat-opp" /> : <span className="lc-pile__name">{COLOR_FA[c]}</span>}
                 {view.discard[c].length > 1 && <span className="lc-pile__n bg-pop" key={view.discard[c].length}>{fa(view.discard[c].length)}</span>}
@@ -112,20 +113,20 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
         <div className="lc__deckrow">
           <button type="button" data-flip-anchor="deck" className={['lc-deck', draws.has('deck') ? 'lc-deck--can' : '', hint?.type === 'draw' && hint.from === 'deck' ? 'lc-hint' : ''].join(' ')}
             disabled={!draws.has('deck') || busy} onClick={() => onAction({ type: 'draw', from: 'deck' })}>
-            <Card back size="sm" /><span key={view.deckCount} className="bg-pop">دسته: {fa(view.deckCount)} کارت</span>
+            <Card back size="sm" /><span key={view.deckCount} className="bg-pop"><T t={terms.deck} />: {fa(view.deckCount)} <T t={terms.card} /></span>
           </button>
-          {!framed && last && <span className="lc__last" key={view.seq}><bdi>{who(last.seat)}</bdi> {last.kind === 'play' ? `روی ${tx(terms.expedition)} گذاشت` : last.kind === 'discard' ? 'دور انداخت' : last.from === 'deck' ? 'از دسته برداشت' : `از کپهٔ ${COLOR_FA[last.from as Color]} برداشت`}{last.card && last.kind !== 'draw' ? `: ${COLOR_FA[color(last.card)]} ${value(last.card) ? fa(value(last.card)) : tx(terms.wager)}` : ''}</span>}
+          {!framed && last && <span className="lc__last" key={view.seq}><bdi>{who(last.seat)}</bdi> {last.kind === 'play' ? `روی ${tx(terms.expedition)} گذاشت` : last.kind === 'discard' ? tx(terms.discardP) : last.from === 'deck' ? `از ${tx(terms.deck)} برداشت` : `از ${tx(terms.pileEz)} ${COLOR_FA[last.from as Color]} برداشت`}{last.card && last.kind !== 'draw' ? `: ${COLOR_FA[color(last.card)]} ${value(last.card) ? fa(value(last.card)) : tx(terms.wager)}` : ''}</span>}
         </div>
       )}
 
       {!framed && view.roundScores.length > 0 && (
-        <table className="lc__rounds"><thead><tr><th scope="col">دست</th><th scope="col"><bdi>{who(me)}</bdi></th><th scope="col"><bdi>{who(opp)}</bdi></th></tr></thead>
+        <table className="lc__rounds"><thead><tr><th scope="col"><T t={terms.round} /></th><th scope="col"><bdi>{who(me)}</bdi></th><th scope="col"><bdi>{who(opp)}</bdi></th></tr></thead>
           <tbody>{view.roundScores.map((r, i) => <tr key={i}><th scope="row">{fa(i + 1)}</th><td>{fa(r[me]!)}</td><td>{fa(r[opp]!)}</td></tr>)}</tbody></table>
       )}
 
       {view.hand && !view.outcome && (
-        <section className="lc__me" aria-label="دست شما">
-          <div className="lc__hand" data-flip-anchor="hand-me" role="group" aria-label="کارت‌های دست" style={{ '--n': view.hand.length } as CSSProperties}>
+        <section className="lc__me" aria-label={`${tx(terms.hand)} شما`}>
+          <div className="lc__hand" data-flip-anchor="hand-me" role="group" aria-label={`${tx(terms.cardsEz)} ${tx(terms.hand)}`} style={{ '--n': view.hand.length } as CSSProperties}>
             {view.hand.map((id, i) => (
               <button key={`${id}-${i}`} type="button" aria-pressed={sel === id} disabled={!placing || busy}
                 className={['lc-pick', sel === id ? 'lc-pick--on' : '', hint?.card === id && sel !== id ? 'lc-hint' : '', placing && !canPlay(myExp, id) ? 'lc-pick--dead' : ''].join(' ')}
@@ -136,7 +137,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
             const btns = (
               <>
                 <Button size="sm" disabled={busy || !canPlay(myExp, sel)} className={hint?.type === 'play' ? 'lc-hint' : ''} onClick={() => onAction({ type: 'play', card: sel })}>روی <T t={terms.expedition} /> {COLOR_FA[color(sel)]}</Button>
-                <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'discard' ? 'lc-hint' : ''} onClick={() => onAction({ type: 'discard', card: sel })}>دور بینداز</Button>
+                <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'discard' ? 'lc-hint' : ''} onClick={() => onAction({ type: 'discard', card: sel })}><T t={terms.discardImp} /></Button>
               </>
             );
             return framed ? <DockSlot>{btns}</DockSlot> : <div className="lc__actions">{btns}</div>;
