@@ -23,7 +23,7 @@ import artStone from './art/stone.webp';
 import artShack from './art/shack.webp';
 import artParchment from './art/parchment.webp';
 import { terms } from './terms.ts';
-import { COLORS, COLS, ROWS, TERRAINS, type Clue, type CryptidView, type LogEntry, type SColor, type Target, type Terrain } from './rules.ts';
+import { COLORS, COLS, ROWS, TERRAINS, type Clue, type CryptidView, type LogEntry, type SColor, type Terrain } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const TERRAIN_FA: Record<Terrain, string> = { forest: 'جنگل', desert: 'بیابان', swamp: 'مرداب', mountain: 'کوهستان', water: 'آب' };
