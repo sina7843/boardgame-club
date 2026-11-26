@@ -3,7 +3,7 @@
 // follower stands (or none), then place. Board coordinates are module-defined, so the map itself is LTR.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePrevious, tx, useTermsLang, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, useFlip, useInFrame, usePrevious, tx, useTermsLang, type GameRendererProps } from '@bg/ui';
 import tilesArt from './art/tiles.webp';
 import meepleB from './art/cc-m-b.png';
 import meepleG from './art/cc-m-g.png';
@@ -132,7 +132,7 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : place ? { tone: 'mine' as const, text: spot ? 'بچرخانید، پیرو را انتخاب کنید و بگذارید' : 'یک جای روشن برای کاشی انتخاب کنید' }
+    : place ? { tone: 'mine' as const, text: spot ? `بچرخانید، ${tx(terms.meeple)} را انتخاب کنید و بگذارید` : `یک جای روشن برای ${tx(terms.tile)} انتخاب کنید` }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const last = view.last;
   const cells = [];
@@ -156,7 +156,7 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
         const on = spot?.x === x && spot.y === y;
         const fitsNow = spots.get(k)!.includes(rot);
         cells.push(
-          <button key={k} type="button" disabled={busy} onClick={() => choose(x, y)} aria-pressed={on} aria-label={`جای کاشی ${fa(x)}، ${fa(y)}`}
+          <button key={k} type="button" disabled={busy} onClick={() => choose(x, y)} aria-pressed={on} aria-label={`جای ${tx(terms.tile)} ${fa(x)}، ${fa(y)}`}
             className={['cc-cell cc-spot', fitsNow ? 'cc-spot--fit' : '', on ? 'cc-spot--on' : '', hint && hint.x === x && hint.y === y && !on ? 'cc-hint' : ''].join(' ')}>
             {on && view.tile && <TileArt t={view.tile} rot={shownRot} meeples={meeple && mySeat !== null ? { [meeple]: mySeat } : {}} />}
           </button>
@@ -172,13 +172,13 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
           <p><b>امتیازها</b></p>
-          <p>جادهٔ کامل: هر کاشی ۱<span className="bgv-sep" />شهر کامل: هر کاشی و هر سپر ۲<span className="bgv-sep" />صومعهٔ کامل (با ۸ کاشی دورش): ۹. آخر بازی، سازهٔ ناقص: جاده و صومعه هر کاشی ۱، شهر هر کاشی و سپر ۱.</p>
-          {view.discarded > 0 && <p>{fa(view.discarded)} کاشی بی‌جا کنار رفت.</p>}
+          <p><T t={terms.roadEz} /> کامل: هر <T t={terms.tile} /> ۱<span className="bgv-sep" /><T t={terms.city} /> کامل: هر <T t={terms.tile} /> و هر <T t={terms.shield} /> ۲<span className="bgv-sep" /><T t={terms.monasteryEz} /> کامل (با ۸ <T t={terms.tile} /> دورش): ۹. آخر بازی، سازهٔ ناقص: <T t={terms.road} /> و <T t={terms.monastery} /> هر <T t={terms.tile} /> ۱، <T t={terms.city} /> هر <T t={terms.tile} /> و <T t={terms.shield} /> ۱.</p>
+          {view.discarded > 0 && <p>{fa(view.discarded)} <T t={terms.tile} /> بی‌جا کنار رفت.</p>}
         </RailSlot>
       )}
       {framed && place && view.tile && (
         <DockSlot>
-          <Button variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate}>چرخاندن</Button>
+          <Button variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate}><T t={terms.rotate} /></Button>
           <Button variant="primary" disabled={busy || !spot} onClick={confirm}>تأیید جا</Button>
           {mySeat !== null && (
             <ul className="cc__supply" aria-label={`${fa(view.meeplesLeft[mySeat]!)} ${tx(terms.meeple)} در دست شما`}>
@@ -217,10 +217,10 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
         </div>
         {view.tile && (
           <div className="cc__drawn" data-flip-anchor="drawn">
-            {framed && <small className="cc__drawn-label">{place ? 'کاشی شما' : `کاشی ${seatName(view.current)}`}</small>}
-            {pending ? <span className="cc__drawn-tile" /> : <span className="cc__drawn-tile" data-flip={`drawn-${view.seq}`} data-flip-from="pile"><TileArt t={view.tile} rot={shownRot} title="کاشی کشیده‌شده" /></span>}
-            <small data-flip-anchor="pile"><img className="cc__back" src={backArt} alt="" />{fa(view.stackCount)} کاشی مانده</small>
-            {place && !framed && <Button size="sm" variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate} className={hint && spot && hint.rot !== shownRot ? 'cc-hint' : ''}>چرخاندن ↻</Button>}
+            {framed && <small className="cc__drawn-label">{place ? `${tx(terms.tile)} شما` : `${tx(terms.tile)} ${seatName(view.current)}`}</small>}
+            {pending ? <span className="cc__drawn-tile" /> : <span className="cc__drawn-tile" data-flip={`drawn-${view.seq}`} data-flip-from="pile"><TileArt t={view.tile} rot={shownRot} title={`${tx(terms.tile)} کشیده‌شده`} /></span>}
+            <small data-flip-anchor="pile"><img className="cc__back" src={backArt} alt="" />{fa(view.stackCount)} <T t={terms.tile} /> مانده</small>
+            {place && !framed && <Button size="sm" variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate} className={hint && spot && hint.rot !== shownRot ? 'cc-hint' : ''}><T t={terms.rotate} /> ↻</Button>}
           </div>
         )}
         {place && spot && view.tile && (
@@ -230,11 +230,11 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
               <button key={seg} type="button" disabled={!free(seg)} aria-pressed={meeple === seg} onClick={() => setMeeple(seg)}
                 className={['cc-chip', meeple === seg ? 'cc-chip--on' : '', hint?.meeple === seg && meeple !== seg ? 'cc-hint' : ''].join(' ')}>{segLabel(view.tile!, shownRot, seg)}</button>
             ))}
-            {!framed && <Button size="sm" disabled={busy} onClick={confirm} className={hint && hint.rot === shownRot && (hint.meeple ?? null) === meeple ? 'cc-hint' : ''}>گذاشتن کاشی</Button>}
+            {!framed && <Button size="sm" disabled={busy} onClick={confirm} className={hint && hint.rot === shownRot && (hint.meeple ?? null) === meeple ? 'cc-hint' : ''}>گذاشتن <T t={terms.tile} /></Button>}
           </div>
         )}
       </div>
-      {!framed && view.discarded > 0 && <small className="cc__discard">{fa(view.discarded)} کاشی بی‌جا کنار رفت</small>}
+      {!framed && view.discarded > 0 && <small className="cc__discard">{fa(view.discarded)} <T t={terms.tile} /> بی‌جا کنار رفت</small>}
     </div>
   );
 }

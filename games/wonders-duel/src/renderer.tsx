@@ -3,7 +3,7 @@
 // cities runs the conflict track with its pawn and coin tokens; progress tokens sit on discs above it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, T, tx, type Term, useTermsLang, useFlip, useFresh, useInFrame, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, T, tx, getTermsLang, type Term, useTermsLang, useFlip, useFresh, useInFrame, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import artBrown from './art/col-brown.webp';
 import artGrey from './art/col-grey.webp';
 import artBlue from './art/col-blue.webp';
@@ -27,8 +27,8 @@ import wZeus from './art/wd-w9.png';
 import pen2 from './art/wd-pen2.png';
 import pen5 from './art/wd-pen5.png';
 import boardArt from './art/wd-board.png';
-import { terms } from './terms.ts';
-import { CARDS, PROGRESS_FA, WONDERS, type Card, type Color, type DuelView, type Progress, type Res } from './rules.ts';
+import { terms, phrases, nameOf, PROGRESS_DESC } from './terms.ts';
+import { CARDS, WONDERS, type Card, type Color, type DuelView, type Progress, type Res } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const SCI: Record<string, string> = { wheel: '⚙', compass: '⌖', quill: '✒', mortar: '⚗', sundial: '◷', globe: '◍', law: '⚖' };
@@ -43,15 +43,17 @@ const ART: Record<Color, string> = { brown: artBrown, grey: artGrey, blue: artBl
 // Printed art (design/games/group-d/art/wonders-duel). Only the progress tokens and wonders the engine shares with the printed set have art; others keep the text token.
 const PROG_ART: Partial<Record<Progress, string>> = { agriculture: pAgr, architecture: pArc, economy: pEco, law: pLaw, masonry: pMas, mathematics: pMat, strategy: pStr, theology: pThe };
 const WONDER_ART: Record<number, string> = { 8: wPyr, 2: wCol, 6: wMau, 3: wLib, 10: wZeus };
-const RES_LETTER: Record<Res, string> = { W: 'چ', C: 'ر', S: 'س', G: 'ش', P: 'پ' };
+const RES_LETTER_FA: Record<Res, string> = { W: 'چ', C: 'ر', S: 'س', G: 'ش', P: 'پ' };
+const resLetter = (r: Res) => (getTermsLang() === 'fa-bg' ? r : RES_LETTER_FA[r]);
+const progDesc = (p: Progress) => tx(PROGRESS_DESC[p]!);
 
 export function Cost({ cost, coins }: { cost: string; coins?: number }) {
   useTermsLang();
-  if (!cost && !coins) return <span className="wd-cost wd-cost--free">رایگان</span>;
+  if (!cost && !coins) return <span className="wd-cost wd-cost--free">{tx(terms.free)}</span>;
   return (
-    <span className="wd-cost" aria-label={`هزینه: ${[coins ? `${fa(coins)} سکه` : '', ...[...cost].map((r) => resName(r as Res))].filter(Boolean).join('، ')}`}>
+    <span className="wd-cost" aria-label={`${tx(terms.cost)}: ${[coins ? `${fa(coins)} ${tx(terms.coin)}` : '', ...[...cost].map((r) => resName(r as Res))].filter(Boolean).join('، ')}`}>
       {coins ? <i className="wd-coin">{fa(coins)}</i> : null}
-      {[...cost].map((r, i) => <i key={i} className={`wd-res wd-res--${r}`}>{RES_LETTER[r as Res]}</i>)}
+      {[...cost].map((r, i) => <i key={i} className={`wd-res wd-res--${r}`}>{resLetter(r as Res)}</i>)}
     </span>
   );
 }
@@ -63,10 +65,10 @@ export function effectText(c: Card) {
   if (c.shields) out.push(`${'⚔'.repeat(c.shields)}`);
   if (c.sci) out.push(SCI[c.sci]!);
   if (c.vp) out.push(`${fa(c.vp)}★`);
-  if (c.trade) out.push(`${[...c.trade].map((r) => resName(r as Res)).join('/')} به ۱`);
-  if (c.gain) out.push(`${fa(c.gain)} سکه`);
-  if (c.per) out.push(`سکه برای ${c.per === 'wonder' ? tx(terms.wonder) : colorName(c.per)}`);
-  if (c.guild) out.push(c.guild === 'wonder' ? tx(terms.wonders) : c.guild === 'coins' ? 'ثروت' : c.guild.map((g) => colorName(g)).join('+'));
+  if (c.trade) out.push(`${[...c.trade].map((r) => resName(r as Res)).join('/')} ${tx(terms.toOne)}`);
+  if (c.gain) out.push(`${fa(c.gain)} ${tx(terms.coin)}`);
+  if (c.per) out.push(`${tx(terms.coinsFor)} ${c.per === 'wonder' ? tx(terms.wonder) : colorName(c.per)}`);
+  if (c.guild) out.push(c.guild === 'wonder' ? tx(terms.wonders) : c.guild === 'coins' ? tx(terms.wealth) : c.guild.map((g) => colorName(g)).join('+'));
   return out.join('، ');
 }
 
@@ -74,12 +76,12 @@ export function CardFace({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }
   useTermsLang();
   const c = CARDS[id]!;
   return (
-    <span className={`wd-card wd-card--${size} wd-c--${c.color}`} aria-label={`${c.name}: ${effectText(c)}`}>
+    <span className={`wd-card wd-card--${size} wd-c--${c.color}`} aria-label={`${nameOf(c.name)}: ${effectText(c)}`}>
       <img className="wd-card__art" src={ART[c.color]} alt="" draggable={false} />
       <span className="wd-card__band">{effectText(c)}</span>
-      <span className="wd-card__name">{c.name}</span>
+      <span className="wd-card__name">{nameOf(c.name)}</span>
       {size === 'md' && <Cost cost={c.cost} coins={c.coins} />}
-      {c.chain && size === 'md' && <small className="wd-card__chain" title="زنجیره">⛓</small>}
+      {c.chain && size === 'md' && <small className="wd-card__chain" title={tx(terms.chain)}>⛓</small>}
     </span>
   );
 }
@@ -87,13 +89,13 @@ export function CardFace({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }
 export function WonderPlate({ id, built, size = 'md' }: { id: number; built?: boolean; size?: 'sm' | 'md' }) {
   useTermsLang();
   const w = WONDERS[id]!;
-  const fx = [w.vp ? `${fa(w.vp)}★` : '', w.coins ? `${fa(w.coins)} سکه` : '', w.steal ? `حریف −${fa(w.steal)}` : '', w.shields ? '⚔'.repeat(w.shields) : '',
-    w.choice ? [...w.choice].map((r) => resName(r as Res)).join('/') : '', w.replay ? 'نوبت دوباره' : '', w.destroy ? `نابودی ${colorName(w.destroy)}` : '',
-    w.mausoleum ? 'ساخت از دورریز' : '', w.library ? 'نشان پنهان' : ''].filter(Boolean).join('، ');
+  const fx = [w.vp ? `${fa(w.vp)}★` : '', w.coins ? `${fa(w.coins)} ${tx(terms.coin)}` : '', w.steal ? `${tx(terms.opponent)} −${fa(w.steal)}` : '', w.shields ? '⚔'.repeat(w.shields) : '',
+    w.choice ? [...w.choice].map((r) => resName(r as Res)).join('/') : '', w.replay ? tx(terms.replay) : '', w.destroy ? `${tx(terms.destroyN)} ${colorName(w.destroy)}` : '',
+    w.mausoleum ? tx(terms.fromDiscard) : '', w.library ? tx(terms.hiddenToken) : ''].filter(Boolean).join('، ');
   return (
-    <span className={`wd-wonder wd-wonder--${size} ${built ? 'is-built bg-pop' : ''}`} aria-label={`${w.name}${built ? ' (ساخته‌شده)' : ''}: ${fx}`}>
+    <span className={`wd-wonder wd-wonder--${size} ${built ? 'is-built bg-pop' : ''}`} aria-label={`${nameOf(w.name)}${built ? tx(terms.builtP) : ''}: ${fx}`}>
       {WONDER_ART[id] ? <img className="wd-wonder__art" src={WONDER_ART[id]} alt="" draggable={false} /> : <>
-        <span className="wd-wonder__name">{w.name}</span>
+        <span className="wd-wonder__name">{nameOf(w.name)}</span>
         <span className="wd-wonder__fx">{fx}</span>
       </>}
       {size === 'md' && !built && <Cost cost={w.cost} />}
@@ -107,19 +109,19 @@ function City({ view, seat, label, framed }: { view: DuelView; seat: number; lab
   const colors: Color[] = ['brown', 'grey', 'yellow', 'blue', 'red', 'green', 'purple'];
   const pop = usePop(view.coins[seat]);
   return (
-    <section className={`wd-city ${view.current === seat && !view.outcome ? 'wd-city--now' : ''}`} aria-label={`شهر ${label}`} data-flip-anchor={`city-${seat}`}>
+    <section className={`wd-city ${view.current === seat && !view.outcome ? 'wd-city--now' : ''}`} aria-label={`${tx(terms.city)} ${label}`} data-flip-anchor={`city-${seat}`}>
       <div className="wd-city__head">
         {!framed && <bdi className="wd-city__name">{label}</bdi>}
         {!framed && <span className={`wd-coin wd-coin--lg ${pop}`} key={view.coins[seat]}>{fa(view.coins[seat]!)}</span>}
-        {view.progress[seat]!.map((p) => <span key={p} data-flip={`t${p}`} className="wd-token wd-token--sm" title={PROGRESS_FA[p][1]}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={progName(p)} draggable={false} /> : progName(p)}</span>)}
+        {view.progress[seat]!.map((p) => <span key={p} data-flip={`t${p}`} className="wd-token wd-token--sm" title={progDesc(p)}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={progName(p)} draggable={false} /> : progName(p)}</span>)}
       </div>
       <div className="wd-city__wonders">{view.wonders[seat]!.map((w) => <span key={w.id} className="wd-fly" data-flip={`w${w.id}`}><WonderPlate id={w.id} built={w.built} size="sm" /></span>)}</div>
       <div className="wd-city__cols">
         {colors.map((col) => {
           const xs = cards.filter((c) => c.color === col);
-          return xs.length ? <span key={col} className={`wd-stack wd-c--${col}`} title={xs.map((c) => c.name).join('، ')}>{xs.map((c) => <span key={c.id} className="wd-fly" data-flip={`c${c.id}`} data-flip-exit="drop"><CardFace id={c.id} size="sm" /></span>)}</span> : null;
+          return xs.length ? <span key={col} className={`wd-stack wd-c--${col}`} title={xs.map((c) => nameOf(c.name)).join('، ')}>{xs.map((c) => <span key={c.id} className="wd-fly" data-flip={`c${c.id}`} data-flip-exit="drop"><CardFace id={c.id} size="sm" /></span>)}</span> : null;
         })}
-        {!cards.length && <small>هنوز ساختمانی نیست</small>}
+        {!cards.length && <small>{tx(terms.noBuildings)}</small>}
       </div>
     </section>
   );
@@ -177,10 +179,10 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : drafting.length ? { tone: 'mine' as const, text: `یک ${tx(terms.wonder)} انتخاب کنید` }
-      : choosing ? { tone: 'mine' as const, text: choosing.kind === 'destroy' ? 'یک کارت حریف را نابود کنید' : choosing.kind === 'mausoleum' ? 'یک کارت دورریخته را رایگان بسازید' : `یک ${tx(terms.progressToken)} بردارید` }
-        : myTurn ? { tone: 'mine' as const, text: sel === null ? 'یک کارت آزاد از هرم بردارید' : `بسازید، بفروشید یا ${tx(terms.wonder)} بنا کنید` }
-          : { tone: 'wait' as const, text: view.phase === 'draft' ? `${seatName(1 - me)} ${tx(terms.wonder)} انتخاب می‌کند` : `نوبت ${seatName(view.current)}` };
+    : drafting.length ? { tone: 'mine' as const, text: tx(phrases.pickWonder) }
+      : choosing ? { tone: 'mine' as const, text: choosing.kind === 'destroy' ? tx(phrases.destroyCard) : choosing.kind === 'mausoleum' ? tx(phrases.buildDiscarded) : tx(phrases.takeProgress) }
+        : myTurn ? { tone: 'mine' as const, text: sel === null ? tx(phrases.pickFree) : tx(phrases.buildSellWonder) }
+          : { tone: 'wait' as const, text: view.phase === 'draft' ? `${seatName(1 - me)} ${tx(terms.wonder)} ${tx(terms.picks)}` : `نوبت ${seatName(view.current)}` };
 
   const framed = useInFrame() !== null; // the shell draws players, coins, whose-turn
   const lead = me === 0 ? view.military : -view.military;
@@ -193,7 +195,7 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>با نبرد ۹ خانه‌ای، ۶ نشان علمی متفاوت یا امتیاز پایانی بالاتر برنده شوید. هر نوبت یک کارت آزاد را بسازید، بفروشید یا برای <T t={terms.wonder} /> بنا کنید.</p>
+          <p>با <T t={terms.conflict} /> ۹ خانه‌ای، ۶ <T t={terms.scienceSymbol} /> متفاوت یا امتیاز پایانی بالاتر برنده شوید. هر نوبت یک <T t={terms.card} /> آزاد را <T t={terms.buildV} />، <T t={terms.sellV} /> یا برای <T t={terms.wonder} /> بنا کنید.</p>
         </RailSlot>
       )}
       <City view={view} seat={opp} label={who(opp)} framed={framed} />
@@ -201,7 +203,7 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
       {/* Printed board (handoff wd-board.png, 1300×367): the conflict track's 19 positions run x 80 → 1218 at y 205
           (the opponent's capital on the left), the military tokens lie in the bottom slots and the progress tokens in
           the five circles at the top. Positions are percentages of the art. */}
-      <section className="wd-track wd-board" dir="ltr" style={{ backgroundImage: `url(${boardArt})` }} aria-label={`نبرد: ${lead > 0 ? `شما ${fa(lead)} خانه جلوترید` : lead < 0 ? `حریف ${fa(-lead)} خانه جلوتر است` : 'برابر'}`}>
+      <section className="wd-track wd-board" dir="ltr" style={{ backgroundImage: `url(${boardArt})` }} aria-label={`${tx(terms.conflict)}: ${lead > 0 ? `شما ${fa(lead)} خانه جلوترید` : lead < 0 ? `حریف ${fa(-lead)} خانه جلوتر است` : 'برابر'}`}>
         {([[opp, 1, -6, 30.6, pen5, '۵'], [opp, 0, -3, 42.2, pen2, '۲'], [me, 0, 3, 56.8, pen2, '۲'], [me, 1, 6, 69.2, pen5, '۵']] as const).map(([s, i, k, x, src, alt]) => !view.milTokens[s]![i] && (
           <i key={k} className="wd-mtok wd-board__tok" style={{ left: `${x}%` }} data-flip={`m${s}${k}`} data-flip-exit={`city-${s}`}><img src={src} alt={alt} draggable={false} /></i>
         ))}
@@ -211,21 +213,21 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
         {view.progressBoard.map((p) => {
           const can = choosing && (choosing.kind === 'progress') && legalActions.some((a) => a.type === 'progress' && a.token === p);
           return can
-            ? <button key={p} type="button" data-flip={`t${p}`} className={`wd-token ${hint?.token === p ? 'wd-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'progress', token: p })} title={PROGRESS_FA[p][1]}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={progName(p)} draggable={false} /> : <><b>{progName(p)}</b><small>{PROGRESS_FA[p][1]}</small></>}</button>
-            : <span key={p} data-flip={`t${p}`} className="wd-token" title={PROGRESS_FA[p][1]}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={progName(p)} draggable={false} /> : <><b>{progName(p)}</b><small>{PROGRESS_FA[p][1]}</small></>}</span>;
+            ? <button key={p} type="button" data-flip={`t${p}`} className={`wd-token ${hint?.token === p ? 'wd-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'progress', token: p })} title={progDesc(p)}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={progName(p)} draggable={false} /> : <><b>{progName(p)}</b><small>{progDesc(p)}</small></>}</button>
+            : <span key={p} data-flip={`t${p}`} className="wd-token" title={progDesc(p)}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={progName(p)} draggable={false} /> : <><b>{progName(p)}</b><small>{progDesc(p)}</small></>}</span>;
         })}
       </div>
       </section>
 
       {drafting.length > 0 || view.phase === 'draft' ? (
-        <section className="wd-draft" aria-label={`انتخاب ${tx(terms.wonder)}`}>
+        <section className="wd-draft" aria-label={`${tx(terms.pick)} ${tx(terms.wonder)}`}>
           {view.draftPool.map((w) => drafting.length
             ? <button key={w} type="button" data-flip={`w${w}`} className="wd-pickw" disabled={busy} onClick={() => onAction({ type: 'draftWonder', wonder: w })}><WonderPlate id={w} /></button>
             : <span key={w} data-flip={`w${w}`} className="wd-pickw"><WonderPlate id={w} /></span>)}
         </section>
       ) : (
-        <section className="wd-age" aria-label={`دوران ${fa(view.age)}`}>
-          <p className="wd-age__title">دوران {['', 'یکم', 'دوم', 'سوم'][view.age]}</p>
+        <section className="wd-age" aria-label={`${tx(terms.age)} ${fa(view.age)}`}>
+          <p className="wd-age__title">{tx(terms.age)} {getTermsLang() === 'fa-bg' ? ['', 'I', 'II', 'III'][view.age] : ['', 'یکم', 'دوم', 'سوم'][view.age]}</p>
           <div className="wd-pyr" dir="ltr" style={{ ['--cols' as string]: maxX, ['--rows' as string]: rows }}>
             {view.structure.map((x, i) => {
               if (x.taken) return null;
@@ -234,7 +236,7 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
               const isNew = x.card !== null && fresh.has(`c${x.card}`);
               const face = x.card !== null
                 ? <span className={isNew ? 'wd-flipwrap bg-flip-in' : 'wd-flipwrap'} style={isNew ? { ['--i' as string]: Math.min(fi++, 8) } : undefined}><CardFace id={x.card} /></span>
-                : <span className={`wd-back wd-back--${x.back}`} aria-label="کارت پشت‌ورو" />;
+                : <span className={`wd-back wd-back--${x.back}`} aria-label={tx(terms.faceDown)} />;
               const fid = x.card !== null ? `c${x.card}` : `b${view.age}-${i}`;
               return free && myTurn
                 ? <button key={i} type="button" data-flip={fid} data-flip-exit="drop" data-flip-enter={isNew ? 'none' : undefined} style={style} disabled={busy} aria-pressed={sel === i} onClick={() => setPick(sel === i ? null : i)}
@@ -246,12 +248,12 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
       )}
 
       {myTurn && sel !== null && (
-        <div className="wd-acts" role="group" aria-label="کار با کارت">
+        <div className="wd-acts" role="group" aria-label={tx(terms.cardActions)}>
           <Button size="sm" disabled={busy || !build} className={hint?.type === 'build' ? 'wd-hint' : ''} onClick={() => onAction({ type: 'build', slot: sel })}>
-            {build ? `ساختن (${build.cost ? `${fa(build.cost)} سکه` : 'رایگان'})` : 'ساختن (ناتوان)'}
+            {build ? `${tx(terms.build)} (${build.cost ? `${fa(build.cost)} ${tx(terms.coin)}` : tx(terms.free)})` : `${tx(terms.build)} (${tx(terms.cantBuild)})`}
           </Button>
-          {sell && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'discard' ? 'wd-hint' : ''} onClick={() => onAction({ type: 'discard', slot: sel })}>فروختن (+{fa(sell.coins)} سکه)</Button>}
-          {wonders.map((w) => <Button key={w.wonder} size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'wonder', slot: sel, wonder: w.wonder })}>بنای {WONDERS[w.wonder]!.name} ({fa(w.cost)} سکه)</Button>)}
+          {sell && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'discard' ? 'wd-hint' : ''} onClick={() => onAction({ type: 'discard', slot: sel })}>{tx(terms.sell)} (+{fa(sell.coins)} {tx(terms.coin)})</Button>}
+          {wonders.map((w) => <Button key={w.wonder} size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'wonder', slot: sel, wonder: w.wonder })}>{tx(terms.wonderOf)} {nameOf(WONDERS[w.wonder]!.name)} ({fa(w.cost)} {tx(terms.coin)})</Button>)}
         </div>
       )}
 
@@ -263,7 +265,7 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
       )}
 
       {!framed && view.last && view.last.kind !== 'draft' && view.phase !== 'draft' && (
-        <p className="wd-last" key={view.seq}><bdi>{who(view.last.seat)}</bdi>: {view.last.kind === 'build' ? `ساختن ${CARDS[view.last.card!]!.name}` : view.last.kind === 'discard' ? `فروش ${CARDS[view.last.card!]!.name} (+${fa(view.last.coins!)})` : view.last.kind === 'wonder' ? `بنای ${WONDERS[view.last.wonder!]!.name}` : view.last.kind === 'progress' ? `گرفتن ${tx(terms.progressToken)}` : view.last.kind === 'destroy' ? `نابودی ${CARDS[view.last.card!]!.name}` : `ساختن از دورریز: ${CARDS[view.last.card!]!.name}`}</p>
+        <p className="wd-last" key={view.seq}><bdi>{who(view.last.seat)}</bdi>: {view.last.kind === 'build' ? `${tx(terms.build)} ${nameOf(CARDS[view.last.card!]!.name)}` : view.last.kind === 'discard' ? `${tx(terms.sale)} ${nameOf(CARDS[view.last.card!]!.name)} (+${fa(view.last.coins!)})` : view.last.kind === 'wonder' ? `${tx(terms.wonderOf)} ${nameOf(WONDERS[view.last.wonder!]!.name)}` : view.last.kind === 'progress' ? `${tx(terms.take)} ${tx(terms.progressToken)}` : view.last.kind === 'destroy' ? `${tx(terms.destroyN)} ${nameOf(CARDS[view.last.card!]!.name)}` : `${tx(terms.buildFromDiscard)}: ${nameOf(CARDS[view.last.card!]!.name)}`}</p>
       )}
       <City view={view} seat={me} label={who(me)} framed={framed} />
     </div>

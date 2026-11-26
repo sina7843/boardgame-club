@@ -2,7 +2,8 @@
 // revealed choices in order, and rows that become buttons when you must take one.
 import './renderer.css';
 import { useRef, type CSSProperties } from 'react';
-import { RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import { FACE, LAST_SLOT, ROW_INDICATOR, ROW_SLOT } from './art.ts';
 import bull from './art/bull.webp';
 import cardsArt from './art/cards.webp';
@@ -20,6 +21,7 @@ function Bull() {
 const cardArt = (c: number) => ({ backgroundImage: `url(${cardsArt})`, backgroundPosition: `${(((c - 1) % 10) / 9) * 100}% ${(Math.floor((c - 1) / 10) / 10) * 100}%` });
 
 function Card({ c, small, onClick, state, hint, flip, flipFrom, exit }: { flip?: string; flipFrom?: string; exit?: string; c: number; small?: boolean; onClick?: () => void; state?: 'take' | 'up'; hint?: boolean }) {
+  useTermsLang();
   const b = bullheads(c);
   const face = FACE[c]; // published face if we have it, else the BGA sprite
   const body = (
@@ -31,11 +33,12 @@ function Card({ c, small, onClick, state, hint, flip, flipFrom, exit }: { flip?:
   );
   const cls = ['sn-card', `sn-card--${tier(c)}`, small ? 'sn-card--small' : '', face ? 'sn-card--img' : '', state ? `sn-card--${state}` : '', hint ? 'sn-card--hint' : ''].join(' ');
   return onClick
-    ? <button type="button" className={cls} style={face ? undefined : cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} onClick={onClick} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</button>
-    : <span className={cls} style={face ? undefined : cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</span>;
+    ? <button type="button" className={cls} style={face ? undefined : cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} onClick={onClick} aria-label={`${tx(terms.card)} ${fa(c)}، ${fa(b)} ${tx(terms.bull)}`}>{body}</button>
+    : <span className={cls} style={face ? undefined : cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`${tx(terms.card)} ${fa(c)}، ${fa(b)} ${tx(terms.bull)}`}>{body}</span>;
 }
 
 export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<SixNimmtView>) {
+  useTermsLang();
   const framed = useInFrame() !== null;
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
@@ -60,9 +63,9 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : mustTake ? { tone: 'mine' as const, text: `کارت ${fa(view.pendingCard!)} از همه ردیف‌ها کوچک‌تر است: یک ردیف را بردارید` }
-      : playable.size ? { tone: 'mine' as const, text: 'یک کارت انتخاب کنید (مخفی می‌ماند تا همه انتخاب کنند)' }
-        : view.phase === 'takeRow' ? { tone: 'wait' as const, text: `${who(view.waitingRow!)} ردیف برمی‌دارد` }
+    : mustTake ? { tone: 'mine' as const, text: `${tx(terms.card)} ${fa(view.pendingCard!)} ${tx(terms.lowRest)}` }
+      : playable.size ? { tone: 'mine' as const, text: tx(terms.pickCard) }
+        : view.phase === 'takeRow' ? { tone: 'wait' as const, text: `${who(view.waitingRow!)} ${tx(terms.rowTakes)}` }
           : { tone: 'wait' as const, text: waitingFor.length ? `منتظر ${waitingFor.map(who).join('، ')}` : 'منتظر بقیه' };
 
   return (
@@ -70,7 +73,7 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
       {framed && status && (
         <RailSlot>
           <p><b>{status.text}</b></p>
-          <p>هر کارت پشت ردیفی می‌نشیند که آخرش بزرگ‌ترین عدد کوچک‌تر از آن است. کسی که کارت ششم ردیف را بگذارد، آن ردیف را برمی‌دارد؛ {view.oneRound ? 'گاو کمتر برنده است' : 'اولین نفری که به ۶۶ گاو برسد بازی را می‌بازد'}.</p>
+          <p><T t={terms.railA} /> {view.oneRound ? <T t={terms.railOne} /> : <T t={terms.railLimit} />}.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -85,7 +88,7 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
         ))}
       </ul>}
 
-      <div className="sn__rows" data-flip-anchor="deck" role="group" aria-label="ردیف‌ها">
+      <div className="sn__rows" data-flip-anchor="deck" role="group" aria-label={tx(terms.rows)}>
         {rows.map((r, k) => {
           const heads = r.reduce((a, c) => a + bullheads(c), 0);
           const take = mustTake && !busy;
@@ -99,25 +102,25 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
             </>
           );
           return take
-            ? <button key={k} type="button" className={['sn-row', 'sn-row--take', hintRow === k ? 'sn-row--hint' : ''].join(' ')} onClick={() => onAction({ type: 'takeRow', row: k })} aria-label={`برداشتن ردیف ${fa(k + 1)} با ${fa(heads)} گاو`}>{content}</button>
-            : <div key={k} className="sn-row" aria-label={`ردیف ${fa(k + 1)}: ${r.map(fa).join('، ')}`}>{content}</div>;
+            ? <button key={k} type="button" className={['sn-row', 'sn-row--take', hintRow === k ? 'sn-row--hint' : ''].join(' ')} onClick={() => onAction({ type: 'takeRow', row: k })} aria-label={`${tx(terms.take)} ${tx(terms.row)} ${fa(k + 1)} با ${fa(heads)} ${tx(terms.bull)}`}>{content}</button>
+            : <div key={k} className="sn-row" aria-label={`${tx(terms.row)} ${fa(k + 1)}: ${r.map(fa).join('، ')}`}>{content}</div>;
         })}
       </div>
 
       {(reveal.length > 0 || upcoming.length > 0) && (
-        <div className="sn__reveal" aria-label="کارت‌های رو شده این نوبت">
+        <div className="sn__reveal" aria-label={tx(terms.revealedCards)}>
           {[...reveal.map((r) => ({ ...r, done: true })), ...upcoming.map((u) => ({ ...u, took: null, done: false }))].map((r, i) => (
             <span key={r.card} style={{ ['--i' as string]: i }} className={['sn-rev', r.done ? 'bg-flip-in' : 'sn-rev--waiting', r.took ? 'sn-rev--took' : ''].join(' ')}>
               <bdi>{who(r.seat)}</bdi><Card c={r.card} small flip={r.done ? undefined : `c-${r.card}`} />
               {r.took && <span className="sn-rev__took">{r.took.map((c) => <Card key={c} c={c} small flip={`c-${c}`} exit={`seat-${r.seat}`} />)}</span>}
-              {r.took && <small>{fa(r.took.reduce((a, c) => a + bullheads(c), 0))} گاو برداشت</small>}
+              {r.took && <small>{fa(r.took.reduce((a, c) => a + bullheads(c), 0))} <T t={terms.tookBulls} /></small>}
             </span>
           ))}
         </div>
       )}
 
       {view.hand && !view.outcome && (
-        <div className="sn__hand" role="group" aria-label="دست شما" style={{ '--n': view.hand.length + (typeof myChoice === 'number' && !view.hand.includes(myChoice) ? 1 : 0) } as CSSProperties}>
+        <div className="sn__hand" role="group" aria-label={tx(terms.yourHand)} style={{ '--n': view.hand.length + (typeof myChoice === 'number' && !view.hand.includes(myChoice) ? 1 : 0) } as CSSProperties}>
           {/* The chosen card stays in its place in the sorted hand and only rises (QA round 3: it moved to the end and looked bigger). */}
           {[...view.hand, ...(typeof myChoice === 'number' && !view.hand.includes(myChoice) ? [myChoice] : [])].sort((x, y) => x - y).map((c) => (
             <Card key={c} c={c} flip={`c-${c}`} flipFrom="deck" state={myChoice === c ? 'up' : undefined} hint={hintCard === c}
@@ -125,7 +128,7 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
           ))}
         </div>
       )}
-      {!framed && <p className="sn__meta">{view.oneRound ? 'یک دست' : `دست ${fa(view.round)} — تا ۶۶ گاو`}</p>}
+      {!framed && <p className="sn__meta">{view.oneRound ? tx(terms.oneRound) : `${tx(terms.round)} ${fa(view.round)} — تا ۶۶ ${tx(terms.bull)}`}</p>}
     </div>
   );
 }

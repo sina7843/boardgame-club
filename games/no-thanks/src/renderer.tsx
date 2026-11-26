@@ -41,7 +41,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: 'نوبت شما: بردارید یا رد کنید' }
+    : myTurn ? { tone: 'mine' as const, text: `نوبت شما: ${tx(terms.takeV)} یا ${tx(terms.passV)}` }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : seatName(view.current)}` };
 
   const framed = useInFrame() !== null; // the shell draws seats, scores, whose-turn and the events log
@@ -52,17 +52,17 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>کارت‌ها امتیاز منفی‌اند. از هر رشتهٔ عدد پشت‌سرهم فقط کوچک‌ترین کارت حساب می‌شود و هر <T t={terms.chip} /> یک امتیاز کم می‌کند. ژتون‌های دیگران مخفی است.</p>
+          <p><T t={terms.cards} /> امتیاز منفی‌اند. از هر <T t={terms.runEz} /> عدد پشت‌سرهم فقط کوچک‌ترین <T t={terms.card} /> حساب می‌شود و هر <T t={terms.chip} /> یک امتیاز کم می‌کند. <T t={terms.chipsEz} /> دیگران مخفی است.</p>
         </RailSlot>
       )}
 
       <div className="nt__middle">
-        <div className="nt-deck" data-flip-anchor="deck" aria-label={`${fa(view.deckCount)} کارت در دسته`}>
+        <div className="nt-deck" data-flip-anchor="deck" aria-label={`${fa(view.deckCount)} ${tx(terms.card)} در ${tx(terms.deck)}`}>
           {Array.from({ length: Math.min(5, view.deckCount) }, (_, k) => <span key={k} className="nt-deck__card" style={{ ['--k' as string]: k, backgroundImage: `url(${gc('back')})` }} />)}
           <span className="nt-deck__n">{fa(view.deckCount)}</span>
         </div>
         {view.card !== null ? (
-          <div key={view.card} data-flip={`c-${view.card}`} data-flip-from="deck" className="nt-card nt-card--big nt-card--art" style={{ ['--h' as string]: hue(view.card), ...(gc(view.card) ? { backgroundImage: `url(${gc(view.card)})`, backgroundSize: '100% 100%', backgroundPosition: 'center' } : cardArt(view.card)) }} aria-label={`کارت ${fa(view.card)} با ${fa(view.pot)} ${tx(terms.chip)} رویش`}>
+          <div key={view.card} data-flip={`c-${view.card}`} data-flip-from="deck" className="nt-card nt-card--big nt-card--art" style={{ ['--h' as string]: hue(view.card), ...(gc(view.card) ? { backgroundImage: `url(${gc(view.card)})`, backgroundSize: '100% 100%', backgroundPosition: 'center' } : cardArt(view.card)) }} aria-label={`${tx(terms.card)} ${fa(view.card)} با ${fa(view.pot)} ${tx(terms.chip)} رویش`}>
             <span className="nt-card__corner">{fa(view.card)}</span>
             <strong className="nt-card__n">{fa(view.card)}</strong>
             <span className="nt-pot" aria-hidden="true">
@@ -77,7 +77,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
       {myTurn && (() => { const btns = (
         <>
           <Button className={hint === 'take' ? 'nt-btn--take nt-btn--hint' : 'nt-btn--take'} disabled={busy} onClick={() => onAction({ type: 'take' })}>
-            برمی‌دارم{view.pot ? ` (${fa(view.pot)} ${tx(terms.chip)})` : ''}
+            <T t={terms.takeMe} />{view.pot ? ` (${fa(view.pot)} ${tx(terms.chip)})` : ''}
           </Button>
           <Button variant="secondary" className={hint === 'pass' ? 'nt-btn--pass nt-btn--hint' : 'nt-btn--pass'} disabled={busy || !has('pass')} onClick={() => onAction({ type: 'pass' })}>
             <T t={terms.noThanks} /> (−{fa(1)})
@@ -93,8 +93,8 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
             <li key={s} data-flip-anchor={`seat-${s}`} className={['nt-pl', s === view.current && !view.outcome ? 'nt-pl--turn' : '', view.active[s] ? '' : 'nt-pl--out', s === mySeat ? 'nt-pl--me' : ''].join(' ')}>
               <div className="nt-pl__head">
                 <bdi className="nt-pl__name">{who(s)}</bdi>
-                <span className="nt-pl__chips bg-pop" key={`h${view.chips[s]}`} aria-label={view.chips[s] === null ? 'ژتون‌ها مخفی' : `${fa(view.chips[s]!)} ${tx(terms.chip)}`}><img src={gc('chip')} alt="" aria-hidden="true" width={16} />{view.chips[s] === null ? '؟' : fa(view.chips[s]!)}</span>
-                {!framed && <span className="nt-pl__pts">امتیاز کارت‌ها {fa(pts)}</span>}
+                <span className="nt-pl__chips bg-pop" key={`h${view.chips[s]}`} aria-label={view.chips[s] === null ? `${tx(terms.chips)} مخفی` : `${fa(view.chips[s]!)} ${tx(terms.chip)}`}><img src={gc('chip')} alt="" aria-hidden="true" width={16} />{view.chips[s] === null ? '؟' : fa(view.chips[s]!)}</span>
+                {!framed && <span className="nt-pl__pts"><T t={terms.cardPoints} /> {fa(pts)}</span>}
                 {view.scores && <strong className="nt-pl__score">نهایی {fa(view.scores[s]!)}</strong>}
               </div>
               <div className="nt-pl__runs">
@@ -105,7 +105,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
                     ))}
                   </span>
                 ))}
-                {!cs.length && <span className="nt-pl__none">هنوز کارتی ندارد</span>}
+                {!cs.length && <span className="nt-pl__none">هنوز <T t={terms.cardYi} /> ندارد</span>}
               </div>
             </li>
           );

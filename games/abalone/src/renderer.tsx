@@ -2,12 +2,13 @@
 // Tap up to three of your marbles in a line; arrows appear for the legal directions; tap an arrow to move.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, T, ZoomBoard, tx, useFlip, useInFrame, usePop, useTermsLang, type GameRendererProps } from '@bg/ui';
 import marbleB from './art/abalone-black-marble.png';
 import marbleW from './art/abalone-white-marble.png';
 import marbleSel from './art/abalone-selected-marble.png';
 import arrowArt from './art/abalone-move-arrow.png';
 import boardArt from './art/abalone-board.png';
+import { terms } from './terms.ts';
 import { CELLS, DIRS, WIN, legalMoves, neighbor, tryMove, type AbaloneView, type Color } from './rules.ts';
 
 type Board = (Color | null)[];
@@ -37,13 +38,14 @@ const DIR_FA = ['راست', 'بالا راست', 'بالا چپ', 'چپ', 'پا�
 function Tray({ n, color }: { n: number; color: Color }) {
   const pop = usePop(n);
   return (
-    <span className="abl-side__tray" aria-label={`${fa(n)} گوی حریف بیرون انداخته`}>
+    <span className="abl-side__tray" aria-label={`${fa(n)} ${tx(terms.marble)} حریف بیرون انداخته`}>
       {Array.from({ length: WIN }, (_, k) => <i key={k === n - 1 ? `${k}-${n}` : k} className={`${k < n ? `is-${color}` : ''}${k === n - 1 && pop ? ` ${pop}` : ''}`} />)}
     </span>
   );
 }
 
 export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<AbaloneView>) {
+  useTermsLang();
   const framed = useInFrame() !== null; // the shell draws players, ejected-marble trays and whose-turn
   const me = mySeat ?? 0;
   const myColor: Color = view.colors[me]!;
@@ -103,7 +105,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
   const centroid = sel.length ? sel.map(xy).reduce((a, b) => ({ x: a.x + b.x / sel.length, y: a.y + b.y / sel.length }), { x: 0, y: 0 }) : null;
   const who = (c: Color) => (view.colors[0] === c ? (mySeat === 0 ? 'شما' : seatName(0)) : (mySeat === 1 ? 'شما' : seatName(1)));
   const status = view.outcome ? null
-    : canMove ? { tone: 'mine' as const, text: sel.length ? 'یک فلش را بزنید' : 'گوی‌هایتان را انتخاب کنید' }
+    : canMove ? { tone: 'mine' as const, text: sel.length ? `یک ${tx(terms.arrow)} را بزنید` : `${tx(terms.marblesYour)} را انتخاب کنید` }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
   return (
@@ -112,7 +114,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>۱ تا ۳ گوی هم‌خط را انتخاب کنید. سه گوی تا دو گوی حریف و دو گوی تا یک گوی را هل می‌دهد؛ حرکت از پهلو فقط به خانهٔ خالی. اولین نفری که ۶ گوی حریف را بیرون بیندازد برنده است.</p>
+          <p>۱ تا ۳ <T t={terms.marble} /> هم‌خط را انتخاب کنید. سه <T t={terms.marble} /> تا دو <T t={terms.marble} /> حریف و دو <T t={terms.marble} /> تا یک <T t={terms.marble} /> را <T t={terms.push} /> می‌دهد؛ <T t={terms.sidestep} /> فقط به خانهٔ خالی. اولین نفری که ۶ <T t={terms.marble} /> حریف را بیرون بیندازد برنده است.</p>
         </RailSlot>
       )}
       {!framed && <div className="abl__bar">
@@ -138,7 +140,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
             const isHint = hint?.marbles.includes(i) && !isSel;
             return (
               <g key={i} role="gridcell" tabIndex={mine ? 0 : -1}
-                aria-label={`خانه ${fa(i + 1)}: ${board[i] ? (board[i] === myColor ? 'گوی شما' : 'گوی حریف') : 'خالی'}${isSel ? '، انتخاب‌شده' : ''}`}
+                aria-label={`خانه ${fa(i + 1)}: ${board[i] ? (board[i] === myColor ? `${tx(terms.marble)} شما` : `${tx(terms.marble)} حریف`) : 'خالی'}${isSel ? '، انتخاب‌شده' : ''}`}
                 className={['abl-cell', mine ? 'abl-cell--mine' : '', isSel ? 'abl-cell--sel' : '', isHint ? 'abl-cell--hint' : ''].join(' ')}
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
                 <circle cx={x} cy={y} r={R * 0.86} fill="transparent" />
@@ -180,7 +182,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
       <div className="abl__actions">
         {sel.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={() => setSel([])}>انتخاب دوباره</Button>}
       </div>
-      {!framed && view.end && <p className="abl__end" role="status">{{ six: 'شش گوی بیرون افتاد!', limit: '۲۰۰ حرکت تمام شد؛ شمارش گوی‌های بیرون‌افتاده', resign: 'انصراف', timeout: 'اتمام زمان' }[view.end.kind]}</p>}
+      {!framed && view.end && <p className="abl__end" role="status">{{ six: `شش ${tx(terms.marble)} بیرون افتاد!`, limit: `۲۰۰ حرکت تمام شد؛ شمارش ${tx(terms.marblesEz)} بیرون‌افتاده`, resign: 'انصراف', timeout: 'اتمام زمان' }[view.end.kind]}</p>}
     </div>
   );
 }

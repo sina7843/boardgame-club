@@ -23,17 +23,17 @@ const ticketName = (b: Board, t: number) => `${b.cities[b.tickets[t]!.a]!.fa} �
 function describe(e: LogEntry, b: Board, name: (s: number) => string): string {
   const n = (s: number) => iso(name(s));
   switch (e.t) {
-    case 'start': return `بازی روی نقشه ${b.nameFa} شروع شد؛ همه بلیت‌های مقصد را انتخاب می‌کنند و بعد ${n(e.first)} شروع می‌کند.`;
+    case 'start': return `بازی روی نقشه ${b.nameFa} شروع شد؛ همه ${termTx(terms.destinationTickets)} را انتخاب می‌کنند و بعد ${n(e.first)} شروع می‌کند.`;
     case 'keep': return `${n(e.seat)} ${fa(e.kept)} ${termTx(terms.ticket)} از ${fa(e.offered)} نگه داشت.`;
-    case 'market': return `${n(e.seat)} کارت ${CARD_FA(e.color)} رو را برداشت.`;
-    case 'deck': return `${n(e.seat)} یک کارت از دسته بسته کشید.`;
+    case 'market': return `${n(e.seat)} ${termTx(terms.card)} ${CARD_FA(e.color)} ${termTx(terms.faceUp)} را برداشت.`;
+    case 'deck': return `${n(e.seat)} یک ${termTx(terms.card)} از ${termTx(terms.closedDeck)} کشید.`;
     case 'tickets': return `${n(e.seat)} ${fa(e.n)} ${termTx(terms.destinationTicket)} کشید.`;
-    case 'claim': return `${n(e.seat)} ${termTx(terms.route)} ${routeName(b, e.route)} (${fa(b.routes[e.route]!.len)} واگن) را ساخت: +${fa(e.points)}.`;
-    case 'redeal': return `سه ${termTx(terms.locomotive)} رو بود؛ کارت‌های رو عوض شد.`;
-    case 'final': return `واگن‌های ${n(e.seat)} به ۲ یا کمتر رسید؛ دور پایانی: هر کس یک نوبت دیگر دارد.`;
+    case 'claim': return `${n(e.seat)} ${termTx(terms.route)} ${routeName(b, e.route)} (${fa(b.routes[e.route]!.len)} ${termTx(terms.wagon)}) را ${termTx(terms.claimed)}: +${fa(e.points)}.`;
+    case 'redeal': return `سه ${termTx(terms.locomotive)} ${termTx(terms.faceUp)} بود؛ ${termTx(terms.cardsOf)} ${termTx(terms.faceUp)} عوض شد.`;
+    case 'final': return `${termTx(terms.wagonsOf)} ${n(e.seat)} به ۲ یا کمتر رسید؛ ${termTx(terms.finalRound)}: هر کس یک نوبت دیگر دارد.`;
     case 'pass': return `${n(e.seat)} کاری برای انجام نداشت و نوبتش گذشت.`;
     case 'timeout': return `زمان ${n(e.seat)} تمام شد.`;
-    case 'left': return `${n(e.seat)} ${e.reason === 'resign' ? 'انصراف داد' : 'به‌دلیل غیبت کنار گذاشته شد'}؛ مسیرهایش روی نقشه می‌ماند.`;
+    case 'left': return `${n(e.seat)} ${e.reason === 'resign' ? 'انصراف داد' : 'به‌دلیل غیبت کنار گذاشته شد'}؛ ${termTx(terms.routesHis)} روی نقشه می‌ماند.`;
     case 'end': return `بازی تمام شد. برنده: ${e.winners.map(n).join('، ')}.`;
   }
 }
@@ -246,7 +246,7 @@ function MiniMap({ map, a, b }: { map: MapId; a: number; b: number }) {
 function Ticket({ board, id, done, checked, onToggle, disabled, flip, from, exit }: { board: Board; id: number; done?: boolean; checked?: boolean; onToggle?: () => void; disabled?: boolean; flip?: string; from?: string; exit?: string }) {
   useTermsLang();
   const t = board.tickets[id]!;
-  const text = `${termTx(terms.ticket)} ${ticketName(board, id)}، ${fa(t.points)} امتیاز${done === undefined ? '' : done ? '، کامل شده' : '، هنوز کامل نشده'}`;
+  const text = `${termTx(terms.ticket)} ${ticketName(board, id)}، ${fa(t.points)} ${termTx(terms.pts)}${done === undefined ? '' : done ? '، کامل شده' : '، هنوز کامل نشده'}`;
   const body = (
     <>
       <MiniMap map={board.id} a={t.a} b={t.b} />
@@ -255,7 +255,7 @@ function Ticket({ board, id, done, checked, onToggle, disabled, flip, from, exit
         <span className="ttr-ticket__rail" aria-hidden="true" />
         <span className="ttr-ticket__city">{board.cities[t.b]!.fa}</span>
       </span>
-      <span className="ttr-ticket__pts" aria-hidden="true"><b>{fa(t.points)}</b><small>امتیاز</small></span>
+      <span className="ttr-ticket__pts" aria-hidden="true"><b>{fa(t.points)}</b><small><TermT t={terms.pts} /></small></span>
       {done !== undefined && <span className={done ? 'ttr-ticket__stamp ttr-ticket__stamp--done' : 'ttr-ticket__stamp'} aria-hidden="true">{done ? 'کامل' : 'باز'}</span>}
     </>
   );
@@ -378,18 +378,18 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
     const rt = board.routes[r]!;
     const o = view.owner[r];
     const owner = o === null || o === undefined ? 'آزاد' : `ساخته‌شده توسط ${iso(seatName(o))} (${SEAT_FA[o]}${o === mySeat ? '، شما' : ''})`;
-    return `${termTx(terms.route)} ${routeName(board, r)}، ${fa(rt.len)} واگن، ${COLOR_FA[rt.color]}${rt.sib !== null ? `، ${termTx(terms.route)} دوتایی` : ''}، ${owner}${claims.has(r) ? '، قابل ساخت' : ''}`;
+    return `${termTx(terms.route)} ${routeName(board, r)}، ${fa(rt.len)} ${termTx(terms.wagon)}، ${COLOR_FA[rt.color]}${rt.sib !== null ? `، ${termTx(terms.doubleRoute)}` : ''}، ${owner}${claims.has(r) ? `، ${termTx(terms.claimable)}` : ''}`;
   };
   const hintedRoute = exp?.type === 'claim' ? (exp.route as number) : null;
 
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome) {
     if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
-    else if (view.phase === 'tickets') status = keepHint ? { tone: 'mine', text: `دست‌کم ${fa(view.minKeep)} ${termTx(terms.destinationTicket)} را نگه دارید` } : { tone: 'wait', text: 'منتظر انتخاب بلیت‌های دیگران' };
+    else if (view.phase === 'tickets') status = keepHint ? { tone: 'mine', text: `دست‌کم ${fa(view.minKeep)} ${termTx(terms.destinationTicket)} را ${termTx(terms.keepV)}` } : { tone: 'wait', text: `منتظر انتخاب ${termTx(terms.ticketsOf)} دیگران` };
     else if (!myTurn) status = { tone: 'wait', text: `نوبت ${iso(seatName(view.current))}${view.choosing[view.current] ? ` — انتخاب ${termTx(terms.ticket)}` : ''}` };
-    else if (keepHint) status = { tone: 'mine', text: `دست‌کم ۱ ${termTx(terms.ticket)} را نگه دارید` };
-    else if (view.drew === 1) status = { tone: 'mine', text: `کارت دوم را بکشید (${termTx(terms.locomotive)} رو مجاز نیست)` };
-    else status = { tone: 'mine', text: `۲ کارت بکشید، یک ${termTx(terms.route)} بسازید یا ${termTx(terms.destinationTicket)} بکشید` };
+    else if (keepHint) status = { tone: 'mine', text: `دست‌کم ۱ ${termTx(terms.ticket)} را ${termTx(terms.keepV)}` };
+    else if (view.drew === 1) status = { tone: 'mine', text: `${termTx(terms.card)} دوم را ${termTx(terms.drawV)} (${termTx(terms.locomotive)} ${termTx(terms.faceUp)} مجاز نیست)` };
+    else status = { tone: 'mine', text: `۲ ${termTx(terms.card)} ${termTx(terms.drawV)}، یک ${termTx(terms.route)} ${termTx(terms.claimV)} یا ${termTx(terms.destinationTicket)} ${termTx(terms.drawV)}` };
   }
 
   const hand = view.myHand;
@@ -403,20 +403,20 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p><b>امتیاز مسیرها</b></p>
-          <span className="ttr-pts" aria-label="امتیاز مسیرها بر اساس طول">
-            {[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className="ttr-pts__i"><small>{fa(n)} واگن</small><b>{fa(ROUTE_POINTS[n] ?? 0)}</b></span>)}
+          <p><b><TermT t={terms.pts} /> <TermT t={terms.routes} /></b></p>
+          <span className="ttr-pts" aria-label={`${termTx(terms.pts)} ${termTx(terms.routes)} بر اساس طول`}>
+            {[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className="ttr-pts__i"><small>{fa(n)} <TermT t={terms.wagon} /></small><b>{fa(ROUTE_POINTS[n] ?? 0)}</b></span>)}
           </span>
-          <p>نقشه {board.nameFa}{view.finalLeft && !view.outcome ? `؛ دور پایانی، ${fa(view.finalLeft.length)} نوبت مانده` : ''}. هر نوبت یا ۲ کارت بکشید، یا یک <TermT t={terms.route} /> بسازید، یا <TermT t={terms.destinationTicket} /> بگیرید. حلقهٔ سبز: شهر بلیت کامل‌شده، حلقهٔ طلایی: شهر بلیت باز.</p>
+          <p>نقشه {board.nameFa}{view.finalLeft && !view.outcome ? `؛ دور پایانی، ${fa(view.finalLeft.length)} نوبت مانده` : ''}. هر نوبت یا ۲ <TermT t={terms.card} /> <TermT t={terms.drawV} />، یا یک <TermT t={terms.route} /> <TermT t={terms.claimV} />، یا <TermT t={terms.destinationTicket} /> بگیرید. حلقهٔ سبز: شهر <TermT t={terms.ticket} /> کامل‌شده، حلقهٔ طلایی: شهر <TermT t={terms.ticket} /> باز.</p>
         </RailSlot>
       )}
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
       {!framed && <div className="ttr__meta">
         <span className="ttr-chipmeta ttr-chipmeta--turn">نقشه {board.nameFa}{view.phase === 'play' ? `، نوبت ${fa(view.turn)}` : ''}</span>
-        <span className={`ttr-chipmeta ${pop(before?.deckCount, view.deckCount)}`} key={`d${view.deckCount}`}>کارت در دسته: {fa(view.deckCount)}</span>
-        <span className={`ttr-chipmeta ${pop(before?.ticketDeckCount, view.ticketDeckCount)}`} key={`t${view.ticketDeckCount}`}>بلیت در دسته: {fa(view.ticketDeckCount)}</span>
-        {view.finalLeft && !view.outcome && <span className="ttr-chipmeta ttr-chipmeta--final">دور پایانی: {fa(view.finalLeft.length)} نوبت مانده</span>}
+        <span className={`ttr-chipmeta ${pop(before?.deckCount, view.deckCount)}`} key={`d${view.deckCount}`}>{termTx(terms.card)} در {termTx(terms.deck)}: {fa(view.deckCount)}</span>
+        <span className={`ttr-chipmeta ${pop(before?.ticketDeckCount, view.ticketDeckCount)}`} key={`t${view.ticketDeckCount}`}>{termTx(terms.ticket)} در {termTx(terms.deck)}: {fa(view.ticketDeckCount)}</span>
+        {view.finalLeft && !view.outcome && <span className="ttr-chipmeta ttr-chipmeta--final"><TermT t={terms.finalRound} />: {fa(view.finalLeft.length)} نوبت مانده</span>}
       </div>}
 
       <div className="ttr-main">
@@ -425,7 +425,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
             <TtrMap view={view} board={board} claimable={myTurn && view.drew === 0 ? new Set(claims.keys()) : new Set()} selected={sel} hinted={hintedRoute}
               cityMarks={cityMarks} label={routeLabel} onPick={pickRoute} seatName={seatName} wasOwner={before?.owner} />
           </ZoomBoard>
-          {!framed && <p className="ttr-help">مسیرهای قابل ساخت برجسته‌اند؛ روی یکی بزنید. حلقه سبز: شهر بلیت کامل‌شده شما، حلقه طلایی: شهر بلیت باز.</p>}
+          {!framed && <p className="ttr-help">مسیرهای قابل ساخت برجسته‌اند؛ روی یکی بزنید. حلقه سبز: شهر <TermT t={terms.ticket} /> کامل‌شده شما، حلقه طلایی: شهر <TermT t={terms.ticket} /> باز.</p>}
         </div>
 
         <div className="ttr-side">
@@ -437,10 +437,10 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
               <Dialog modal data-theme={document.documentElement.dataset.theme} className="ttr-ticketdlg" title={view.phase === 'tickets' ? `${termTx(terms.destinationTickets)} آغازین` : `${termTx(terms.destinationTickets)} تازه`} footer={<>
                 <Button className={exp?.type === 'keep' ? 'ttr-hintbtn' : ''} disabled={busy || !pickedOk}
                   onClick={() => { act({ type: 'keep', keep: view.myOffer!.filter((t) => kept.includes(t)) }); setFocusTicket(null); }}>
-                  نگه داشتن {fa(kept.length)} <TermT t={terms.ticket} />
+                  <TermT t={terms.keepN} /> {fa(kept.length)} <TermT t={terms.ticket} />
                 </Button>
               </>}>
-                <p className="ttr-help">بلیت کامل‌شده امتیازش اضافه و بلیت ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را نگه دارید؛ بقیه زیر دسته می‌رود.</p>
+                <p className="ttr-help"><TermT t={terms.ticket} /> کامل‌شده امتیازش اضافه و <TermT t={terms.ticket} /> ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را <TermT t={terms.keepV} />؛ بقیه زیر <TermT t={terms.deck} /> می‌رود.</p>
                 <div className="ttr-tickets">
                   {view.myOffer.map((id) => (
                     <Ticket key={id} board={board} id={id} flip={`tk-${id}`} from="tickets" exit="tickets" checked={kept.includes(id)} disabled={busy}
@@ -450,7 +450,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
               </Dialog>
             ) : (
               <Panel title={view.phase === 'tickets' ? `${termTx(terms.destinationTickets)} آغازین` : `${termTx(terms.destinationTickets)} تازه`} tone="decide">
-                <p className="ttr-help">بلیت کامل‌شده امتیازش اضافه و بلیت ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را نگه دارید؛ بقیه زیر دسته می‌رود.</p>
+                <p className="ttr-help"><TermT t={terms.ticket} /> کامل‌شده امتیازش اضافه و <TermT t={terms.ticket} /> ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را <TermT t={terms.keepV} />؛ بقیه زیر <TermT t={terms.deck} /> می‌رود.</p>
                 <div className="ttr-tickets">
                   {view.myOffer.map((id) => (
                     <Ticket key={id} board={board} id={id} flip={`tk-${id}`} from="tickets" exit="tickets" checked={kept.includes(id)} disabled={busy}
@@ -459,16 +459,16 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
                 </div>
                 <Button className={exp?.type === 'keep' ? 'ttr-hintbtn' : ''} disabled={busy || !pickedOk}
                   onClick={() => { act({ type: 'keep', keep: view.myOffer!.filter((t) => kept.includes(t)) }); setFocusTicket(null); }}>
-                  نگه داشتن {fa(kept.length)} <TermT t={terms.ticket} />
+                  <TermT t={terms.keepN} /> {fa(kept.length)} <TermT t={terms.ticket} />
                 </Button>
               </Panel>
             )
           )}
 
           {myTurn && !keepHint && sel !== null && (
-            <Panel title={`ساخت ${termTx(terms.route)} ${routeName(board, sel)}`} tone="decide">
+            <Panel title={`${termTx(terms.claimN)} ${termTx(terms.route)} ${routeName(board, sel)}`} tone="decide">
               <p className="ttr-help">
-                {fa(board.routes[sel]!.len)} واگن، {COLOR_FA[board.routes[sel]!.color]} — {fa(ROUTE_POINTS[board.routes[sel]!.len] ?? 0)} امتیاز. با چه رنگی می‌پردازید؟
+                {fa(board.routes[sel]!.len)} <TermT t={terms.wagon} />، {COLOR_FA[board.routes[sel]!.color]} — {fa(ROUTE_POINTS[board.routes[sel]!.len] ?? 0)} <TermT t={terms.pts} />. با چه رنگی می‌پردازید؟
               </p>
               <div className="ttr-paychips" role="group" aria-label="رنگ پرداخت">
                 {pays.map((p) => (
@@ -493,51 +493,51 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
                 </div>
               )}
               {pay && (
-                <p className="ttr-help">پرداخت:{pay && board.routes[sel]!.len - locos > 0 ? `${fa(board.routes[sel]!.len - locos)} کارت ${COLOR_FA[COLORS[pay.color]!]}` : ''}{locos > 0 && board.routes[sel]!.len - locos > 0 ? ' + ' : ''}{locos > 0 ? `${fa(locos)} ${termTx(terms.locomotive)}` : ''}</p>
+                <p className="ttr-help">{termTx(terms.payN)}:{pay && board.routes[sel]!.len - locos > 0 ? `${fa(board.routes[sel]!.len - locos)} ${termTx(terms.card)} ${COLOR_FA[COLORS[pay.color]!]}` : ''}{locos > 0 && board.routes[sel]!.len - locos > 0 ? ' + ' : ''}{locos > 0 ? `${fa(locos)} ${termTx(terms.locomotive)}` : ''}</p>
               )}
               <div className="row">
-                <Button className={exp?.type === 'claim' ? 'ttr-hintbtn' : ''} disabled={busy || !pay} onClick={() => act({ type: 'claim', route: sel, color: pay!.color, locos })}>ساخت <TermT t={terms.route} /></Button>
+                <Button className={exp?.type === 'claim' ? 'ttr-hintbtn' : ''} disabled={busy || !pay} onClick={() => act({ type: 'claim', route: sel, color: pay!.color, locos })}><TermT t={terms.claimN} /> <TermT t={terms.route} /></Button>
                 <Button variant="ghost" onClick={() => setSel(null)}>انصراف</Button>
               </div>
             </Panel>
           )}
 
           {(view.phase === 'play' || view.phase === 'tickets') && !view.outcome && (
-            <section className="ttr-market" aria-label="کارت‌های رو و دسته">
-              <h3>کارت‌های رو</h3>
+            <section className="ttr-market" aria-label={`${termTx(terms.cardsOf)} ${termTx(terms.faceUp)} و ${termTx(terms.deck)}`}>
+              <h3><TermT t={terms.cardsOf} /> <TermT t={terms.faceUp} /></h3>
               <ul className="ttr-cards" data-flip-anchor="market">
                 {view.market.map((c, i) => (
                   <li key={i} data-flip={`mk-${i}-${gen.current.g[i] ?? 0}`} data-flip-from="deck" data-flip-anchor={`mk-${i}`} data-flip-exit={marketExit}>
                     {c === null ? <span className="ttr-card ttr-card--empty" role="img" aria-label="خالی" /> : (
                       <button type="button" className={['ttr-card', exp?.type === 'drawMarket' && exp.slot === i ? 'ttr-hintbtn' : ''].join(' ')}
-                        aria-label={`برداشتن کارت ${CARD_FA(c)}${c === LOCO ? ' (جای هر دو کارت)' : ''}`} disabled={busy || !myTurn || !slots.has(i)} onClick={() => act({ type: 'drawMarket', slot: i })}>
+                        aria-label={`${termTx(terms.takeN)} ${termTx(terms.card)} ${CARD_FA(c)}${c === LOCO ? ` (جای هر دو ${termTx(terms.card)})` : ''}`} disabled={busy || !myTurn || !slots.has(i)} onClick={() => act({ type: 'drawMarket', slot: i })}>
                         <CardArt c={c} /><span className="ttr-card__name">{CARD_FA(c)}</span>
                       </button>
                     )}
                   </li>
                 ))}
                 <li>
-                  <button type="button" data-flip-anchor="deck" className={['ttr-card ttr-card--deck', exp?.type === 'drawDeck' ? 'ttr-hintbtn' : ''].join(' ')} aria-label={`کشیدن از دسته بسته (${fa(view.deckCount)} کارت)`}
+                  <button type="button" data-flip-anchor="deck" className={['ttr-card ttr-card--deck', exp?.type === 'drawDeck' ? 'ttr-hintbtn' : ''].join(' ')} aria-label={`${termTx(terms.drawN)} از ${termTx(terms.closedDeck)} (${fa(view.deckCount)} ${termTx(terms.card)})`}
                     disabled={busy || !myTurn || !has('drawDeck')} onClick={() => act({ type: 'drawDeck' })}>
-                    <span className="ttr-deck" aria-hidden="true"><CardBack /><CardBack /><CardBack /><b className="ttr-deck__n">{fa(view.deckCount)}</b></span><span className="ttr-card__name">دسته بسته</span>
+                    <span className="ttr-deck" aria-hidden="true"><CardBack /><CardBack /><CardBack /><b className="ttr-deck__n">{fa(view.deckCount)}</b></span><span className="ttr-card__name"><TermT t={terms.closedDeck} /></span>
                   </button>
                 </li>
               </ul>
               <div className="row" data-flip-anchor="tickets">
-                {view.phase === 'play' && <DockSlot><Button size="sm" variant="secondary" disabled={busy || !has('drawTickets')} onClick={() => act({ type: 'drawTickets' })}>کشیدن ۳ <TermT t={terms.destinationTicket} /></Button></DockSlot>}
-                {has('pass') && <DockSlot><Button size="sm" variant="ghost" disabled={busy} onClick={() => act({ type: 'pass' })}>گذشتن از نوبت</Button></DockSlot>}
+                {view.phase === 'play' && <DockSlot><Button size="sm" variant="secondary" disabled={busy || !has('drawTickets')} onClick={() => act({ type: 'drawTickets' })}><TermT t={terms.drawN} /> ۳ <TermT t={terms.destinationTicket} /></Button></DockSlot>}
+                {has('pass') && <DockSlot><Button size="sm" variant="ghost" disabled={busy} onClick={() => act({ type: 'pass' })}><TermT t={terms.passTurn} /></Button></DockSlot>}
               </div>
             </section>
           )}
 
           <div className="ttr-duo">
           {hand && !view.outcome && (
-            <section className="ttr-hand" aria-label="کارت‌های شما">
-              <h3>کارت‌های شما ({fa(handTotal)})، واگن‌ها: {fa(view.trains[mySeat!] ?? 0)}</h3>
-              {handTotal === 0 ? <p className="ttr-help">کارتی ندارید.</p> : (
+            <section className="ttr-hand" aria-label={`${termTx(terms.cardsOf)} شما`}>
+              <h3><TermT t={terms.cardsOf} /> شما ({fa(handTotal)})، <TermT t={terms.wagons} />: {fa(view.trains[mySeat!] ?? 0)}</h3>
+              {handTotal === 0 ? <p className="ttr-help"><TermT t={terms.cardI} /> ندارید.</p> : (
                 <ul className="ttr-handcards">
                   {hand.map((k, c) => (k > 0 ? (
-                    <li key={c} className="ttr-handcard" role="img" aria-label={`${fa(k)} کارت ${CARD_FA(c)}`}>
+                    <li key={c} className="ttr-handcard" role="img" aria-label={`${fa(k)} ${termTx(terms.card)} ${CARD_FA(c)}`}>
                       {Array.from({ length: Math.min(k, 3) }, (_, i) => <span key={i} className="ttr-handcard__layer" style={{ ['--l' as string]: i }} data-flip={`hl-${c}-${i}`} data-flip-from={i >= Math.min(handBase?.[c] ?? 0, 3) ? handFrom : undefined} data-flip-exit={queued?.type === 'drawMarket' ? `mk-${queued.slot as number}` : 'drop'}><CardArt c={c} /></span>)}<span className={`ttr-handcard__n ${pop(before?.myHand?.[c] ?? 0, k)}`} key={k} aria-hidden="true">{fa(k)}</span><span className="ttr-handcard__name" aria-hidden="true">{CARD_FA(c)}</span>
                     </li>
                   ) : null))}
@@ -562,10 +562,10 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
           </div>
 
           {!framed && view.final && (
-            <section className="ttr-final" aria-label="امتیاز پایانی">
-              <h3>امتیاز پایانی</h3>
+            <section className="ttr-final" aria-label={termTx(terms.finalScore)}>
+              <h3><TermT t={terms.finalScore} /></h3>
               <table>
-                <thead><tr><th scope="col">بازیکن</th><th scope="col">مسیرها</th><th scope="col"><TermT t={terms.tickets} /></th><th scope="col"><TermT t={terms.longestRoute} /></th><th scope="col">جمع</th></tr></thead>
+                <thead><tr><th scope="col">بازیکن</th><th scope="col"><TermT t={terms.routes} /></th><th scope="col"><TermT t={terms.tickets} /></th><th scope="col"><TermT t={terms.longestRoute} /></th><th scope="col"><TermT t={terms.total} /></th></tr></thead>
                 <tbody>
                   {[...view.final].sort((a, b) => b.total - a.total).map((f) => (
                     <tr key={f.seat} className={`ttr-final__row ttr-final__row--${view.outcome?.placements.find((p) => p.seat === f.seat)?.place ?? 9}`}>
@@ -599,20 +599,20 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
                       <bdi className="ttr-player__name">{seatName(s)}</bdi>
                       <span className="ttr-player__color">{SEAT_FA[s]}، صندلی {fa(s + 1)}{s === mySeat ? '، شما' : ''}</span>
                     </span>
-                    <span className={`ttr-player__score ${pop(before?.routePoints[s], view.routePoints[s])}`} key={`s${view.routePoints[s]}`} aria-label={`${fa(view.routePoints[s] ?? 0)} امتیاز مسیر`}>{fa(view.routePoints[s] ?? 0)}</span>
+                    <span className={`ttr-player__score ${pop(before?.routePoints[s], view.routePoints[s])}`} key={`s${view.routePoints[s]}`} aria-label={`${fa(view.routePoints[s] ?? 0)} ${termTx(terms.pts)} ${termTx(terms.route)}`}>{fa(view.routePoints[s] ?? 0)}</span>
                   </span>
                   <span className="ttr-player__badges">
                     {turn && <span className="ttr-badge">نوبت</span>}
-                    {view.choosing[s] && !view.outcome && <span className="ttr-badge ttr-badge--soft">انتخاب بلیت</span>}
+                    {view.choosing[s] && !view.outcome && <span className="ttr-badge ttr-badge--soft">انتخاب <TermT t={terms.ticket} /></span>}
                     {view.status[s] === 'abandoned' && <span className="ttr-badge ttr-badge--out">کنار رفته</span>}
                     {view.finalLeft?.includes(s) && !view.outcome && <span className="ttr-badge ttr-badge--final">نوبت آخر</span>}
                   </span>
-                  <span className="ttr-stock" role="img" aria-label={`${fa(trains)} واگن از ${fa(TRAINS)}`}>
+                  <span className="ttr-stock" role="img" aria-label={`${fa(trains)} ${termTx(terms.wagon)} از ${fa(TRAINS)}`}>
                     <span className="ttr-stock__bar" style={{ ['--p' as string]: `${(trains / TRAINS) * 100}%` }} />
-                    <span className="ttr-stock__t">{fa(trains)} واگن</span>
+                    <span className="ttr-stock__t">{fa(trains)} <TermT t={terms.wagon} /></span>
                   </span>
                   <span className="ttr-player__counts">
-                    <span className={`ttr-stat ${pop(before?.handCounts[s], view.handCounts[s])}`} key={`c${view.handCounts[s]}`}><Icon kind="card" />{fa(view.handCounts[s] ?? 0)}<small>کارت</small></span>
+                    <span className={`ttr-stat ${pop(before?.handCounts[s], view.handCounts[s])}`} key={`c${view.handCounts[s]}`}><Icon kind="card" />{fa(view.handCounts[s] ?? 0)}<small><TermT t={terms.card} /></small></span>
                     <span className={`ttr-stat ${pop(before?.ticketCounts[s], view.ticketCounts[s])}`} key={`k${view.ticketCounts[s]}`}><Icon kind="ticket" />{fa(view.ticketCounts[s] ?? 0)}<small><TermT t={terms.ticket} /></small></span>
                     <span className="ttr-stat"><Icon kind="path" />{fa(view.longest[s] ?? 0)}<small><TermT t={terms.longest} /></small></span>
                   </span>
@@ -635,7 +635,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
               })}
             </ol>
           </details>}
-          {!framed && <p className="ttr-legend" aria-label="امتیاز مسیرها بر اساس طول">
+          {!framed && <p className="ttr-legend" aria-label={`${termTx(terms.pts)} ${termTx(terms.routes)} بر اساس طول`}>
             {[1, 2, 3, 4, 5, 6, 8].map((n) => (
               <span key={n} className="ttr-legend__i"><span className="ttr-legend__cars" aria-hidden="true">{Array.from({ length: Math.min(n, 4) }, (_, i) => <i key={i} />)}{n > 4 ? <small>×{fa(n)}</small> : null}</span>{fa(ROUTE_POINTS[n] ?? 0)}</span>
             ))}

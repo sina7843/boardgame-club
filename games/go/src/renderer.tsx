@@ -2,7 +2,7 @@
 // Play: tap an intersection. Scoring: tap a group to mark it dead/alive; territory and the running score are shown.
 import './renderer.css';
 import { useSyncExternalStore } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, useTermsLang, tx, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, useTermsLang, tx, T, type GameRendererProps, DockSlot } from '@bg/ui';
 import { terms } from './terms.ts';
 import stoneB from './art/go-black.png';
 import stoneW from './art/go-white.png';
@@ -53,12 +53,12 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : scoring ? { tone: (mySeat !== null && !view.accepted[mySeat] ? 'mine' : 'wait') as 'mine' | 'wait', text: mySeat !== null && !view.accepted[mySeat] ? 'شمارش: گروه‌های مرده را بزنید و تأیید کنید' : 'منتظر تأیید حریف' }
-      : canPlace ? { tone: 'mine' as const, text: view.passes ? `حریف ${tx(terms.pass)} داد؛ بگذارید یا ${tx(terms.pass)} بدهید` : 'نوبت شما: روی یک تقاطع بگذارید' }
+    : scoring ? { tone: (mySeat !== null && !view.accepted[mySeat] ? 'mine' : 'wait') as 'mine' | 'wait', text: mySeat !== null && !view.accepted[mySeat] ? `${tx(terms.scoring)}: ${tx(terms.deadGroups)} را بزنید و تأیید کنید` : 'منتظر تأیید حریف' }
+      : canPlace ? { tone: 'mine' as const, text: view.passes ? `حریف ${tx(terms.pass)} داد؛ بگذارید یا ${tx(terms.pass)} بدهید` : `نوبت شما: روی یک ${tx(terms.intersection)} بگذارید` }
         : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
   const passBtn = has('pass') ? <Button key="pass" className="go-passbtn" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>{tx(terms.pass)}</Button> : null;
-  const acceptBtn = has('accept') ? <Button key="acc" disabled={busy} onClick={() => onAction({ type: 'accept' })}>تأیید شمارش</Button> : null;
+  const acceptBtn = has('accept') ? <Button key="acc" disabled={busy} onClick={() => onAction({ type: 'accept' })}>تأیید <T t={terms.scoring} /></Button> : null;
   const resumeBtn = has('resume') ? <Button key="res" variant="ghost" disabled={busy} onClick={() => onAction({ type: 'resume' })}>ادامه بازی</Button> : null;
 
   return (
@@ -67,9 +67,9 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          {scoring && (['b', 'w'] as Stone[]).map((c) => view.accepted[seatOf(c)] && <p key={c} className="go-side__ok"><bdi>{who(c)}</bdi> شمارش را تأیید کرد</p>)}
+          {scoring && (['b', 'w'] as Stone[]).map((c) => view.accepted[seatOf(c)] && <p key={c} className="go-side__ok"><bdi>{who(c)}</bdi> <T t={terms.scoring} /> را تأیید کرد</p>)}
           <p className="go-pts"><span>{tx(terms.komi)} سفید <b>{fa(view.komi)}</b></span><span>{tx(terms.capture)} <b>{fa(view.captures.b)}</b> سیاه<span className="go-sep" aria-hidden />{fa(view.captures.w)} سفید</span></p>
-          <p>{scoring ? `سنگ‌های مرده را با زدن روی گروهشان علامت بزنید؛ ${tx(terms.territory)} و امتیاز با ${tx(terms.komi)} همین حالا شمرده می‌شود. هر دو باید تأیید کنند.` : `سنگ یا گروهی که آخرین ${tx(terms.liberty)}‌اش پر شود گرفته می‌شود. نمی‌شود وضعیت قبلی صفحه را تکرار کرد (${tx(terms.ko)}). دو ${tx(terms.pass)} پشت‌سرهم شمارش را شروع می‌کند.`}</p>
+          <p>{scoring ? `${tx(terms.deadStones)} را با زدن روی ${tx(terms.groupTheir)} علامت بزنید؛ ${tx(terms.territory)} و امتیاز با ${tx(terms.komi)} همین حالا شمرده می‌شود. هر دو باید تأیید کنند.` : `${tx(terms.stone)} یا ${tx(terms.groupIndef)} که آخرین ${tx(terms.liberty)}‌اش پر شود گرفته می‌شود. نمی‌شود وضعیت قبلی صفحه را تکرار کرد (${tx(terms.ko)}). دو ${tx(terms.pass)} پشت‌سرهم شمارش را شروع می‌کند.`}</p>
           <section className="go-ml" aria-label="حرکت‌ها">
             <h3>حرکت‌ها<span className="go-ml__note">ستون {COLS[0]} تا {COLS[n - 1]} (بدون I)، ردیف ۱ تا {fa(n)}</span></h3>
             <div className="go-ml__grid" role="list">
@@ -119,7 +119,7 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
             const captured = last?.captured.includes(i);
             return (
               <g key={i} role="gridcell" tabIndex={ok || markable ? 0 : -1}
-                aria-label={`${COLS[i % n]}${n - Math.floor(i / n)}: ${s ? `${s === myColor ? 'سنگ شما' : 'سنگ حریف'}${dead.has(i) ? ' (مرده)' : ''}` : ok ? 'خالی، می‌توانید بگذارید' : 'خالی'}`}
+                aria-label={`${COLS[i % n]}${n - Math.floor(i / n)}: ${s ? `${s === myColor ? `${tx(terms.stone)} شما` : `${tx(terms.stone)} حریف`}${dead.has(i) ? ` (${tx(terms.dead)})` : ''}` : ok ? 'خالی، می‌توانید بگذارید' : 'خالی'}`}
                 className={['go-pt', ok ? 'go-pt--ok' : '', markable ? 'go-pt--mark' : '', hint === i ? 'go-pt--hint' : ''].join(' ')}
                 onClick={() => { if (ok) onAction({ type: 'place', at: i }); else if (markable) onAction({ type: 'mark', at: i }); }}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (ok) onAction({ type: 'place', at: i }); else if (markable) onAction({ type: 'mark', at: i }); } }}>

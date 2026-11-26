@@ -135,7 +135,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
     : canPlace || canMove ? { tone: 'mine' as const, text: mustQueen ? `نوبت چهارم: باید ${tx(terms.queenShort)} را بگذارید` : bug ? `جای ${bugName(bug)} را انتخاب کنید` : from ? 'مقصد را بزنید' : 'نوبت شما: بگذارید یا حرکت دهید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
-  const myReserve = <Reserve view={view} color={myColor} label="ذخیره شما" selected={bug} onPick={canPlace ? (b) => { setFrom(null); setBug(bug === b ? null : b); } : undefined}
+  const myReserve = <Reserve view={view} color={myColor} label={`${tx(terms.reserve)} شما`} selected={bug} onPick={canPlace ? (b) => { setFrom(null); setBug(bug === b ? null : b); } : undefined}
     only={mustQueen ? 'Q' : undefined} hint={hint?.type === 'place' ? hint.bug : undefined} />;
   const left = (c: Color) => (Object.values(view.reserve[c]) as number[]).reduce((a, b) => a + b, 0);
 
@@ -145,10 +145,10 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>{mustQueen ? `نوبت چهارم شماست: ${tx(terms.queenShort)} را باید همین حالا بگذارید.` : `هر نوبت یا یک مهرهٔ تازه می‌گذارید (کنار مهره‌های خودتان، نه کنار حریف) یا یک مهره را حرکت می‌دهید؛ کندو نباید دو تکه شود، و تا ${tx(terms.queenShort)} روی میز نیست مهره‌ای حرکت نمی‌کند.`}</p>
+          <p>{mustQueen ? `نوبت چهارم شماست: ${tx(terms.queenShort)} را باید همین حالا بگذارید.` : `هر نوبت یا یک ${tx(terms.pieceEz)} تازه می‌گذارید (کنار ${tx(terms.pieces)} خودتان، نه کنار حریف) یا یک ${tx(terms.piece)} را حرکت می‌دهید؛ ${tx(terms.hive)} نباید دو تکه شود، و تا ${tx(terms.queenShort)} روی میز نیست ${tx(terms.pieceIndef)} حرکت نمی‌کند.`}</p>
           {lastPass && !view.outcome && <p role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت؛ نوبتش رد شد`}</p>}
           {inRail && <div className="hv-rres">
-            <div className="hv-rres__row"><span className="hv-rres__lab">ذخیرهٔ شما <b>{fa(left(myColor))}</b></span>{myReserve}</div>
+            <div className="hv-rres__row"><span className="hv-rres__lab">{tx(terms.reserveEz)} شما <b>{fa(left(myColor))}</b></span>{myReserve}</div>
             <div className="hv-rres__row"><span className="hv-rres__lab"><bdi>{who(myColor === 'w' ? 'b' : 'w')}</bdi> <b>{fa(left(myColor === 'w' ? 'b' : 'w'))}</b></span>
               <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small /></div>
           </div>}
@@ -156,8 +156,8 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
       )}
       {!framed && <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small />}
 
-      <ZoomBoard label="کندو">
-        <svg className="hv-board" viewBox={vb} role="grid" aria-label="کندو" style={{ direction: 'ltr' }}>
+      <ZoomBoard label={tx(terms.hive)}>
+        <svg className="hv-board" viewBox={vb} role="grid" aria-label={tx(terms.hive)} style={{ direction: 'ltr' }}>
           <defs>
             <filter id="hv-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".5" /></filter>
           </defs>
@@ -181,7 +181,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
             const isHint = hint?.type === 'move' && !from && key(hint.from) === k;
             return (
               <g key={k} data-hex={k} role="gridcell" tabIndex={mine ? 0 : -1}
-                aria-label={`${bugName(topPiece.t)} ${topPiece.c === myColor ? 'شما' : 'حریف'}${stack.length > 1 ? `، ${fa(stack.length)} مهره روی هم` : ''}${isSel ? '، انتخاب‌شده' : ''}`}
+                aria-label={`${bugName(topPiece.t)} ${topPiece.c === myColor ? 'شما' : 'حریف'}${stack.length > 1 ? `، ${fa(stack.length)} ${tx(terms.piece)} روی هم` : ''}${isSel ? '، انتخاب‌شده' : ''}`}
                 className={['hv-cell', mine ? 'hv-cell--mine' : '', isSel ? 'hv-cell--sel' : '', isHint ? 'hv-cell--hint' : '',
                   topPiece.t === 'Q' && surrounded.has(topPiece.c) ? 'hv-cell--trapped' : ''].join(' ')}
                 onClick={() => tapCell(hx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
@@ -199,7 +199,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
 
       {!inRail && myReserve}
       {!framed && lastPass && !view.outcome && <p className="hv__note" role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت و نوبتش رد شد`}</p>}
-      {!framed && view.end && <p className="hv__end" role="status">{{ queen: `${tx(terms.queenShort)} محاصره شد!`, draw: 'مساوی', resign: 'انصراف', timeout: 'اتمام زمان', limit: '۳۰۰ نوبت بدون نتیجه — مساوی' }[view.end.kind]}</p>}
+      {!framed && view.end && <p className="hv__end" role="status">{{ queen: `${tx(terms.queenShort)} ${tx(terms.surrounded)}!`, draw: tx(terms.draw), resign: 'انصراف', timeout: 'اتمام زمان', limit: `۳۰۰ نوبت بدون نتیجه — ${tx(terms.draw)}` }[view.end.kind]}</p>}
     </div>
   );
 }

@@ -4,7 +4,7 @@
 // promotion come from `legalActions` and the view. Board coordinates stay literal (dir=ltr); text is Persian.
 import './renderer.css';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type ReactElement, type ReactNode } from 'react';
-import { motionOff, tx, type Term, useTermsLang, usePieceIds, type FrameClockState, type GameRendererProps, type TableFrame, type TableFrameSeat } from '@bg/ui';
+import { getTermsLang, motionOff, T, tx, type Term, useTermsLang, usePieceIds, type FrameClockState, type GameRendererProps, type TableFrame, type TableFrameSeat } from '@bg/ui';
 import { Avatar, Badge, Button, Dialog, Icon, League, Segmented, Sheet, Slider, Switch, Tooltip } from '@bg/ui/bgv';
 import { PIECE_SETS, PIECE_SET_FA, pieceSrc, type PieceSet } from './pieces.tsx';
 import { moveSound, playChessSound, preloadSounds, DEFAULT_VOLUME } from './sounds.ts';
@@ -112,7 +112,7 @@ const CLOCK_SR: Record<FrameClockState, string> = { pre: 'هنوز شروع نش
 function ChessClock({ color, clock, small }: { color: Color; clock: NonNullable<TableFrame['clocks']>[number]; small?: boolean }) {
   return (
     <span className={small ? 'ch-clock ch-clock--sm' : 'ch-clock'} data-clock={color} data-state={clock.state}
-      role="timer" aria-label={`ساعت ${COLOR_FA[color]}: ${clockText(clock.ms)}، ${clock.first ? 'مهلت حرکت اول' : CLOCK_SR[clock.state]}`}>
+      role="timer" aria-label={`${tx(terms.clock)} ${COLOR_FA[color]}: ${clockText(clock.ms)}، ${clock.first ? 'مهلت حرکت اول' : CLOCK_SR[clock.state]}`}>
       {clock.state === 'off' ? <Icon name="wifi-off" size={16} className="ch-clock__ic" /> : clock.state === 'run' || clock.state === 'warn' || clock.state === 'crit' ? <span className="ch-clock__tick" aria-hidden="true" /> : null}
       <span className="ch-clock__t" dir="ltr" aria-hidden="true">{clockText(clock.ms)}</span>
     </span>
@@ -138,7 +138,7 @@ function PlayerBar({ seat, name, color, captured, lead, clock, small, off, set }
           {seat?.league && LEAGUE_FA[seat.league] && <League tier={seat.league as 'gold'}>{LEAGUE_FA[seat.league]}</League>}
           {off && <span className="ch-pill ch-pill--off"><Icon name="wifi-off" size={12} />قطع</span>}
         </div>
-        <div className="ch-player__caps" aria-label={captured.length ? `مهره‌های زده‌شده: ${captured.map(pieceLabel).join('، ')}` : undefined}>
+        <div className="ch-player__caps" aria-label={captured.length ? `${tx(terms.capturedPieces)}: ${captured.map(pieceLabel).join('، ')}` : undefined}>
           {sorted.length > 0 && (
             <span className={capColor === 'b' ? 'ch-player__captured ch-player__captured--b' : 'ch-player__captured'} aria-hidden="true">
               {sorted.map((p, i) => <img key={i} className="ch-capt" src={pieceSrc(p[1] as PieceType, p[0] as Color, set)} alt="" draggable={false} />)}
@@ -153,7 +153,7 @@ function PlayerBar({ seat, name, color, captured, lead, clock, small, off, set }
 }
 
 // ---------- end of game (CX-11) ----------
-const drawFa = () => ({ stalemate: `${tx(terms.stalemate)} شد`, repetition: 'تکرار سه‌بارهٔ یک وضعیت', fiftyMove: 'قانون ۵۰ حرکت', material: 'مهرهٔ کافی برای مات نمانده', agreement: 'با توافق دو طرف' } as const);
+const drawFa = () => ({ stalemate: `${tx(terms.stalemate)} شد`, repetition: tx(terms.threefold), fiftyMove: tx(terms.fiftyMove), material: tx(terms.insufficient), agreement: 'با توافق دو طرف' } as const);
 function endWords(view: ChessView, mySeat: number | null, aborted: boolean): { title: string; reason: string; tone: 'win' | 'loss' | 'draw' | 'none' } | null {
   if (aborted) return { title: 'بازی لغو شد', reason: 'حرکت اول زده نشد. رتبه تغییر نمی‌کند.', tone: 'none' };
   const e = view.end;
@@ -163,22 +163,22 @@ function endWords(view: ChessView, mySeat: number | null, aborted: boolean): { t
   // Armageddon: a draw of any kind is a win for Black (the outcome says so; the end still records the draw).
   if (drawReason && winnerSeat !== undefined) {
     const mine = mySeat !== null && winnerSeat === mySeat;
-    return { title: mySeat === null ? `${COLOR_FA[view.colors[winnerSeat]!]} برد (آرماگدون)` : mine ? 'بردید (آرماگدون)' : 'باختید (آرماگدون)', reason: 'در آرماگدون مساوی یعنی برد سیاه', tone: mySeat === null ? 'none' : mine ? 'win' : 'loss' };
+    return { title: mySeat === null ? `${COLOR_FA[view.colors[winnerSeat]!]} برد (${tx(terms.armageddon)})` : mine ? `بردید (${tx(terms.armageddon)})` : `باختید (${tx(terms.armageddon)})`, reason: `در ${tx(terms.armageddon)} ${tx(terms.draw)} یعنی برد سیاه`, tone: mySeat === null ? 'none' : mine ? 'win' : 'loss' };
   }
   if (drawReason) {
     const flagged = view.colors.indexOf(view.turn); // the side to move ran out of time
     const timeoutMat = mySeat === null ? 'وقت یک طرف تمام شد، ولی حریف مهرهٔ کافی برای مات نداشت'
       : flagged === mySeat ? 'وقت شما تمام شد، ولی حریف مهرهٔ کافی برای مات نداشت' : 'وقت حریف تمام شد، ولی مهرهٔ کافی برای مات نداشتید';
-    return { title: 'مساوی', reason: drawReason === 'timeoutMaterial' ? timeoutMat : drawFa()[drawReason], tone: 'draw' };
+    return { title: tx(terms.draw), reason: drawReason === 'timeoutMaterial' ? timeoutMat : drawFa()[drawReason], tone: 'draw' };
   }
   if (winnerSeat === undefined) return null;
   const by = e.kind;
   if (mySeat === null) {
     const w = COLOR_FA[view.colors[winnerSeat]!];
-    return { title: `${w} برد`, reason: by === 'checkmate' ? `${w} ${tx(terms.checkmate)} کرد` : by === 'resign' ? 'تسلیم' : 'وقت تمام شد', tone: 'none' };
+    return { title: `${w} برد`, reason: by === 'checkmate' ? `${w} ${tx(terms.checkmate)} کرد` : by === 'resign' ? tx(terms.resign) : 'وقت تمام شد', tone: 'none' };
   }
   const won = winnerSeat === mySeat;
-  const reason = by === 'checkmate' ? (won ? `حریف را ${tx(terms.checkmate)} کردید` : `${tx(terms.checkmate)} شدید`) : by === 'resign' ? (won ? 'حریف تسلیم شد' : 'تسلیم شدید') : (won ? 'وقت حریف تمام شد' : 'وقت شما تمام شد');
+  const reason = by === 'checkmate' ? (won ? `حریف را ${tx(terms.checkmate)} کردید` : `${tx(terms.checkmate)} شدید`) : by === 'resign' ? (won ? `حریف ${tx(terms.resign)} شد` : `${tx(terms.resign)} شدید`) : (won ? 'وقت حریف تمام شد' : 'وقت شما تمام شد');
   return { title: won ? 'بردید!' : 'باختید', reason, tone: won ? 'win' : 'loss' };
 }
 const scoreText = (view: ChessView): string | null => {
@@ -272,7 +272,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
     setFlash(false); setNotice(null);
     // D20: name the pinned piece («سرباز f7 میخ شده؛ حرکتش شاه را در کیش می‌گذارد»); a king step keeps the short text.
     const piece = liveView.board[idx(from)];
-    const text = pinned.has(from) && piece ? <>{nameOf(piece[1] as PieceType)} <bdi dir="ltr">{from}</bdi> میخ شده؛ حرکتش {tx(terms.king)} را در <bdi>{tx(terms.check)}</bdi> می‌گذارد</> : `این حرکت ${tx(terms.king)} را در ${tx(terms.check)} می‌گذارد`;
+    const text = pinned.has(from) && piece ? <>{nameOf(piece[1] as PieceType)} <bdi dir="ltr">{from}</bdi> <T t={terms.pinned} />؛ حرکتش {tx(terms.king)} را در <bdi>{tx(terms.check)}</bdi> می‌گذارد</> : `این حرکت ${tx(terms.king)} را در ${tx(terms.check)} می‌گذارد`;
     later(() => { setFlash(true); setNotice(text); }, 0);
     later(() => setFlash(false), 400);
     later(() => setNotice(null), 3500);
@@ -510,7 +510,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   const ended = endWords(liveView, mySeat, aborted);
   if (ended) {
     const sc = scoreText(liveView);
-    status = { tone: 'end', text: <><b>بازی تمام شد.</b> {ended.title === 'مساوی' ? `مساوی؛ ${ended.reason}` : ended.reason.replace(/\.$/, '')}{sc ? <> (<bdi dir="ltr">{sc}</bdi>)</> : null}.</> };
+    status = { tone: 'end', text: <><b>بازی تمام شد.</b> {ended.tone === 'draw' ? `${tx(terms.draw)}؛ ${ended.reason}` : ended.reason.replace(/\.$/, '')}{sc ? <> (<bdi dir="ltr">{sc}</bdi>)</> : null}.</> };
   } else if (notice) {
     status = { tone: 'check', text: <><b>حرکت غیرمجاز.</b> {notice}.</> };
   } else if (mySeat === null) {
@@ -518,11 +518,11 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   } else if (myTurn && !live) {
     status = { tone: 'off', text: <><b>نوبت شماست.</b> تا وصل نشوید، حرکت‌ها فرستاده نمی‌شوند.</> };
   } else if (myTurn && promoTo) {
-    status = { tone: 'turn', text: <>سرباز به خط آخر رسید. انتخاب کنید به چه مهره‌ای تبدیل شود.</> };
+    status = { tone: 'turn', text: <><T t={terms.pawn} /> به <T t={terms.lastRank} /> رسید. انتخاب کنید به چه مهره‌ای تبدیل شود.</> };
   } else if (myTurn && liveView.inCheck) {
-    status = { tone: 'check', text: <><b>کیش!</b> شاه شما زیر حمله است. فقط حرکت‌هایی مجازند که کیش را رفع کنند.</> };
+    status = { tone: 'check', text: <><b><T t={terms.check} />!</b> <T t={terms.king} /> شما زیر حمله است. فقط حرکت‌هایی مجازند که <T t={terms.check} /> را رفع کنند.</> };
   } else if (myTurn && epVictim) {
-    status = { tone: 'turn', text: <><b>{tx(terms.enPassant)} ممکن است.</b> سرباز حریف همین الان دو خانه جلو آمد و کنار سرباز شما ایستاد؛ فقط در همین حرکت می‌توانید آن را بزنید.</> };
+    status = { tone: 'turn', text: <><b>{tx(terms.enPassant)} ممکن است.</b> <T t={terms.pawn} /> حریف همین الان دو خانه جلو آمد و کنار <T t={terms.pawn} /> شما ایستاد؛ فقط در همین حرکت می‌توانید آن را بزنید.</> };
   } else if (myTurn && frame?.clocks?.[mySeat!]?.first) {
     // ENGINE.md P1: the bank waits until the first move; a missed first move aborts the game.
     status = { tone: 'turn', text: <><b>نوبت شماست.</b> برای حرکت اول {faNum(Math.ceil((frame.clocks[mySeat!]!.firstMs ?? 0) / 1000))} ثانیه وقت دارید؛ وگرنه بازی لغو می‌شود.</> };
@@ -533,7 +533,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
     const premoveSan = premove ? `${premove.from}-${premove.to}` : null;
     const oppFirst = liveView.current !== null && frame?.clocks?.[liveView.current]?.first;
     status = { tone: 'wait', text: oppFirst ? <><b>نوبت <bdi>{turnName}</bdi>.</b> منتظر حرکت اول حریف هستیم.</> : opponentOff ? <><b>نوبت <bdi>{turnName}</bdi>.</b> منتظر وصل شدن حریف هستیم.</>
-      : premoveSan ? <><b>نوبت <bdi>{turnName}</bdi>.</b> پری‌موو شما آماده است: <bdi dir="ltr">{premoveSan}</bdi>. برای لغو، روی یک خانهٔ خالی بزنید.</>
+      : premoveSan ? <><b>نوبت <bdi>{turnName}</bdi>.</b> <T t={terms.premove} /> شما آماده است: <bdi dir="ltr">{premoveSan}</bdi>. برای لغو، روی یک خانهٔ خالی بزنید.</>
         : <><b>نوبت <bdi>{turnName}</bdi>.</b></> };
   }
 
@@ -542,20 +542,20 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   const offerCard = !over && offerFrom !== null && mySeat !== null ? (
     offerFrom === mySeat ? (
       <div className={phone ? 'ch-offer ch-offer--bar' : 'ch-offer'} data-offer="sent" role="status">
-        <div className="ch-offer__t"><Icon name="handshake" size={20} /><span><b>پیشنهاد مساوی فرستاده شد.</b> منتظر جواب <bdi>{seatName(1 - mySeat)}</bdi> بمانید.</span></div>
+        <div className="ch-offer__t"><Icon name="handshake" size={20} /><span><b><T t={terms.drawOffer} /> فرستاده شد.</b> منتظر جواب <bdi>{seatName(1 - mySeat)}</bdi> بمانید.</span></div>
       </div>
     ) : (
       phone ? (
         // P08 / U10: one line, «X مساوی پیشنهاد داد ✓ ✕» (moving declines it)
         <div className="ch-offer ch-offer--bar" data-offer="received" role="alert">
           <Icon name="handshake" size={20} />
-          <span className="ch-offer__txt"><b className="ch-offer__name"><bdi>{seatName(offerFrom)}</bdi></b><span> مساوی پیشنهاد داد.</span></span>
+          <span className="ch-offer__txt"><b className="ch-offer__name"><bdi>{seatName(offerFrom)}</bdi></b><span> <T t={terms.draw} /> پیشنهاد داد.</span></span>
           <Button variant="primary" icon="check" disabled={busy || !live || !has('acceptDraw')} onClick={() => onAction({ type: 'acceptDraw' })}>قبول</Button>
           <Button variant="secondary" iconOnly icon="x" disabled={busy || !live} onClick={() => onAction({ type: 'declineDraw' })}>رد</Button>
         </div>
       ) : (
       <div className="ch-offer" data-offer="received" role="alert">
-        <div className="ch-offer__t"><Icon name="handshake" size={20} /><b><bdi>{seatName(offerFrom)}</bdi> پیشنهاد مساوی داد.</b></div>
+        <div className="ch-offer__t"><Icon name="handshake" size={20} /><b><bdi>{seatName(offerFrom)}</bdi> پیشنهاد <T t={terms.draw} /> داد.</b></div>
         <div className="ch-offer__row">
           <Button variant="primary" icon="check" disabled={busy || !live || !has('acceptDraw')} onClick={() => onAction({ type: 'acceptDraw' })}>قبول</Button>
           <Button variant="secondary" icon="x" disabled={busy || !live} onClick={() => onAction({ type: 'declineDraw' })}>رد</Button>
@@ -615,7 +615,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   const moveList = (
     <section className="ch-card ch-card--fill" aria-labelledby="ch-moves-h">
       <h3 id="ch-moves-h">حرکت‌ها</h3>
-      {opening && <p className="ch-opening" data-eco={opening.eco}><b>{opening.fa}</b><span className="bgv-sep" /><bdi dir="ltr">{opening.en}</bdi><span className="bgv-sep" /><bdi dir="ltr">{opening.eco}</bdi></p>}
+      {opening && <p className="ch-opening" data-eco={opening.eco}>{getTermsLang() === 'fa-bg' ? <b><bdi dir="ltr">{opening.en}</bdi></b> : <><b>{opening.fa}</b><span className="bgv-sep" /><bdi dir="ltr">{opening.en}</bdi></>}<span className="bgv-sep" /><bdi dir="ltr">{opening.eco}</bdi></p>}
       {moveTable}
       {nav}
     </section>
@@ -670,7 +670,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
               return (
                 <button key={f} type="button" role="gridcell" data-sq={name} className={cls} onClick={() => tap(name)}
                   aria-disabled={!interactive || undefined} aria-pressed={selected === name || undefined}
-                  aria-label={`${name}، ${epTarget ? `زدن ${tx(terms.enPassant)} ${tx(terms.pawn)} ${name[0]}${target!.from[1]}` : piece ? pieceLabel(piece) : 'خالی'}${target && !epTarget ? (piece ? '، زدن' : '، حرکت به اینجا') : ''}${i === kingInCheck ? `، ${tx(terms.check)}` : ''}${premove?.to === name ? `، ${tx(terms.premove)}` : ''}`}>
+                  aria-label={`${name}، ${epTarget ? `${tx(terms.capture)} ${tx(terms.enPassant)} ${tx(terms.pawn)} ${name[0]}${target!.from[1]}` : piece ? pieceLabel(piece) : 'خالی'}${target && !epTarget ? (piece ? `، ${tx(terms.capture)}` : '، حرکت به اینجا') : ''}${i === kingInCheck ? `، ${tx(terms.check)}` : ''}${premove?.to === name ? `، ${tx(terms.premove)}` : ''}`}>
                   {piece && <img data-flip={ids[i]} data-flip-exit={`cap-${piece[0]}`} className={ghost?.from === name ? 'ch-pc is-ghost' : 'ch-pc'} src={pieceSrc(piece[1] as PieceType, piece[0] as Color, prefs.set)} alt="" draggable={false} />}
                   {badge && <span className={`ch-badge ch-badge--${badge}`} aria-hidden="true">{badge === 'win' ? <Icon name="crown" size={14} /> : badge === 'loss' ? <Icon name="x" size={14} /> : badge === 'resign' ? <Icon name="flag" size={14} /> : <b>½</b>}</span>}
                   {prefs.coords && f === cols[0] && <span className="ch-co ch-co--r" aria-hidden="true">{r + 1}</span>}
@@ -815,7 +815,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
           </> : <>
             <button type="button" onClick={() => setOptions(true)}><Icon name="more-vertical" size={22} /><span>گزینه‌ها</span></button>
             <button type="button" disabled={drawDisabled} onClick={() => onAction({ type: 'offerDraw' })}><Icon name="handshake" size={22} /><span>{drawSent ? 'فرستاده شد' : 'مساوی'}</span></button>
-            <button type="button" disabled={busy || !live || over} onClick={() => setConfirmResign(true)}><Icon name="flag" size={22} /><span>تسلیم</span></button>
+            <button type="button" disabled={busy || !live || over} onClick={() => setConfirmResign(true)}><Icon name="flag" size={22} /><span><T t={terms.resign} /></span></button>
           </>}
           {!(gameOver && mySeat !== null) && <>
             <button type="button" disabled={!boards || cur === 0} onClick={() => go(cur - 1)}><Icon name="chevron-right" size={22} /><span>قبلی</span></button>
@@ -918,7 +918,7 @@ function SettingsPanel({ phone, prefs, setPrefs, onClose }: { phone: boolean; pr
         </div>
       </section>
       <section aria-labelledby="ch-set-pieces">
-        <h4 id="ch-set-pieces">مهره‌ها</h4>
+        <h4 id="ch-set-pieces"><T t={terms.pieces} /></h4>
         <div className="ch-swatches" role="radiogroup" aria-label="مجموعهٔ مهره">
           {PIECE_SETS.map((s) => (
             <button key={s} type="button" role="radio" aria-checked={prefs.set === s} className="ch-swatch" onClick={() => setPrefs({ set: s })}>
@@ -929,16 +929,16 @@ function SettingsPanel({ phone, prefs, setPrefs, onClose }: { phone: boolean; pr
         </div>
       </section>
       <section className="ch-switches" aria-label="گزینه‌ها">
-        <Switch label="مختصات" checked={prefs.coords} onChange={(v) => setPrefs({ coords: v })} />
+        <Switch label={tx(terms.coords)} checked={prefs.coords} onChange={(v) => setPrefs({ coords: v })} />
         <Switch label="نمایش حرکت‌های مجاز" checked={prefs.dots} onChange={(v) => setPrefs({ dots: v })} />
         <Switch label="برجسته کردن حرکت آخر" checked={prefs.last} onChange={(v) => setPrefs({ last: v })} />
-        <Switch label="پری‌موو" checked={prefs.premove} onChange={(v) => setPrefs({ premove: v })} />
-        <Switch label="ارتقای خودکار به وزیر" checked={prefs.autoQueen} onChange={(v) => setPrefs({ autoQueen: v })} />
+        <Switch label={tx(terms.premove)} checked={prefs.premove} onChange={(v) => setPrefs({ premove: v })} />
+        <Switch label={tx(terms.autoQueen)} checked={prefs.autoQueen} onChange={(v) => setPrefs({ autoQueen: v })} />
       </section>
       <section className="ch-switches" aria-labelledby="ch-set-fx">
         <h4 id="ch-set-fx">صدا و انیمیشن</h4>
         <Slider label="بلندی صدا" min={0} max={100} step={5} value={prefs.volume} valueText={`${faNum(prefs.volume)}٪`} onChange={(e) => setPrefs({ volume: Number(e.target.value) })} />
-        <Segmented label="سرعت حرکت مهره" block value={prefs.anim} onChange={(v) => setPrefs({ anim: v as AnimSpeed })}
+        <Segmented label={`سرعت حرکت ${tx(terms.piece)}`} block value={prefs.anim} onChange={(v) => setPrefs({ anim: v as AnimSpeed })}
           options={[{ value: 'off', label: 'خاموش' }, { value: 'slow', label: 'آهسته' }, { value: 'medium', label: 'متوسط' }, { value: 'fast', label: 'سریع' }]} />
         <Switch label="انیمیشن نتیجهٔ بازی" checked={prefs.resultAnim} onChange={(v) => setPrefs({ resultAnim: v })} />
       </section>

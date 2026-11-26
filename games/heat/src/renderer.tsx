@@ -4,7 +4,7 @@
 // slipstream and discards. Everything secret (hands, decks, plans) is only ever shown to its owner.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, DockSlot, MOTION, RailSlot, useInFrame, TurnIndicator, ZoomBoard, T, tx, useTermsLang, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, MOTION, RailSlot, useInFrame, TurnIndicator, ZoomBoard, T, tx, useTermsLang, type Term, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import car0 from './art/ht-car-b.png';
 import car1 from './art/ht-car-g.png';
 import car2 from './art/ht-car-y.png';
@@ -23,35 +23,36 @@ import gearArt from './art/ht-gear1.png';
 import s1 from './art/ht-s1.png'; import s2 from './art/ht-s2.png'; import s3 from './art/ht-s3.png'; import s4 from './art/ht-s4.png';
 import gBrakes from './art/ht-g-brakes.png'; import gCooler from './art/ht-g-cooler.png'; import gTurbo from './art/ht-g-turbo.png';
 import { GARAGE, GEAR_COOL, type Card, type HeatView, type LogEntry, type RoadId, type WeatherId } from './rules.ts';
-import { terms } from './terms.ts';
+import { GARAGE_EN, terms } from './terms.ts';
 import { pointAt, trackOf, type TrackId } from './tracks.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const CAR_ART = [car0, car1, car2, car3, car4, car5];
 const CAR_FA = ['قرمز', 'آبی', 'سبز', 'زرد', 'مشکی', 'سفید'];
 const WEATHER_ART: Record<WeatherId, string> = { sun: wSun, rain: wRain, fog: wFog, cold: wCold, heatwave: wHeat };
-const TRACK_FA: Record<TrackId, string> = { usa: 'آمریکا', italy: 'ایتالیا', france: 'فرانسه', gb: 'بریتانیا' };
-const roadFa = (): Record<RoadId, string> => ({ up: 'محدودیت ۱+', down: 'محدودیت ۱−', overheat: `داغ کردن: ۱ ${tx(terms.heatEz)} اضافه`, slip: `${tx(terms.slipstream)} ۱+ در بخش بعد` });
+const TRACK_T: Record<TrackId, Term> = { usa: terms.usa, italy: terms.italy, france: terms.france, gb: terms.gb };
+const garageName = (g: keyof typeof GARAGE) => tx({ fa: GARAGE[g].nameFa, bg: GARAGE_EN[g] ?? GARAGE[g].nameFa });
+const roadFa = (): Record<RoadId, string> => ({ up: `${tx(terms.limit)} ۱+`, down: `${tx(terms.limit)} ۱−`, overheat: `${tx(terms.overheat)}: ۱ ${tx(terms.heatEz)} اضافه`, slip: `${tx(terms.slipstream)} ۱+ در بخش بعد` });
 const ROAD_TAG: Record<RoadId, string> = { up: '+۱', down: '−۱', overheat: '🔥', slip: '≫' };
 const weatherFa = (): Record<WeatherId, string> => ({
-  sun: `آفتابی: ۱ ${tx(terms.heatEz)} بیشتر در ${tx(terms.engine)}، ${tx(terms.slipstream)} ۱+`,
-  rain: `باران: ۱ ${tx(terms.stress)} بیشتر، ${tx(terms.cooldown)} ۱+`,
-  fog: `مه: ${tx(terms.slipstream)} ممنوع`,
-  cold: `سرمای شدید: ۱ ${tx(terms.heatEz)} کمتر، ${tx(terms.cooldown)} ۱+`,
-  heatwave: `موج گرما: ۱ کارت ${tx(terms.heat)} در ${tx(terms.deck)}، ${tx(terms.cooldown)} ۱−`
+  sun: `${tx(terms.sunny)}: ۱ ${tx(terms.heatEz)} بیشتر در ${tx(terms.engine)}، ${tx(terms.slipstream)} ۱+`,
+  rain: `${tx(terms.rain)}: ۱ ${tx(terms.stress)} بیشتر، ${tx(terms.cooldown)} ۱+`,
+  fog: `${tx(terms.fog)}: ${tx(terms.slipstream)} ممنوع`,
+  cold: `${tx(terms.cold)}: ۱ ${tx(terms.heatEz)} کمتر، ${tx(terms.cooldown)} ۱+`,
+  heatwave: `${tx(terms.heatwave)}: ۱ ${tx(terms.card)} ${tx(terms.heat)} در ${tx(terms.deck)}، ${tx(terms.cooldown)} ۱−`
 });
 
 export function garageText(c: Card): string {
   if (c.k !== 'garage') return '';
   const g = GARAGE[c.g!];
-  return [g.heat && `${fa(g.heat)} ${tx(terms.heat)}`, g.cool && `${tx(terms.cooldown)} ${fa(g.cool)}`, g.scrap && `${fa(g.scrap)} کارت ${tx(terms.deck)} دور`, g.stress && `حذف ${fa(g.stress)} ${tx(terms.stress)}`,
-    g.superCool && `${fa(g.superCool)} ${tx(terms.heat)} به ${tx(terms.engine)}`, g.slip && `${tx(terms.slipstream)} +${fa(g.slip)}`, g.limit && `محدودیت +${fa(g.limit)}`, g.refresh && 'برگشت روی دسته'].filter(Boolean).join('، ');
+  return [g.heat && `${fa(g.heat)} ${tx(terms.heat)}`, g.cool && `${tx(terms.cooldown)} ${fa(g.cool)}`, g.scrap && `${fa(g.scrap)} ${tx(terms.card)} ${tx(terms.deck)} دور`, g.stress && `حذف ${fa(g.stress)} ${tx(terms.stress)}`,
+    g.superCool && `${fa(g.superCool)} ${tx(terms.heat)} به ${tx(terms.engine)}`, g.slip && `${tx(terms.slipstream)} +${fa(g.slip)}`, g.limit && `${tx(terms.limit)} +${fa(g.limit)}`, g.refresh && `${tx(terms.backOnDeck)} ${tx(terms.deck)}`].filter(Boolean).join('، ');
 }
 export function cardLabel(c: Card): string {
-  if (c.k === 'heat') return `کارت ${tx(terms.heat)}`;
-  if (c.k === 'stress') return `کارت ${tx(terms.stress)}`;
-  if (c.k === 'garage') return `${GARAGE[c.g!].nameFa}، ${tx(terms.speed)} ${fa(c.v ?? 0)}، ${garageText(c)}`;
-  return `${tx(terms.speed)} ${fa(c.v ?? 0)}${c.up ? ' (ارتقای شروع)' : ''}`;
+  if (c.k === 'heat') return `${tx(terms.card)} ${tx(terms.heat)}`;
+  if (c.k === 'stress') return `${tx(terms.card)} ${tx(terms.stress)}`;
+  if (c.k === 'garage') return `${garageName(c.g!)}، ${tx(terms.speed)} ${fa(c.v ?? 0)}، ${garageText(c)}`;
+  return `${tx(terms.speed)} ${fa(c.v ?? 0)}${c.up ? ` (${tx(terms.startUpgrade)})` : ''}`;
 }
 
 /** Printed card faces from the handoff: speed 1–4, heat, stress and the three garage upgrades that have art; the rest stay numeric tiles. */
@@ -67,16 +68,16 @@ export function HeatCard({ c, size = 'md' }: { c: Card; size?: 'sm' | 'md' }) {
     <span className={`ht-card ht-card--${c.k} ht-card--${size}${c.up ? ' ht-card--up' : ''}`} aria-label={cardLabel(c)}>
       {c.k === 'heat' ? <img src={flameArt} alt="" draggable={false} />
         : c.k === 'stress' ? <><img src={stressArt} alt="" draggable={false} /><b>؟</b></>
-          : <><b className="ht-card__v">{fa(c.v ?? 0)}</b>{c.k === 'speed' && <small className="ht-card__ph">{c.up ? 'ارتقای آغازین' : <T t={terms.speed} />}</small>}{c.k === 'garage' && size === 'md' && <small className="ht-card__g">{GARAGE[c.g!].nameFa}<br />{garageText(c)}</small>}</>}
+          : <><b className="ht-card__v">{fa(c.v ?? 0)}</b>{c.k === 'speed' && <small className="ht-card__ph">{c.up ? <T t={terms.startUpgrade2} /> : <T t={terms.speed} />}</small>}{c.k === 'garage' && size === 'md' && <small className="ht-card__g">{garageName(c.g!)}<br />{garageText(c)}</small>}</>}
     </span>
   );
 }
 
 function where(view: HeatView, pos: number) {
   const L = trackOf(view.track).length;
-  if (pos < 0) return 'پشت خط شروع';
+  if (pos < 0) return tx(terms.behindStart);
   const lap = Math.min(Math.floor(pos / L) + 1, view.laps);
-  return `دور ${fa(lap)} از ${fa(view.laps)}، خانهٔ ${fa(pos - (lap - 1) * L)}`;
+  return `${tx(terms.lap)} ${fa(lap)} از ${fa(view.laps)}، ${tx(terms.spaceEz)} ${fa(pos - (lap - 1) * L)}`;
 }
 
 function logText(e: LogEntry, who: (s: number) => string): string {
@@ -88,12 +89,12 @@ function logText(e: LogEntry, who: (s: number) => string): string {
     case 'boost': return `${tx(terms.boost)} ${w}: +${fa(e.n!)}`;
     case 'adrenaline': return `${tx(terms.adrenaline)} ${w}: +۱`;
     case 'cool': return `${w} ${fa(e.n!)} ${tx(terms.heat)} را خنک کرد`;
-    case 'slip': return `${tx(terms.slipstream)} ${w}: +${fa(e.n!)} خانه`;
+    case 'slip': return `${tx(terms.slipstream)} ${w}: +${fa(e.n!)} ${tx(terms.space)}`;
     case 'corner': return `${w} در ${tx(terms.corner)} ${fa(e.at! + 1)} ${fa(e.n!)} ${tx(terms.heat)} پرداخت`;
     case 'spin': return `${w} در ${tx(terms.corner)} ${fa(e.at! + 1)} چرخید (${fa(e.n!)} ${tx(terms.stress)}، ${tx(terms.gearEz)} ۱)`;
-    case 'finish': return `${w} از خط پایان گذشت (${fa(e.n!)} خانه جلوتر)`;
-    case 'scrap': return `${w} ${fa(e.n!)} کارت از دسته دور ریخت`;
-    case 'pick': return `${w} یک کارت ارتقا برداشت`;
+    case 'finish': return `${w} از ${tx(terms.finishLine)} گذشت (${fa(e.n!)} ${tx(terms.space)} جلوتر)`;
+    case 'scrap': return `${w} ${fa(e.n!)} ${tx(terms.card)} از ${tx(terms.deck)} دور ریخت`;
+    case 'pick': return `${w} یک ${tx(terms.card)} ${tx(terms.upgrade)} برداشت`;
     case 'timeout': return `زمان ${w} تمام شد`;
     case 'resign': return `${w} انصراف داد`;
   }
@@ -140,7 +141,7 @@ function Track({ view, who }: { view: HeatView; who: (s: number) => string }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posKey]);
   return (
-    <svg className="ht-track" viewBox="-20 -20 1040 660" role="img" aria-label={`پیست ${TRACK_FA[view.track]}، ${fa(L)} خانه در هر دور`}>
+    <svg className="ht-track" viewBox="-20 -20 1040 660" role="img" aria-label={`${tx(terms.track)} ${tx(TRACK_T[view.track])}، ${fa(L)} ${tx(terms.space)} در هر ${tx(terms.lap)}`}>
       <path d={d} className="ht-track__verge" />
       <path d={d} className="ht-track__road" />
       <path d={d} className="ht-track__mid" />
@@ -155,7 +156,7 @@ function Track({ view, who }: { view: HeatView; who: (s: number) => string }) {
         const lim = Math.max(1, c.limit + (road === 'up' ? 1 : road === 'down' ? -1 : 0));
         return (
           <g key={i} className="ht-corner">
-            <title>{`${tx(terms.corner)} ${fa(i + 1)} (خانهٔ ${fa(c.at)}): محدودیت ${tx(terms.speed)} ${fa(lim)}${road ? `، ${roadFa()[road]}` : ''}`}</title>
+            <title>{`${tx(terms.corner)} ${fa(i + 1)} (${tx(terms.spaceEz)} ${fa(c.at)}): ${tx(terms.limit)} ${tx(terms.speed)} ${fa(lim)}${road ? `، ${roadFa()[road]}` : ''}`}</title>
             <line {...{ x1: a.x1, y1: a.y1, x2: a.x2, y2: a.y2 }} className="ht-corner__line" />
             <circle cx={b.x1} cy={b.y1} r="26" className="ht-corner__badge" />
             <text x={b.x1} y={b.y1 + 10} className="ht-corner__lim">{fa(lim)}</text>
@@ -218,7 +219,7 @@ function Play({ r, s }: { r: HeatView['racers'][number]; s: number }) {
   return (
     <div className="ht-racer__play">
       {r.played.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`seat-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}
-      {r.flips.length > 0 && <span className="ht-flips">رو شد: {r.flips.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`deck-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}</span>}
+      {r.flips.length > 0 && <span className="ht-flips"><T t={terms.revealed} />: {r.flips.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`deck-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}</span>}
       <b key={r.speed} className="ht-speed bg-pop"><T t={terms.speed} /> {fa(r.speed)}</b>
     </div>
   );
@@ -270,11 +271,11 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : pick ? { tone: 'mine' as const, text: `${tx(terms.garage)} (دور ${fa(view.draft!.round)} از ۳): یک کارت ارتقا بردارید` }
-      : plan ? { tone: 'mine' as const, text: `${tx(terms.gear)} را انتخاب کنید و ${fa(g)} کارت بازی کنید` }
+    : pick ? { tone: 'mine' as const, text: `${tx(terms.garage)} (${tx(terms.round)} ${fa(view.draft!.round)} از ۳): یک ${tx(terms.card)} ${tx(terms.upgrade)} بردارید` }
+      : plan ? { tone: 'mine' as const, text: `${tx(terms.gear)} را انتخاب کنید و ${fa(g)} ${tx(terms.card)} بازی کنید` }
         : react ? { tone: 'mine' as const, text: `نوبت حرکت شما: ${tx(terms.speed)} ${fa(myR!.speed)}` }
           : view.phase === 'draft' ? { tone: 'wait' as const, text: `${tx(terms.garage)}: انتخاب ${who(view.draft!.picker ?? 0)}` }
-            : view.phase === 'plan' ? { tone: 'wait' as const, text: me?.plan ? 'انتخاب شما ثبت شد؛ منتظر بقیه' : `بازیکنان ${tx(terms.gear)} و کارت انتخاب می‌کنند` }
+            : view.phase === 'plan' ? { tone: 'wait' as const, text: me?.plan ? 'انتخاب شما ثبت شد؛ منتظر بقیه' : `بازیکنان ${tx(terms.gear)} و ${tx(terms.card)} انتخاب می‌کنند` }
               : { tone: 'wait' as const, text: `نوبت حرکت ${who(view.current ?? 0)}` };
 
   const order = view.order.length ? [...view.order, ...view.racers.map((_, i) => i).filter((i) => !view.order.includes(i))]
@@ -287,25 +288,25 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
   const framed = useInFrame() !== null;
   return (
     <div className="ht" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر دور همه هم‌زمان <T t={terms.gear} /> و کارت را پنهانی انتخاب می‌کنند؛ بعد کارت‌ها رو می‌شود و ماشین‌ها به ترتیب مسابقه حرکت می‌کنند. در <T t={terms.corner} />، <T t={terms.speed} /> بیش از حد <T t={terms.heat} /> می‌خواهد.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر <T t={terms.round} /> همه هم‌زمان <T t={terms.gear} /> و <T t={terms.card} /> را پنهانی انتخاب می‌کنند؛ بعد کارت‌ها رو می‌شود و <T t={terms.carsPl} /> به ترتیب <T t={terms.race} /> حرکت می‌کنند. در <T t={terms.corner} />، <T t={terms.speed} /> بیش از حد <T t={terms.heat} /> می‌خواهد.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="ht__bar">
-        <span className="ht-chip">پیست {TRACK_FA[view.track]}</span>
-        <span className="ht-chip">{fa(view.laps)} دور</span>
-        {view.races > 1 && <span className="ht-chip">مسابقهٔ {fa(view.race + 1)} از {fa(view.races)}</span>}
-        <span className="ht-chip">دور بازی {fa(view.round)}</span>
+        <span className="ht-chip"><T t={terms.track} /> {tx(TRACK_T[view.track])}</span>
+        <span className="ht-chip">{fa(view.laps)} <T t={terms.lap} /></span>
+        {view.races > 1 && <span className="ht-chip"><T t={terms.raceEz} /> {fa(view.race + 1)} از {fa(view.races)}</span>}
+        <span className="ht-chip"><T t={terms.round} /> بازی {fa(view.round)}</span>
         {view.weather && <span className="ht-chip ht-chip--w"><img src={WEATHER_ART[view.weather]} alt="" />{weatherFa()[view.weather]}</span>}
         {view.garage && <span className="ht-chip"><T t={terms.garage} /> فعال</span>}
       </div>
 
-      <ZoomBoard label="پیست" className="ht__board">
+      <ZoomBoard label={tx(terms.track)} className="ht__board">
         <div dir="ltr"><Track view={view} who={who} /></div>
       </ZoomBoard>
 
       {view.draft && (
-        <section className="ht__draft" aria-label={`بازار ${tx(terms.garage)}`}>
-          <h3 className="ht__h">بازار <T t={terms.garage} />: دور {fa(view.draft.round)} از ۳</h3>
+        <section className="ht__draft" aria-label={`${tx(terms.market)} ${tx(terms.garage)}`}>
+          <h3 className="ht__h"><T t={terms.market} /> <T t={terms.garage} />: <T t={terms.round} /> {fa(view.draft.round)} از ۳</h3>
           <div className="ht__cards">
             {view.draft.market.map((c) => (
               <button key={c.id} type="button" data-flip={`card-${c.id}`} data-flip-exit={`deck-${view.draft!.picker ?? 0}`} className={`ht-pick${hint?.type === 'pick' && hint.card === c.id ? ' ht-hint' : ''}`} disabled={!pick || busy}
@@ -315,7 +316,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
         </section>
       )}
 
-      <ol className="ht__racers" aria-label="ترتیب مسابقه">
+      <ol className="ht__racers" aria-label={tx(terms.raceOrder)}>
         {order.filter((s) => !framed || mySeat === null || s === mySeat).map((s) => {
           const r = view.racers[s]!;
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
@@ -323,7 +324,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
           const onMat = s === mySeat && hasMat;
           return (
             <li key={s} data-flip-anchor={`seat-${s}`} className={['ht-racer', 'ht-mat', `ht-mat--c${s}`, view.current === s ? 'ht-racer--on' : '', s === mySeat ? 'ht-racer--me' : '', r.resigned ? 'ht-racer--out' : ''].join(' ')}>
-              <img className="ht-racer__car" src={CAR_ART[s]} alt={`ماشین ${CAR_FA[s]}`} />
+              <img className="ht-racer__car" src={CAR_ART[s]} alt={`${tx(terms.car)} ${CAR_FA[s]}`} />
               <div className="ht-racer__main">
                 <div className="ht-racer__head">
                   {place && <b className="ht-racer__place">{fa(place)}</b>}
@@ -335,7 +336,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
                   {view.races > 1 && <span className="ht-tag">{fa(r.points)} امتیاز</span>}
                 </div>
                 <div className="ht-racer__sub">
-                  {r.resigned ? 'انصراف داده' : r.finished ? `تمام کرد، ${fa(r.finished.over)} خانه بعد از خط` : where(view, r.pos)}
+                  {r.resigned ? 'انصراف داده' : r.finished ? `تمام کرد، ${fa(r.finished.over)} ${tx(terms.space)} بعد از خط` : where(view, r.pos)}
                   {!onMat && <span className="ht-racer__counts"> <span className="bgv-sep" /> <T t={terms.hand} /> {fa(r.hand)} <span className="bgv-sep" /> <span data-flip-anchor={`deck-${s}`}><T t={terms.deck} /> {fa(r.deck)}</span> <span className="bgv-sep" /> <span data-flip-anchor={`discard-${s}`}><T t={terms.discard} /> {fa(r.discard)}</span></span>}
                 </div>
                 {r.revealed && !onMat && <Play r={r} s={s} />}
@@ -347,10 +348,10 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
       </ol>
 
       {hasMat && me && myR && (
-        <section className={`ht__cockpit ht-mat ht-mat--c${mySeat} ht-mat--mine`} aria-label="صفحهٔ ماشین شما">
+        <section className={`ht__cockpit ht-mat ht-mat--c${mySeat} ht-mat--mine`} aria-label={tx(terms.carMat)}>
           <div className="ht-mat__top">
             <div className="ht-mat__car">
-              <img src={CAR_ART[mySeat!]} alt={`ماشین ${CAR_FA[mySeat!]}`} />
+              <img src={CAR_ART[mySeat!]} alt={`${tx(terms.car)} ${CAR_FA[mySeat!]}`} />
               <bdi>{who(mySeat!)}</bdi>
               {myR.adrenaline && <span className="ht-tag"><T t={terms.adrenaline} /></span>}
             </div>
@@ -359,7 +360,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
               {[1, 2, 3, 4].map((n) => {
                 const pos = { gridColumn: n <= 2 ? 1 : 2, gridRow: n % 2 ? 1 : 2 };
                 if (!plan) {
-                  return <span key={n} style={pos} className={`ht-gearpos${myR.gear === n ? ' ht-gearpos--on' : ''}`} aria-current={myR.gear === n ? 'true' : undefined}><b>{fa(n)}</b><small>{GEAR_COOL[n] ? `خنک ${fa(GEAR_COOL[n]!)}` : ' '}</small></span>;
+                  return <span key={n} style={pos} className={`ht-gearpos${myR.gear === n ? ' ht-gearpos--on' : ''}`} aria-current={myR.gear === n ? 'true' : undefined}><b>{fa(n)}</b><small>{GEAR_COOL[n] ? `${tx(terms.cooldownAuto)} ${fa(GEAR_COOL[n]!)}` : ' '}</small></span>;
                 }
                 const o = plan.gears.find((x) => x.gear === n);
                 return (
@@ -370,22 +371,22 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
                 );
               })}
             </div>
-            <div className="ht-engine" aria-label={`${tx(terms.engine)}: ${fa(myR.engine)} کارت ${tx(terms.heat)}`}>
+            <div className="ht-engine" aria-label={`${tx(terms.engine)}: ${fa(myR.engine)} ${tx(terms.card)} ${tx(terms.heat)}`}>
               <small><T t={terms.engine} /></small>
               <span className="ht-engine__flames" aria-hidden="true">{Array.from({ length: Math.min(myR.engine, 8) }, (_, i) => <img key={i} src={flameArt} alt="" />)}</span>
               <Stat value={myR.engine} className="ht-engine__n" title={tx(terms.engineHeat)}>{fa(myR.engine)}</Stat>
             </div>
-            <div className="ht-pile" data-flip-anchor={`deck-${mySeat}`} aria-label={`${tx(terms.deck)}: ${fa(myR.deck)} کارت، ${fa(me.deckStress)} ${tx(terms.stress)}`}>
+            <div className="ht-pile" data-flip-anchor={`deck-${mySeat}`} aria-label={`${tx(terms.deck)}: ${fa(myR.deck)} ${tx(terms.card)}، ${fa(me.deckStress)} ${tx(terms.stress)}`}>
               <span className="ht-pile__back" aria-hidden="true" />
               <b>{fa(myR.deck)}</b><small><T t={terms.deck} /></small>
               <small className="ht-pile__note"><img src={stressArt} alt="" /><T t={terms.stress} /> {fa(me.deckStress)}</small>
             </div>
-            <div className="ht-pile ht-pile--disc" data-flip-anchor={`discard-${mySeat}`} aria-label={`${tx(terms.discard)}: ${fa(myR.discard)} کارت`}>
+            <div className="ht-pile ht-pile--disc" data-flip-anchor={`discard-${mySeat}`} aria-label={`${tx(terms.discard)}: ${fa(myR.discard)} ${tx(terms.card)}`}>
               {myR.discardTop ? <HeatCard c={myR.discardTop} size="sm" /> : <span className="ht-pile__empty" aria-hidden="true" />}
               <b>{fa(myR.discard)}</b><small><T t={terms.discard} /></small>
             </div>
           </div>
-          {myR.revealed && <div className="ht-mat__play"><small>بازی‌شده:</small><Play r={myR} s={mySeat!} /></div>}
+          {myR.revealed && <div className="ht-mat__play"><small><T t={terms.played} />:</small><Play r={myR} s={mySeat!} /></div>}
           <div className="ht__hand" role="group" aria-label={`${tx(terms.hand)} شما`}>
             {me.hand.map((c) => {
               const on = sel.includes(c.id) || disc.includes(c.id);
@@ -397,11 +398,11 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
               );
             })}
           </div>
-          {me.plan && <p className="ht__note">انتخاب ثبت‌شده: <T t={terms.gearEz} /> {fa(me.plan.gear)} و {fa(me.plan.cards.length)} کارت</p>}
+          {me.plan && <p className="ht__note">انتخاب ثبت‌شده: <T t={terms.gearEz} /> {fa(me.plan.gear)} و {fa(me.plan.cards.length)} <T t={terms.card} /></p>}
           {plan && (
             <div className="ht__actions">
               <DockSlot><Button size="sm" disabled={!planOk || busy} className={`ht-submit${planOk && isHint({ type: 'plan', gear: g, cards: sorted(sel) }) ? ' ht-hint' : ''}`}
-                onClick={() => onAction({ type: 'plan', gear: g, cards: sorted(sel) })}>ثبت <T t={terms.gearEz} /> {fa(g)} و {fa(sel.length)} کارت{gOpt?.cost ? <> (۱ <T t={terms.heat} />)</> : ''}</Button></DockSlot>
+                onClick={() => onAction({ type: 'plan', gear: g, cards: sorted(sel) })}>ثبت <T t={terms.gearEz} /> {fa(g)} و {fa(sel.length)} <T t={terms.card} />{gOpt?.cost ? <> (۱ <T t={terms.heat} />)</> : ''}</Button></DockSlot>
             </div>
           )}
           {react && (
@@ -412,8 +413,8 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
               )}
               <button type="button" className={['ht-toggle', slip && slipOk ? 'ht-toggle--on' : '', hint?.type === 'react' && hint.slipstream && !(slip && slipOk) && slipOk ? 'ht-hint' : ''].join(' ')}
                 aria-pressed={slip && slipOk} disabled={!slipOk || busy} onClick={() => setSlip(!slip)}><T t={terms.slipstream} /> +۲</button>
-              <span className="ht__note"><T t={terms.cooldown} /> خودکار: {fa(react.cooldown)}{disc.length ? `، دور ریختن ${fa(disc.length)} کارت` : ''}</span>
-              <DockSlot><Button size="sm" disabled={busy} className={`ht-end${isHint(reactAction) ? ' ht-hint' : ''}`} onClick={() => onAction(reactAction)}>پایان نوبت</Button></DockSlot>
+              <span className="ht__note"><T t={terms.cooldown} /> خودکار: {fa(react.cooldown)}{disc.length ? `، دور ریختن ${fa(disc.length)} ${tx(terms.card)}` : ''}</span>
+              <DockSlot><Button size="sm" disabled={busy} className={`ht-end${isHint(reactAction) ? ' ht-hint' : ''}`} onClick={() => onAction(reactAction)}><T t={terms.endTurn} /></Button></DockSlot>
             </div>
           )}
         </section>
@@ -426,9 +427,9 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
       )}
 
       {view.history.length > 0 && (
-        <section className="ht__hist" aria-label="نتایج مسابقه‌ها">
+        <section className="ht__hist" aria-label={tx(terms.races)}>
           {view.history.map((h, i) => (
-            <p key={i}><b>مسابقهٔ {fa(i + 1)} ({TRACK_FA[h.track]}):</b> {h.order.map((s, k) => `${fa(k + 1)}. ${who(s)}`).join('، ')}</p>
+            <p key={i}><b><T t={terms.raceEz} /> {fa(i + 1)} ({tx(TRACK_T[h.track])}):</b> {h.order.map((s, k) => `${fa(k + 1)}. ${who(s)}`).join('، ')}</p>
           ))}
         </section>
       )}

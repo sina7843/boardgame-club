@@ -4,7 +4,7 @@
 // paid along the row), tap an order to deliver it.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameAction, type GameRendererProps, type Term, DockSlot } from '@bg/ui';
 import spiceY from './art/century-spice-y.png';
 import spiceR from './art/century-spice-r.png';
 import spiceG from './art/century-spice-g.png';
@@ -17,7 +17,7 @@ import { terms } from './terms.ts';
 import { MERCHANTS, ORDERS, SPICES, scoreOf, upgrade, type Bag, type CenturyView, type Spice } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const SPICE_FA: Record<Spice, string> = { y: 'زردچوبه', r: 'زعفران', g: 'هل', b: 'دارچین' };
+const SPICE_T: Record<Spice, Term> = { y: terms.turmeric, r: terms.saffron, g: terms.cardamom, b: terms.cinnamon };
 
 // Handoff art: spice cubes (large) and small cubes (for costs and trades).
 const ART: Record<Spice, string> = { y: spiceY, r: spiceR, g: spiceG, b: spiceB };
@@ -28,11 +28,12 @@ const CUBE: Record<Spice, string> = { y: cubeY, r: cubeR, g: cubeG, b: cubeB };
  * `exit` where a cube that is spent goes.
  */
 export function Cubes({ bag, size = 'md', fid, from, exit }: { bag: Bag; size?: 'sm' | 'md'; fid?: string; from?: string; exit?: string }) {
+  useTermsLang();
   return (
     <span className={`ct-cubes ct-cubes--${size}`}>
       {SPICES.flatMap((s) => Array.from({ length: bag[s] }, (_, i) => size === 'sm'
-        ? <img key={`${s}${i}`} className="ct-cube" src={CUBE[s]} alt={SPICE_FA[s]} draggable={false} title={SPICE_FA[s]} data-flip={fid ? `${fid}-${s}${i}` : undefined} data-flip-from={from} data-flip-exit={exit} />
-        : <img key={`${s}${i}`} className="ct-spice" src={ART[s]} alt={SPICE_FA[s]} title={SPICE_FA[s]} draggable={false} data-flip={fid ? `${fid}-${s}${i}` : undefined} data-flip-from={from} data-flip-exit={exit} />))}
+        ? <img key={`${s}${i}`} className="ct-cube" src={CUBE[s]} alt={tx(SPICE_T[s])} draggable={false} title={tx(SPICE_T[s])} data-flip={fid ? `${fid}-${s}${i}` : undefined} data-flip-from={from} data-flip-exit={exit} />
+        : <img key={`${s}${i}`} className="ct-spice" src={ART[s]} alt={tx(SPICE_T[s])} title={tx(SPICE_T[s])} draggable={false} data-flip={fid ? `${fid}-${s}${i}` : undefined} data-flip-from={from} data-flip-exit={exit} />))}
     </span>
   );
 }
@@ -44,7 +45,7 @@ export function Cubes({ bag, size = 'md', fid, from, exit }: { bag: Bag; size?: 
 function Caravan({ bag, fid }: { bag: Bag; fid: string }) {
   useTermsLang();
   const list = SPICES.flatMap((s) => Array.from({ length: bag[s] }, (_, i) => [s, i] as const));
-  const label = SPICES.filter((s) => bag[s] > 0).map((s) => `${fa(bag[s])} ${SPICE_FA[s]}`).join('، ') || 'خالی';
+  const label = SPICES.filter((s) => bag[s] > 0).map((s) => `${fa(bag[s])} ${tx(SPICE_T[s])}`).join('، ') || 'خالی';
   return (
     <span className="ct-cv" role="img" aria-label={`${tx(terms.caravan)}: ${label} (${fa(list.length)} از ۱۰)`}>
       {Array.from({ length: Math.max(10, list.length) }, (_, k) => {
@@ -64,7 +65,7 @@ export function MerchantCard({ id }: { id: number }) {
   const m = MERCHANTS[id]!;
   return (
     <span className={`ct-card ct-card--${m.kind}`}>
-      {m.kind === 'spice' && <><small>ادویه</small><Cubes bag={m.gain} /></>}
+      {m.kind === 'spice' && <><small><T t={terms.spice} /></small><Cubes bag={m.gain} /></>}
       {m.kind === 'upgrade' && <><small><T t={terms.upgrade} /></small><b className="ct-up">{'▲'.repeat(m.n)}</b></>}
       {m.kind === 'trade' && <><small><T t={terms.trade} /></small><span className="ct-trade"><Cubes bag={m.give} size="sm" /><b>⇣</b><Cubes bag={m.gain} size="sm" /></span></>}
     </span>
@@ -150,11 +151,12 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
   const framed = useInFrame() !== null; // the shell draws seats, scores, turn and events
   const myCubes = me >= 0 ? view.cubes[me]! : null;
   const myTurn = plays.size > 0 || acquire.size > 0 || canRest || claims.size > 0 || !!disc;
+  const tip = `${tx(terms.card)} ${tx(terms.playImp)}، ${tx(terms.merchant)} بگیرید، ${tx(terms.rest)} کنید یا ${tx(terms.order)} ${tx(terms.deliverImp)}`;
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : disc ? { tone: 'mine' as const, text: `کاروان پر است: ${fa(disc.count)} ادویه کنار بگذارید` }
-      : myTurn ? { tone: 'mine' as const, text: view.ending ? 'دور آخر! کارت بازی کنید، تاجر بگیرید، استراحت کنید یا سفارش تحویل دهید' : 'کارت بازی کنید، تاجر بگیرید، استراحت کنید یا سفارش تحویل دهید' }
+    : disc ? { tone: 'mine' as const, text: `${tx(terms.caravan)} پر است: ${fa(disc.count)} ${tx(terms.spice)} ${tx(terms.discardImp)}` }
+      : myTurn ? { tone: 'mine' as const, text: view.ending ? `${tx(terms.lastRound)}! ${tip}` : tip }
         : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const tapHand = (id: number) => {
     const h = plays.get(id);
@@ -174,17 +176,17 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>هر نوبت یک کار: کارت بازی کنید، تاجر بخرید (روی هر کارت قبلی یک ادویه می‌گذارید)، سفارش تحویل دهید یا استراحت کنید. کاروان بیش از {fa(10)} ادویه جا ندارد. بازی با ششمین سفارش یک نفر وارد دور آخر می‌شود.</p>
+          <p>هر نوبت یک کار: <T t={terms.card} /> <T t={terms.playImp} />، <T t={terms.merchant} /> بخرید (روی هر <T t={terms.card} /> قبلی یک <T t={terms.spice} /> می‌گذارید)، <T t={terms.order} /> <T t={terms.deliverImp} /> یا <T t={terms.rest} /> کنید. <T t={terms.caravan} /> بیش از {fa(10)} <T t={terms.spice} /> جا ندارد. بازی با ششمین <T t={terms.order} /> یک نفر وارد <T t={terms.lastRound} /> می‌شود.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {!view.outcome && (
         <>
-          <section className="ct__orders" aria-label="سفارش‌ها">
+          <section className="ct__orders" aria-label={tx(terms.orders)}>
             {view.orders.map((id, i) => (
               <button key={id} type="button" data-flip={`o${id}`} data-flip-exit={`seat-${view.current}`} className={['ct-slot', claims.has(i) ? 'ct-slot--can' : '', hint?.type === 'claim' && hint.slot === i ? 'ct-hint' : ''].join(' ')}
-                disabled={!claims.has(i) || busy} onClick={() => onAction({ type: 'claim', slot: i })} aria-label={`تحویل سفارش ${fa(ORDERS[id]!.points)} امتیازی`}>
+                disabled={!claims.has(i) || busy} onClick={() => onAction({ type: 'claim', slot: i })} aria-label={`${tx(terms.deliver)} ${tx(terms.order)} ${fa(ORDERS[id]!.points)} امتیازی`}>
                 <OrderCard id={id} />
                 {i === 0 && view.gold > 0 && <span className="ct-coin ct-coin--gold bg-pop" key={view.gold}>{fa(view.gold)}</span>}
                 {i === (view.gold > 0 ? 1 : 0) && view.silver > 0 && <span className="ct-coin ct-coin--silver bg-pop" key={view.silver}>{fa(view.silver)}</span>}
@@ -194,7 +196,7 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
           <section className="ct__market" aria-label={tx(terms.merchants)}>
             {view.market.map((x, i) => (
               <button key={x.card} type="button" data-flip={`m${x.card}`} data-flip-exit={`seat-${view.current}`} className={['ct-slot', acquire.has(i) ? 'ct-slot--can' : ''].join(' ')} disabled={!acquire.has(i) || busy}
-                onClick={() => myCubes && onAction({ type: 'acquire', slot: i, pay: cheapest(myCubes, i) })} aria-label={`استخدام ${tx(terms.merchant)} ${fa(i + 1)}${i > 0 ? `، ${fa(i)} ادویه` : '، رایگان'}`}>
+                onClick={() => myCubes && onAction({ type: 'acquire', slot: i, pay: cheapest(myCubes, i) })} aria-label={`${tx(terms.hire)} ${tx(terms.merchant)} ${fa(i + 1)}${i > 0 ? `، ${fa(i)} ${tx(terms.spice)}` : '، رایگان'}`}>
                 <MerchantCard id={x.card} />
                 {x.cubes.y + x.cubes.r + x.cubes.g + x.cubes.b > 0 && <span className="ct-on"><Cubes bag={x.cubes} size="sm" fid={`mk${x.card}`} from={view.last?.kind === 'acquire' ? `seat-${view.last.seat}` : undefined} /></span>}
                 <small className="ct-cost" aria-hidden>{fa(i)}</small>
@@ -204,7 +206,7 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
         </>
       )}
 
-      <ul className="ct__players" aria-label="کاروان‌ها">
+      <ul className="ct__players" aria-label={tx(terms.caravans)}>
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.cubes.map((_, k) => k)).map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['ct-pl', view.current === s && !view.outcome ? 'ct-pl--turn' : '', s === mySeat ? 'ct-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'ct-pl--win' : ''].join(' ')}>
             <div className="ct-pl__head">
@@ -217,12 +219,12 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
                 {framed && s !== mySeat ? <Cubes bag={view.cubes[s]!} size="sm" fid={`cv${s}`} /> : <Caravan bag={view.cubes[s]!} fid={`cv${s}`} />}
               </div>
               <div className="ct-pl__side">
-                <span className="ct-pl__orders" title="سفارش‌های تحویل‌شده"><b>{fa(view.won[s]!.length)}</b> سفارش<span className="bgv-sep" /> {fa(view.won[s]!.reduce((a, id) => a + ORDERS[id]!.points, 0))} امتیاز</span>
+                <span className="ct-pl__orders" title={tx(terms.deliveredOrders)}><b>{fa(view.won[s]!.length)}</b> <T t={terms.order} /><span className="bgv-sep" /> {fa(view.won[s]!.reduce((a, id) => a + ORDERS[id]!.points, 0))} امتیاز</span>
                 <span className="ct-pl__coins">
-                  <Bump className="ct-coin ct-coin--gold" v={view.coins[s]!.gold}>{fa(view.coins[s]!.gold)}</Bump><small>طلا</small>
-                  <Bump className="ct-coin ct-coin--silver" v={view.coins[s]!.silver}>{fa(view.coins[s]!.silver)}</Bump><small>نقره</small>
+                  <Bump className="ct-coin ct-coin--gold" v={view.coins[s]!.gold}>{fa(view.coins[s]!.gold)}</Bump><small><T t={terms.gold} /></small>
+                  <Bump className="ct-coin ct-coin--silver" v={view.coins[s]!.silver}>{fa(view.coins[s]!.silver)}</Bump><small><T t={terms.silver} /></small>
                 </span>
-                <span className="ct-pl__cards">{fa(view.hands[s]!.length)} در دست<span className="bgv-sep" /> {fa(view.played[s]!.length)} بازی‌شده</span>
+                <span className="ct-pl__cards">{fa(view.hands[s]!.length)} در <T t={terms.hand} /><span className="bgv-sep" /> {fa(view.played[s]!.length)} <T t={terms.played} /></span>
               </div>
             </div>
           </li>
@@ -230,8 +232,8 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
       </ul>
 
       {me >= 0 && !view.outcome && (
-        <section className="ct__me" aria-label="دست شما">
-          <div className="ct__hand" role="group" aria-label="کارت‌های دست">
+        <section className="ct__me" aria-label={`${tx(terms.hand)} شما`}>
+          <div className="ct__hand" role="group" aria-label={`${tx(terms.cardsEz)} ${tx(terms.hand)}`}>
             {view.hands[me]!.map((id) => (
               <button key={id} type="button" data-flip={`m${id}`} data-flip-from={`seat-${me}`} className={['ct-slot', plays.has(id) ? 'ct-slot--can' : '', pick === id ? 'ct-slot--on' : '', hint?.type === 'play' && hint.card === id ? 'ct-hint' : ''].join(' ')}
                 disabled={!plays.has(id) || busy} onClick={() => tapHand(id)} aria-pressed={pick === id}><MerchantCard id={id} /></button>
@@ -249,7 +251,7 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
             <div className="ct__tool">
               <span><T t={terms.upgrade} /> ({fa(ups.length)} از {fa(pickM.n)}):</span>
               {(['y', 'r', 'g'] as Spice[]).map((x) => (
-                <button key={x} type="button" className="ct-cube--btn" title={SPICE_FA[x]} aria-label={`${tx(terms.upgrade)} ${SPICE_FA[x]}`}
+                <button key={x} type="button" className="ct-cube--btn" title={tx(SPICE_T[x])} aria-label={`${tx(terms.upgrade)} ${tx(SPICE_T[x])}`}
                   disabled={ups.length >= pickM.n || !upgrade(myCubes!, [...ups, x])} onClick={() => setUps([...ups, x])}><img src={ART[x]} alt="" draggable={false} /></button>
               ))}
               {upPreview && <span className="ct__preview">← <Cubes bag={upPreview} size="sm" /></span>}
@@ -258,10 +260,10 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
             </div>
           )}
           <div className="ct__actions">
-            {canRest && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'rest' ? 'ct-hint' : ''} onClick={() => onAction({ type: 'rest' })}><T t={terms.rest} /> ({fa(view.played[me]!.length)} کارت برمی‌گردد)</Button></DockSlot>}
-            {disc && myCubes && <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'discard', cubes: cheapest(myCubes, disc.count) })}>کنار گذاشتن {fa(disc.count)} ادویهٔ ارزان</Button>}
+            {canRest && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'rest' ? 'ct-hint' : ''} onClick={() => onAction({ type: 'rest' })}><T t={terms.rest} /> ({fa(view.played[me]!.length)} <T t={terms.card} /> برمی‌گردد)</Button></DockSlot>}
+            {disc && myCubes && <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'discard', cubes: cheapest(myCubes, disc.count) })}><T t={terms.discardV} /> {fa(disc.count)} <T t={terms.spiceEz} /> ارزان</Button>}
           </div>
-          {view.played[me]!.length > 0 && <div className="ct__played"><small>بازی‌شده:</small>{view.played[me]!.map((id) => <span key={id} data-flip={`m${id}`}><MerchantCard id={id} /></span>)}</div>}
+          {view.played[me]!.length > 0 && <div className="ct__played"><small><T t={terms.played} />:</small>{view.played[me]!.map((id) => <span key={id} data-flip={`m${id}`}><MerchantCard id={id} /></span>)}</div>}
         </section>
       )}
     </div>

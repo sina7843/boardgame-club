@@ -8,7 +8,7 @@ import { terms } from './terms.ts';
 import { CARDS, VEG, counts, ruleScore, scores, type PointSaladView, type Rule, type Veg } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const VEG_FA: Record<Veg, string> = { tomato: 'گوجه', lettuce: 'کاهو', carrot: 'هویج', cabbage: 'کلم', pepper: 'فلفل', onion: 'پیاز' };
+const vegName = (v: Veg) => tx(terms[v]);
 const sign = (n: number) => (n > 0 ? `+${fa(n)}` : `−${fa(-n)}`);
 
 // Vegetable discs are the BGA Point Salad client art (see DECISIONS.md).
@@ -18,19 +18,20 @@ const ART = Object.fromEntries(VEG.map((v) => [v, gc(`sym-${v}`)])) as Record<Ve
 const CARD_ART = Object.fromEntries(VEG.map((v) => [v, gc(v)])) as Record<Veg, string>;
 
 export function VegIcon({ v, size = 1.4 }: { v: Veg; size?: number }) {
-  return <img src={ART[v]} alt={VEG_FA[v]} draggable={false} style={{ inlineSize: `${size}rem`, blockSize: `${size}rem` }} className={`ps-veg ps-v--${v}`} />;
+  useTermsLang();
+  return <img src={ART[v]} alt={vegName(v)} draggable={false} style={{ inlineSize: `${size}rem`, blockSize: `${size}rem` }} className={`ps-veg ps-v--${v}`} />;
 }
 
 export function RuleText({ rule }: { rule: Rule }) {
   switch (rule.k) {
     case 'combo': return <span className="ps-rule__t">{rule.veg.map((x, i) => <VegIcon key={i} v={x} size={1} />)} = {fa(rule.pts)}</span>;
     case 'each': return <span className="ps-rule__t">{rule.terms.map(([x, n], i) => <span key={i} className="ps-term"><VegIcon v={x} size={1} />{sign(n)}</span>)}</span>;
-    case 'parity': return <span className="ps-rule__t"><VegIcon v={rule.veg} size={1} /> زوج ۷، فرد ۳</span>;
-    case 'most': return <span className="ps-rule__t">بیشترین <VegIcon v={rule.veg} size={1} /> = ۱۰</span>;
-    case 'fewest': return <span className="ps-rule__t">کمترین <VegIcon v={rule.veg} size={1} /> = ۷</span>;
-    case 'set': return <span className="ps-rule__t">هر دست شش‌تایی = ۱۲</span>;
-    case 'mostTotal': return <span className="ps-rule__t">بیشترین سبزی کل = ۱۰</span>;
-    case 'fewestTotal': return <span className="ps-rule__t">کمترین سبزی کل = ۷</span>;
+    case 'parity': return <span className="ps-rule__t"><VegIcon v={rule.veg} size={1} /> <T t={terms.even} /> ۷، <T t={terms.odd} /> ۳</span>;
+    case 'most': return <span className="ps-rule__t"><T t={terms.most} /> <VegIcon v={rule.veg} size={1} /> = ۱۰</span>;
+    case 'fewest': return <span className="ps-rule__t"><T t={terms.fewest} /> <VegIcon v={rule.veg} size={1} /> = ۷</span>;
+    case 'set': return <span className="ps-rule__t"><T t={terms.setOfSix} /> = ۱۲</span>;
+    case 'mostTotal': return <span className="ps-rule__t"><T t={terms.mostTotal} /> = ۱۰</span>;
+    case 'fewestTotal': return <span className="ps-rule__t"><T t={terms.fewestTotal} /> = ۷</span>;
   }
 }
 
@@ -89,7 +90,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: `یک ${tx(terms.pointCard)} یا دو سبزی بردارید` }
+    : myTurn ? { tone: 'mine' as const, text: `یک ${tx(terms.pointCard)} یا دو ${tx(terms.veggie)} بردارید` }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const order = mySeat === null ? view.rules.map((_, k) => k) : [mySeat, ...view.rules.map((_, k) => k).filter((k) => k !== mySeat)];
 
@@ -101,20 +102,20 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>یا یک <T t={terms.pointCard} /> از بالای دسته بردارید، یا تا دو سبزی از بازار. هر <T t={terms.pointCard} /> را می‌توانید به یک سبزی تبدیل کنید. {tx(terms.pointCard)}ها در پایان بازی امتیاز می‌دهند.</p>
+          <p>یا یک <T t={terms.pointCard} /> از بالای <T t={terms.pile} /> بردارید، یا تا دو <T t={terms.veggie} /> از <T t={terms.market} />. هر <T t={terms.pointCard} /> را می‌توانید به یک <T t={terms.veggie} /> تبدیل کنید. <T t={terms.pointCards} /> در پایان بازی امتیاز می‌دهند.</p>
         </RailSlot>
       )}
 
       {!view.outcome && (
-        <section className="ps__market" aria-label="بازار">
+        <section className="ps__market" aria-label={tx(terms.market)}>
           {[0, 1, 2].map((p) => {
             const top = view.pileTops[p];
             return (
               <div key={p} className="ps-crate">
                 {top !== null && top !== undefined
                   ? <button type="button" data-flip-anchor={`crate-${p}`} className={['ps-pile', hint?.type === 'rule' && hint.pile === p ? 'ps-hint' : ''].join(' ')} disabled={!piles.has(p) || busy || sel.length > 0}
-                    onClick={() => act({ type: 'rule', pile: p, ...extra })} aria-label={`برداشتن ${tx(terms.pointCard)} دستهٔ ${fa(p + 1)}`}><RuleCard id={top} from={`crate-${p}`} /><small>{fa(view.pileCounts[p]!)} کارت</small></button>
-                  : p === waiting ? <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">…</span> : <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">خالی</span>}
+                    onClick={() => act({ type: 'rule', pile: p, ...extra })} aria-label={`${tx(terms.take)} ${tx(terms.pointCard)} ${tx(terms.pileEz)} ${fa(p + 1)}`}><RuleCard id={top} from={`crate-${p}`} /><small>{fa(view.pileCounts[p]!)} <T t={terms.cards} /></small></button>
+                  : p === waiting ? <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">…</span> : <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty"><T t={terms.empty} /></span>}
                 <div className="ps-crate__veg">
                   {[p * 2, p * 2 + 1].map((i) => {
                     const id = view.market[i];
@@ -123,7 +124,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
                     return (
                       <button key={i} type="button" className={['ps-slot', on ? 'ps-slot--on' : '', hint?.type === 'veg' && hint.slots?.includes(i) && !on ? 'ps-hint' : ''].join(' ')}
                         disabled={!vegHint || busy} aria-pressed={on} onClick={() => setSel(on ? sel.filter((x) => x !== i) : [...sel, i].slice(-2))}>
-                        <span data-flip={`c-${id}`} data-flip-from={`crate-${p}`} data-flip-exit={`seat-${view.current}`} style={{ display: 'inline-flex' }}><img src={CARD_ART[CARDS[id]!.veg]} alt={VEG_FA[CARDS[id]!.veg]} draggable={false} className="ps-vegcard" /></span>
+                        <span data-flip={`c-${id}`} data-flip-from={`crate-${p}`} data-flip-exit={`seat-${view.current}`} style={{ display: 'inline-flex' }}><img src={CARD_ART[CARDS[id]!.veg]} alt={vegName(CARDS[id]!.veg)} draggable={false} className="ps-vegcard" /></span>
                       </button>
                     );
                   })}
@@ -137,8 +138,8 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
         const bar = (
           <>
             <Button size="sm" disabled={busy || sel.length !== vegHint.need} className={hint?.type === 'veg' && sel.length === vegHint.need ? 'ps-hint' : ''}
-              onClick={() => act({ type: 'veg', slots: sel.slice().sort((a, b) => a - b), ...extra })}>برداشتن {fa(sel.length)} سبزی</Button>
-            {flip !== null && <span className="ps__flipnote">این نوبت یک دستور به سبزی تبدیل می‌شود</span>}
+              onClick={() => act({ type: 'veg', slots: sel.slice().sort((a, b) => a - b), ...extra })}><T t={terms.take} /> {fa(sel.length)} <T t={terms.veggie} /></Button>
+            {flip !== null && <span className="ps__flipnote">این نوبت یک <T t={terms.pointCard} /> به <T t={terms.veggie} /> تبدیل می‌شود</span>}
           </>
         );
         return framed ? <DockSlot>{bar}</DockSlot> : <div className="ps__bar">{bar}</div>;
@@ -153,7 +154,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
               {view.rules[s]!.map((id) => {
                 const pts = ruleScore(CARDS[id]!.rule, s, all);
                 return s === me && myTurn && !view.outcome
-                  ? <button key={id} type="button" className={`ps-flip ${flip === id ? 'ps-flip--on' : ''}`} aria-pressed={flip === id} onClick={() => setFlip(flip === id ? null : id)} title="برگرداندن به سبزی"><RuleCard id={id} pts={pts} from={`seat-${s}`} exit="drop" /></button>
+                  ? <button key={id} type="button" className={`ps-flip ${flip === id ? 'ps-flip--on' : ''}`} aria-pressed={flip === id} onClick={() => setFlip(flip === id ? null : id)} title={tx(terms.flipToVeg)}><RuleCard id={id} pts={pts} from={`seat-${s}`} exit="drop" /></button>
                   : <RuleCard key={id} id={id} pts={pts} from={`seat-${s}`} exit="drop" />;
               })}
             </div>}

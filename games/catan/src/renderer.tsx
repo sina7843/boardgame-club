@@ -4,7 +4,7 @@
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePop, T, tx, useTermsLang, type Term, type GameRendererProps, DockSlot } from '@bg/ui';
-import { BEGINNER_HARBORS, BEGINNER_MAP, EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
+import { BEGINNER_HARBORS, BEGINNER_MAP, EDGES, HEX_SIZE, RESOURCES, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res, type Terrain } from './board.ts';
 import { BOARD_PNG, BoardDefs, COST_PNG, CARD_BACK, pieceArt, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
 import awardRoad from './art/catan-award-road.png';
 import awardArmy from './art/catan-award-army.png';
@@ -16,42 +16,45 @@ type Hint = { type: string; [k: string]: unknown };
 
 export const SEAT_COLOR = ['#c8323c', '#2f62c9', '#f1ece0', '#e0861a'];
 const SEAT_FA = ['قرمز', 'آبی', 'سفید', 'نارنجی'];
+const RES_T: Record<Res, Term> = { brick: terms.brick, lumber: terms.lumber, wool: terms.wool, grain: terms.grain, ore: terms.ore };
+const TERRAIN_T: Record<Terrain, Term> = { hills: terms.hills, forest: terms.forest, pasture: terms.pasture, fields: terms.fields, mountains: terms.mountains, desert: terms.desert };
+const PIECE_T = { road: terms.road, settlement: terms.settlement, city: terms.city } as const;
 const DEV_T: Record<Dev, Term> = { knight: terms.knight, vp: terms.victoryPoint, road: terms.roadBuilding, plenty: terms.yearOfPlenty, monopoly: terms.monopoly };
 const devHelp = (): Record<Dev, string> => ({
-  knight: `${tx(terms.robber)} را جابه‌جا کنید و از صاحب یک ساختمان کنارش یک کارت بدزدید.`,
+  knight: `${tx(terms.robber)} را جابه‌جا کنید و از صاحب یک ساختمان کنارش یک ${tx(terms.card)} ${tx(terms.stealImp)}.`,
   vp: '۱ امتیاز؛ تا پایان بازی مخفی می‌ماند.',
-  road: '۲ جاده رایگان بسازید.',
-  plenty: '۲ منبع دلخواه از بانک بگیرید.',
-  monopoly: 'یک منبع را نام ببرید؛ همه بازیکنان دیگر کارت‌های آن منبع را به شما می‌دهند.'
+  road: `۲ ${tx(terms.road)} رایگان ${tx(terms.buildImp)}.`,
+  plenty: `۲ ${tx(terms.resource)} دلخواه از ${tx(terms.bank)} بگیرید.`,
+  monopoly: `یک ${tx(terms.resource)} را نام ببرید؛ همه بازیکنان دیگر ${tx(terms.cardsEz)} آن ${tx(terms.resource)} را به شما می‌دهند.`
 });
-const HARBOR_FA = (k: HarborKind) => (k === 'any' ? '۳:۱' : `۲:۱ ${RES_FA[k]}`);
+const HARBOR_FA = (k: HarborKind) => (k === 'any' ? '۳:۱' : `۲:۱ ${tx(RES_T[k])}`);
 
-const handText = (h: Partial<Hand>) => RESOURCES.filter((r) => (h[r] ?? 0) > 0).map((r) => `${fa(h[r]!)} ${RES_FA[r]}`).join('، ') || 'هیچ';
+const handText = (h: Partial<Hand>) => RESOURCES.filter((r) => (h[r] ?? 0) > 0).map((r) => `${fa(h[r]!)} ${tx(RES_T[r])}`).join('، ') || 'هیچ';
 const vertexLabel = (view: CatanView, v: number) =>
-  `تقاطع کنار ${VERTICES[v]!.hexes.map((h) => `${TERRAIN_FA[view.hexes[h]!.terrain]}${view.hexes[h]!.number ? ` ${fa(view.hexes[h]!.number!)}` : ''}`).join('، ')}`;
-const edgeLabel = (view: CatanView, e: number) => `مسیر میان ${vertexLabel(view, EDGES[e]!.a)} و ${vertexLabel(view, EDGES[e]!.b).replace('تقاطع کنار ', '')}`;
-const hexLabel = (view: CatanView, h: number) => `${TERRAIN_FA[view.hexes[h]!.terrain]}${view.hexes[h]!.number ? ` ${fa(view.hexes[h]!.number!)}` : ''}`;
+  `${tx(terms.intersection)} کنار ${VERTICES[v]!.hexes.map((h) => `${tx(TERRAIN_T[view.hexes[h]!.terrain])}${view.hexes[h]!.number ? ` ${fa(view.hexes[h]!.number!)}` : ''}`).join('، ')}`;
+const edgeLabel = (view: CatanView, e: number) => `مسیر میان ${vertexLabel(view, EDGES[e]!.a)} و ${vertexLabel(view, EDGES[e]!.b).replace(`${tx(terms.intersection)} کنار `, '')}`;
+const hexLabel = (view: CatanView, h: number) => `${tx(TERRAIN_T[view.hexes[h]!.terrain])}${view.hexes[h]!.number ? ` ${fa(view.hexes[h]!.number!)}` : ''}`;
 
 function describe(e: LogEntry, view: CatanView, name: (s: number) => string): string {
   switch (e.t) {
     case 'start': return `بازی شروع شد؛ ${name(e.first)} اول می‌چیند.`;
-    case 'build': return `${name(e.seat)} ${{ road: 'جاده', settlement: 'آبادی', city: 'شهر' }[e.piece]} ساخت${e.free ? ' (رایگان)' : ''}.`;
+    case 'build': return `${name(e.seat)} ${tx(PIECE_T[e.piece])} ${tx(terms.buildPast)}${e.free ? ' (رایگان)' : ''}.`;
     case 'turn': return `نوبت ${fa(e.turn)}: ${name(e.seat)}.`;
-    case 'roll': return `${name(e.seat)} تاس ریخت: ${fa(e.dice[0])} + ${fa(e.dice[1])} = ${fa(e.dice[0] + e.dice[1])}.`;
+    case 'roll': return `${name(e.seat)} ${tx(terms.dice)} ریخت: ${fa(e.dice[0])} + ${fa(e.dice[1])} = ${fa(e.dice[0] + e.dice[1])}.`;
     case 'produce': {
       const parts = e.gains.flatMap((g, s) => (Object.values(g).some((x) => x > 0) ? [`${name(s)}: ${handText(g)}`] : []));
-      return `${e.setup ? 'منابع آغازین' : 'تولید'} — ${parts.join('، ') || 'هیچ'}.`;
+      return `${e.setup ? `${tx(terms.resources)} آغازین` : tx(terms.production)} — ${parts.join('، ') || 'هیچ'}.`;
     }
-    case 'shortage': return `بانک ${RES_FA[e.res]} کافی نداشت؛ کسی ${RES_FA[e.res]} نگرفت.`;
-    case 'discard': return `${name(e.seat)} ${handText(e.cards)} دور ریخت.`;
+    case 'shortage': return `${tx(terms.bank)} ${tx(RES_T[e.res])} کافی نداشت؛ کسی ${tx(RES_T[e.res])} نگرفت.`;
+    case 'discard': return `${name(e.seat)} ${handText(e.cards)} ${tx(terms.discardPast)}.`;
     case 'robber': return `${name(e.seat)} ${tx(terms.robber)} را به ${hexLabel(view, e.hex)} برد.`;
-    case 'steal': return `${name(e.seat)} از ${name(e.from)} ${e.res ? `یک ${RES_FA[e.res]}` : 'یک کارت'} دزدید.`;
-    case 'bank': return `${name(e.seat)} ${fa(e.n)} ${RES_FA[e.give]} را با بانک به ۱ ${RES_FA[e.get]} معامله کرد.`;
+    case 'steal': return `${name(e.seat)} از ${name(e.from)} ${e.res ? `یک ${tx(RES_T[e.res])}` : `یک ${tx(terms.card)}`} ${tx(terms.stealPast)}.`;
+    case 'bank': return `${name(e.seat)} ${fa(e.n)} ${tx(RES_T[e.give])} را با ${tx(terms.bank)} به ۱ ${tx(RES_T[e.get])} ${tx(terms.tradedPast)}.`;
     case 'offer': return `${name(e.seat)} پیشنهاد داد: ${handText(e.give)} در ازای ${handText(e.get)}.`;
-    case 'trade': return `${name(e.seat)} با ${name(e.with)} معامله کرد: ${handText(e.give)} در ازای ${handText(e.get)}.`;
-    case 'buy': return `${name(e.seat)} یک ${tx(terms.devCard)} خرید.`;
+    case 'trade': return `${name(e.seat)} با ${name(e.with)} ${tx(terms.tradedPast)}: ${handText(e.give)} در ازای ${handText(e.get)}.`;
+    case 'buy': return `${name(e.seat)} یک ${tx(terms.devCard)} ${tx(terms.buyPast)}.`;
     case 'dev':
-      return `${name(e.seat)} «${tx(DEV_T[e.card])}» بازی کرد${e.card === 'monopoly' ? ` و ${fa(e.n ?? 0)} ${RES_FA[e.res!]} گرفت` : e.card === 'plenty' && e.pick ? ` و ${RES_FA[e.pick[0]]} و ${RES_FA[e.pick[1]]} گرفت` : ''}.`;
+      return `${name(e.seat)} «${tx(DEV_T[e.card])}» ${tx(terms.playedPast)}${e.card === 'monopoly' ? ` و ${fa(e.n ?? 0)} ${tx(RES_T[e.res!])} گرفت` : e.card === 'plenty' && e.pick ? ` و ${tx(RES_T[e.pick[0]])} و ${tx(RES_T[e.pick[1]])} گرفت` : ''}.`;
     case 'award': return e.seat === null
       ? `${tx(e.kind === 'road' ? terms.longestRoad : terms.largestArmy)} فعلاً صاحبی ندارد.`
       : `${name(e.seat)} ${tx(e.kind === 'road' ? terms.longestRoad : terms.largestArmy)} را گرفت (۲ امتیاز).`;
@@ -87,7 +90,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
   // Pieces placed by the latest change drop in (bg-land); everything else is static.
   const fresh = useFresh([...view.roads.flatMap((o, i) => (o === null || o === undefined ? [] : [`e${i}`])), ...view.buildings.flatMap((b, i) => (b ? [`v${i}${b.city ? 'c' : 'h'}`] : []))]);
   return (
-    <svg className="ct-board" viewBox="-320 -316 640 632" role="group" aria-label="نقشه جزیره کاتان" style={{ direction: 'ltr' }}>
+    <svg className="ct-board" viewBox="-320 -316 640 632" role="group" aria-label={tx(terms.map)} style={{ direction: 'ltr' }}>
       <BoardDefs />
       {beginner && <image href={BOARD_PNG} x="-320" y="-316" width="640" height="632" aria-hidden="true" pointerEvents="none" />}
       {!beginner && <><g aria-hidden="true" pointerEvents="none">
@@ -112,7 +115,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
             <HarborArt x={hx} y={hy + 6} />
             <circle cx={hx} cy={hy} r="17" className="ct-harbor__coin" />
             <text x={hx} y={hy - 1} className="ct-harbor__rate">{h.kind === 'any' ? '۳:۱' : '۲:۱'}</text>
-            {h.kind !== 'any' && <text x={hx} y={hy + 10} className="ct-harbor__res">{RES_FA[h.kind]}</text>}
+            {h.kind !== 'any' && <text x={hx} y={hy + 10} className="ct-harbor__res">{tx(RES_T[h.kind])}</text>}
           </g>
         );
       })}
@@ -127,7 +130,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
             {...(target ? btn({ kind: 'hex', id: i }, `${hexLabel(view, i)}، ${tx(terms.robber)} را اینجا ببرید`) : { role: 'img', 'aria-label': `${hexLabel(view, i)}${view.robber === i ? `، ${tx(terms.robber)} اینجاست` : ''}` })}>
             {!beginner && <HexArt terrain={h.terrain} cx={c.x} cy={c.y} r={R} className="ct-hex__art" />}
             <polygon points={pts(i)} fill="#000" fillOpacity="0.001" className="ct-hex__tile" />
-            {!beginner && <text x={c.x} y={c.y - R * 0.5} className="ct-hex__name">{TERRAIN_FA[h.terrain]}</text>}
+            {!beginner && <text x={c.x} y={c.y - R * 0.5} className="ct-hex__name">{tx(TERRAIN_T[h.terrain])}</text>}
             {!beginner && h.number !== null && (
               <g className={h.number === 6 || h.number === 8 ? 'ct-token ct-token--hot' : 'ct-token'}>
                 <circle className="ct-token__disc" cx={c.x} cy={c.y + 4} r="17" fill="url(#ctb-token)" filter="url(#ctb-soft)" />
@@ -149,7 +152,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         if (owner === null && !target) return null;
         return (
           <g key={`e${i}`} className={['ct-edge', target ? 'ct-target' : '', is(t.sel, 'edge', i) ? 'ct-selected' : '', is(t.hint, 'edge', i) ? 'ct-hint' : ''].join(' ')}
-            {...(target ? btn({ kind: 'edge', id: i }, `${edgeLabel(view, i)}، ساخت جاده`) : { role: 'img', 'aria-label': `جاده ${SEAT_FA[owner!]}` })}>
+            {...(target ? btn({ kind: 'edge', id: i }, `${edgeLabel(view, i)}، ${tx(terms.build)} ${tx(terms.road)}`) : { role: 'img', 'aria-label': `${tx(terms.road)} ${SEAT_FA[owner!]}` })}>
             {owner !== null && (
               <g className={fresh.has(`e${i}`) ? 'ct-plank bg-land' : 'ct-plank'}>
                 {(() => {
@@ -169,10 +172,10 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         const bld = view.buildings[i];
         const target = t.vertices.has(i);
         if (!bld && !target) return null;
-        const label = bld ? `${bld.city ? 'شهر' : 'آبادی'} ${SEAT_FA[bld.seat]}${bld.seat === mySeat ? ' (شما)' : ''}، ${vertexLabel(view, i)}` : vertexLabel(view, i);
+        const label = bld ? `${tx(bld.city ? terms.city : terms.settlement)} ${SEAT_FA[bld.seat]}${bld.seat === mySeat ? ' (شما)' : ''}، ${vertexLabel(view, i)}` : vertexLabel(view, i);
         return (
           <g key={`v${i}`} transform={`translate(${v.x}, ${v.y})`} className={['ct-vertex', target ? 'ct-target' : '', is(t.sel, 'vertex', i) ? 'ct-selected' : '', is(t.hint, 'vertex', i) ? 'ct-hint' : ''].join(' ')}
-            {...(target ? btn({ kind: 'vertex', id: i }, `${label}، ${bld ? 'تبدیل به شهر' : 'ساخت آبادی'}`) : { role: 'img', 'aria-label': label })}>
+            {...(target ? btn({ kind: 'vertex', id: i }, `${label}، ${bld ? `تبدیل به ${tx(terms.city)}` : `${tx(terms.build)} ${tx(terms.settlement)}`}`) : { role: 'img', 'aria-label': label })}>
             {target && <circle r="16" className="ct-vertex__ring" />}
             {bld && (
               <g className={fresh.has(`v${i}${bld.city ? 'c' : 'h'}`) ? 'ct-bld bg-land' : 'ct-bld'} key={bld.city ? 'city' : 'house'}>
@@ -188,7 +191,6 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
 
 // ---------- player board ----------
 
-const PIECE_FA = { road: 'جاده', settlement: 'آبادی', city: 'شهر' } as const;
 
 /** A wooden piece in the seat colour (road plank, settlement house, city). Decorative: the parent carries the label. */
 function Piece({ kind, seat }: { kind: 'road' | 'settlement' | 'city'; seat: number }) {
@@ -203,7 +205,9 @@ function Piece({ kind, seat }: { kind: 'road' | 'settlement' | 'city'; seat: num
 
 /** The printed building-cost card (handoff art). */
 function CostCard() {
-  return <img className="ct-costcard" src={COST_PNG} alt="هزینهٔ ساخت: جاده یک چوب و یک خشت؛ آبادی یک چوب، خشت، پشم و گندم؛ شهر دو گندم و سه سنگ؛ کارت توسعه یک پشم، گندم و سنگ" draggable={false} />;
+  useTermsLang();
+  const [b, l, w, g, o] = [terms.brickAlt, terms.lumber, terms.wool, terms.grain, terms.ore].map(tx);
+  return <img className="ct-costcard" src={COST_PNG} alt={`${tx(terms.cost)}: ${tx(terms.road)} یک ${l} و یک ${b}؛ ${tx(terms.settlement)} یک ${l}، ${b}، ${w} و ${g}؛ ${tx(terms.city)} دو ${g} و سه ${o}؛ ${tx(terms.devCard)} یک ${w}، ${g} و ${o}`} draggable={false} />;
 }
 
 // ---------- small controls ----------
@@ -229,8 +233,8 @@ function HandPicker({ title, limit, values, onChange }: { title: string; limit: 
       <legend>{title}</legend>
       {RESOURCES.map((r) => (
         <span key={r} className={`ct-picker__row ct-res--${r}`}>
-          <span><span aria-hidden="true" className="ct-res__icon"><ResIcon r={r} /></span> {RES_FA[r]}</span>
-          <Stepper label={RES_FA[r]} value={values[r]} max={limit(r)} onChange={(n) => onChange({ ...values, [r]: n })} />
+          <span><span aria-hidden="true" className="ct-res__icon"><ResIcon r={r} /></span> {tx(RES_T[r])}</span>
+          <Stepper label={tx(RES_T[r])} value={values[r]} max={limit(r)} onChange={(n) => onChange({ ...values, [r]: n })} />
         </span>
       ))}
     </fieldset>
@@ -243,7 +247,7 @@ function ResChoice({ label, value, options, onChange }: { label: string; value: 
       <legend>{label}</legend>
       {RESOURCES.map((r) => (
         <button key={r} type="button" className={`ct-chip ct-res--${r}`} aria-pressed={value === r} disabled={!options.includes(r)} onClick={() => onChange(r)}>
-          <span aria-hidden="true"><ResIcon r={r} /></span> {RES_FA[r]}
+          <span aria-hidden="true"><ResIcon r={r} /></span> {tx(RES_T[r])}
         </button>
       ))}
     </fieldset>
@@ -349,17 +353,17 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome) {
     if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
-    else if (owed > 0 && view.phase === 'discard') status = { tone: 'mine', text: `۷ آمد: ${fa(owed)} کارت دور بریزید` };
-    else if (!myTurn) status = { tone: 'wait', text: view.phase === 'discard' ? 'منتظر دور ریختن کارت‌ها' : `نوبت ${seatName(view.current)}` };
+    else if (owed > 0 && view.phase === 'discard') status = { tone: 'mine', text: `۷ آمد: ${fa(owed)} ${tx(terms.card)} ${tx(terms.discardImp)}` };
+    else if (!myTurn) status = { tone: 'wait', text: view.phase === 'discard' ? `منتظر ${tx(terms.discard)} ${tx(terms.cardsPl)}` : `نوبت ${seatName(view.current)}` };
     else status = { tone: 'mine', text: {
-      setupSettlement: 'آغاز بازی: یک آبادی بگذارید (قاعده فاصله رعایت شود)',
-      setupRoad: 'یک جاده کنار آبادی تازه‌تان بگذارید',
-      roll: 'نوبت شماست: تاس بریزید',
-      discard: 'منتظر دور ریختن کارت‌های دیگران',
-      robber: `${tx(terms.robber)} را به شش‌ضلعی دیگری ببرید`,
-      steal: 'از چه کسی بدزدید؟',
-      main: 'معامله کنید، بسازید و در پایان نوبت را تمام کنید',
-      roadBuilding: `${tx(terms.roadBuilding)}: ${fa(view.freeRoads)} جاده رایگان بگذارید`
+      setupSettlement: `آغاز بازی: یک ${tx(terms.settlement)} بگذارید (${tx(terms.distanceRule)} رعایت شود)`,
+      setupRoad: `یک ${tx(terms.road)} کنار ${tx(terms.settlement)} تازه‌تان بگذارید`,
+      roll: `نوبت شماست: ${tx(terms.dice)} بریزید`,
+      discard: `منتظر ${tx(terms.discard)} ${tx(terms.cardsEz)} دیگران`,
+      robber: `${tx(terms.robber)} را به ${tx(terms.hex)} دیگری ببرید`,
+      steal: `از چه کسی ${tx(terms.stealImp)}؟`,
+      main: `${tx(terms.trade)} کنید، ${tx(terms.buildImp)} و در پایان نوبت را تمام کنید`,
+      roadBuilding: `${tx(terms.roadBuilding)}: ${fa(view.freeRoads)} ${tx(terms.road)} رایگان بگذارید`
     }[view.phase] };
   }
 
@@ -372,11 +376,11 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
   }, {});
   const playType: Record<Dev, string | null> = { knight: 'playKnight', road: 'playRoadBuilding', plenty: 'playPlenty', monopoly: 'playMonopoly', vp: null };
 
-  const bank = <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>;
+  const bank = <span className="ct-bank" aria-label={`${tx(terms.bank)}: ${handText(view.bank)}`}><T t={terms.bank} />: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>;
   const diceEl = rolling ? (
-    <span key="rolling" className="ct-dice" aria-label="تاس‌ها در حال چرخیدن"><DieFace value={6} pending /><DieFace value={6} red pending /></span>
+    <span key="rolling" className="ct-dice" aria-label={`${tx(terms.diceP)} در حال چرخیدن`}><DieFace value={6} pending /><DieFace value={6} red pending /></span>
   ) : view.dice && (
-    <span key={rollSeq} className="ct-dice" aria-label={`تاس: ${fa(view.dice[0])} و ${fa(view.dice[1])}، جمع ${fa(view.dice[0] + view.dice[1])}`}>
+    <span key={rollSeq} className="ct-dice" aria-label={`${tx(terms.dice)}: ${fa(view.dice[0])} و ${fa(view.dice[1])}، جمع ${fa(view.dice[0] + view.dice[1])}`}>
       <DieFace value={view.dice[0]} /><DieFace value={view.dice[1]} red />
       <strong aria-hidden="true">= {fa(view.dice[0] + view.dice[1])}</strong>
     </span>
@@ -385,14 +389,14 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
   // the dice, and the two award cards with their holder.
   const side = (
     <div className="ct-rack">
-      <ul className="ct-bankgrid" aria-label={`بانک: ${handText(view.bank)}، ${tx(terms.devCard)}: ${fa(view.devDeckCount)}`}>
+      <ul className="ct-bankgrid" aria-label={`${tx(terms.bank)}: ${handText(view.bank)}، ${tx(terms.devCard)}: ${fa(view.devDeckCount)}`}>
         {RESOURCES.map((r) => <li key={r} className={`ct-bankcard ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span><b>{fa(view.bank[r])}</b></li>)}
         <li className="ct-bankcard" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" draggable={false} /><b>{fa(view.devDeckCount)}</b></li>
       </ul>
-      {diceEl || <span className="ct-dice" aria-label="تاس هنوز ریخته نشده"><span className="ct-die ct-die--blank" aria-hidden="true" /><span className="ct-die ct-die--blank" aria-hidden="true" /></span>}
+      {diceEl || <span className="ct-dice" aria-label={`${tx(terms.dice)} هنوز ریخته نشده`}><span className="ct-die ct-die--blank" aria-hidden="true" /><span className="ct-die ct-die--blank" aria-hidden="true" /></span>}
       <div className="ct-awards">
-        <span className="ct-award"><img src={awardRoad} alt="" draggable={false} /><small>جاده: {view.longestRoad === null ? 'هنوز کسی' : <bdi>{view.longestRoad === mySeat ? 'شما' : seatName(view.longestRoad)}</bdi>}</small></span>
-        <span className="ct-award"><img src={awardArmy} alt="" draggable={false} /><small>ارتش: {view.largestArmy === null ? 'هنوز کسی' : <bdi>{view.largestArmy === mySeat ? 'شما' : seatName(view.largestArmy)}</bdi>}</small></span>
+        <span className="ct-award"><img src={awardRoad} alt="" draggable={false} /><small><T t={terms.road} />: {view.longestRoad === null ? 'هنوز کسی' : <bdi>{view.longestRoad === mySeat ? 'شما' : seatName(view.longestRoad)}</bdi>}</small></span>
+        <span className="ct-award"><img src={awardArmy} alt="" draggable={false} /><small><T t={terms.army} />: {view.largestArmy === null ? 'هنوز کسی' : <bdi>{view.largestArmy === mySeat ? 'شما' : seatName(view.largestArmy)}</bdi>}</small></span>
       </div>
     </div>
   );
@@ -402,7 +406,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>آبادی ۱ امتیاز، شهر ۲، <T t={terms.longestRoad} /> و <T t={terms.largestArmy} /> هر کدام ۲ امتیاز؛ با {fa(10)} امتیاز برنده‌اید. تاس ۷: بیش از {fa(7)} کارت را نصف کنید و <T t={terms.robber} /> را ببرید.</p>
+          <p><T t={terms.settlement} /> ۱ امتیاز، <T t={terms.city} /> ۲، <T t={terms.longestRoad} /> و <T t={terms.largestArmy} /> هر کدام ۲ امتیاز؛ با {fa(10)} امتیاز برنده‌اید. <T t={terms.dice} /> ۷: بیش از {fa(7)} <T t={terms.card} /> را نصف کنید و <T t={terms.robber} /> را ببرید.</p>
           {view.myHand && <CostCard />}
         </RailSlot>
       )}
@@ -411,7 +415,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
       <div className="ct__meta">
         {!framed && <span>نوبت {fa(view.turn)}</span>}
         {!framed && diceEl}
-        {!framed && <span className="ct-deck" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} /><T t={terms.devCard} /> در دسته: {fa(view.devDeckCount)}</span>}
+        {!framed && <span className="ct-deck" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} /><T t={terms.devCard} /> در <T t={terms.deck} />: {fa(view.devDeckCount)}</span>}
         {!framed && bank}
       </div>
 
@@ -434,24 +438,24 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                 {!view.active[s] && <span className="ct-badge ct-badge--out">کنار رفته</span>}
                 <span className="ct-player__vp"><Pop v={vp} text={fa(vp)} /> امتیاز</span>
               </span>
-              <span className="ct-supply" aria-label={`مهره‌های باقی‌مانده: ${fa(supply.road)} جاده، ${fa(supply.settlement)} آبادی، ${fa(supply.city)} شهر`}>
+              <span className="ct-supply" aria-label={`${tx(terms.supply)}: ${fa(supply.road)} ${tx(terms.road)}، ${fa(supply.settlement)} ${tx(terms.settlement)}، ${fa(supply.city)} ${tx(terms.city)}`}>
                 {(['road', 'settlement', 'city'] as const).map((k) => (
                   <span key={k} className="ct-supply__slot">
                     <Piece kind={k} seat={s} />
-                    <b>{fa(supply[k])}</b><small>/{fa(LIMITS[k])} {PIECE_FA[k]}</small>
+                    <b>{fa(supply[k])}</b><small>/{fa(LIMITS[k])} {tx(PIECE_T[k])}</small>
                   </span>
                 ))}
               </span>
               <span className="ct-player__counts">
-                <span className="ct-tally"><i className="ct-tally__card" aria-hidden="true" />{fa(view.handCounts[s] ?? 0)} کارت منبع</span>
+                <span className="ct-tally"><i className="ct-tally__card" aria-hidden="true" />{fa(view.handCounts[s] ?? 0)} <T t={terms.resourceCard} /></span>
                 <span className="ct-tally"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />{fa(view.devCounts[s] ?? 0)} <T t={terms.devCard} /></span>
                 <span className="ct-tally"><span aria-hidden="true">⚔</span> {fa(view.knights[s] ?? 0)} <T t={terms.knight} /></span>
-                <span className="ct-tally">جاده بلند {fa(view.roadLength[s] ?? 0)}</span>
+                <span className="ct-tally"><T t={terms.roadLen} /> {fa(view.roadLength[s] ?? 0)}</span>
               </span>
               <span className="ct-player__awards">
                 {view.longestRoad === s && <span className="ct-badge ct-badge--award"><T t={terms.longestRoad} /></span>}
                 {view.largestArmy === s && <span className="ct-badge ct-badge--award"><T t={terms.largestArmy} /></span>}
-                {view.phase === 'discard' && (view.owed[s] ?? 0) > 0 && <span className="ct-badge ct-badge--warn">باید {fa(view.owed[s]!)} کارت دور بریزد</span>}
+                {view.phase === 'discard' && (view.owed[s] ?? 0) > 0 && <span className="ct-badge ct-badge--warn">باید {fa(view.owed[s]!)} <T t={terms.card} /> <T t={terms.discardMust} /></span>}
               </span>
               {s === mySeat && <CostCard />}
             </li>
@@ -461,7 +465,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
 
       <div className="ct-main">
         <div className="ct-board-wrap">
-          <ZoomBoard label="نقشه جزیره کاتان"><Island view={view} t={targets} onPick={pickTarget} mySeat={mySeat} /></ZoomBoard>
+          <ZoomBoard label={tx(terms.map)}><Island view={view} t={targets} onPick={pickTarget} mySeat={mySeat} /></ZoomBoard>
           {framed && side}
         </div>
 
@@ -469,25 +473,25 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
           {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
           {has('discard') && (
-            <Panel title={`دور ریختن ${fa(owed)} کارت`} tone="decide">
-              <p className="ct-help">بیش از ۷ کارت دارید؛ نصف آن (رو به پایین گرد) را انتخاب کنید.</p>
-              <HandPicker title="کارت‌هایی که دور می‌ریزید" values={discard} limit={(r) => hand[r]} onChange={setDiscard} />
-              <Button disabled={busy || sum(discard) !== owed} onClick={() => act({ type: 'discard', cards: discard })}>دور ریختن ({fa(sum(discard))} از {fa(owed)})</Button>
+            <Panel title={`${tx(terms.discard)} ${fa(owed)} ${tx(terms.card)}`} tone="decide">
+              <p className="ct-help">بیش از ۷ {tx(terms.card)} دارید؛ نصف آن (رو به پایین گرد) را انتخاب کنید.</p>
+              <HandPicker title={`${tx(terms.cardsYi)} که ${tx(terms.discardNow)}`} values={discard} limit={(r) => hand[r]} onChange={setDiscard} />
+              <Button disabled={busy || sum(discard) !== owed} onClick={() => act({ type: 'discard', cards: discard })}><T t={terms.discard} /> ({fa(sum(discard))} از {fa(owed)})</Button>
             </Panel>
           )}
 
-          {myTurn && has('roll') && <DockSlot><Button className={exp?.type === 'roll' ? 'ct-hintbtn' : ''} disabled={busy} onClick={() => { if (!busy) setRollAsked(rollSeq); act({ type: 'roll' }); }}>ریختن تاس</Button></DockSlot>}
+          {myTurn && has('roll') && <DockSlot><Button className={exp?.type === 'roll' ? 'ct-hintbtn' : ''} disabled={busy} onClick={() => { if (!busy) setRollAsked(rollSeq); act({ type: 'roll' }); }}><T t={terms.rollDice} /></Button></DockSlot>}
 
           {myTurn && view.phase === 'steal' && (
-            <Panel title="دزدی" tone="decide">
-              <div className="row">{view.stealFrom.map((s) => <Button key={s} disabled={busy} onClick={() => act({ type: 'steal', seat: s })}>از <bdi>{seatName(s)}</bdi> ({fa(view.handCounts[s] ?? 0)} کارت)</Button>)}</div>
+            <Panel title={tx(terms.steal)} tone="decide">
+              <div className="row">{view.stealFrom.map((s) => <Button key={s} disabled={busy} onClick={() => act({ type: 'steal', seat: s })}>از <bdi>{seatName(s)}</bdi> ({fa(view.handCounts[s] ?? 0)} <T t={terms.card} />)</Button>)}</div>
             </Panel>
           )}
 
           {myTurn && view.phase === 'main' && (
-            <Panel title="ساختن">
+            <Panel title={tx(terms.buildV)}>
               <div className="ct-build">
-                {([['road', 'جاده', legal.road.size], ['settlement', 'آبادی', legal.settlement.size], ['city', 'شهر', legal.city.size]] as const).map(([k, label, n]) => (
+                {([['road', tx(terms.road), legal.road.size], ['settlement', tx(terms.settlement), legal.settlement.size], ['city', tx(terms.city), legal.city.size]] as const).map(([k, label, n]) => (
                   <button key={k} type="button" className={['ct-buildbtn', exp && ((k === 'road' && exp.type === 'buildRoad') || (k === 'settlement' && exp.type === 'buildSettlement') || (k === 'city' && exp.type === 'buildCity')) ? 'ct-hintbtn' : ''].join(' ')}
                     aria-pressed={mode === k} disabled={busy || n === 0} onClick={() => setMode(mode === k ? null : k)}>
                     <strong>{label}</strong><span className="ct-cost">{handText(COST[k])}</span>
@@ -502,18 +506,18 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
           )}
 
           {myTurn && view.phase === 'main' && (
-            <Panel title={`معامله با بانک و ${tx(terms.harbor)}`}>
+            <Panel title={`${tx(terms.trade)} با ${tx(terms.bank)} و ${tx(terms.harbor)}`}>
               <ResChoice label="می‌دهم" value={bankGive} options={RESOURCES.filter((r) => bankRate(r) !== undefined)} onChange={setBankGive} />
               <ResChoice label="می‌گیرم" value={bankGet} options={RESOURCES.filter((r) => r !== bankGive && view.bank[r] > 0)} onChange={setBankGet} />
               <Button className={exp?.type === 'bankTrade' ? 'ct-hintbtn' : ''} disabled={busy || !bankGive || !bankGet || bankGive === bankGet || !legal.bank.some((h) => h.give === bankGive && h.get === bankGet)}
                 onClick={() => act({ type: 'bankTrade', give: bankGive!, get: bankGet! })}>
-                {bankGive ? `${fa(bankRate(bankGive) ?? 4)} ${RES_FA[bankGive]}` : '…'} ← ۱ {bankGet ? RES_FA[bankGet] : '…'}
+                {bankGive ? `${fa(bankRate(bankGive) ?? 4)} ${tx(RES_T[bankGive])}` : '…'} ← ۱ {bankGet ? tx(RES_T[bankGet]) : '…'}
               </Button>
             </Panel>
           )}
 
           {myTurn && view.phase === 'main' && (
-            <Panel title="معامله با بازیکنان">
+            <Panel title={`${tx(terms.trade)} با بازیکنان`}>
               {view.trade ? (
                 <>
                   <p>پیشنهاد شما: <strong>{handText(view.trade.give)}</strong> در ازای <strong>{handText(view.trade.get)}</strong></p>
@@ -521,7 +525,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                     {Array.from({ length: view.players }, (_, s) => s).filter((s) => s !== mySeat && view.active[s]).map((s) => (
                       <li key={s}>
                         <bdi>{seatName(s)}</bdi>: {view.trade!.accepted.includes(s) ? '✓ پذیرفت' : view.trade!.declined.includes(s) ? '✗ رد کرد' : '… منتظر'}
-                        {hints.some((h) => h.type === 'confirmTrade' && h.seat === s) && <Button size="sm" disabled={busy} onClick={() => act({ type: 'confirmTrade', seat: s })}>معامله با <bdi>{seatName(s)}</bdi></Button>}
+                        {hints.some((h) => h.type === 'confirmTrade' && h.seat === s) && <Button size="sm" disabled={busy} onClick={() => act({ type: 'confirmTrade', seat: s })}><T t={terms.trade} /> با <bdi>{seatName(s)}</bdi></Button>}
                       </li>
                     ))}
                   </ul>
@@ -529,35 +533,35 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                 </>
               ) : (
                 <details className="ct-offer">
-                  <summary>پیشنهاد معامله</summary>
+                  <summary><T t={terms.tradeOffer} /></summary>
                   <HandPicker title="می‌دهم" values={give} limit={(r) => hand[r]} onChange={setGive} />
                   <HandPicker title="می‌خواهم" values={get} limit={() => 19} onChange={setGet} />
                   <Button disabled={busy || !tradeOk || !has('offerTrade')} onClick={() => { act({ type: 'offerTrade', give, get }); setGive(zero()); setGet(zero()); }}>ارسال پیشنهاد به همه</Button>
-                  <p className="ct-help">یک منبع نمی‌تواند هم در «می‌دهم» و هم در «می‌خواهم» باشد. پیشنهاد با هر حرکت دیگر شما پس گرفته می‌شود.</p>
+                  <p className="ct-help">یک <T t={terms.resource} /> نمی‌تواند هم در «می‌دهم» و هم در «می‌خواهم» باشد. پیشنهاد با هر حرکت دیگر شما پس گرفته می‌شود.</p>
                 </details>
               )}
             </Panel>
           )}
 
           {!myTurn && view.trade && view.phase === 'main' && mySeat !== null && view.active[mySeat] && (
-            <Panel title="پیشنهاد معامله" tone="decide">
+            <Panel title={tx(terms.tradeOffer)} tone="decide">
               <p><bdi>{seatName(view.current)}</bdi> می‌دهد <strong>{handText(view.trade.give)}</strong> و می‌خواهد <strong>{handText(view.trade.get)}</strong>.</p>
               <div className="row">
                 <Button disabled={busy || !has('acceptTrade')} onClick={() => act({ type: 'acceptTrade' })}>{view.trade.accepted.includes(mySeat) ? '✓ پذیرفتید' : 'می‌پذیرم'}</Button>
                 <Button variant="secondary" disabled={busy || !has('declineTrade')} onClick={() => act({ type: 'declineTrade' })}>{view.trade.declined.includes(mySeat) ? 'رد کردید' : 'نه'}</Button>
               </div>
-              {!has('acceptTrade') && !view.trade.accepted.includes(mySeat) && <p className="ct-help">منابع لازم را ندارید.</p>}
+              {!has('acceptTrade') && !view.trade.accepted.includes(mySeat) && <p className="ct-help"><T t={terms.resources} /> لازم را ندارید.</p>}
             </Panel>
           )}
 
           {view.myHand && !view.outcome && (
-            <section className="ct-hand" aria-label="دست شما">
-              <h3>منابع شما ({fa(sum(hand))})</h3>
+            <section className="ct-hand" aria-label={`${tx(terms.hand)} شما`}>
+              <h3><T t={terms.resources} /> شما ({fa(sum(hand))})</h3>
               <ul className="ct-cards">
                 {RESOURCES.map((r) => (
-                  <li key={r} className={`ct-card ct-res--${r}${hand[r] === 0 ? ' ct-card--empty' : ''}`} hidden={framed && hand[r] === 0} aria-label={`${RES_FA[r]}: ${fa(hand[r])}`}>
+                  <li key={r} className={`ct-card ct-res--${r}${hand[r] === 0 ? ' ct-card--empty' : ''}`} hidden={framed && hand[r] === 0} aria-label={`${tx(RES_T[r])}: ${fa(hand[r])}`}>
                     <span aria-hidden="true" className="ct-card__icon"><ResIcon r={r} /></span>
-                    <span className="ct-card__name">{RES_FA[r]}</span>
+                    <span className="ct-card__name">{tx(RES_T[r])}</span>
                     <Pop v={hand[r]} text={fa(hand[r])} className="ct-card__n" />
                   </li>
                 ))}
@@ -581,15 +585,15 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                       );
                     })}
                   </ul>
-                  {!view.devPlayed && myTurn && <p className="ct-help">در هر نوبت فقط یک کارت توسعه، و نه کارتی که همین نوبت خریده‌اید.</p>}
+                  {!view.devPlayed && myTurn && <p className="ct-help">در هر نوبت فقط یک <T t={terms.devCard} />، و نه کارتی که همین نوبت خریده‌اید.</p>}
                 </>
               )}
               {devPick === 'plenty' && (
-                <Panel title={`${tx(terms.yearOfPlenty)}: ۲ منبع انتخاب کنید`} tone="decide">
+                <Panel title={`${tx(terms.yearOfPlenty)}: ۲ ${tx(terms.resource)} انتخاب کنید`} tone="decide">
                   <div className="ct-choice">
-                    {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={pick.length >= 2 || view.bank[r] < 1 + pick.filter((x) => x === r).length} onClick={() => setPick([...pick, r])}><span aria-hidden="true"><ResIcon r={r} /></span> {RES_FA[r]}</button>)}
+                    {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={pick.length >= 2 || view.bank[r] < 1 + pick.filter((x) => x === r).length} onClick={() => setPick([...pick, r])}><span aria-hidden="true"><ResIcon r={r} /></span> {tx(RES_T[r])}</button>)}
                   </div>
-                  <p>انتخاب: {pick.map((r) => RES_FA[r]).join(' + ') || '—'}</p>
+                  <p>انتخاب: {pick.map((r) => tx(RES_T[r])).join(' + ') || '—'}</p>
                   <div className="row">
                     <Button disabled={busy || pick.length !== 2} onClick={() => { act({ type: 'playPlenty', a: pick[0]!, b: pick[1]! }); setDevPick(null); }}>گرفتن</Button>
                     <Button variant="ghost" size="sm" onClick={() => { setDevPick(null); setPick([]); }}>انصراف</Button>
@@ -597,9 +601,9 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
                 </Panel>
               )}
               {devPick === 'monopoly' && (
-                <Panel title={`${tx(terms.monopoly)}: کدام منبع؟`} tone="decide">
+                <Panel title={`${tx(terms.monopoly)}: کدام ${tx(terms.resource)}؟`} tone="decide">
                   <div className="ct-choice">
-                    {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={busy} onClick={() => { act({ type: 'playMonopoly', res: r }); setDevPick(null); }}><span aria-hidden="true"><ResIcon r={r} /></span> {RES_FA[r]}</button>)}
+                    {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={busy} onClick={() => { act({ type: 'playMonopoly', res: r }); setDevPick(null); }}><span aria-hidden="true"><ResIcon r={r} /></span> {tx(RES_T[r])}</button>)}
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setDevPick(null)}>انصراف</Button>
                 </Panel>
@@ -607,7 +611,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
             </section>
           )}
 
-          {myTurn && has('endTurn') && <DockSlot><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>}
+          {myTurn && has('endTurn') && <DockSlot><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'endTurn' })}><T t={terms.endTurn} /></Button></DockSlot>}
 
           {!framed && <details className="ct-log" open>
             <summary>رویدادها</summary>

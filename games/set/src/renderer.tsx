@@ -2,7 +2,7 @@
 // code). Tap three cards (or focus + Enter/Space), then «ست!». Found sets fly to the finder's tray; new cards flip in.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, tx, type Term, useTermsLang, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, tx, type Term, useTermsLang, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
 import { terms } from './terms.ts';
 import { DECK, FACE } from './art.ts';
 import { attrs, isSet, type SetView } from './rules.ts';
@@ -87,27 +87,27 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
 
       {framed && (
         <RailSlot>
-          <p><b>{canClaim ? 'همه هم‌زمان: سه کارت ست را پیدا کنید' : 'بازی در جریان است'}</b></p>
-          <p>سه کارت ست‌اند اگر در هر ویژگی (تعداد، شکل، رنگ، پرشدگی) یا همه یکسان باشند یا همه متفاوت. اعلام اشتباه ۱ امتیاز کم می‌کند.</p>
+          <p><b>{canClaim ? tx(terms.findSet) : 'بازی در جریان است'}</b></p>
+          <p><T t={terms.railRule} /></p>
         </RailSlot>
       )}
       <div className="set__status">
         {!framed && !view.outcome && (
           <TurnIndicator tone={canClaim && !queued ? 'mine' : 'wait'}>
-            {queued ? 'حرکت شما در حال ثبت است…' : canClaim ? 'همه هم‌زمان: سه کارت ست را پیدا کنید'
-              : mySeat !== null && view.locked[mySeat] ? 'اعلام اشتباه: تا برداشته شدن ست بعدی نمی‌توانید اعلام کنید'
+            {queued ? 'حرکت شما در حال ثبت است…' : canClaim ? tx(terms.findSet)
+              : mySeat !== null && view.locked[mySeat] ? tx(terms.locked)
                 : 'بازی در جریان است'}
           </TurnIndicator>
         )}
-        <span className="set__deck" aria-label={`${fa(view.deckCount)} کارت در دسته، ${fa(view.table.length)} کارت روی میز`}>
-          {framed ? <img className="set__deck-img" data-flip-anchor="deck" src={DECK} alt="" draggable={false} /> : <span className="set__deck-stack" data-flip-anchor="deck" aria-hidden="true" />} دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b>
+        <span className="set__deck" aria-label={`${fa(view.deckCount)} ${tx(terms.cards)} در ${tx(terms.deck)}، ${fa(view.table.length)} ${tx(terms.cards)} روی میز`}>
+          {framed ? <img className="set__deck-img" data-flip-anchor="deck" src={DECK} alt="" draggable={false} /> : <span className="set__deck-stack" data-flip-anchor="deck" aria-hidden="true" />} <T t={terms.deck} />: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b>
           <span className="bgv-sep" aria-hidden="true" /><span className="muted">روی میز: {fa(view.table.length)}</span>
         </span>
       </div>
 
       {lastText && <p key={view.seq} className={`set__last set__last--${last!.kind} bg-land${framed ? ' visually-hidden' : ''}`} role="status" aria-live="assertive">{lastText}</p>}
 
-      <div className="set__board" role="group" aria-label="کارت‌های روی میز">
+      <div className="set__board" role="group" aria-label={tx(terms.tableCards)}>
         {view.table.map((c, i) => {
           const on = sel.includes(c);
           return (
@@ -123,7 +123,7 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
       {canClaim && !view.outcome && (
         <>
           {/* The count stays on the felt; only the two buttons go to the dock row (QA round 2: the text spilled out of the dock pill). */}
-          <p className="set__count" aria-live="polite">{sel.length ? `${fa(sel.length)} از ۳ کارت انتخاب شد` : 'سه کارت انتخاب کنید'}</p>
+          <p className="set__count" aria-live="polite">{sel.length ? `${fa(sel.length)} از ۳ ${tx(terms.cards)} انتخاب شد` : tx(terms.pickThree)}</p>
           {(() => {
             const btns = (
               <>
@@ -141,7 +141,7 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
           <section key={s} className={['set-seat', s === mySeat ? 'set-seat--me' : '', view.resigned[s] ? 'set-seat--out' : ''].join(' ')}
             aria-label={`${seatName(s)}: ${fa(view.scores[s]!)} امتیاز، ${fa(view.sets[s]!.length)} ${tx(terms.set)}، ${fa(view.penalties[s]!)} اعلام اشتباه`}>
             <header className="set-seat__head">
-              <bdi>{seatName(s)}</bdi>{s === mySeat ? ' (شما)' : ''}{view.resigned[s] ? ' — انصراف' : view.locked[s] ? ' — منتظر ست بعدی' : ''}
+              <bdi>{seatName(s)}</bdi>{s === mySeat ? ' (شما)' : ''}{view.resigned[s] ? ' — انصراف' : view.locked[s] ? ` — ${tx(terms.waitingNext)}` : ''}
               <b key={view.scores[s]} className="set-seat__score bg-pop">{fa(view.scores[s]!)}</b>
             </header>
             <Meta sets={view.sets[s]!.length} penalties={view.penalties[s]!} />

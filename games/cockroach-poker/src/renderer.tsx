@@ -3,7 +3,7 @@
 // player and a claim. Respond: «راست می‌گوید» / «دروغ می‌گوید», or look at it and pass it on with a new claim.
 import './renderer.css';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Button, RailSlot, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameRendererProps, type Term } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameRendererProps, type Term } from '@bg/ui';
 import cockroach from './art/cockroach-poker-cockroach.png';
 import bat from './art/cockroach-poker-bat.png';
 import fly from './art/cockroach-poker-fly.png';
@@ -24,7 +24,8 @@ const creatureFa = (c: Creature) => tx(CREATURE_T[c]);
 const ART: Record<Creature, string> = { cockroach, bat, fly, toad, rat, scorpion, spider, stinkbug };
 
 export function CritterCard({ c, size = 'md', back, flip, flipFrom, cls = '' }: { c?: Creature | null; size?: 'sm' | 'md' | 'lg'; back?: boolean; flip?: string; flipFrom?: string; cls?: string }) {
-  if (back || !c) return <span className={`crp-card crp-card--art crp-card--${size} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label="کارت پشت‌ورو"><img src={backArt} alt="" aria-hidden="true" draggable={false} /></span>;
+  useTermsLang();
+  if (back || !c) return <span className={`crp-card crp-card--art crp-card--${size} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label={`${tx(terms.card)} ${tx(terms.facedown)}`}><img src={backArt} alt="" aria-hidden="true" draggable={false} /></span>;
   return (
     <span className={`crp-card crp-card--art crp-card--${size} crp-c--${c} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label={creatureFa(c)}>
       <img src={ART[c]} alt="" aria-hidden="true" draggable={false} />
@@ -73,8 +74,8 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : give ? { tone: 'mine' as const, text: 'یک کارت، یک نفر و یک ادعا انتخاب کنید' }
-      : canCall || pass ? { tone: 'mine' as const, text: ch?.peeked ? 'کارت را دیدید؛ با ادعای تازه رد کنید' : `ادعا: «${creatureFa(ch!.claim)}» — راست است یا دروغ؟` }
+    : give ? { tone: 'mine' as const, text: `یک ${tx(terms.card)}، یک نفر و یک ${tx(terms.claim)} انتخاب کنید` }
+      : canCall || pass ? { tone: 'mine' as const, text: ch?.peeked ? `${tx(terms.card)} را دیدید؛ با ${tx(terms.claimEz)} تازه ${tx(terms.passPol)}` : `${tx(terms.claim)}: «${creatureFa(ch!.claim)}» — ${tx(terms.truth)} است یا ${tx(terms.lie)}؟` }
         : { tone: 'wait' as const, text: `نوبت ${who(ch ? ch.to : view.current)}` };
   const order = mySeat === null ? view.table.map((_, k) => k) : [...view.table.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
   const last = view.last;
@@ -87,13 +88,13 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
     <div className="crp" ref={root} data-seq={served.seq}>
       {framed && (
         <RailSlot>
-          <p>{ch?.peeked ? 'کارت را دیده‌اید؛ باید با ادعای تازه به کسی که ندیده رد کنید.' : 'گیرنده حدس می‌زند ادعا راست است یا دروغ؛ حدس درست کارت را جلوی دهنده می‌گذارد. چهار کارت هم‌نوع جلوی خود یعنی باخت.'}</p>
+          <p>{ch?.peeked ? `${tx(terms.card)} را دیده‌اید؛ باید با ${tx(terms.claimEz)} تازه به کسی که ندیده ${tx(terms.passPol)}.` : `گیرنده حدس می‌زند ${tx(terms.claim)} ${tx(terms.truth)} است یا ${tx(terms.lie)}؛ حدس درست ${tx(terms.card)} را جلوی دهنده می‌گذارد. چهار ${tx(terms.card)} هم‌نوع جلوی خود یعنی باخت.`}</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {ch && !view.outcome && (
-        <section className="crp__play" data-flip-anchor="play" aria-label="کارت در جریان">
+        <section className="crp__play" data-flip-anchor="play" aria-label={`${tx(terms.card)} در جریان`}>
           <CritterCard key={`${ch.from}-${ch.to}-${ch.seen.length}`} c={ch.card} back={!ch.card} size="lg" flip={`play-${ch.from}-${ch.to}-${ch.seen.length}`} flipFrom={ch.from === mySeat ? 'hand' : `seat-${ch.from}`} />
           <div className="crp__bubble"><bdi>{who(ch.from)}</bdi> به <bdi>{who(ch.to)}</bdi>: «این یک <b>{creatureFa(ch.claim)}</b> است»</div>
           {ch.seen.length > 1 && <div className="crp__path">دیده‌اند: {ch.seen.map((k) => who(k)).join('، ')}</div>}
@@ -102,7 +103,7 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
       {!framed && last?.kind === 'call' && !ch && (
         <p className="crp__last" data-flip-anchor="play" role="status" key={view.seq}>
           <CritterCard c={last.card} size="sm" cls="bg-flip-in" />{' '}
-          <bdi>{who(last.seat)}</bdi> گفت «{last.truth ? 'راست' : 'دروغ'}». کارت {creatureFa(last.card)} بود ({last.card === last.claim ? 'راست' : 'بلوف'}) و جلوی <bdi>{who(last.taker)}</bdi> ماند.
+          <bdi>{who(last.seat)}</bdi> گفت «{last.truth ? tx(terms.truth) : tx(terms.lie)}». <T t={terms.card} /> {creatureFa(last.card)} بود ({last.card === last.claim ? tx(terms.truth) : tx(terms.bluff)}) و جلوی <bdi>{who(last.taker)}</bdi> ماند.
         </p>
       )}
 
@@ -114,11 +115,11 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
             <li key={s} data-flip-anchor={`seat-${s}`} className={['crp-pl', last?.kind === 'call' && !ch && last.taker === s ? 'bg-hit' : '', (ch ? ch.to : view.current) === s && !view.outcome ? 'crp-pl--turn' : '', s === mySeat ? 'crp-pl--me' : '', loser === s ? 'crp-pl--lost' : ''].join(' ')}>
               <div className="crp-pl__head">
                 <bdi className="crp-pl__name">{who(s)}</bdi>
-                <Bump v={view.handCount[s]} className="crp-pl__hand">{fa(view.handCount[s]!)} کارت</Bump>
+                <Bump v={view.handCount[s]} className="crp-pl__hand">{fa(view.handCount[s]!)} <T t={terms.card} /></Bump>
                 {loser === s && <span className="crp-pl__out">باخت</span>}
                 {canTarget && (
                   <button type="button" className={['crp-target', to === s ? 'crp-target--on' : '', hint?.to === s && to !== s ? 'crp-hint' : ''].join(' ')} onClick={() => setTo(to === s ? null : s)} aria-pressed={to === s}>
-                    {give ? 'به او بده' : 'به او رد کن'}
+                    به او {give ? tx(terms.giveImp) : tx(terms.passImp)}
                   </button>
                 )}
               </div>
@@ -133,17 +134,17 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
       </ul>
 
       {view.hand && !view.outcome && (
-        <section className="crp__me" aria-label="دست شما">
+        <section className="crp__me" aria-label={`${tx(terms.hand)} شما`}>
           {(canCall || canPeek) && (
             <div className="crp__respond">
-              {canCall && <Button size="sm" disabled={busy} className={hint?.type === 'call' && hint.truth ? 'crp-hint' : ''} onClick={() => onAction({ type: 'call', truth: true })}>راست می‌گوید</Button>}
-              {canCall && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'call' && hint.truth === false ? 'crp-hint' : ''} onClick={() => onAction({ type: 'call', truth: false })}>دروغ می‌گوید</Button>}
-              {canPeek && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'peek' })}>نگاه کن و رد کن</Button>}
+              {canCall && <Button size="sm" disabled={busy} className={hint?.type === 'call' && hint.truth ? 'crp-hint' : ''} onClick={() => onAction({ type: 'call', truth: true })}><T t={terms.callTrue} /></Button>}
+              {canCall && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'call' && hint.truth === false ? 'crp-hint' : ''} onClick={() => onAction({ type: 'call', truth: false })}><T t={terms.callFalse} /></Button>}
+              {canPeek && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'peek' })}><T t={terms.peekPass} /></Button>}
             </div>
           )}
           {(give || passing) && (
-            <div className="crp__claims" role="group" aria-label="ادعا">
-              <span>ادعا:</span>
+            <div className="crp__claims" role="group" aria-label={tx(terms.claim)}>
+              <span><T t={terms.claim} />:</span>
               {CREATURES.map((c) => (
                 <button key={c} type="button" className={['crp-claim', claim === c ? 'crp-claim--on' : '', hint?.claim === c && claim !== c ? 'crp-hint' : ''].join(' ')} aria-pressed={claim === c} onClick={() => setClaim(claim === c ? null : c)}>
                   <CritterCard c={c} size="sm" /><small>{creatureFa(c)}</small>
@@ -154,11 +155,11 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
           {(give || passing) && (
             <Button size="sm" disabled={!ready || busy} className={hint && (hint.type === 'give' || hint.type === 'pass') && ready ? 'crp-hint' : ''}
               onClick={() => onAction(give ? { type: 'give', card: card!, to: to!, claim: claim! } : { type: 'pass', to: to!, claim: claim! })}>
-              {give ? 'دادن کارت' : 'رد کردن کارت'}
+              {give ? tx(terms.giveN) : tx(terms.passN)} <T t={terms.card} />
             </Button>
           )}
           {/* Overlapping fan, one card per card held, grouped by creature; the picked card rises (QA round 2). */}
-          <div className="crp__hand" data-flip-anchor="hand" role="group" aria-label="کارت‌های دست" style={{ '--n': view.hand.length } as CSSProperties}>
+          <div className="crp__hand" data-flip-anchor="hand" role="group" aria-label={`${tx(terms.cardsEz)} ${tx(terms.hand)}`} style={{ '--n': view.hand.length } as CSSProperties}>
             {CREATURES.flatMap((c) => view.hand!.filter((x) => x === c).map((_, k) => {
               const on = card === c && k === 0, label = <span className="visually-hidden">{creatureFa(c)}</span>;
               return give

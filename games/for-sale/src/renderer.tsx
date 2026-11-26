@@ -40,6 +40,7 @@ const PROP_W = 86, PROP_H = 120;
 const tier = (v: number) => Math.min(5, Math.floor((v - 1) / 5));
 
 export function Prop({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; flipExit?: string }) {
+  useTermsLang();
   const clip = useId();
   if (PROP_ART[v]) return (
     <span className={['fs-card', 'fs-card--prop', 'fs-card--art', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`${tx(terms.property)} ${fa(v)} (${TIER[tier(v)]})`}>
@@ -60,6 +61,7 @@ export function Prop({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; 
 }
 
 export function Cheque({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; flipExit?: string }) {
+  useTermsLang();
   if (CHEQUE_ART[v]) return (
     <span className={['fs-card', 'fs-card--cheque', 'fs-card--art', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={v ? `${tx(terms.cheque)} ${fa(v)} هزار` : `${tx(terms.cheque)} صفر`}>
       <img src={CHEQUE_ART[v]} alt="" aria-hidden="true" draggable={false} />
@@ -84,7 +86,7 @@ function Pop({ v, className = '' }: { v: number; className?: string }) {
   const pop = usePop(v);
   return <b key={v} className={`${className} ${pop}`}>{fa(v)}</b>;
 }
-const Coins = ({ n }: { n: number }) => <span className="fs-coins" aria-label={`${fa(n)} سکه`}><img src={coinArt} alt="" aria-hidden="true" draggable={false} /><Pop v={n} /></span>;
+const Coins = ({ n }: { n: number }) => <span className="fs-coins" aria-label={`${fa(n)} ${tx(terms.coin)}`}><img src={coinArt} alt="" aria-hidden="true" draggable={false} /><Pop v={n} /></span>;
 const chequeId = (market: number[], i: number) => `q-${market[i]}-${market.slice(0, i).filter((x) => x === market[i]).length}`;
 
 export default function ForSaleRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<ForSaleView>) {
@@ -118,7 +120,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: buying ? `${tx(terms.bid)} بالاتر بدهید یا کنار بکشید` : `یک ${tx(terms.property)} برای فروش انتخاب کنید` }
+    : myTurn ? { tone: 'mine' as const, text: buying ? `${tx(terms.bid)} بالاتر بدهید یا ${tx(terms.passPol)}` : `یک ${tx(terms.property)} برای ${tx(terms.sell)} انتخاب کنید` }
       : { tone: 'wait' as const, text: buying ? `نوبت ${view.current === null ? '' : who(view.current)}` : 'منتظر انتخاب بقیه' };
   const last = view.last;
   // What a seat just received with the latest change (a property taken or a cheque won), so it can fly to that seat.
@@ -138,7 +140,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
     <div className="fs" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {framed && (
         <RailSlot>
-          <p>{buying ? 'کنار کشیدن ارزان‌ترین ملک را می‌دهد و نصف پیشنهادتان (رو به پایین) برمی‌گردد. اگر سکه کافی نیست فقط کنار می‌کشید.' : 'همه هم‌زمان و مخفیانه یک ملک می‌فروشند؛ ملک بزرگ‌تر چک بزرگ‌تر می‌گیرد.'}</p>
+          <p>{buying ? `${tx(terms.passN)} ارزان‌ترین ${tx(terms.property)} را می‌دهد و نصف ${tx(terms.bidYour)} (رو به پایین) برمی‌گردد. اگر ${tx(terms.coin)} کافی نیست فقط ${tx(terms.passV)}.` : `همه هم‌زمان و مخفیانه یک ${tx(terms.property)} می‌فروشند؛ ${tx(terms.property)} بزرگ‌تر ${tx(terms.cheque)} بزرگ‌تر می‌گیرد.`}</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -151,15 +153,15 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
             <Coins n={view.coins[s]!} />
             <span className="fs-pl__meta">{buying ? `${fa(view.ownedCount[s]!)} ${tx(terms.property)}` : `${fa(view.wonCount[s]!)} ${tx(terms.cheque)}`}</span>
             {buying && view.bids[s]! > 0 && !view.passed[s] && <Pop v={view.bids[s]!} className="fs-pl__bid" />}
-            {buying && view.passed[s] && <span className="fs-pl__flag">کنار کشید</span>}
+            {buying && view.passed[s] && <span className="fs-pl__flag"><T t={terms.passed} /></span>}
             {!buying && !view.outcome && <span className={`fs-pl__flag ${view.chosen[s] ? 'fs-pl__flag--ok' : ''}`}>{view.chosen[s] ? 'انتخاب کرد' : 'در فکر…'}</span>}
           </li>
         ))}
       </ul>}
 
       {!view.outcome && (
-        <section className={`fs__market fs__market--${view.phase}`} aria-label={buying ? 'املاک روی میز' : 'چک‌های روی میز'}>
-          <div className="fs__deck" data-flip-anchor="deck">{buying ? `مرحله خرید، ${fa(view.propsLeft)} ${tx(terms.property)} در دسته` : `مرحله فروش، ${fa(view.chequesLeft)} ${tx(terms.cheque)} در دسته`}{buying && view.high > 0 && <>، بالاترین <T t={terms.bid} /> <Pop v={view.high} /></>}</div>
+        <section className={`fs__market fs__market--${view.phase}`} aria-label={buying ? `${tx(terms.properties)} روی میز` : `${tx(terms.chequesEz)} روی میز`}>
+          <div className="fs__deck" data-flip-anchor="deck">{buying ? `${tx(terms.phase)} ${tx(terms.buy)}، ${fa(view.propsLeft)} ${tx(terms.property)} در ${tx(terms.deck)}` : `${tx(terms.phase)} ${tx(terms.sell)}، ${fa(view.chequesLeft)} ${tx(terms.cheque)} در ${tx(terms.deck)}`}{buying && view.high > 0 && <>، <T t={terms.highest} /> <T t={terms.bid} /> <Pop v={view.high} /></>}</div>
           <div className="fs__row" data-flip-anchor="market">
             {view.market.map((v, i) => (buying ? <Prop key={v} v={v} flip={`p-${v}`} flipFrom="deck" flipExit={`got-p-${v}`} /> : <Cheque key={i} v={v} flip={chequeId(view.market, i)} flipFrom="deck" flipExit={`got-${chequeId(view.market, i)}`} />))}
           </div>
@@ -169,7 +171,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
       {!framed && last && !view.outcome && (
         <p className="fs__last" role="status" key={view.seq}>
           {last.kind === 'take'
-            ? <><bdi>{who(last.seat)}</bdi> <T t={terms.property} /> <b>{fa(last.card)}</b> را برداشت{last.paid ? <> و {fa(last.paid)} سکه داد</> : ' (رایگان)'}</>
+            ? <><bdi>{who(last.seat)}</bdi> <T t={terms.property} /> <b>{fa(last.card)}</b> را برداشت{last.paid ? <> و {fa(last.paid)} <T t={terms.coin} /> داد</> : ' (رایگان)'}</>
             : last.pairs.map((x) => <span key={x.seat} className="fs__pair"><bdi>{who(x.seat)}</bdi>: {fa(x.prop)} ← {x.cheque ? `${fa(x.cheque)} هزار` : 'صفر'}</span>)}
         </p>
       )}
@@ -179,13 +181,13 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
           {view.outcome.placements.map(({ seat: s, place }) => (
             <li key={s} className={place === 1 ? 'fs__win' : ''}><b className="fs__place">{fa(place)}</b><bdi className="fs-pl__name">{who(s)}</bdi>
               <span className="fs__cheques">{(view.won?.[s] ?? []).slice().sort((a, b) => b - a).map((v, i) => <Cheque key={i} v={v} size="sm" />)}</span>
-              <span className="fs__sum">{fa((view.won?.[s] ?? []).reduce((a, c) => a + c, 0))} + {fa(view.coins[s]!)} سکه = <b>{fa((view.won?.[s] ?? []).reduce((a, c) => a + c, view.coins[s]!))}</b></span></li>
+              <span className="fs__sum">{fa((view.won?.[s] ?? []).reduce((a, c) => a + c, 0))} + {fa(view.coins[s]!)} <T t={terms.coin} /> = <b>{fa((view.won?.[s] ?? []).reduce((a, c) => a + c, view.coins[s]!))}</b></span></li>
           ))}
         </ul>
       )}
 
       {mySeat !== null && !view.outcome && (
-        <section className="fs__me" aria-label="دست شما">
+        <section className="fs__me" aria-label={`${tx(terms.hand)} شما`}>
           {bidHint && (
             <div className="fs-bid" role="group" aria-label={tx(terms.bid)}>
               <button type="button" className="fs-bid__step" disabled={bid <= bidHint.min} onClick={() => setAmount(bid - 1)} aria-label="کمتر">−</button>
@@ -196,17 +198,17 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
           )}
           {canPass && (
             <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'fs-hint' : ''} onClick={() => onAction({ type: 'pass' })}>
-              کنار می‌کشم (<T t={terms.property} /> {fa(view.market[0]!)}{refund ? `، ${fa(refund)} سکه` : ''})
+              <T t={terms.passMe} /> (<T t={terms.property} /> {fa(view.market[0]!)}{refund ? `، ${fa(refund)} ${tx(terms.coin)}` : ''})
             </Button>
           )}
-          <div className="fs__hand" role="group" aria-label="املاک شما">
-            {view.owned[me]!.length === 0 && <span className="fs__empty">هنوز ملکی ندارید</span>}
+          <div className="fs__hand" role="group" aria-label={`${tx(terms.properties)} شما`}>
+            {view.owned[me]!.length === 0 && <span className="fs__empty">هنوز <T t={terms.propertyYi} /> ندارید</span>}
             {view.owned[me]!.map((v) => sellable.has(v)
-              ? <button key={v} type="button" className={['fs-sell', hint?.type === 'sell' && hint.card === v ? 'fs-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'sell', card: v })} aria-label={`فروش ${tx(terms.property)} ${fa(v)}`}><Prop v={v} size="sm" flip={`p-${v}`} flipFrom="market" flipExit="market" /></button>
+              ? <button key={v} type="button" className={['fs-sell', hint?.type === 'sell' && hint.card === v ? 'fs-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'sell', card: v })} aria-label={`${tx(terms.sell)} ${tx(terms.property)} ${fa(v)}`}><Prop v={v} size="sm" flip={`p-${v}`} flipFrom="market" flipExit="market" /></button>
               : <span key={v} className={view.chosen[me] === v ? 'fs-sell fs-sell--chosen' : 'fs-sell'}><Prop v={v} size="sm" flip={`p-${v}`} flipFrom="market" flipExit="market" /></span>)}
           </div>
           {view.won && view.won[me]!.length > 0 && (
-            <div className="fs__mywon">{got(me).map((id) => <i key={id} className="fs-pl__got" data-flip-anchor={`got-${id}`} aria-hidden="true" />)}<span>چک‌های شما: {fa(view.won[me]!.reduce((a, c) => a + c, 0))} هزار</span>
+            <div className="fs__mywon">{got(me).map((id) => <i key={id} className="fs-pl__got" data-flip-anchor={`got-${id}`} aria-hidden="true" />)}<span><T t={terms.chequesEz} /> شما: {fa(view.won[me]!.reduce((a, c) => a + c, 0))} هزار</span>
               <span className="fs__cheques">{view.won[me]!.map((v, i) => { const occ = view.won![me]!.slice(0, i).filter((x) => x === v).length; return <Cheque key={i} v={v} size="sm" flip={`q-${v}-w${occ}`} />; })}</span></div>
           )}
         </section>

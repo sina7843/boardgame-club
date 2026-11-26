@@ -4,8 +4,8 @@
 // «ثبت». The renderer computes no rules: targets, costs and effects come from `legalActions` (ENGINE.md §9).
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { RailSlot, tx, useTermsLang, type GameAction, type GameRendererProps, type Term } from '@bg/ui';
-import { terms } from './terms.ts';
+import { RailSlot, getTermsLang, useTermsLang, type GameAction, type GameRendererProps } from '@bg/ui';
+import { swapTerms } from './terms.ts';
 import IDS from './content/content-id-map.json' with { type: 'json' };
 import { CARD_BY_NUM, CLANS, FJORDS as C_FJORDS, MAP_SIZE, PROVINCES as C_PROV, SLOTS, ART_OF_DEF, RAGNAROK_GLORY } from './content/index.ts';
 import { CARD_BY_ID } from './data.ts';
@@ -16,19 +16,20 @@ const ART = import.meta.glob<string>('./art/**/*.webp', { eager: true, import: '
 const art = (path: string) => ART[`./art/${path}`] ?? '';
 // ponytail: one module-level language (one Blood Rage table per page); move to a React context if two tables ever share a page.
 let LANG: 'fa' | 'en' = 'fa';
-// «فارسی بردگیمی»: a Persian term that has an entry in ./terms.ts shows its Latin name (exact match only; sentences stay Persian).
-const TERM_BY_FA = new Map<string, Term>(Object.values(terms).map((x) => [x.fa, x]));
-const t = (faText: string, en: string) => (LANG === 'en' ? en : TERM_BY_FA.has(faText) ? tx(TERM_BY_FA.get(faText)!) : faText);
+// «فارسی بردگیمی»: every whole-word game term inside a Persian string shows its Latin name (grammar words stay Persian).
+const S = (faText: string) => (LANG === 'en' ? faText : swapTerms(faText, getTermsLang()));
+const bgMode = () => LANG === 'fa' && getTermsLang() === 'fa-bg';
+const t = (faText: string, en: string) => (LANG === 'en' ? en : S(faText));
 const fa = (n: number) => (LANG === 'en' ? String(n) : n.toLocaleString('fa-IR', { useGrouping: Math.abs(n) >= 1000 }).replace(/٬/g, ','));
 const SLUG = (clan: number) => CLANS.find((c) => c.id === clan)?.slug ?? 'wolf';
-const CLAN_FA = (clan: number) => { const c = CLANS.find((x) => x.id === clan); return (LANG === 'en' ? c?.nameEn : c?.nameFa) ?? ''; };
+const CLAN_FA = (clan: number) => { const c = CLANS.find((x) => x.id === clan); return ((LANG === 'en' || bgMode()) ? c?.nameEn : c?.nameFa) ?? ''; };
 const cc = (clan: number) => ({ '--cc': `var(--bdr-${SLUG(clan)})` }) as CSSProperties;
 const ink = (clan: number) => ({ color: `var(--bdr-${SLUG(clan)}-ink)` });
 /** Game-art coordinates: the board is a fixed LTR picture (layout.json x/16 %, y/16 %); some pieces carry dir=rtl text, so physical left. */
 const pos = (x: number, y: number): CSSProperties => ({ left: `${(x / MAP_SIZE) * 100}%`, top: `${(y / MAP_SIZE) * 100}%` }); // ds-check-ignore: LTR game-art coordinates
 const PROV_KEY = ['ygg', 'myr', 'elv', 'ang', 'mus', 'hor', 'utg', 'and', 'gim'];
 const provOfKey = (k: string | undefined) => (k === undefined ? -1 : PROV_KEY.indexOf(k));
-const provFa = (n: number) => (LANG === 'en' ? C_PROV[n]?.nameEn : C_PROV[n]?.nameFa) ?? '';
+const provFa = (n: number) => ((LANG === 'en' || bgMode()) ? C_PROV[n]?.nameEn : C_PROV[n]?.nameFa) ?? '';
 const STAT_L: Record<StatKey, [string, string]> = { rage: ['خشم', 'Rage'], axe: ['تبر', 'Axes'], horn: ['شاخ', 'Horns'] };
 const STAT_FA = new Proxy({} as Record<StatKey, string>, { get: (_, k: StatKey) => t(...STAT_L[k]) });
 const KIND_L: Record<string, [string, string]> = { leader: ['سردار', 'Leader'], warrior: ['جنگجو', 'Warrior'], ship: ['کشتی', 'Ship'], monster: ['هیولا', 'Monster'] };
@@ -84,10 +85,10 @@ function tokenArt(v: BloodRageView, f: FigureView): string {
 const defOf = (v: BloodRageView, num: number | null) => (num === null ? null : v.defs[num] ?? CARD_BY_NUM[num]?.def ?? null);
 function cardTitle(num: number): { en: string; fa: string; text: string; textEn: string; type: string } {
   const c = CARD_BY_NUM[num];
-  if (c) return { en: c.titleEn, fa: c.titleFa, text: c.rulesFa, textEn: c.rulesEn, type: c.type };
+  if (c) return { en: c.titleEn, fa: c.titleFa, text: S(c.rulesFa), textEn: c.rulesEn, type: c.type };
   return { en: '', fa: '', text: '', textEn: '', type: '' };
 }
-const figName = (_v: BloodRageView, f: FigureView) => (f.kind === 'monster' && f.def ? (LANG === 'en' ? CARD_BY_ID[f.def]?.nameEn : CARD_BY_ID[f.def]?.nameFa) ?? t('هیولا', 'Monster') : t(...KIND_L[f.kind]!));
+const figName = (_v: BloodRageView, f: FigureView) => (f.kind === 'monster' && f.def ? ((LANG === 'en' || bgMode()) ? CARD_BY_ID[f.def]?.nameEn : CARD_BY_ID[f.def]?.nameFa) ?? t('هیولا', 'Monster') : t(...KIND_L[f.kind]!));
 
 // ---------- map positions (layout.json §11) ----------
 function figurePositions(v: BloodRageView): Map<string, { x: number; y: number }> {
@@ -251,11 +252,11 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
     <button key={act} type="button" data-act={act} className={`bgv-btn bgv-btn--${o.variant ?? 'secondary'} bgv-btn--sm${hintCls(!!o.hint)}`}
       aria-pressed={o.pressed} disabled={busy || o.disabled} title={o.title} onClick={onClick}>{label}</button>
   );
-  const confirm = (a: GameAction | null, label = 'ثبت') => [
+  const confirm = (a: GameAction | null, label = S('ثبت')) => [
     btn(label === 'ثبت' ? t('ثبت', 'Confirm') : label, 'confirm', () => (a ? send(a) : setNudge(t('اول هدف را روی نقشه، صفحهٔ قبیله یا دست انتخاب کنید.', 'Pick the target on the map, clan sheet or hand first.'))), { variant: 'primary', hint: !!a && !!exp && JSON.stringify(exp) === JSON.stringify(a) }),
     btn(t('انصراف', 'Cancel'), 'cancel', () => setMode(null), { variant: 'ghost' })
   ];
-  const costPill = (rage: number | undefined) => <span className="bdr-pill">{rage ? <><img src={art('tokens/icon-rage-mini.webp')} alt="" /><span className="bdr-num">{fa(rage)}</span></> : 'رایگان'}</span>;
+  const costPill = (rage: number | undefined) => <span className="bdr-pill">{rage ? <><img src={art('tokens/icon-rage-mini.webp')} alt="" /><span className="bdr-num">{fa(rage)}</span></> : S('رایگان')}</span>;
   let text: ReactNode = null;
   let buttons: ReactNode[] = [];
   let waiting = false;
@@ -283,82 +284,82 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
         text = <>{t('هدایای خدایان', "Gods' Gifts")}: {need === 2 ? t('دو کارت نگه دارید', 'keep two cards') : t('یک کارت نگه دارید', 'keep one card')}</>;
         note = t(`انتخاب ${fa(chosen.length)} از ${fa(need)}`, `Picked ${chosen.length} of ${need}`);
         const a = chosen.length === need ? { type: 'draftPick', cards: chosen } : null;
-        buttons = [btn(chosen.length ? `${t('نگه دار', 'Keep')}: ${chosen.map((c) => cardTitle(c).en).join('، ')}` : t('نگه دار', 'Keep'), 'keep', () => (a ? send(a) : setNudge(need === 2 ? t('دو کارت از دستهٔ رسیده انتخاب کنید.', 'Pick two cards from the pack.') : t('یک کارت از دستهٔ رسیده انتخاب کنید.', 'Pick a card from the pack.'))), { variant: 'primary' })];
+        buttons = [btn(chosen.length ? `${t('نگه دار', 'Keep')}: ${chosen.map((c) => cardTitle(c).en).join(S('، '))}` : t('نگه دار', 'Keep'), 'keep', () => (a ? send(a) : setNudge(need === 2 ? t('دو کارت از دستهٔ رسیده انتخاب کنید.', 'Pick two cards from the pack.') : t('یک کارت از دستهٔ رسیده انتخاب کنید.', 'Pick a card from the pack.'))), { variant: 'primary' })];
         break;
       }
       case 'battleCard': {
         pickCard(decides.map((h) => (h.choice as { card: number }).card), true);
-        text = <>نبرد در <b>{provFa(v.battle?.province ?? 0)}</b>: یک کارت نبرد انتخاب کنید</>;
+        text = <>{S('نبرد در ')}<b>{provFa(v.battle?.province ?? 0)}</b>{S(': یک کارت نبرد انتخاب کنید')}</>;
         const c = dm?.cards?.[0];
-        buttons = [btn('بازی کارت', 'play-card', () => (c !== undefined ? send({ type: 'decide', kind, choice: { card: c } }) : setNudge(t('یک کارت از دست انتخاب کنید.', 'Pick a card from your hand.'))), { variant: 'primary', hint: !!exp && exp.type === 'decide' && c !== undefined && (exp.choice as { card?: number })?.card === c })];
+        buttons = [btn(S('بازی کارت'), 'play-card', () => (c !== undefined ? send({ type: 'decide', kind, choice: { card: c } }) : setNudge(t('یک کارت از دست انتخاب کنید.', 'Pick a card from your hand.'))), { variant: 'primary', hint: !!exp && exp.type === 'decide' && c !== undefined && (exp.choice as { card?: number })?.card === c })];
         break;
       }
       case 'discardKeep': {
         pickCard(decides.map((h) => h.choice as number), true);
-        text = <>دور ریختن: فقط یک کارت برای عصر بعد نگه دارید</>;
+        text = <>{S('دور ریختن: فقط یک کارت برای عصر بعد نگه دارید')}</>;
         const c = dm?.cards?.[0];
-        buttons = [btn('دور ریختن بقیه', 'discard', () => (c !== undefined ? send({ type: 'decide', kind, choice: c }) : setNudge(t('کارتی را که نگه می‌دارید انتخاب کنید.', 'Pick the card you keep.'))), { variant: 'primary' })];
+        buttons = [btn(S('دور ریختن بقیه'), 'discard', () => (c !== undefined ? send({ type: 'decide', kind, choice: c }) : setNudge(t('کارتی را که نگه می‌دارید انتخاب کنید.', 'Pick the card you keep.'))), { variant: 'primary' })];
         break;
       }
       case 'callToBattle': {
-        text = <>نبرد در <b>{provFa(v.battle?.province ?? 0)}</b>: یک مهره برای پیوستن به نبرد انتخاب کنید</>;
+        text = <>{S('نبرد در ')}<b>{provFa(v.battle?.province ?? 0)}</b>{S(': یک مهره برای پیوستن به نبرد انتخاب کنید')}</>;
         const canAll = decides.some((h) => h.choice === 'passAll');
         if (dm?.all) {
-          note = <>تأیید کنید که تا پایان همین نبرد رد می‌کنید.</>;
-          buttons = [btn('ثبت', 'confirm', () => send({ type: 'decide', kind, choice: 'passAll' }), { variant: 'primary' }), btn('انصراف', 'cancel', () => setMode(null), { variant: 'ghost' })];
+          note = <>{S('تأیید کنید که تا پایان همین نبرد رد می‌کنید.')}</>;
+          buttons = [btn(S('ثبت'), 'confirm', () => send({ type: 'decide', kind, choice: 'passAll' }), { variant: 'primary' }), btn(S('انصراف'), 'cancel', () => setMode(null), { variant: 'ghost' })];
         } else if (dm?.figure) {
           buttons = confirm(dm.to ? { type: 'decide', kind, choice: { figure: dm.figure, to: dm.to } } : null);
         } else {
-          buttons = [btn('رد', 'pass', () => send({ type: 'decide', kind, choice: 'pass' })), ...(canAll ? [btn('رد تا پایان این نبرد', 'pass-all', () => setMode({ k: 'decide', all: true }), { variant: 'danger' })] : [])];
+          buttons = [btn(S('رد'), 'pass', () => send({ type: 'decide', kind, choice: 'pass' })), ...(canAll ? [btn(S('رد تا پایان این نبرد'), 'pass-all', () => setMode({ k: 'decide', all: true }), { variant: 'danger' })] : [])];
         }
         break;
       }
       case 'freeInvade': case 'extraWarrior': case 'loserInvade': {
         const fig = v.figures.find((f) => f.id === (v.pending?.figure ?? ''));
-        text = kind === 'freeInvade' ? <>یورش رایگان با <b>{fig ? figName(v, fig) : 'مهره'}</b>: روستا را روی نقشه انتخاب کنید</>
-          : kind === 'extraWarrior' ? <>یاری فریگا: یک جنگجوی دیگر رایگان در {provFa(v.pending?.province ?? 0)}؟</> : <>برکت لوکی: یورش رایگان یک جنگجو در {provFa(v.pending?.province ?? 0)}؟</>;
-        buttons = dm?.to ? confirm({ type: 'decide', kind, choice: { to: dm.to } }) : [btn('رد', 'pass', () => send({ type: 'decide', kind, choice: null }))];
+        text = kind === 'freeInvade' ? <>{S('یورش رایگان با ')}<b>{fig ? figName(v, fig) : S('مهره')}</b>{S(': روستا را روی نقشه انتخاب کنید')}</>
+          : kind === 'extraWarrior' ? <>{S('یاری فریگا: یک جنگجوی دیگر رایگان در ')}{provFa(v.pending?.province ?? 0)}{S('؟')}</> : <>{S('برکت لوکی: یورش رایگان یک جنگجو در ')}{provFa(v.pending?.province ?? 0)}{S('؟')}</>;
+        buttons = dm?.to ? confirm({ type: 'decide', kind, choice: { to: dm.to } }) : [btn(S('رد'), 'pass', () => send({ type: 'decide', kind, choice: null }))];
         break;
       }
       case 'instantPillage':
-        text = <>قلمرو تور: با ۲ خشم {provFa(v.pending?.province ?? 0)} را فوراً غارت کنید؟</>;
-        buttons = [btn(<>غارت {costPill(2)}</>, 'pillage', () => send({ type: 'decide', kind, choice: true }), { variant: 'primary' }), btn('رد', 'pass', () => send({ type: 'decide', kind, choice: false }))];
+        text = <>{S('قلمرو تور: با ۲ خشم ')}{provFa(v.pending?.province ?? 0)}{S(' را فوراً غارت کنید؟')}</>;
+        buttons = [btn(<>{S('غارت ')}{costPill(2)}</>, 'pillage', () => send({ type: 'decide', kind, choice: true }), { variant: 'primary' }), btn(S('رد'), 'pass', () => send({ type: 'decide', kind, choice: false }))];
         break;
       case 'raiseStat':
-        text = <>یک ویژگی را یک پله بالا ببرید</>;
+        text = <>{S('یک ویژگی را یک پله بالا ببرید')}</>;
         buttons = decides.map((h) => {
           const st = h.choice as StatKey;
           const next = me ? Math.min(5, me.steps[st] + 1) : 0;
-          return btn(<>{STAT_FA[st]} ← {fa(TRACK[st][next]!)}</>, `stat-${st}`, () => send({ type: 'decide', kind, choice: st }), { disabled: !!h.disabled, title: h.disabled ? 'این ویژگی در آخرین پله است' : undefined, hint: !!exp && exp.choice === st });
+          return btn(<>{STAT_FA[st]} ← {fa(TRACK[st][next]!)}</>, `stat-${st}`, () => send({ type: 'decide', kind, choice: st }), { disabled: !!h.disabled, title: h.disabled ? S('این ویژگی در آخرین پله است') : undefined, hint: !!exp && exp.choice === st });
         });
         break;
       case 'moveLeader':
-        text = <>سرور پتک‌ها: سردار را به استان همسایه ببرید یا بماند</>;
-        buttons = typeof dm?.province === 'number' ? confirm({ type: 'decide', kind, choice: dm.province }) : [btn('ماندن', 'pass', () => send({ type: 'decide', kind, choice: null }))];
+        text = <>{S('سرور پتک‌ها: سردار را به استان همسایه ببرید یا بماند')}</>;
+        buttons = typeof dm?.province === 'number' ? confirm({ type: 'decide', kind, choice: dm.province }) : [btn(S('ماندن'), 'pass', () => send({ type: 'decide', kind, choice: null }))];
         break;
       case 'keepCards': {
         const cards = (decides[0]?.cards as number[]) ?? [];
         const max = (decides[0]?.max as number) ?? 0;
         for (const c of cards) { const on = dm?.cards?.includes(c) ?? false; handPick.set(c, { on, onClick: () => setMode({ k: 'decide', cards: on ? dm!.cards!.filter((x) => x !== c) : [...(dm?.cards ?? []), c].slice(-max) }) }); }
-        text = <>دلاوری تیر: کارت‌های آشکار را با ۱ خشم برای هر کدام نگه دارید</>;
+        text = <>{S('دلاوری تیر: کارت‌های آشکار را با ۱ خشم برای هر کدام نگه دارید')}</>;
         const keep = dm?.cards ?? [];
-        buttons = [btn(<>نگه‌داری {costPill(keep.length)}</>, 'keep', () => send({ type: 'decide', kind, choice: keep }), { variant: 'primary' })];
+        buttons = [btn(<>{S('نگه‌داری ')}{costPill(keep.length)}</>, 'keep', () => send({ type: 'decide', kind, choice: keep }), { variant: 'primary' })];
         break;
       }
       case 'saveFigure': {
         const sel = dm?.figs ?? [];
-        text = <>پناه فریگا: برای هر مهره ۱ خشم بدهید تا نابود نشود</>;
-        buttons = [btn(<>نگه‌داری {costPill(sel.length)}</>, 'keep', () => send({ type: 'decide', kind, choice: sel }), { variant: 'primary' })];
+        text = <>{S('پناه فریگا: برای هر مهره ۱ خشم بدهید تا نابود نشود')}</>;
+        buttons = [btn(<>{S('نگه‌داری ')}{costPill(sel.length)}</>, 'keep', () => send({ type: 'decide', kind, choice: sel }), { variant: 'primary' })];
         break;
       }
       case 'keepOneFigure':
-        text = <>موج اودین: مهره‌ای را که می‌ماند روی نقشه انتخاب کنید</>;
+        text = <>{S('موج اودین: مهره‌ای را که می‌ماند روی نقشه انتخاب کنید')}</>;
         buttons = confirm(dm?.figs?.[0] ? { type: 'decide', kind, choice: dm.figs[0] } : null);
         break;
       case 'afterReveal': {
         const c = v.pending?.card;
-        text = <>پس از آشکار شدن: کارت {c !== undefined ? <b>{cardTitle(c).en}</b> : ''} را بازی می‌کنید؟</>;
-        buttons = [btn('بازی کارت', 'play-card', () => c !== undefined && send({ type: 'decide', kind, choice: { card: c } }), { variant: 'primary' }), btn('رد', 'pass', () => send({ type: 'decide', kind, choice: null }))];
+        text = <>{S('پس از آشکار شدن: کارت ')}{c !== undefined ? <b>{cardTitle(c).en}</b> : ''}{S(' را بازی می‌کنید؟')}</>;
+        buttons = [btn(S('بازی کارت'), 'play-card', () => c !== undefined && send({ type: 'decide', kind, choice: { card: c } }), { variant: 'primary' }), btn(S('رد'), 'pass', () => send({ type: 'decide', kind, choice: null }))];
         break;
       }
     }
@@ -373,11 +374,11 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
       const list: { label: string; sub: string; act: string; go: () => void; hint?: boolean; variant?: string }[] = [
         ...(qs.length ? [{ label: t('بازی مأموریت', 'Play quest'), sub: t('رایگان', 'Free'), act: 'quest', go: () => setMode({ k: 'quest' }), hint: exp?.type === 'quest' }] : []),
         ...(others.length ? [{ label: t('ارتقا', 'Upgrade'), sub: t('خشم = قدرت کارت', 'Rage = card STR'), act: 'upgrade', go: () => setMode({ k: 'upgrade' }), hint: exp?.type === 'upgrade' && exp.slot !== 'monster' }] : []),
-        ...(monsters.length ? [{ label: t('بازی هیولا', 'Play monster'), sub: monsters.map((h) => `${cardTitle(h.card as number)[LANG === 'en' ? 'en' : 'fa']}، ${fa((h.cost as { rage: number }).rage)} ${t('خشم', 'rage')}`).join('، '), act: 'monster', go: () => setMode({ k: 'monster' }), hint: exp?.type === 'upgrade' && exp.slot === 'monster' }] : []),
+        ...(monsters.length ? [{ label: t('بازی هیولا', 'Play monster'), sub: monsters.map((h) => S(`${cardTitle(h.card as number)[LANG === 'en' || bgMode() ? 'en' : 'fa']}، ${fa((h.cost as { rage: number }).rage)} ${t('خشم', 'rage')}`)).join(S('، ')), act: 'monster', go: () => setMode({ k: 'monster' }), hint: exp?.type === 'upgrade' && exp.slot === 'monster' }] : []),
         ...(inv.length ? [{ label: t('یورش', 'Invade'), sub: t('خشم = قدرت مهره', 'Rage = figure STR'), act: 'invade', go: () => setMode({ k: 'invade' }), hint: exp?.type === 'invade' }] : []),
         ...(of('march').length ? [{ label: t('لشکرکشی', 'March'), sub: t('۱ خشم', '1 rage'), act: 'march', go: () => setMode({ k: 'march' }), hint: exp?.type === 'march' }] : []),
         ...(of('pillage').length ? [{ label: t('غارت', 'Pillage'), sub: t('رایگان', 'Free'), act: 'pillage', go: () => setMode({ k: 'pillage' }), hint: exp?.type === 'pillage' }] : []),
-        ...[...new Set(of('clanAction').map((h) => h.card as number))].map((c) => ({ label: cardTitle(c)[LANG === 'en' ? 'en' : 'fa'] || t('اقدام قبیله', 'Clan action'), sub: '', act: `clan-${c}`, go: () => setMode({ k: 'clan', card: c }) })),
+        ...[...new Set(of('clanAction').map((h) => h.card as number))].map((c) => ({ label: cardTitle(c)[LANG === 'en' || bgMode() ? 'en' : 'fa'] || t('اقدام قبیله', 'Clan action'), sub: '', act: `clan-${c}`, go: () => setMode({ k: 'clan', card: c }) })),
         { label: t('کنار کشیدن', 'Pass'), sub: t('خشم باقی می‌سوزد', 'Remaining rage is lost'), act: 'pass', go: () => setMode({ k: 'pass' }), hint: exp?.type === 'pass', variant: 'leave' }
       ];
       actionList = list;
@@ -386,21 +387,21 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
         : list.map((x) => btn(x.label, x.act, x.go, { hint: x.hint, variant: x.variant }));
     } else if (mode.k === 'invade') {
       const figs = [...new Map(inv.map((h) => [h.figure as string, h])).values()];
-      text = mode.figure ? <>روستا را برای یورش با <b>{figName(v, v.figures.find((f) => f.id === mode.figure)!)}</b> انتخاب کنید</> : <>یورش با:</>;
+      text = mode.figure ? <>{S('روستا را برای یورش با ')}<b>{figName(v, v.figures.find((f) => f.id === mode.figure)!)}</b>{S(' انتخاب کنید')}</> : <>{S('یورش با:')}</>;
       buttons = [
         ...figs.map((h) => { const f = v.figures.find((x) => x.id === h.figure)!; return btn(<>{figName(v, f)} {costPill((h.cost as { rage: number }).rage)}</>, `invade-${f.kind}`, () => setMode({ k: 'invade', figure: f.id }), { pressed: mode.figure === f.id }); }),
         ...confirm(mode.figure && mode.to ? { type: 'invade', figure: mode.figure, to: mode.to } : null)
       ];
       const h = inv.find((x) => x.figure === mode.figure && x.to === mode.to);
-      if (h) note = <><span className="bdr-rage"><img src={art('tokens/icon-rage-mini.webp')} alt="" /><span className="bdr-num">{fa((h.cost as { rage: number }).rage)}</span></span> خشم {fa(me.rage)} ← {fa(me.rage - (h.cost as { rage: number }).rage)}، مهره روی نقشه {fa(me.onMap + 1)} از {fa(me.horns)}{effects.length ? <>، اثر: <b>{effects.map((id) => { const f = v.figures.find((x) => x.id === id); return f ? `${figName(v, f)} ${name(f.seat)}` : id; }).join('، ')}</b> نابود می‌شود</> : null}.</>;
+      if (h) note = <><span className="bdr-rage"><img src={art('tokens/icon-rage-mini.webp')} alt="" /><span className="bdr-num">{fa((h.cost as { rage: number }).rage)}</span></span>{S(' خشم ')}{fa(me.rage)} ← {fa(me.rage - (h.cost as { rage: number }).rage)}{S('، مهره روی نقشه ')}{fa(me.onMap + 1)}{S(' از ')}{fa(me.horns)}{effects.length ? <>{S('، اثر: ')}<b>{effects.map((id) => { const f = v.figures.find((x) => x.id === id); return f ? `${figName(v, f)} ${name(f.seat)}` : id; }).join(S('، '))}</b>{S(' نابود می‌شود')}</> : null}.</>;
     } else if (mode.k === 'march') {
-      text = mode.from === undefined ? <>لشکرکشی: استان مبدأ را انتخاب کنید</> : mode.to === undefined ? <>لشکرکشی از <b>{provFa(mode.from)}</b>: مقصد را انتخاب کنید</> : <>لشکرکشی از <b>{provFa(mode.from)}</b> به <b>{provFa(mode.to)}</b>: مهره‌ها را روی نقشه انتخاب کنید</>;
+      text = mode.from === undefined ? <>{S('لشکرکشی: استان مبدأ را انتخاب کنید')}</> : mode.to === undefined ? <>{S('لشکرکشی از ')}<b>{provFa(mode.from)}</b>{S(': مقصد را انتخاب کنید')}</> : <>{S('لشکرکشی از ')}<b>{provFa(mode.from)}</b>{S(' به ')}<b>{provFa(mode.to)}</b>{S(': مهره‌ها را روی نقشه انتخاب کنید')}</>;
       buttons = confirm(mode.from !== undefined && mode.to !== undefined && mode.figs?.length ? { type: 'march', from: mode.from, to: mode.to, figures: mode.figs } : null);
-      if (mode.to !== undefined) note = <>هزینه ۱ خشم؛ {fa(mode.figs?.length ?? 0)} مهره.</>;
+      if (mode.to !== undefined) note = <>{S('هزینه ۱ خشم؛ ')}{fa(mode.figs?.length ?? 0)}{S(' مهره.')}</>;
     } else if (mode.k === 'pillage') {
-      text = <>غارت: استان را روی نقشه انتخاب کنید</>;
+      text = <>{S('غارت: استان را روی نقشه انتخاب کنید')}</>;
       buttons = confirm(mode.province !== undefined ? { type: 'pillage', province: mode.province } : null);
-      if (mode.province !== undefined) note = <>پاداش: {REWARD_FA[v.pillage[mode.province]?.reward ?? '']}</>;
+      if (mode.province !== undefined) note = <>{S('پاداش: ')}{REWARD_FA[v.pillage[mode.province]?.reward ?? '']}</>;
     } else if (mode.k === 'upgrade' || mode.k === 'monster' || mode.k === 'quest') {
       const list = mode.k === 'quest' ? of('quest') : ups.filter((h) => (mode.k === 'monster') === (h.slot === 'monster'));
       for (const h of list) { const c = h.card as number; handPick.set(c, { on: mode.card === c, onClick: () => setMode({ k: mode.k, card: c }) }); }
@@ -411,25 +412,25 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
         const arr = slotKind === 'monster' ? me.upgrades.monster : me.upgrades.clan;
         arr.forEach((_, i) => sheetPick.set(`${slotKind}${i}`, { on: mode.index === i, onClick: () => setMode({ ...mode, index: i }) }));
       }
-      text = mode.k === 'quest' ? <>بازی مأموریت: کارت را انتخاب کنید</> : needIndex && mode.card !== undefined ? <>ارتقای جایگزین را روی صفحهٔ قبیله انتخاب کنید</> : <>{mode.k === 'monster' ? 'بازی هیولا' : 'ارتقا'}: کارت را انتخاب کنید</>;
+      text = mode.k === 'quest' ? <>{S('بازی مأموریت: کارت را انتخاب کنید')}</> : needIndex && mode.card !== undefined ? <>{S('ارتقای جایگزین را روی صفحهٔ قبیله انتخاب کنید')}</> : <>{mode.k === 'monster' ? S('بازی هیولا') : S('ارتقا')}{S(': کارت را انتخاب کنید')}</>;
       const a: GameAction | null = !h ? null : mode.k === 'quest' ? { type: 'quest', card: h.card } : needIndex && mode.index === undefined ? null : { type: 'upgrade', card: h.card, slot: h.slot, ...(needIndex ? { index: mode.index } : {}) };
       buttons = confirm(a);
-      if (h && mode.k !== 'quest') note = <>هزینه: {costPill((h.cost as { rage: number }).rage)}{needIndex ? '، کارت قبلی دور ریخته می‌شود' : ''}</>;
+      if (h && mode.k !== 'quest') note = <>{S('هزینه: ')}{costPill((h.cost as { rage: number }).rage)}{needIndex ? S('، کارت قبلی دور ریخته می‌شود') : ''}</>;
     } else if (mode.k === 'clan') {
       const t = cardTitle(mode.card);
       const hs = of('clanAction').filter((h) => h.card === mode.card);
       const sacrifice = hs.some((h) => h.target === undefined);
-      text = <>{t.fa}: {sacrifice ? 'دو مهرهٔ خود را روی نقشه و یک ویژگی انتخاب کنید' : 'استان را روی نقشه انتخاب کنید'}</>;
+      text = <>{t.fa}: {sacrifice ? S('دو مهرهٔ خود را روی نقشه و یک ویژگی انتخاب کنید') : S('استان را روی نقشه انتخاب کنید')}</>;
       const a: GameAction | null = sacrifice ? (mode.figs?.length === 2 && mode.stat ? { type: 'clanAction', card: mode.card, figures: mode.figs, stat: mode.stat } : null) : mode.target !== undefined ? { type: 'clanAction', card: mode.card, target: mode.target } : null;
       buttons = [...(sacrifice ? (['rage', 'axe', 'horn'] as StatKey[]).map((st) => btn(STAT_FA[st], `stat-${st}`, () => setMode({ ...mode, stat: st }), { pressed: mode.stat === st, disabled: me.steps[st] >= 5 })) : []), ...confirm(a)];
     } else if (mode.k === 'pass') {
-      text = <>کنار کشیدن: همهٔ خشم باقی ({fa(me.rage)}) از دست می‌رود و تا پایان این فاز اقدامی ندارید</>;
+      text = <>{S('کنار کشیدن: همهٔ خشم باقی (')}{fa(me.rage)}{S(') از دست می‌رود و تا پایان این فاز اقدامی ندارید')}</>;
       buttons = confirm({ type: 'pass' });
     }
   } else {
     waiting = true;
     const who = v.pending?.seats ?? (v.turn !== null ? [v.turn] : []);
-    text = who.length ? <>{t('منتظر', 'Waiting for')} <b>{who.map(name).join('، ')}</b>{v.battle ? <> (نبرد در {provFa(v.battle.province)})</> : v.phase === 'draft' ? ' (هدایای خدایان)' : v.phase === 'discard' ? ' (دور ریختن)' : ''}</> : <>…</>;
+    text = who.length ? <>{t('منتظر', 'Waiting for')} <b>{who.map(name).join(S('، '))}</b>{v.battle ? <>{S(' (نبرد در ')}{provFa(v.battle.province)})</> : v.phase === 'draft' ? S(' (هدایای خدایان)') : v.phase === 'discard' ? S(' (دور ریختن)') : ''}</> : <>…</>;
   }
   if (mode?.k === 'march' || mode?.k === 'pillage') { /* notes set above */ }
 
@@ -463,40 +464,40 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
       style={{ backgroundImage: `url(${art('backgrounds/sea-background.webp')})`, '--zoom': zoom } as CSSProperties}>
       <img src={art('branding/blood-rage-logo.webp')} className="bdr-mapbox__logo" alt="Blood Rage" />
       <div className="bdr-pager" dir="rtl">
-        <button className="bdr-agebadge" type="button" data-open="ages" aria-label="مسیر عصرها" onClick={() => setOpen('ages')}>{`${t('عصر', 'Age')} ${fa(v.age)}`}</button>
-        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بخش قبلی" onClick={() => document.getElementById('bdr-map')?.scrollIntoView({ behavior: 'smooth' })}><img src={art('ui-icons/button-page-up.webp')} alt="" /></button>
-        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بخش بعدی" onClick={() => document.getElementById('bdr-sheets')?.scrollIntoView({ behavior: 'smooth' })}><img src={art('ui-icons/button-page-down.webp')} alt="" /></button>
+        <button className="bdr-agebadge" type="button" data-open="ages" aria-label={S('مسیر عصرها')} onClick={() => setOpen('ages')}>{`${t('عصر', 'Age')} ${fa(v.age)}`}</button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label={S('بخش قبلی')} onClick={() => document.getElementById('bdr-map')?.scrollIntoView({ behavior: 'smooth' })}><img src={art('ui-icons/button-page-up.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label={S('بخش بعدی')} onClick={() => document.getElementById('bdr-sheets')?.scrollIntoView({ behavior: 'smooth' })}><img src={art('ui-icons/button-page-down.webp')} alt="" /></button>
       </div>
       {lastBattle && <button className="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-mapbox__battle" type="button" data-open="battle" dir="rtl" onClick={() => { setShownBattle(v.battles.length - 1); setOpen('battle'); }}>{`${t('آخرین نبرد', 'Last battle')}: ${provFa(lastBattle.province)}`}</button>}
       <div className="bdr-mapbox__tools">
-        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="بزرگ‌تر" onClick={() => setZoom((z) => Math.min(2, z + 0.25))}><img src={art('ui-icons/button-zoom-plus.webp')} alt="" /></button>
-        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="کل نقشه" onClick={() => setZoom(1)}><img src={art('ui-icons/button-zoom-center.webp')} alt="" /></button>
-        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label="کوچک‌تر" onClick={() => setZoom((z) => Math.max(1, z - 0.25))}><img src={art('ui-icons/button-zoom-minus.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label={S('بزرگ‌تر')} onClick={() => setZoom((z) => Math.min(2, z + 0.25))}><img src={art('ui-icons/button-zoom-plus.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label={S('کل نقشه')} onClick={() => setZoom(1)}><img src={art('ui-icons/button-zoom-center.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" aria-label={S('کوچک‌تر')} onClick={() => setZoom((z) => Math.max(1, z - 0.25))}><img src={art('ui-icons/button-zoom-minus.webp')} alt="" /></button>
       </div>
       <div className="bdr-mapbox__bottom" dir="rtl">
-        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" data-open="archive" aria-label="بایگانی نبردها" onClick={() => setOpen('archive')}><img src={art('ui-icons/button-archive.webp')} alt="" /></button>
-        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" data-open="discard" aria-label={`کارت‌های نبرد دورریخته: ${fa(v.discardPublic.length)}`} onClick={() => setOpen('discard')}><img src={art('ui-icons/button-discard.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" data-open="archive" aria-label={S('بایگانی نبردها')} onClick={() => setOpen('archive')}><img src={art('ui-icons/button-archive.webp')} alt="" /></button>
+        <button className="bgv-btn bgv-btn--icon bgv-btn--secondary bdr-mapbtn" type="button" data-open="discard" aria-label={S(`کارت‌های نبرد دورریخته: ${fa(v.discardPublic.length)}`)} onClick={() => setOpen('discard')}><img src={art('ui-icons/button-discard.webp')} alt="" /></button>
         <button className="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-open="valhalla" onClick={() => setOpen('valhalla')}>{`${t('والهالا', 'Valhalla')} (${fa(v.figures.filter((f) => f.where === 'valhalla').length)})`}</button>
       </div>
       {spotKey && zoom > 1 && <span className="bdr-mapinfo" dir="rtl">{t(`بزرگ‌نمایی خودکار: ${fa(spots.length)} روستا`, `Auto zoom: ${spots.length} villages`)}</span>}
       <div className="bdr-map" data-age={v.age}>
-        <img className="bdr-base" src={art('boards/main-board.webp')} alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان" />
+        <img className="bdr-base" src={art('boards/main-board.webp')} alt={S('نقشهٔ بلاد ریج: ایگدراسیل و هشت استان')} />
         {C_PROV.map((p) => {
-          if (v.destroyed.includes(p.id)) return <img key={`d${p.id}`} src={art('tokens/ragnarok.webp')} className="bdr-at bdr-destroyed" style={pos(p.x, p.y)} data-province={p.id} alt={`${p.nameFa} نابود شده`} />;
+          if (v.destroyed.includes(p.id)) return <img key={`d${p.id}`} src={art('tokens/ragnarok.webp')} className="bdr-at bdr-destroyed" style={pos(p.x, p.y)} data-province={p.id} alt={S(`${provFa(p.id)} نابود شده`)} />;
           const pl = v.pillage[p.id];
           if (!pl) return null;
           const icon = art(IDS.pillageReward[pl.reward as keyof typeof IDS.pillageReward]);
-          if (pl.pillaged) return <span key={`r${p.id}`} className="bdr-at bdr-pdone" style={pos(p.x, p.y)} data-province={p.id} dir="rtl"><img src={icon} alt="" /><span>غارت موفق{pl.by !== undefined ? <><br />توسط <b>{name(pl.by)}</b></> : null}</span></span>;
-          return <img key={`r${p.id}`} src={icon} className="bdr-at bdr-reward" style={pos(p.x, p.y)} data-province={p.id} title={`پاداش غارت: ${REWARD_FA[pl.reward]}`} alt={REWARD_FA[pl.reward]} />;
+          if (pl.pillaged) return <span key={`r${p.id}`} className="bdr-at bdr-pdone" style={pos(p.x, p.y)} data-province={p.id} dir="rtl"><img src={icon} alt="" /><span>{S('غارت موفق')}{pl.by !== undefined ? <><br />{S('توسط ')}<b>{name(pl.by)}</b></> : null}</span></span>;
+          return <img key={`r${p.id}`} src={icon} className="bdr-at bdr-reward" style={pos(p.x, p.y)} data-province={p.id} title={S(`پاداش غارت: ${REWARD_FA[pl.reward]}`)} alt={REWARD_FA[pl.reward]} />;
         })}
-        {v.doom !== null && C_PROV[v.doom] && <img src={art('tokens/icon-destiny.webp')} className="bdr-at bdr-doom" style={pos(C_PROV[v.doom]!.doomX, C_PROV[v.doom]!.doomY)} title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی" />}
-        {battleProv !== null && C_PROV[battleProv] && <img src={art('tokens/battle.webp')} className="bdr-at bdr-battlemark" style={pos(C_PROV[battleProv]!.x, C_PROV[battleProv]!.y - 90)} alt={`نبرد در ${provFa(battleProv)}`} />}
+        {v.doom !== null && C_PROV[v.doom] && <img src={art('tokens/icon-destiny.webp')} className="bdr-at bdr-doom" style={pos(C_PROV[v.doom]!.doomX, C_PROV[v.doom]!.doomY)} title={S('نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود')} alt={S('نشان نابودی')} />}
+        {battleProv !== null && C_PROV[battleProv] && <img src={art('tokens/battle.webp')} className="bdr-at bdr-battlemark" style={pos(C_PROV[battleProv]!.x, C_PROV[battleProv]!.y - 90)} alt={S(`نبرد در ${provFa(battleProv)}`)} />}
         {v.figures.map((f) => {
           const at = posMap.get(f.id);
           if (!at) return null;
           const sel = selFigs.get(f.id);
           const cls = `bdr-at bdr-tok${sel ? (sel.on ? ' is-on' : ' is-sel') : ''}${doomed.has(f.id) ? ' is-fx' : ''}`;
-          const alt = `${figName(v, f)} ${name(f.seat)}، قدرت ${fa(f.str)}`;
+          const alt = S(`${figName(v, f)} ${name(f.seat)}، قدرت ${fa(f.str)}`);
           const inner = <><img src={tokenArt(v, f)} alt={alt} />{doomed.has(f.id) && <img src={art('ui-icons/remove.webp')} className="bdr-x" alt="" />}{mode?.k === 'march' && sel?.on && <img src={art('tokens/icon-march.webp')} className="bdr-mk" alt="" />}</>;
           return sel
             ? <button key={f.id} type="button" className={cls} style={pos(at.x, at.y)} data-fig={f.id} data-seat={f.seat} aria-pressed={sel.on} aria-label={alt} disabled={busy} onClick={sel.onClick}>{inner}</button>
@@ -505,15 +506,15 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
         {spots.map((s) => {
           const at = wherePos(s.to);
           if (!at) return null;
-          const p = s.to.startsWith('fjord:') ? 'آبدره' : provFa(whereProvince(s.to));
+          const p = s.to.startsWith('fjord:') ? S('آبدره') : provFa(whereProvince(s.to));
           const isExp = !!exp && JSON.stringify(exp).includes(`"${s.to}"`);
-          return <button key={s.to} type="button" className={`bdr-spot${s.on ? ' is-on' : ''}${hintCls(isExp)}`} style={pos(at.x, at.y)} data-slot={s.to.split(':')[1] ?? s.to} aria-pressed={s.on} aria-label={`${p}، روستای خالی`} disabled={busy} onClick={s.onClick}>{!s.on && <img src={art('ui-icons/spot-target.webp')} alt="" />}</button>;
+          return <button key={s.to} type="button" className={`bdr-spot${s.on ? ' is-on' : ''}${hintCls(isExp)}`} style={pos(at.x, at.y)} data-slot={s.to.split(':')[1] ?? s.to} aria-pressed={s.on} aria-label={S(`${p}، روستای خالی`)} disabled={busy} onClick={s.onClick}>{!s.on && <img src={art('ui-icons/spot-target.webp')} alt="" />}</button>;
         })}
         {ghost && (() => { const f = v.figures.find((x) => x.id === ghost!.figure); const at = wherePos(ghost!.to); return f && at ? <span className="bdr-at bdr-tok is-ghost" style={pos(at.x, at.y)}><img src={tokenArt(v, f)} alt="" /></span> : null; })()}
         {provRings.map((r) => {
           const p = C_PROV[r.p]!;
           const isExp = !!exp && (exp.province === r.p || exp.to === r.p || exp.from === r.p);
-          return <button key={`p${r.p}`} type="button" className={`bdr-prov${r.on ? ' is-on' : ''}${hintCls(isExp)}`} style={pos(p.x, p.y + 70)} data-province={r.p} aria-pressed={r.on} aria-label={`${p.nameFa}، انتخاب استان`} disabled={busy} onClick={r.onClick}>{p.nameFa}</button>;
+          return <button key={`p${r.p}`} type="button" className={`bdr-prov${r.on ? ' is-on' : ''}${hintCls(isExp)}`} style={pos(p.x, p.y + 70)} data-province={r.p} aria-pressed={r.on} aria-label={S(`${provFa(p.id)}، انتخاب استان`)} disabled={busy} onClick={r.onClick}>{provFa(p.id)}</button>;
         })}
       </div>
     </section>
@@ -632,7 +633,7 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
               <button key={k} type="button" role="tab" className="bdr-tab" aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>)}
           </nav>
           <div className="bdr-lang" data-theme={theme} role="group" aria-label={t('زبان بازی', 'Game language')}>
-            <button type="button" aria-pressed={lang === 'fa'} onClick={() => switchLang('fa')}>فا</button>
+            <button type="button" aria-pressed={lang === 'fa'} onClick={() => switchLang('fa')}>{S('فا')}</button>
             <button type="button" aria-pressed={lang === 'en'} onClick={() => switchLang('en')}>EN</button>
           </div>
         </div>
@@ -650,11 +651,11 @@ export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatN
           </section>
         )}
         {v.me && (
-          <section className="bgv-felt bdr-zone bdr-handzone" aria-label="دست من">
+          <section className="bgv-felt bdr-zone bdr-handzone" aria-label={S('دست من')}>
             <h2 className="bdr-ztitle">{t('دست من', 'My hand')}</h2>
-            {v.me.hand.length === 0 && <p className="bdr-zsub">دست خالی است.</p>}
+            {v.me.hand.length === 0 && <p className="bdr-zsub">{S('دست خالی است.')}</p>}
             <div className="bdr-hand">{v.me.hand.map((c) => cardBtn(c, kind === 'draftPick' ? undefined : handPick.get(c), discarding && !handPick.get(c)?.on))}</div>
-            {v.me.quests.length > 0 && <><p className="bdr-zsub">مأموریت‌های متعهدشده</p><div className="bdr-hand">{v.me.quests.map((c) => cardBtn(c, undefined))}</div></>}
+            {v.me.quests.length > 0 && <><p className="bdr-zsub">{S('مأموریت‌های متعهدشده')}</p><div className="bdr-hand">{v.me.quests.map((c) => cardBtn(c, undefined))}</div></>}
           </section>
         )}
         <section className="bdr-sheetszone" aria-label={t('صفحه‌های قبیله', 'Clan sheets')} id="bdr-sheets">
@@ -692,6 +693,7 @@ export interface SeatDetail {
 }
 /** BGA player board body (§18), shared by the shell rail and the renderer's own rail outside the shell. */
 function PanelBody({ d, clan = true }: { d: SeatDetail; clan?: boolean }) {
+  useTermsLang();
   return (
     <>
       <div className="bdr-panel__line1">
@@ -723,7 +725,7 @@ export function bloodRageSeatCard(seat: { seat: number; primary?: { value: numbe
     stats: undefined,
     score: undefined, scoreLabel: undefined, clock: undefined, badge: undefined, strikes: undefined, strikesOf: undefined,
     avatar: { src: art(IDS.clanIcon[String(d.clan) as keyof typeof IDS.clanIcon]), name: `${t('قبیلهٔ', 'Clan')} ${CLAN_FA(d.clan)}`, className: 'bdr-avatar', style: cc(d.clan) },
-    sub: `${fa(d.glory)} ★ ${t('افتخار', 'Glory')}${d.out ? `، ${t('انصراف داده', 'Resigned')}` : turn ? `، ${t('در نوبت', 'To act')}` : ''}`,
+    sub: `${fa(d.glory)} ★ ${t('افتخار', 'Glory')}${d.out ? S(`، ${t('انصراف داده', 'Resigned')}`) : turn ? S(`، ${t('در نوبت', 'To act')}`) : ''}`,
     detail: (
       <div className="bdr bdr-panel--shell" style={cc(d.clan)}>
         <PanelBody d={d} clan={false} />
@@ -737,27 +739,29 @@ export function bloodRageSeatCard(seat: { seat: number; primary?: { value: numbe
 const TRACK: Record<StatKey, number[]> = { rage: [6, 7, 8, 9, 12, 12], axe: [3, 4, 5, 6, 8, 8], horn: [4, 5, 6, 7, 10, 10] };
 
 function Tip({ c, age }: { c: number; age: number }) {
+  useTermsLang();
   const card = CARD_BY_NUM[c];
   if (!card) return null;
-  const TYPE_FA: Record<string, string> = { battle: 'نبرد', quest: 'مأموریت', clan: 'ارتقای قبیله', leader: 'ارتقای سردار', warrior: 'ارتقای جنگجو', ship: 'ارتقای کشتی', monster: 'هیولا' };
-  const val = card.type === 'battle' ? (card.value < 0 ? 'قدرت: بالاترین کارت حریف' : `قدرت +${fa(card.value)}`) : card.type === 'quest' ? `${fa(card.value)} افتخار` : `هزینه ${fa(card.value)} خشم`;
+  const TYPE_FA: Record<string, string> = { battle: S('نبرد'), quest: S('مأموریت'), clan: S('ارتقای قبیله'), leader: S('ارتقای سردار'), warrior: S('ارتقای جنگجو'), ship: S('ارتقای کشتی'), monster: S('هیولا') };
+  const val = card.type === 'battle' ? (card.value < 0 ? S('قدرت: بالاترین کارت حریف') : S(`قدرت +${fa(card.value)}`)) : card.type === 'quest' ? S(`${fa(card.value)} افتخار`) : S(`هزینه ${fa(card.value)} خشم`);
   return (
     <div className="bdr-tip" role="tooltip">
       <img src={cardArt(c)} alt="" />
       <div><h3>{card.titleFa}<small dir="ltr">{card.titleEn}</small></h3>
-        <p>{TYPE_FA[card.type] ?? card.type}<span className="bgv-sep" />{val}<span className="bgv-sep" />عصر {fa(age)}<span className="bgv-sep" />{fa(card.minPlayers)}+ نفر</p>
+        <p>{TYPE_FA[card.type] ?? card.type}<span className="bgv-sep" />{val}<span className="bgv-sep" />{S('عصر ')}{fa(age)}<span className="bgv-sep" />{fa(card.minPlayers)}{S('+ نفر')}</p>
         <p>{card.rulesFa}</p><p className="bdr-tip__en" dir="ltr">{card.rulesEn}</p></div>
     </div>
   );
 }
 
 function FinalTable({ v, name }: { v: BloodRageView; name: (s: number) => string }) {
+  useTermsLang();
   const rows = [...v.final!].sort((a, b) => a.place - b.place);
   return (
     <section className="bdr-frame" data-theme={typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'} aria-label={t('پایان بازی', 'Game over')}>
       <h2>{t('پایان بازی', 'Game over')}</h2>
       <table className="bdr-table">
-        <thead><tr><th>رتبه</th><th>بازیکن</th><th>افتخار</th><th>خشم</th><th>تبر</th><th>شاخ</th><th>کارت‌های پایانی</th><th>جمع</th></tr></thead>
+        <thead><tr><th>{S('رتبه')}</th><th>{S('بازیکن')}</th><th>{S('افتخار')}</th><th>{S('خشم')}</th><th>{S('تبر')}</th><th>{S('شاخ')}</th><th>{S('کارت‌های پایانی')}</th><th>{S('جمع')}</th></tr></thead>
         <tbody>{rows.map((r) => (
           <tr key={r.seat} className={r.place === 1 ? 'is-win' : ''}>
             <td>{fa(r.place)}</td><td><bdi>{name(r.seat)}</bdi></td><td>{fa(r.glory)}</td>
@@ -771,6 +775,7 @@ function FinalTable({ v, name }: { v: BloodRageView; name: (s: number) => string
 }
 
 function Dlg({ title, onClose, children }: { title: ReactNode; onClose: () => void; children: ReactNode }) {
+  useTermsLang();
   const ref = useRef<HTMLElement>(null);
   useEffect(() => { ref.current?.focus(); }, []);
   return (
@@ -784,6 +789,7 @@ function Dlg({ title, onClose, children }: { title: ReactNode; onClose: () => vo
 }
 
 function BattleBox({ v, r, name }: { v: BloodRageView; r: BattleRecordView; name: (s: number) => string }) {
+  useTermsLang();
   const tok = (id: string) => { const f = v.figures.find((x) => x.id === id); return f ? <img key={id} src={tokenArt(v, f)} alt={figName(v, f)} /> : null; };
   return (
     <div className="bdr-battle">
@@ -791,15 +797,15 @@ function BattleBox({ v, r, name }: { v: BloodRageView; r: BattleRecordView; name
         const s = v.seats[l.seat]!;
         return (
           <div key={l.seat} className={`bdr-bline${r.winner === l.seat ? ' is-win' : ''}`} style={cc(s.clan)}>
-            <div className="bdr-bline__who"><img src={art(IDS.clanIcon[String(s.clan) as keyof typeof IDS.clanIcon])} alt="" /><span><bdi>{name(l.seat)}</bdi>{l.seat === r.attacker && <small>(غارتگر)</small>}</span></div>
+            <div className="bdr-bline__who"><img src={art(IDS.clanIcon[String(s.clan) as keyof typeof IDS.clanIcon])} alt="" /><span><bdi>{name(l.seat)}</bdi>{l.seat === r.attacker && <small>{S('(غارتگر)')}</small>}</span></div>
             <span className="bdr-bline__str bdr-num">{fa(l.str)}</span>
-            <span className="bdr-bline__card">{l.cards.length ? l.cards.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={cardTitle(c).en} />) : <small>بی‌کارت</small>}</span>
+            <span className="bdr-bline__card">{l.cards.length ? l.cards.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={cardTitle(c).en} />) : <small>{S('بی‌کارت')}</small>}</span>
             <span className="bdr-bline__figs">{l.figures.map(tok)}</span>
           </div>
         );
       })}
       <p className={`bdr-result${r.winner === null ? ' is-bad' : ''}`}>
-        {r.winner === null ? 'برابری: همه باختند و کسی غارت نکرد.' : <><b><bdi>{name(r.winner)}</bdi></b> برد{r.pillaged ? ' و غارت موفق شد' : ''}؛ افتخار نبرد = تبر برنده.</>}
+        {r.winner === null ? S('برابری: همه باختند و کسی غارت نکرد.') : <><b><bdi>{name(r.winner)}</bdi></b>{S(' برد')}{r.pillaged ? S(' و غارت موفق شد') : ''}{S('؛ افتخار نبرد = تبر برنده.')}</>}
       </p>
     </div>
   );
@@ -809,32 +815,32 @@ function renderDialog(open: string | null, v: BloodRageView, mySeat: number | nu
   if (!open) return null;
   const tok = (f: FigureView) => <img key={f.id} src={tokenArt(v, f)} alt={`${figName(v, f)} ${name(f.seat)}`} />;
   if (open === 'ages') return (
-    <Dlg title="مسیر عصرها" onClose={close}>
+    <Dlg title={S('مسیر عصرها')} onClose={close}>
       <ul className="bdr-ages">{[1, 2, 3].map((a) => (
         <li key={a} className={a === v.age ? 'is-cur' : a < v.age ? 'is-past' : ''}>
-          <img src={cardBack(a)} alt="" style={{ blockSize: 28 }} /><b>عصر {fa(a)}</b>
+          <img src={cardBack(a)} alt="" style={{ blockSize: 28 }} /><b>{S('عصر ')}{fa(a)}</b>
           {a === v.age && PHASES.map(([k, l, en]) => <span key={k} className={k === v.phase ? 'bdr-pill' : ''}>{t(l, en)}</span>)}
-          <small>راگناروک در {provFa(v.ragnarok[a - 1] ?? 0)}، {fa(RAGNAROK_GLORY[a] ?? 0)} افتخار برای هر مهره</small>
+          <small>{S('راگناروک در ')}{provFa(v.ragnarok[a - 1] ?? 0)}{S('، ')}{fa(RAGNAROK_GLORY[a] ?? 0)}{S(' افتخار برای هر مهره')}</small>
         </li>))}</ul>
     </Dlg>
   );
-  if (open === 'battle') { const r = v.battles[shown ?? v.battles.length - 1]; return r ? <Dlg title={<>نبرد در {provFa(r.province)}!</>} onClose={close}><BattleBox v={v} r={r} name={name} /></Dlg> : null; }
+  if (open === 'battle') { const r = v.battles[shown ?? v.battles.length - 1]; return r ? <Dlg title={<>{S('نبرد در ')}{provFa(r.province)}!</>} onClose={close}><BattleBox v={v} r={r} name={name} /></Dlg> : null; }
   if (open === 'archive') return (
-    <Dlg title="بایگانی نبردها" onClose={close}>
-      {v.battles.length === 0 ? <p>هنوز نبردی نشده است.</p> : <ul className="bdr-ages">{v.battles.map((r, i) => (
-        <li key={i}><b>عصر {fa(r.age)}</b> {provFa(r.province)}<span className="bgv-sep" />{r.winner === null ? 'برابری' : <>برنده: <bdi>{name(r.winner)}</bdi></>}
-          <button type="button" className="bgv-btn bgv-btn--secondary bgv-btn--sm" onClick={() => showBattle(i)}>نمایش</button></li>))}</ul>}
+    <Dlg title={S('بایگانی نبردها')} onClose={close}>
+      {v.battles.length === 0 ? <p>{S('هنوز نبردی نشده است.')}</p> : <ul className="bdr-ages">{v.battles.map((r, i) => (
+        <li key={i}><b>{S('عصر ')}{fa(r.age)}</b> {provFa(r.province)}<span className="bgv-sep" />{r.winner === null ? S('برابری') : <>{S('برنده: ')}<bdi>{name(r.winner)}</bdi></>}
+          <button type="button" className="bgv-btn bgv-btn--secondary bgv-btn--sm" onClick={() => showBattle(i)}>{S('نمایش')}</button></li>))}</ul>}
     </Dlg>
   );
   if (open === 'discard') return (
-    <Dlg title="کارت‌های نبرد دورریخته" onClose={close}>
-      {v.discardPublic.length ? <div className="bdr-cardrow">{v.discardPublic.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={`${cardTitle(c).en} — ${cardTitle(c).fa}`} />)}</div> : <p>هنوز کارتی دور ریخته نشده است.</p>}
+    <Dlg title={S('کارت‌های نبرد دورریخته')} onClose={close}>
+      {v.discardPublic.length ? <div className="bdr-cardrow">{v.discardPublic.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={`${cardTitle(c).en} — ${cardTitle(c).fa}`} />)}</div> : <p>{S('هنوز کارتی دور ریخته نشده است.')}</p>}
     </Dlg>
   );
   if (open === 'valhalla') return (
-    <Dlg title="والهالا" onClose={close}>
+    <Dlg title={S('والهالا')} onClose={close}>
       <div className="bdr-valh">{v.seats.map((s) => { const fs = v.figures.filter((f) => f.seat === s.seat && f.where === 'valhalla'); return fs.length ? <div key={s.seat} style={cc(s.clan)}><bdi>{name(s.seat)}</bdi>{fs.map(tok)}</div> : null; })}</div>
-      {!v.figures.some((f) => f.where === 'valhalla') && <p>والهالا خالی است.</p>}
+      {!v.figures.some((f) => f.where === 'valhalla') && <p>{S('والهالا خالی است.')}</p>}
     </Dlg>
   );
   if (open === 'endage') return <EndAge v={v} name={name} onClose={close} />;
@@ -843,26 +849,26 @@ function renderDialog(open: string | null, v: BloodRageView, mySeat: number | nu
   const s = v.seats[seat];
   if (!s) return null;
   if (k === 'reserve') return (
-    <Dlg title={<>ذخیره: <bdi>{name(seat)}</bdi></>} onClose={close}>
+    <Dlg title={<>{S('ذخیره: ')}<bdi>{name(seat)}</bdi></>} onClose={close}>
       <div className="bdr-resgrid">{v.figures.filter((f) => f.seat === seat && f.where === 'reserve').map(tok)}</div>
     </Dlg>
   );
   if (k === 'quests') return (
-    <Dlg title={<>مأموریت‌ها: <bdi>{name(seat)}</bdi></>} onClose={close}>
-      {seat === mySeat && v.me ? (v.me.quests.length ? <div className="bdr-cardrow">{v.me.quests.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={`${cardTitle(c).en} — ${cardTitle(c).fa}: ${cardTitle(c).text}`} />)}</div> : <p>مأموریتی ندارید.</p>)
-        : <p>{fa(s.questCount)} مأموریت رو به پایین.</p>}
+    <Dlg title={<>{S('مأموریت‌ها: ')}<bdi>{name(seat)}</bdi></>} onClose={close}>
+      {seat === mySeat && v.me ? (v.me.quests.length ? <div className="bdr-cardrow">{v.me.quests.map((c) => <img key={c} src={cardArt(c, v.defs[c])} alt={`${cardTitle(c).en} — ${cardTitle(c).fa}: ${cardTitle(c).text}`} />)}</div> : <p>{S('مأموریتی ندارید.')}</p>)
+        : <p>{fa(s.questCount)}{S(' مأموریت رو به پایین.')}</p>}
     </Dlg>
   );
   if (k === 'stats') {
     const ROWY: Record<StatKey, number> = { rage: 80, axe: 183, horn: 286 };
     const STEPX = [229, 328, 427, 527, 626, 725];
     return (
-      <Dlg title={<>آمار <bdi>{name(seat)}</bdi></>} onClose={close}>
-        <div className="bdr-statboard" dir="ltr"><img src={art('boards/clan-statistics.webp')} alt="مسیر ویژگی‌ها" />
-          {(['rage', 'axe', 'horn'] as StatKey[]).map((st) => <img key={st} className="bdr-stok" src={art(IDS.clanIcon[String(s.clan) as keyof typeof IDS.clanIcon])} alt={`${STAT_FA[st]}: پلهٔ ${fa(s.steps[st] + 1)}`}
+      <Dlg title={<>{S('آمار ')}<bdi>{name(seat)}</bdi></>} onClose={close}>
+        <div className="bdr-statboard" dir="ltr"><img src={art('boards/clan-statistics.webp')} alt={S('مسیر ویژگی‌ها')} />
+          {(['rage', 'axe', 'horn'] as StatKey[]).map((st) => <img key={st} className="bdr-stok" src={art(IDS.clanIcon[String(s.clan) as keyof typeof IDS.clanIcon])} alt={S(`${STAT_FA[st]}: پلهٔ ${fa(s.steps[st] + 1)}`)}
             style={{ left: `${(STEPX[s.steps[st]]! / 800) * 100}%`, top: `${((ROWY[st] - 6) / 347) * 100}%` }} />)} {/* ds-check-ignore: LTR stat board art */}
         </div>
-        <p>خشم {fa(s.values.rage)}<span className="bgv-sep" />تبر {fa(s.values.axe)}<span className="bgv-sep" />شاخ {fa(s.values.horn)}<span className="bgv-sep" />والهالا {fa(s.valhalla)}</p>
+        <p>{S('خشم ')}{fa(s.values.rage)}<span className="bgv-sep" />{S('تبر ')}{fa(s.values.axe)}<span className="bgv-sep" />{S('شاخ ')}{fa(s.values.horn)}<span className="bgv-sep" />{S('والهالا ')}{fa(s.valhalla)}</p>
       </Dlg>
     );
   }
@@ -871,6 +877,7 @@ function renderDialog(open: string | null, v: BloodRageView, mySeat: number | nu
 
 /** §22 end of the Age: committed quests with the result, Ragnarök (province, figures lost, glory) and the Valhalla release. */
 function EndAge({ v, name, onClose }: { v: BloodRageView; name: (s: number) => string; onClose: () => void }) {
+  useTermsLang();
   const rIdx = v.log.map((e) => e.e).lastIndexOf('ragnarok');
   const start = v.log.slice(0, rIdx).map((e) => e.e).lastIndexOf('end-action');
   const quests = v.log.slice(start + 1, rIdx).filter((e) => e.e === 'quest' || e.e === 'quest-failed');
@@ -902,7 +909,7 @@ function EndAge({ v, name, onClose }: { v: BloodRageView; name: (s: number) => s
 
 function logText(e: LogEntry): string {
   const p = (k?: string) => provFa(provOfKey(k));
-  const c = (d?: string) => (LANG === 'en' ? CARD_BY_ID[d ?? '']?.nameEn : CARD_BY_ID[d ?? '']?.nameFa) ?? '';
+  const c = (d?: string) => ((LANG === 'en' || bgMode()) ? CARD_BY_ID[d ?? '']?.nameEn : CARD_BY_ID[d ?? '']?.nameFa) ?? '';
   const n = fa(e.n ?? 0), w = fa(e.w ?? 0);
   switch (e.e) {
     case 'age': return t(`عصر ${n} شروع شد.`, `Age ${n} begins.`);

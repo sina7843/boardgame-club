@@ -4,8 +4,9 @@
 // ship, horse, plane, top hat; vector pawns for seats 7-8). Coordinates are literal (ltr); 1100×1100.
 import type React from 'react';
 import { useLayoutEffect, useRef } from 'react';
-import { MOTION, motionOff } from '@bg/ui';
+import { MOTION, motionOff, tx, useTermsLang } from '@bg/ui';
 import { BOARD } from './board.ts';
+import { sqName, terms } from './terms.ts';
 import type { AmlakView } from './rules.ts';
 import boardImg from './art/amlak-board.png';
 import houseImg from './art/amlak-house.png';
@@ -177,6 +178,7 @@ function walk(o: number, p: number, jailed: boolean): number[] {
 export function AmlakBoard({ view, selected, onSelect, seatName, rollKey, rolling }: {
   view: AmlakView; selected: number | null; onSelect: (i: number) => void; seatName: (s: number) => string; rollKey: number; rolling?: boolean;
 }) {
+  useTermsLang();
   const roll = view.lastRoll;
   // Tokens walk square by square along the track (after the dice land), instead of jumping across the board.
   const svg = useRef<SVGSVGElement>(null);
@@ -202,7 +204,7 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey, rollin
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig]);
   return (
-    <svg ref={svg} className="amb" viewBox="-28 -28 1156 1156" role="group" aria-label="صفحه مونوپولی" style={{ direction: 'ltr' }}>
+    <svg ref={svg} className="amb" viewBox="-28 -28 1156 1156" role="group" aria-label={tx(terms.boardMonopoly)} style={{ direction: 'ltr' }}>
       <defs>
         <linearGradient id="amb-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8a5a32" /><stop offset="0.5" stopColor="#6b4423" /><stop offset="1" stopColor="#3d2410" /></linearGradient>
         <linearGradient id="amb-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6dc8e" /><stop offset="0.5" stopColor="#b88a2e" /><stop offset="1" stopColor="#7a5a14" /></linearGradient>
@@ -222,13 +224,13 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey, rollin
       <g data-flip-anchor="deck-chance"><rect x="260" y="260" width="116" height="116" fill="none" pointerEvents="none" /></g>
       <g data-flip-anchor="deck-chest"><rect x="724" y="724" width="116" height="116" fill="none" pointerEvents="none" /></g>
       {(roll || rolling) && (
-        <g aria-label={rolling || !roll ? 'تاس‌ها در حال چرخیدن' : `آخرین تاس: ${fa(roll[0])} و ${fa(roll[1])}`} role="img">
+        <g aria-label={rolling || !roll ? tx(terms.diceRolling) : `${tx(terms.lastRoll)}: ${fa(roll[0])} و ${fa(roll[1])}`} role="img">
           <Die v={roll?.[0] ?? 1} x={500} y={612} rot={-12} rollKey={rollKey} i={0} pending={rolling} />
           <Die v={roll?.[1] ?? 1} x={604} y={600} rot={9} rollKey={rollKey} i={1} pending={rolling} />
         </g>
       )}
       {view.rules.freeParking && view.pot > 0 && (
-        <g className="amb-pot"><circle cx="232" cy="232" r="38" /><text x="232" y="228">صندوق</text><text x="232" y="250">{fa(view.pot)}</text></g>
+        <g className="amb-pot"><circle cx="232" cy="232" r="38" /><text x="232" y="228">{tx(terms.pot)}</text><text x="232" y="250">{fa(view.pot)}</text></g>
       )}
 
       {/* squares */}
@@ -239,7 +241,7 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey, rollin
         const h = view.houses[i]!;
         const rb = ribbon(g);
         const tokens = view.p.map((pl, seat) => ({ pl, seat })).filter((t) => !t.pl.bankrupt && t.pl.pos === i);
-        const label = `${b.nameFa}${'price' in b ? `، ${fa(b.price)} هزار تومان` : ''}${owner !== null && owner !== undefined ? `، مالک ${seatName(owner)}` : ''}${h ? `، ${h === 5 ? 'هتل' : `${fa(h)} خانه`}` : ''}${view.mortgaged[i] ? '، در رهن' : ''}${tokens.length ? `، اینجا: ${tokens.map((t) => seatName(t.seat)).join('، ')}` : ''}`;
+        const label = `${sqName(b.nameFa)}${'price' in b ? `، ${fa(b.price)} هزار تومان` : ''}${owner !== null && owner !== undefined ? `، ${tx(terms.owner)} ${seatName(owner)}` : ''}${h ? `، ${h === 5 ? tx(terms.hotel) : `${fa(h)} ${tx(terms.house)}`}` : ''}${view.mortgaged[i] ? `، در ${tx(terms.mortgage)}` : ''}${tokens.length ? `، اینجا: ${tokens.map((t) => seatName(t.seat)).join('، ')}` : ''}`;
         const portrait = g.side === 'top' || g.side === 'bottom';
         return (
           <g key={i} className={['amb-sq', selected === i ? 'amb-sq--sel' : '', g.side === 'corner' ? 'amb-sq--corner' : ''].join(' ')} role="button" tabIndex={0} aria-label={label}
@@ -248,7 +250,7 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey, rollin
             {view.mortgaged[i] && (
               <g className="amb-mortgage" data-flip={`mort-${i}`}>
                 <rect x={g.x} y={g.y} width={g.w} height={g.h} fill="url(#amb-hatch)" />
-                <text x={g.x + g.w / 2} y={g.y + g.h / 2 + 8} transform={`rotate(-30 ${g.x + g.w / 2} ${g.y + g.h / 2})`} className="amb-mortgage__stamp">رهن</text>
+                <text x={g.x + g.w / 2} y={g.y + g.h / 2 + 8} transform={`rotate(-30 ${g.x + g.w / 2} ${g.y + g.h / 2})`} className="amb-mortgage__stamp">{tx(terms.mortgage)}</text>
               </g>
             )}
             {owner !== null && owner !== undefined && rb && (

@@ -22,6 +22,7 @@ const ART = { lux: luxuryArt, good: prestigeArt, bad: disgraceArt };
 const fmtStatus = (v: number) => (Number.isInteger(v) ? fa(v) : v.toLocaleString('fa-IR', { maximumFractionDigits: 2 }));
 
 export function Card({ c, size = 'md', flip, flipFrom, exit }: { c: StatusCard; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) {
+  useTermsLang();
   const v = lux(c);
   const sp = SPECIAL[c];
   const kind = v ? 'lux' : isDisgrace(c) ? 'bad' : 'good';
@@ -84,7 +85,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
   const status_ = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: disgrace ? `پول بگذارید یا کنار بکشید و ${tx(terms.disgrace)} را بپذیرید` : `${tx(terms.bid)} بالاتر بدهید یا کنار بکشید` }
+    : myTurn ? { tone: 'mine' as const, text: disgrace ? `${tx(terms.money)} بگذارید یا ${tx(terms.passPol)} و ${tx(terms.disgrace)} را بپذیرید` : `${tx(terms.bid)} بالاتر بدهید یا ${tx(terms.passPol)}` }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
   const last = view.last;
   const framed = useInFrame() !== null; // the shell draws seats, scores, whose-turn and the events log
@@ -95,19 +96,19 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
       {framed && (
         <RailSlot>
           {status_ && <p><b>{status_.text}</b></p>}
-          <p>{disgrace ? 'کارت بد برعکس مزایده می‌شود: اولین کسی که کنار بکشد کارت را می‌گیرد و پولش را پس می‌گیرد.' : 'اسکناس‌ها خرد نمی‌شوند؛ جمع پیشنهادتان باید از بالاترین پیشنهاد بیشتر شود. با چهارمین کارت قاب‌قرمز بازی تمام می‌شود و کم‌پول‌ترین کنار می‌رود.'}</p>
+          <p>{disgrace ? `${tx(terms.card)} بد برعکس ${tx(terms.auction)} می‌شود: اولین کسی که ${tx(terms.passIf)} ${tx(terms.card)} را می‌گیرد و ${tx(terms.moneyPos)} را پس می‌گیرد.` : `${tx(terms.notes)} خرد نمی‌شوند؛ جمع ${tx(terms.bidYour)} باید از ${tx(terms.highest)} ${tx(terms.bid)} بیشتر شود. با چهارمین ${tx(terms.redCard)} بازی تمام می‌شود و ${tx(terms.poorest)} کنار می‌رود.`}</p>
         </RailSlot>
       )}
 
       {!view.outcome && view.card && (
-        <section data-flip-anchor="stage" className={`hs__stage ${disgrace ? 'hs__stage--bad' : ''}`} aria-label="کارت مزایده">
-          <div className="hs__lamps" title="با چهارمین کارت قاب‌قرمز بازی تمام می‌شود">{[0, 1, 2, 3].map((k) => <i key={`${k}${k < view.red}`} className={k < view.red ? 'on bg-pop' : ''} />)}<span>قاب قرمز: {fa(view.red)} از ۴</span></div>
+        <section data-flip-anchor="stage" className={`hs__stage ${disgrace ? 'hs__stage--bad' : ''}`} aria-label={`${tx(terms.card)} ${tx(terms.auction)}`}>
+          <div className="hs__lamps" title={`با چهارمین ${tx(terms.redCard)} بازی تمام می‌شود`}>{[0, 1, 2, 3].map((k) => <i key={`${k}${k < view.red}`} className={k < view.red ? 'on bg-pop' : ''} />)}<span><T t={terms.redFrame} />: {fa(view.red)} از ۴</span></div>
           <Card c={view.card} key={view.seq + view.card} flip={`c-${view.card === 'prestige' ? 'prestige.stage' : view.card}`} flipFrom="deck" />
           <div className="hs__terms">
-            {disgrace ? <><T t={terms.disgrace} />: <b>اولین کسی که کنار بکشد</b> آن را می‌گیرد؛ بقیه پولشان را از دست می‌دهند</> : <>آخرین نفر باقی‌مانده می‌خرد</>}
-            {view.high > 0 && <>، بالاترین <T t={terms.bid} /> <b className="hs__high bg-pop" key={view.high}>{fa(view.high)}</b></>}
+            {disgrace ? <><T t={terms.disgrace} />: <b>اولین کسی که <T t={terms.passIf} /></b> آن را می‌گیرد؛ بقیه <T t={terms.moneyPosPl} /> را از دست می‌دهند</> : <>آخرین نفر باقی‌مانده می‌خرد</>}
+            {view.high > 0 && <>، <T t={terms.highest} /> <T t={terms.bid} /> <b className="hs__high bg-pop" key={view.high}>{fa(view.high)}</b></>}
           </div>
-          <span className="hs__deck" data-flip-anchor="deck"><span key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</span> کارت در دسته</span>
+          <span className="hs__deck" data-flip-anchor="deck"><span key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</span> <T t={terms.card} /> در <T t={terms.deck} /></span>
         </section>
       )}
 
@@ -129,10 +130,10 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
                 {place && <b className="hs-pl__place">{fa(place)}</b>}
                 <bdi className="hs-pl__name">{who(s)}</bdi>
                 <span className="hs-pl__status" title="امتیاز">★ {fmtStatus(status(view.won[s]!))}</span>
-                {view.money ? <span key={view.money[s]} className={`hs-pl__money bg-pop ${poorest ? 'hs-pl__money--out' : ''}`}>{fa(view.money[s]!)} پول{poorest ? '، کم‌پول‌ترین' : ''}</span>
-                  : <span className="hs-pl__meta">{fa(view.handCount[s]!)} اسکناس</span>}
+                {view.money ? <span key={view.money[s]} className={`hs-pl__money bg-pop ${poorest ? 'hs-pl__money--out' : ''}`}>{fa(view.money[s]!)} <T t={terms.money} />{poorest ? `، ${tx(terms.poorest)}` : ''}</span>
+                  : <span className="hs-pl__meta">{fa(view.handCount[s]!)} <T t={terms.note} /></span>}
                 {view.faux[s] && <span className="hs-pl__flag"><T t={terms.faux} /> در انتظار</span>}
-                {!view.outcome && view.passed[s] && <span className="hs-pl__flag">کنار کشید</span>}
+                {!view.outcome && view.passed[s] && <span className="hs-pl__flag"><T t={terms.passed} /></span>}
               </div>}
               {!view.outcome && view.bids[s]!.length > 0 && <div className="hs-pl__bid">{view.bids[s]!.map((v) => <Note key={v} v={v} size="sm" flip={`n-${s}-${v}`} flipFrom={`seat-${s}`} exit="drop" />)}</div>}
               {view.won[s]!.length > 0 && <div className="hs-pl__won">{view.won[s]!.map((c, i) => <Card key={i} c={c} size="sm" flip={c === 'prestige' ? `w${s}-prestige.${view.won[s]!.slice(0, i).filter((x) => x === c).length}` : `c-${c}`} flipFrom={last?.card === c && last.seat === s ? 'stage' : undefined} exit="drop" />)}</div>}
@@ -142,8 +143,8 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
       </ul>
 
       {view.hand && !view.outcome && (
-        <section className="hs__me" aria-label="اسکناس‌های شما">
-          <div className="hs__fan" role="group" aria-label="اسکناس‌ها" style={{ '--n': view.hand.length, '--cols': Math.ceil(view.hand.length / 2) } as CSSProperties}>
+        <section className="hs__me" aria-label={`${tx(terms.notesEz)} شما`}>
+          <div className="hs__fan" role="group" aria-label={tx(terms.notes)} style={{ '--n': view.hand.length, '--cols': Math.ceil(view.hand.length / 2) } as CSSProperties}>
             {view.hand.map((v, i) => (
               <button key={`${v}-${i}`} type="button" aria-pressed={sel.includes(i)} disabled={busy || !bidHint}
                 className={['hs-pick', sel.includes(i) ? 'hs-pick--on' : '', hint?.type === 'bid' && hint.cards?.includes(v) && !sel.includes(i) ? 'hs-hint' : ''].join(' ')}
@@ -154,7 +155,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
             <div className="hs__actions" data-need={bidHint?.need ?? ''}>
               {bidHint && <Button size="sm" disabled={busy || total < bidHint.need} className={hint?.type === 'bid' && total >= bidHint.need ? 'hs-hint' : ''}
                 onClick={() => onAction({ type: 'bid', cards: chosen })}><T t={terms.bid} /> {fa(myBid + total)}{total < bidHint.need ? ` (حداقل ${fa(myBid + bidHint.need)})` : ''}</Button>}
-              {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'hs-hint' : ''} onClick={() => onAction({ type: 'pass' })}>{disgrace ? 'کنار می‌کشم (کارت را می‌گیرم)' : 'کنار می‌کشم'}</Button></DockSlot>}
+              {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'hs-hint' : ''} onClick={() => onAction({ type: 'pass' })}>{disgrace ? `${tx(terms.passMe)} (${tx(terms.card)} را می‌گیرم)` : tx(terms.passMe)}</Button></DockSlot>}
             </div>
           )}
         </section>

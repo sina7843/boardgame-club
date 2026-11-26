@@ -5,7 +5,7 @@
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
 import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, type Term, DockSlot } from '@bg/ui';
-import { terms } from './terms.ts';
+import { CARD_EN, terms } from './terms.ts';
 import mapArt from './art/ed-map.png';
 import pawn0 from './art/ed-pawn-0.png';
 import pawn1 from './art/ed-pawn-1.png';
@@ -26,10 +26,11 @@ import { COLS, MAP, ROWS, TYPE, coinValue, type CardType, type EdView } from './
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const PAWN = ['#e0473c', '#2f7de1', '#f2c230', '#9b59d0']; // fallback dot colours outside the frame
-const KIND_FA: Record<string, string> = { g: 'جنگل', b: 'آب', y: 'روستا', r: 'آوار', c: 'اردوگاه', m: 'کوه', s: 'شروع', E: 'الدورادو' };
+const KIND_T: Record<string, Term> = { g: terms.jungle, b: terms.water, y: terms.village, r: terms.rubble, c: terms.camp, m: terms.mountain, s: terms.start, E: { fa: 'الدورادو', bg: 'El Dorado' } };
+const cardName = (t: { key: string; name: string } | undefined) => (t ? tx({ fa: t.name, bg: CARD_EN[t.key] ?? t.name }) : '');
 const SYM_T: Record<string, Term> = { g: terms.machete, b: terms.paddle, y: terms.coin, any: terms.joker };
 const symFa = (k: string) => tx(SYM_T[k]!);
-const kindFa = (k: string) => (k === 'r' ? tx(terms.rubble) : k === 'c' ? tx(terms.camp) : KIND_FA[k]!);
+const kindFa = (k: string) => tx(KIND_T[k]!);
 // Hex grid measured on the 372x553 map image: pointy hexes, R 32, column pitch 54.3, row pitch 48, odd rows shifted half a column.
 const R = 32, W = 54.3, MAP_W = 372, MAP_H = 553;
 const center = (i: number) => { const r = Math.floor(i / COLS), c = i % COLS; return [36.75 + c * W + (r % 2 ? W / 2 : 0), 37.6 + (ROWS - 1 - r) * 48] as const; };
@@ -38,9 +39,9 @@ const hexPath = (x: number, y: number) => [[0, -R], [27, -R / 2], [27, R / 2], [
 export function EdCard({ t, size = 'md' }: { t: CardType; size?: 'sm' | 'md' }) {
   useTermsLang();
   return (
-    <span className={`ed-card ed-card--${size}`} aria-label={`${t.name}: ${t.pts ? `${fa(t.pts)} ${symFa(t.sym)}` : t.draw ? `${fa(t.draw)} کارت بکش` : 'حرکت آزاد'}${t.once ? '، یک‌بار مصرف' : ''}`}>
+    <span className={`ed-card ed-card--${size}`} aria-label={`${cardName(t)}: ${t.pts ? `${fa(t.pts)} ${symFa(t.sym)}` : t.draw ? `${fa(t.draw)} ${tx(terms.card)} ${tx(terms.drawImp)}` : tx(terms.freeMove)}${t.once ? `، ${tx(terms.singleUse)}` : ''}`}>
       <img src={CARD_ART[t.key]} alt="" draggable={false} />
-      <span className="visually-hidden">{t.name}</span>
+      <span className="visually-hidden">{cardName(t)}</span>
     </span>
   );
 }
@@ -50,13 +51,13 @@ export function MapSvg({ view, targets, onPick, hint }: { view: Pick<EdView, 'ex
   return (
     <div className="ed-mapi">
       <img src={mapArt} alt="" draggable={false} />
-      <svg className="ed-map" viewBox={`0 0 ${MAP_W} ${MAP_H}`} role="img" aria-label="نقشه">
+      <svg className="ed-map" viewBox={`0 0 ${MAP_W} ${MAP_H}`} role="img" aria-label={tx(terms.map)}>
         {MAP.map((h, i) => {
           if (!targets?.has(i)) return null;
           const [x, y] = center(i);
           return (
             <g key={i} data-hex={i} className={`ed-hex ed-hex--can ${hint === i ? 'ed-hint' : ''}`} onClick={onPick ? () => onPick(i) : undefined}
-              role="button" aria-label={`رفتن به ${kindFa(h.kind)}${h.cost ? ` ${fa(h.cost)}` : ''}`} tabIndex={0}
+              role="button" aria-label={`${tx(terms.moveTo)} ${kindFa(h.kind)}${h.cost ? ` ${fa(h.cost)}` : ''}`} tabIndex={0}
               onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onPick(i); } : undefined}>
               <polygon className="ed-tap" points={hexPath(x, y)} />
             </g>
@@ -150,21 +151,21 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: chosen === null ? 'کارتی برای حرکت انتخاب کنید، بخرید یا نوبت را تمام کنید' : 'یک خانهٔ روشن را انتخاب کنید' }
+    : myTurn ? { tone: 'mine' as const, text: chosen === null ? `${tx(terms.cardOne)} برای حرکت انتخاب کنید، ${tx(terms.buyImp)} یا نوبت را تمام کنید` : `یک ${tx(terms.hexEz)} روشن را انتخاب کنید` }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const coins = coinValue(hand);
   const framed = useInFrame() !== null;
 
   return (
     <div className={framed ? 'ed ed--framed' : 'ed'} ref={root} data-seq={view.seq}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>کارت را بازی کنید تا خانه‌های قابل رفتن روشن شوند؛ عدد هر خانه هزینهٔ ورود است. <T t={terms.rubble} /> و <T t={terms.camp} /> با دور ریختن کارت باز می‌شوند.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p><T t={terms.card} /> را بازی کنید تا <T t={terms.hexesEz} /> قابل رفتن روشن شوند؛ عدد هر <T t={terms.hex} /> <T t={terms.entryCost} /> است. <T t={terms.rubble} /> و <T t={terms.camp} /> با <T t={terms.discardV} /> <T t={terms.card} /> باز می‌شوند.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!framed && <ul className="ed-crew" aria-label="گروه‌ها">
         {view.explorers.map((e, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={`ed-crew__p ${k === view.current && !view.outcome ? 'is-now' : ''}`} style={{ ['--pawn' as string]: PAWN[k] }}>
             <i className="ed-dot" /><bdi>{who(k)}</bdi>
-            <small>{e.arrived ? 'رسید ★' : `${tx(terms.deck)} ${fa(e.deck)}، ${tx(terms.discard)} ${fa(e.discard)}`}</small>
-            {view.last?.kind === 'buy' && view.last.seat === k && view.last.card && <span className="ed-chip" data-flip={`buy-${view.seq}`} data-flip-from={`mk-${view.last.card}`}>{TYPE[view.last.card]?.name}</span>}
+            <small>{e.arrived ? `${tx(terms.arrived)} ★` : `${tx(terms.deck)} ${fa(e.deck)}، ${tx(terms.discard)} ${fa(e.discard)}`}</small>
+            {view.last?.kind === 'buy' && view.last.seat === k && view.last.card && <span className="ed-chip" data-flip={`buy-${view.seq}`} data-flip-from={`mk-${view.last.card}`}>{cardName(TYPE[view.last.card])}</span>}
           </li>
         ))}
       </ul>}
@@ -174,10 +175,10 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
       </div>
 
       {view.hand && !view.outcome && (
-        <section className="ed-me" aria-label="دست شما">
+        <section className="ed-me" aria-label={`${tx(terms.hand)} شما`}>
           {view.active && myTurn && (
             <button type="button" className={`ed-active ${chosen === -1 ? 'is-on' : ''}`} onClick={() => { setSel(null); setPay([]); }}>
-              ادامه با {TYPE[view.active.key]!.name}: {fa(view.active.left)} {symFa(view.active.sym)} مانده
+              <T t={terms.continueWith} /> {cardName(TYPE[view.active.key]!)}: {fa(view.active.left)} {symFa(view.active.sym)} مانده
             </button>
           )}
           <div className="ed-hand">
@@ -191,16 +192,16 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
                     onClick={() => { if (rubble.length && sel === null && pay.length) setPay(pay.includes(i) ? pay.filter((x) => x !== i) : [...pay, i]); else { setSel(sel === i ? null : i); } }}>
                     <EdCard t={t} />
                   </button>
-                  {usable.has(i) && <button type="button" className="ed-mini" disabled={busy} onClick={() => onAction({ type: 'use', card: i })}>استفاده</button>}
-                  {rubble.length > 0 && <button type="button" className="ed-mini" disabled={busy} aria-pressed={pay.includes(i)} onClick={() => { setSel(null); setPay(pay.includes(i) ? pay.filter((x) => x !== i) : [...pay, i]); }}>{pay.includes(i) ? `برای ${tx(terms.rubble)} ✓` : `برای ${tx(terms.rubble)}`}</button>}
+                  {usable.has(i) && <button type="button" className="ed-mini" disabled={busy} onClick={() => onAction({ type: 'use', card: i })}><T t={terms.use} /></button>}
+                  {rubble.length > 0 && <button type="button" className="ed-mini" disabled={busy} aria-pressed={pay.includes(i)} onClick={() => { setSel(null); setPay(pay.includes(i) ? pay.filter((x) => x !== i) : [...pay, i]); }}>{pay.includes(i) ? `${tx(terms.forRubble)} ${tx(terms.rubble)} ✓` : `${tx(terms.forRubble)} ${tx(terms.rubble)}`}</button>}
                 </span>
               );
             })}
           </div>
           {myTurn && (
             <div className="ed-bar">
-              <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'ed-hint' : ''} onClick={() => onAction({ type: 'endTurn', discard: [] })}>پایان نوبت</Button></DockSlot>
-              {hand.length > 0 && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'endTurn', discard: hand.map((_, i) => i) })}>پایان نوبت و دور ریختن دست</Button></DockSlot>}
+              <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'ed-hint' : ''} onClick={() => onAction({ type: 'endTurn', discard: [] })}><T t={terms.endTurn} /></Button></DockSlot>
+              {hand.length > 0 && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'endTurn', discard: hand.map((_, i) => i) })}><T t={terms.endTurnDiscard} /></Button></DockSlot>}
             </div>
           )}
         </section>
@@ -208,7 +209,7 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
 
       {!view.outcome && (
         <section className="ed-market" aria-label={tx(terms.market)}>
-          <p className="ed-market__title"><T t={terms.market} /> {canBuy && myTurn ? `، ${fa(coins)} ${tx(terms.coins)} در دست` : view.bought ? '، این نوبت خرید شد' : ''}</p>
+          <p className="ed-market__title"><T t={terms.market} /> {canBuy && myTurn ? `، ${fa(coins)} ${tx(terms.coins)} در دست` : view.bought ? `، ${tx(terms.boughtThisTurn)}` : ''}</p>
           <div className="ed-market__row">
             {Object.entries(view.market).map(([k, n]) => {
               const t = TYPE[k]!;

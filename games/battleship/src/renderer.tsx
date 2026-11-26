@@ -20,10 +20,12 @@ import ship4s from './art/ship-4-sunk.png';
 const SHIPS = [ship0, ship1, ship2, ship3, ship4];
 const SHIPS_SUNK = [ship0s, ship1s, ship2s, ship3s, ship4s];
 const SHIP_PX = [272, 222, 172, 172, 122]; // art widths; 72px tall; ~54px per cell
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps } from '@bg/ui';
+import { shipTerm, terms } from './terms.ts';
 import { FLEET, SIZE, cellsOf, validFleet, type BsView, type Dir, type SeaView, type Ship } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
+const shipName = (i: number) => tx(shipTerm[FLEET[i]!.key]!);
 const ROWS = ['الف', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د'];
 const cellName = (c: number) => `${ROWS[Math.floor(c / SIZE)]}${fa((c % SIZE) + 1)}`;
 
@@ -53,6 +55,7 @@ function Chart({ sea, seat, me, mine, label, onCell, canCell, hint, draft, ghost
   sea: SeaView; seat: number; me: number; mine: boolean; lastShot?: BsView['last']; aim?: number | null; label: string; onCell?: (c: number) => void; canCell?: (c: number) => boolean; hint?: number | null;
   draft?: Ship[]; ghost?: { cells: number[]; ok: boolean } | null;
 }) {
+  useTermsLang();
   const shots = new Map(sea.shots.map((x) => [x.cell, x.hit]));
   const ships = draft ?? sea.ships;
   // An incoming shell (the opponent's shot on my sea) flies from the shooter's chart and the result lands after it
@@ -61,7 +64,7 @@ function Chart({ sea, seat, me, mine, label, onCell, canCell, hint, draft, ghost
   const at = (c: number) => ({ insetInlineStart: `${(c % SIZE) * 10}%`, insetBlockStart: `${Math.floor(c / SIZE) * 10}%` });
   return (
     <section className={`bs-chart ${mine ? 'bs-chart--mine' : 'bs-chart--enemy'}`} aria-label={label}>
-      <header className="bs-chart__head"><b>{label}</b><small>{fa(sea.afloat ?? ships.length)} کشتی شناور</small></header>
+      <header className="bs-chart__head"><b>{label}</b><small>{fa(sea.afloat ?? ships.length)} <T t={terms.afloat} /></small></header>
       <div className="bs-chart__frame" dir="ltr" style={{ backgroundImage: `url(${chart})` }} data-flip-anchor={`fleet-${seat}`}>
         <div className={`bs-sea ${lastShot?.hit ? `is-hit-${lastShot.cell % 2}` : ''} ${late ? 'is-late' : ''}`}>
           <svg viewBox="0 0 100 100" className="bs-sea__art" aria-hidden>
@@ -82,7 +85,7 @@ function Chart({ sea, seat, me, mine, label, onCell, canCell, hint, draft, ghost
             {Array.from({ length: SIZE * SIZE }, (_, c) => {
               const can = !!onCell && (canCell ? canCell(c) : true);
               return can
-                ? <button key={c} type="button" className={`bs-cell ${hint === c ? 'bs-hint' : ''}`} aria-label={`${mine ? 'گذاشتن در' : 'شلیک به'} ${cellName(c)}`} onClick={() => onCell!(c)} />
+                ? <button key={c} type="button" className={`bs-cell ${hint === c ? 'bs-hint' : ''}`} aria-label={`${tx(mine ? terms.placeAt : terms.fireAt)} ${cellName(c)}`} onClick={() => onCell!(c)} />
                 : <span key={c} className="bs-cell" aria-hidden />;
             })}
           </div>
@@ -110,6 +113,7 @@ function localRandomFleet(): Ship[] {
 type Hint = { type: string; cell?: number } | null;
 
 export default function BattleshipRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued, sending }: GameRendererProps<BsView>) {
+  useTermsLang();
   const me = mySeat ?? 0;
   const opp = 1 - me;
   const framed = useInFrame() !== null;
@@ -150,7 +154,7 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : placing && fleetDone ? { tone: 'wait' as const, text: 'منتظر چیدمان حریف…' }
-    : placing ? { tone: 'mine' as const, text: draft.length < FLEET.length ? `ناوگان را بچینید: ${FLEET[pick ?? 0]!.name}` : 'ناوگان آماده است؛ چیدمان را تأیید کنید' }
+    : placing ? { tone: 'mine' as const, text: draft.length < FLEET.length ? `${tx(terms.fleet)} را بچینید: ${shipName(pick ?? 0)}` : `${tx(terms.fleet)} آماده است؛ چیدمان را تأیید کنید` }
       : view.phase === 'place' ? { tone: 'wait' as const, text: 'منتظر چیدمان حریف…' }
         : firing ? { tone: 'mine' as const, text: 'به دریای حریف شلیک کنید' }
           : { tone: 'wait' as const, text: `${seatName(view.current)} نشانه می‌گیرد…` };
@@ -159,14 +163,14 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
     <div className="bs" data-seq={view.seq} data-phase={view.phase} ref={root}>
       {framed && (
         <RailSlot>
-          <p><b>{placing ? 'هر ناو افقی یا عمودی؛ ناوها می‌توانند کنار هم باشند ولی روی هم نه.' : 'هر نوبت یک شلیک؛ اصابت یعنی دوباره حدس بزنید همان اطراف.'}</b></p>
-          <p>ناو هواپیمابر ۵ خانه، رزمناو ۴، ناوشکن و زیردریایی ۳ و قایق گشتی ۲ خانه است. وقتی همهٔ خانه‌های یک ناو بخورد غرق می‌شود.</p>
+          <p><b>{placing ? 'هر ناو افقی یا عمودی؛ ناوها می‌توانند کنار هم باشند ولی روی هم نه.' : 'هر نوبت یک شلیک؛ <T t={terms.hit} /> یعنی دوباره حدس بزنید همان اطراف.'}</b></p>
+          <p><T t={terms.carrier} /> ۵ خانه، <T t={terms.battleship} /> ۴، <T t={terms.cruiser} /> و <T t={terms.submarine} /> ۳ و <T t={terms.patrol} /> ۲ خانه است. وقتی همهٔ خانه‌های یک ناو بخورد <T t={terms.sunk} /> می‌شود.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {last && view.phase === 'fire' && (
         <p className={`bs-report ${last.sunk !== null ? 'is-sunk' : last.hit ? 'is-hit' : 'is-miss'}`} key={view.seq} role="status">
-          <bdi>{who(last.seat)}</bdi> به {cellName(last.cell)} شلیک کرد: {last.sunk !== null ? `غرق شد — ${FLEET[last.sunk]!.name}!` : last.hit ? 'اصابت!' : 'آب'}
+          <bdi>{who(last.seat)}</bdi> به {cellName(last.cell)} شلیک کرد: {last.sunk !== null ? `${tx(terms.sunk)} شد — ${shipName(last.sunk)}!` : last.hit ? `${tx(terms.hit)}!` : tx(terms.miss)}
         </p>
       )}
       {!last && view.phase === 'fire' && <p className="bs-report" style={{ visibility: 'hidden' }} aria-hidden>&nbsp;</p>}
@@ -184,7 +188,7 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
       </div>
 
       {placing && !fleetDone && (
-        <section className="bs-tray" aria-label="ناوگان">
+        <section className="bs-tray" aria-label={tx(terms.fleet)}>
           <div className="bs-tray__ships">
             {FLEET.map((f, i) => {
               const placed = draft.some((s) => s.ship === i);
@@ -193,7 +197,7 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
                   className={['bs-tray__ship', pick === i ? 'is-on' : '', placed ? 'is-placed' : ''].join(' ')}
                   onClick={() => { setPick(i); setDraft(draft.filter((s) => s.ship !== i)); }}>
                   <img className="bs-tray__art" src={SHIPS[i]} alt="" aria-hidden="true" style={{ inlineSize: `${f.len * 1.4}rem` }} />
-                  <small>{f.name}{placed ? ' ✓' : ''}</small>
+                  <small>{shipName(i)}{placed ? ' ✓' : ''}</small>
                 </button>
               );
             })}
@@ -210,11 +214,11 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
       )}
 
       {view.phase === 'fire' && (
-        <ul className="bs-fleets" aria-label="وضعیت ناوگان‌ها">
+        <ul className="bs-fleets" aria-label={`وضعیت ${tx(terms.fleets)}`}>
           {[opp, me].map((k) => (
             <li key={k}>
               <b><bdi>{who(k)}</bdi></b>
-              {FLEET.map((f, i) => <span key={f.key} className={view.seas[k]!.sunk.includes(i) ? `is-sunk ${last?.sunk === i && last.seat !== k ? 'bg-hit' : ''}` : ''}>{f.name}</span>)}
+              {FLEET.map((f, i) => <span key={f.key} className={view.seas[k]!.sunk.includes(i) ? `is-sunk ${last?.sunk === i && last.seat !== k ? 'bg-hit' : ''}` : ''}>{shipName(i)}</span>)}
             </li>
           ))}
         </ul>

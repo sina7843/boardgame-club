@@ -54,54 +54,54 @@ export default function TheMindRenderer({ view, legalActions, mySeat, seatName, 
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : play ? { tone: 'mine' as const, text: 'وقتی حس کردید نوبت کارت شماست، بگذارید' }
-      : { tone: 'wait' as const, text: 'کارت‌هایتان تمام شد؛ منتظر هم‌تیمی‌ها' };
+    : play ? { tone: 'mine' as const, text: tx(terms.playPrompt) }
+      : { tone: 'wait' as const, text: tx(terms.outOfCards) };
 
   return (
     <div ref={root} className={`tmd ${last?.kind === 'mistake' ? 'tmd--oops' : ''}`} data-seq={view.seq} key={last?.kind === 'mistake' ? `oops-${view.seq}` : 'tmd'}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      {framed && <RailSlot><p>بدون حرف زدن، کارت‌ها را به ترتیب صعودی روی میز بگذارید؛ هر کس وقتی حس کرد نوبت کارت کوچک‌ترش است.</p></RailSlot>}
+      {framed && <RailSlot><p><T t={terms.rail} /></p></RailSlot>}
 
       {/* Pile and the level / lives / stars board side by side, as in the reference (QA round 2: the strip broke). */}
-      <section className="tmd__center" aria-label="کارت‌های زمین">
+      <section className="tmd__center" aria-label={tx(terms.playedCards)}>
         <div className="tmd__hud">
           <span className="tmd__level"><small><T t={terms.level} /></small><b key={view.level} className="bg-pop">{fa(view.level)}</b><small>از {fa(view.levels)}</small></span>
           <span className={last?.kind === 'mistake' ? 'tmd__lives bg-hit' : 'tmd__lives'} key={`l${view.lives}`} aria-label={`${fa(view.lives)} ${tx(terms.life)}`}>{Array.from({ length: Math.max(5, view.lives) }, (_, k) => <Heart key={k} on={k < view.lives} />)}</span>
           <small aria-hidden="true"><T t={terms.life} /></small>
-          <span className="tmd__stars bg-pop" key={`s${view.stars}`} aria-label={`${fa(view.stars)} ستاره`}>{Array.from({ length: 3 }, (_, k) => <Star key={k} on={k < view.stars} />)}</span>
-          <small aria-hidden="true">ستاره</small>
+          <span className="tmd__stars bg-pop" key={`s${view.stars}`} aria-label={`${fa(view.stars)} ${tx(terms.shuriken)}`}>{Array.from({ length: 3 }, (_, k) => <Star key={k} on={k < view.stars} />)}</span>
+          <small aria-hidden="true"><T t={terms.shuriken} /></small>
         </div>
         <div className="tmd__pile" data-flip-anchor="deck">
-          {top !== undefined ? <Num n={top} size="lg" key={top} flip={`c-${top}`} flipFrom={last?.card === top && last.seat !== undefined && last.seat !== mySeat ? `seat-${last.seat}` : 'deck'} /> : <span className="tmd__empty">{view.level > 1 && last?.kind === 'level' ? `مرحلهٔ ${fa(view.level)} شروع شد` : 'هنوز کارتی زمین نیامده'}</span>}
+          {top !== undefined ? <Num n={top} size="lg" key={top} flip={`c-${top}`} flipFrom={last?.card === top && last.seat !== undefined && last.seat !== mySeat ? `seat-${last.seat}` : 'deck'} /> : <span className="tmd__empty">{view.level > 1 && last?.kind === 'level' ? `${tx(terms.levelEz)} ${fa(view.level)} ${tx(terms.started)}` : tx(terms.noCardYet)}</span>}
           {pile.length > 1 && <span className="tmd__under">{pile.slice(-6, -1).map((n) => fa(n)).join(' ، ')}</span>}
         </div>
         {last && (last.kind === 'mistake' || last.kind === 'star') && (
           <p className={`tmd__note tmd__note--${last.kind}`} role="status" key={view.seq}>
-            {last.kind === 'mistake' ? <>اشتباه! <bdi>{who(last.seat!)}</bdi> {fa(last.card!)} را گذاشت؛ یک جان از دست رفت. کنار رفت: </> : <>ستاره پرتاب شد: </>}
+            {last.kind === 'mistake' ? <><T t={terms.mistake} /> <bdi>{who(last.seat!)}</bdi> {fa(last.card!)} <T t={terms.mistakeRest} /> </> : <><T t={terms.shurikenThrown} /> </>}
             {last.lost!.map((x, i) => <span key={i} className="tmd__lost"><bdi>{who(x.seat)}</bdi> {fa(x.card)}</span>)}
           </p>
         )}
       </section>
 
-      {!framed && <ul className="tmd__team" aria-label="هم‌تیمی‌ها">
+      {!framed && <ul className="tmd__team" aria-label={tx(terms.teammates)}>
         {others.map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={`tmd-mate ${view.handCount[s] ? '' : 'tmd-mate--done'}`}>
             <bdi className="tmd-mate__name">{who(s)}</bdi>
-            <span className="tmd-mate__cards" aria-label={`${fa(view.handCount[s]!)} کارت`}>
+            <span className="tmd-mate__cards" aria-label={`${fa(view.handCount[s]!)} ${tx(terms.cards)}`}>
               {Array.from({ length: view.handCount[s]! }, (_, k) => <img key={k} src={cardBack} alt="" aria-hidden="true" />)}{!view.handCount[s] && 'تمام'}
             </span>
-            {view.votes[s] && <span className="tmd-mate__vote"><Star on /> موافق ستاره</span>}
+            {view.votes[s] && <span className="tmd-mate__vote"><Star on /> <T t={terms.agreeStar} /></span>}
           </li>
         ))}
       </ul>}
 
       {hand && !view.outcome && (
-        <section className="tmd__me" aria-label="کارت‌های شما">
-          <div className="tmd__hand">{hand.map((n, i) => <Num key={n} n={n} size={i === 0 ? 'md' : 'sm'} flip={`c-${n}`} flipFrom="deck" exit="drop" />)}{!hand.length && <span className="tmd__empty">کارتی ندارید</span>}</div>
+        <section className="tmd__me" aria-label={tx(terms.yourCards)}>
+          <div className="tmd__hand">{hand.map((n, i) => <Num key={n} n={n} size={i === 0 ? 'md' : 'sm'} flip={`c-${n}`} flipFrom="deck" exit="drop" />)}{!hand.length && <span className="tmd__empty"><T t={terms.noCards} /></span>}</div>
           <Acts framed={framed}>
-            {play && pending === undefined && <button type="button" data-card={play.card} className={`bgv-btn bgv-btn--primary tmd-play ${hint?.type === 'play' ? 'tmd-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'play' })}>بگذار <b>{fa(play.card)}</b></button>}
+            {play && pending === undefined && <button type="button" data-card={play.card} className={`bgv-btn bgv-btn--primary tmd-play ${hint?.type === 'play' ? 'tmd-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'play' })}><T t={terms.play} /> <b>{fa(play.card)}</b></button>}
             {star && <button type="button" className="bgv-btn bgv-btn--secondary tmd-star" disabled={busy} aria-pressed={!star.on} onClick={() => onAction({ type: 'star', on: star.on })}>
-              <Star on /> {star.on ? (voting ? 'من هم موافقم' : 'پیشنهاد ستاره پرتابی') : 'پس گرفتن موافقت'}
+              <Star on /> {star.on ? (voting ? tx(terms.agreeToo) : tx(terms.proposeStar)) : tx(terms.withdraw)}
             </button>}
           </Acts>
         </section>

@@ -108,7 +108,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: view.finalLeft !== null ? `دسته تمام شد: ${fa(view.finalLeft)} نوبت مانده` : `${tx(terms.clue)} بدهید، کارت بازی کنید یا دور بیندازید` }
+    : myTurn ? { tone: 'mine' as const, text: view.finalLeft !== null ? `${tx(terms.deck)} تمام شد: ${fa(view.finalLeft)} نوبت مانده` : `${tx(terms.clue)} بدهید، ${tx(terms.card)} ${tx(terms.playV)} یا ${tx(terms.discardV)}` }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const last = view.last;
   const framed = useInFrame() !== null;
@@ -123,18 +123,18 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
     <div className="hb" ref={root} data-seq={served.seq}>
       {framed && (
         <RailSlot>
-          <p><T t={terms.clue} /> فقط رنگ یا عدد کارت‌های هم‌تیمی را نشان می‌دهد و یک ژتون خرج می‌کند؛ کارت‌های خودتان را نمی‌بینید.{view.finalLeft !== null ? ` دسته تمام شد؛ ${fa(view.finalLeft)} نوبت مانده.` : ''}</p>
+          <p><T t={terms.clue} /> فقط رنگ یا عدد <T t={terms.cardsEz} /> هم‌تیمی را نشان می‌دهد و یک <T t={terms.token} /> خرج می‌کند؛ <T t={terms.cardsEz} /> خودتان را نمی‌بینید.{view.finalLeft !== null ? ` ${tx(terms.deck)} تمام شد؛ ${fa(view.finalLeft)} نوبت مانده.` : ''}</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <section className="hb__sky" aria-label="آتش‌بازی‌ها">
+      <section className="hb__sky" aria-label={tx(terms.fireworks)}>
         <div className="hb__tokens">
-          <span className={`hb__clues ${cluePop}`} key={`c${view.clues}`} aria-label={`${fa(view.clues)} ژتون ${tx(terms.clue)}`}>{Array.from({ length: 8 }, (_, i) => <img key={i} src={clue} alt="" className={i < view.clues ? 'on' : ''} />)}</span>
+          <span className={`hb__clues ${cluePop}`} key={`c${view.clues}`} aria-label={`${fa(view.clues)} ${tx(terms.clueToken)}`}>{Array.from({ length: 8 }, (_, i) => <img key={i} src={clue} alt="" className={i < view.clues ? 'on' : ''} />)}</span>
           <span className={last?.kind === 'play' && !last.ok ? 'hb__fuses bg-hit' : 'hb__fuses'} key={`f${view.fuses}`} aria-label={`${fa(view.fuses)} ${tx(terms.fuse)}`}>{Array.from({ length: 3 }, (_, i) => <img key={i} src={fuse} alt="" className={i < view.fuses ? 'on' : ''} />)}</span>
-          <span data-flip-anchor="deck">دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b></span>
+          <span data-flip-anchor="deck"><T t={terms.deck} />: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b></span>
           <span className="hb__pending" data-flip-anchor="pending">
-            {pendingIdx !== null && myIds[pendingIdx] && <span data-flip={myIds[pendingIdx]} className="hb-mine hb-mine--pending" aria-label="کارت شما در راه"><span className="hb-mine__face">?</span></span>}
+            {pendingIdx !== null && myIds[pendingIdx] && <span data-flip={myIds[pendingIdx]} className="hb-mine hb-mine--pending" aria-label={`${tx(terms.card)} شما در راه`}><span className="hb-mine__face">?</span></span>}
           </span>
           {!framed && <span className="hb__score">امتیاز <b key={view.score} className="bg-pop">{fa(view.score)}</b> از ۲۵</span>}
         </div>
@@ -151,7 +151,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
           <p className="hb__last" role="status" key={view.seq}>
             <bdi>{who(last.seat)}</bdi>{' '}
             {last.kind === 'clue' ? <>به <bdi>{who(last.to!)}</bdi> <T t={terms.clue} /> داد: «{last.color ? COLOR_FA[last.color] : fa(last.rank!)}»</>
-              : last.kind === 'discard' ? 'یک کارت دور انداخت' : last.ok ? 'یک کارت درست بازی کرد ✨' : `کارت اشتباه بازی کرد و یک ${tx(terms.fuse)} سوخت`}
+              : last.kind === 'discard' ? `یک ${tx(terms.card)} ${tx(terms.discardP)}` : last.ok ? `یک ${tx(terms.card)} درست ${tx(terms.playP)} ✨` : `${tx(terms.card)} اشتباه ${tx(terms.playP)} و یک ${tx(terms.fuse)} سوخت`}
           </p>
         )}
       </section>
@@ -161,7 +161,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
           <li key={k} data-flip-anchor={`seat-${k}`} className={['hb-mate', view.current === k && !view.outcome ? 'hb-mate--turn' : '', target === k ? 'hb-mate--on' : ''].join(' ')}>
             <div className="hb-mate__head">
               <bdi className="hb-mate__name">{who(k)}</bdi>
-              {canClue && !busy && <button type="button" className={`hb-clueBtn ${hint?.type === 'clue' && hint.to === k && target !== k ? 'hb-hint' : ''}`} onClick={() => { setTarget(target === k ? null : k); setMine(null); }}><T t={terms.clue} /> بده</button>}
+              {canClue && !busy && <button type="button" className={`hb-clueBtn ${hint?.type === 'clue' && hint.to === k && target !== k ? 'hb-hint' : ''}`} onClick={() => { setTarget(target === k ? null : k); setMine(null); }}><T t={terms.clue} /> <T t={terms.giveImp} /></button>}
             </div>
             <div className="hb-mate__hand">
               {view.hands[k]!.map((h, i) => (
@@ -182,11 +182,11 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
       </ul>
 
       {me >= 0 && !view.outcome && (
-        <section className="hb__me" data-flip-anchor="hand-me" aria-label="کارت‌های شما">
+        <section className="hb__me" data-flip-anchor="hand-me" aria-label={`${tx(terms.cardsEz)} شما`}>
           <div className="hb__hand">
             {view.hands[me]!.map((h, i) => (i === pendingIdx ? null :
               <button key={myIds[i] ?? i} type="button" data-flip={myIds[i]} data-flip-from="deck" className={['hb-mine', mine === i ? 'hb-mine--on' : '', h.color ? `hb-c--${h.color}` : '', hint?.type === 'play' && hint.index === i && mine !== i ? 'hb-hint' : ''].join(' ')}
-                disabled={!myTurn || busy} aria-pressed={mine === i} onClick={() => { setMine(mine === i ? null : i); setTarget(null); }} aria-label={`کارت ${fa(i + 1)} شما`}>
+                disabled={!myTurn || busy} aria-pressed={mine === i} onClick={() => { setMine(mine === i ? null : i); setTarget(null); }} aria-label={`${tx(terms.card)} ${fa(i + 1)} شما`}>
                 <span className="hb-mine__face">{h.rank ? fa(h.rank) : '?'}</span>
                 <small>{h.color ? COLOR_FA[h.color] : 'رنگ؟'}</small>
                 {(h.notColors.length > 0 || h.notRanks.length > 0) && <small className="hb-mine__not">نه: {[...h.notColors.map((c) => COLOR_FA[c]), ...h.notRanks.map(fa)].join('، ')}</small>}
@@ -195,8 +195,8 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
           </div>
           {mine !== null && (
             <div className="hb__bar">
-              <Button size="sm" disabled={busy} className={hint?.type === 'play' ? 'hb-hint' : ''} onClick={() => onAction({ type: 'play', index: mine })}>بازی</Button>
-              <Button size="sm" variant="secondary" disabled={busy || !canDiscard} onClick={() => onAction({ type: 'discard', index: mine })}>دور انداختن</Button>
+              <Button size="sm" disabled={busy} className={hint?.type === 'play' ? 'hb-hint' : ''} onClick={() => onAction({ type: 'play', index: mine })}><T t={terms.playN} /></Button>
+              <Button size="sm" variant="secondary" disabled={busy || !canDiscard} onClick={() => onAction({ type: 'discard', index: mine })}><T t={terms.discardN} /></Button>
             </div>
           )}
         </section>
@@ -205,7 +205,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
       {view.outcome && (
         <div className="hb__final">{view.hands.map((h, k) => <div key={k} className="hb__finalHand"><bdi>{who(k)}</bdi>{h.map((x, i) => x.card ? <Firework key={i} c={x.card.c} n={x.card.r} size="sm" /> : null)}</div>)}</div>
       )}
-      {view.discard.length > 0 && <div className="hb__discard" aria-label="دورریخته‌ها"><small>دورریخته:</small>{view.discard.map((id) => <span key={id} data-flip={`c-${id}`} data-flip-from={last?.card === id ? lastFrom : 'deck'} className="hb-dc"><Firework c={CARDS[id]!.c} n={CARDS[id]!.r} size="sm" /></span>)}</div>}
+      {view.discard.length > 0 && <div className="hb__discard" aria-label={tx(terms.discards)}><small><T t={terms.discarded} />:</small>{view.discard.map((id) => <span key={id} data-flip={`c-${id}`} data-flip-from={last?.card === id ? lastFrom : 'deck'} className="hb-dc"><Firework c={CARDS[id]!.c} n={CARDS[id]!.r} size="sm" /></span>)}</div>}
     </div>
   );
 }
