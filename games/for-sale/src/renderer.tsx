@@ -3,8 +3,9 @@
 // your hand (and bid stepper) at the bottom.
 import './renderer.css';
 import { useEffect, useId, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameRendererProps } from '@bg/ui';
 import type { ForSaleView } from './rules.ts';
+import { terms } from './terms.ts';
 import props from './art/props.webp';
 import p3 from './art/for-sale-property-03.png';
 import p5 from './art/for-sale-property-05.png';
@@ -41,12 +42,12 @@ const tier = (v: number) => Math.min(5, Math.floor((v - 1) / 5));
 export function Prop({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; flipExit?: string }) {
   const clip = useId();
   if (PROP_ART[v]) return (
-    <span className={['fs-card', 'fs-card--prop', 'fs-card--art', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`ملک ${fa(v)} (${TIER[tier(v)]})`}>
+    <span className={['fs-card', 'fs-card--prop', 'fs-card--art', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`${tx(terms.property)} ${fa(v)} (${TIER[tier(v)]})`}>
       <img src={PROP_ART[v]} alt="" aria-hidden="true" draggable={false} />
     </span>
   );
   return (
-    <span className={['fs-card', 'fs-card--prop', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`ملک ${fa(v)} (${TIER[tier(v)]})`}>
+    <span className={['fs-card', 'fs-card--prop', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`${tx(terms.property)} ${fa(v)} (${TIER[tier(v)]})`}>
       <svg viewBox="-45 -62 90 124" aria-hidden="true" direction="ltr">
         <clipPath id={clip}><rect x="-43" y="-60" width="86" height="120" rx="8" /></clipPath>
         <rect x="-43" y="-60" width="86" height="120" rx="8" className="fs-card__bg" />
@@ -60,12 +61,12 @@ export function Prop({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; 
 
 export function Cheque({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; flipExit?: string }) {
   if (CHEQUE_ART[v]) return (
-    <span className={['fs-card', 'fs-card--cheque', 'fs-card--art', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={v ? `چک ${fa(v)} هزار` : 'چک صفر'}>
+    <span className={['fs-card', 'fs-card--cheque', 'fs-card--art', `fs-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={v ? `${tx(terms.cheque)} ${fa(v)} هزار` : `${tx(terms.cheque)} صفر`}>
       <img src={CHEQUE_ART[v]} alt="" aria-hidden="true" draggable={false} />
     </span>
   );
   return (
-    <span className={['fs-card', 'fs-card--cheque', `fs-card--${size}`, v === 0 ? 'fs-card--void' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={v ? `چک ${fa(v)} هزار` : 'چک صفر'}>
+    <span className={['fs-card', 'fs-card--cheque', `fs-card--${size}`, v === 0 ? 'fs-card--void' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={v ? `${tx(terms.cheque)} ${fa(v)} هزار` : `${tx(terms.cheque)} صفر`}>
       <svg viewBox="-62 -36 124 72" aria-hidden="true" direction="ltr">
         <rect x="-60" y="-34" width="120" height="68" rx="6" className="fs-card__bg" />
         <rect x="-53" y="-27" width="106" height="54" rx="3" fill="none" className="fs-cheque__guil" />
@@ -87,6 +88,7 @@ const Coins = ({ n }: { n: number }) => <span className="fs-coins" aria-label={`
 const chequeId = (market: number[], i: number) => `q-${market[i]}-${market.slice(0, i).filter((x) => x === market[i]).length}`;
 
 export default function ForSaleRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<ForSaleView>) {
+  useTermsLang(); // re-render when the terms language changes
   // Undo-window preview from what the client knows: a bid shows as yours, a pass takes the cheapest property and the
   // refund, a sale marks the chosen property. Nothing hidden is revealed.
   const q = queued as { type: string; amount?: number; card?: number } | null | undefined;
@@ -116,7 +118,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: buying ? 'پیشنهاد بالاتر بدهید یا کنار بکشید' : 'یک ملک برای فروش انتخاب کنید' }
+    : myTurn ? { tone: 'mine' as const, text: buying ? `${tx(terms.bid)} بالاتر بدهید یا کنار بکشید` : `یک ${tx(terms.property)} برای فروش انتخاب کنید` }
       : { tone: 'wait' as const, text: buying ? `نوبت ${view.current === null ? '' : who(view.current)}` : 'منتظر انتخاب بقیه' };
   const last = view.last;
   // What a seat just received with the latest change (a property taken or a cheque won), so it can fly to that seat.
@@ -147,7 +149,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
             <bdi className="fs-pl__name">{who(s)}</bdi>
             {s !== mySeat && got(s).map((id) => <i key={id} className="fs-pl__got" data-flip-anchor={`got-${id}`} aria-hidden="true" />)}
             <Coins n={view.coins[s]!} />
-            <span className="fs-pl__meta">{buying ? `${fa(view.ownedCount[s]!)} ملک` : `${fa(view.wonCount[s]!)} چک`}</span>
+            <span className="fs-pl__meta">{buying ? `${fa(view.ownedCount[s]!)} ${tx(terms.property)}` : `${fa(view.wonCount[s]!)} ${tx(terms.cheque)}`}</span>
             {buying && view.bids[s]! > 0 && !view.passed[s] && <Pop v={view.bids[s]!} className="fs-pl__bid" />}
             {buying && view.passed[s] && <span className="fs-pl__flag">کنار کشید</span>}
             {!buying && !view.outcome && <span className={`fs-pl__flag ${view.chosen[s] ? 'fs-pl__flag--ok' : ''}`}>{view.chosen[s] ? 'انتخاب کرد' : 'در فکر…'}</span>}
@@ -157,7 +159,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
 
       {!view.outcome && (
         <section className={`fs__market fs__market--${view.phase}`} aria-label={buying ? 'املاک روی میز' : 'چک‌های روی میز'}>
-          <div className="fs__deck" data-flip-anchor="deck">{buying ? `مرحله خرید، ${fa(view.propsLeft)} ملک در دسته` : `مرحله فروش، ${fa(view.chequesLeft)} چک در دسته`}{buying && view.high > 0 && <>، بالاترین پیشنهاد <Pop v={view.high} /></>}</div>
+          <div className="fs__deck" data-flip-anchor="deck">{buying ? `مرحله خرید، ${fa(view.propsLeft)} ${tx(terms.property)} در دسته` : `مرحله فروش، ${fa(view.chequesLeft)} ${tx(terms.cheque)} در دسته`}{buying && view.high > 0 && <>، بالاترین <T t={terms.bid} /> <Pop v={view.high} /></>}</div>
           <div className="fs__row" data-flip-anchor="market">
             {view.market.map((v, i) => (buying ? <Prop key={v} v={v} flip={`p-${v}`} flipFrom="deck" flipExit={`got-p-${v}`} /> : <Cheque key={i} v={v} flip={chequeId(view.market, i)} flipFrom="deck" flipExit={`got-${chequeId(view.market, i)}`} />))}
           </div>
@@ -167,7 +169,7 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
       {!framed && last && !view.outcome && (
         <p className="fs__last" role="status" key={view.seq}>
           {last.kind === 'take'
-            ? <><bdi>{who(last.seat)}</bdi> ملک <b>{fa(last.card)}</b> را برداشت{last.paid ? <> و {fa(last.paid)} سکه داد</> : ' (رایگان)'}</>
+            ? <><bdi>{who(last.seat)}</bdi> <T t={terms.property} /> <b>{fa(last.card)}</b> را برداشت{last.paid ? <> و {fa(last.paid)} سکه داد</> : ' (رایگان)'}</>
             : last.pairs.map((x) => <span key={x.seat} className="fs__pair"><bdi>{who(x.seat)}</bdi>: {fa(x.prop)} ← {x.cheque ? `${fa(x.cheque)} هزار` : 'صفر'}</span>)}
         </p>
       )}
@@ -185,22 +187,22 @@ export default function ForSaleRenderer({ view: real, legalActions, mySeat, seat
       {mySeat !== null && !view.outcome && (
         <section className="fs__me" aria-label="دست شما">
           {bidHint && (
-            <div className="fs-bid" role="group" aria-label="پیشنهاد">
+            <div className="fs-bid" role="group" aria-label={tx(terms.bid)}>
               <button type="button" className="fs-bid__step" disabled={bid <= bidHint.min} onClick={() => setAmount(bid - 1)} aria-label="کمتر">−</button>
               <output className="fs-bid__val bg-pop" key={bid}>{fa(bid)}</output>
               <button type="button" className="fs-bid__step" disabled={bid >= bidHint.max} onClick={() => setAmount(bid + 1)} aria-label="بیشتر">+</button>
-              <Button size="sm" disabled={busy} className={hint?.type === 'bid' ? 'fs-hint' : ''} onClick={() => onAction({ type: 'bid', amount: bid })}>پیشنهاد {fa(bid)}</Button>
+              <Button size="sm" disabled={busy} className={hint?.type === 'bid' ? 'fs-hint' : ''} onClick={() => onAction({ type: 'bid', amount: bid })}><T t={terms.bid} /> {fa(bid)}</Button>
             </div>
           )}
           {canPass && (
             <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'fs-hint' : ''} onClick={() => onAction({ type: 'pass' })}>
-              کنار می‌کشم (ملک {fa(view.market[0]!)}{refund ? `، ${fa(refund)} سکه` : ''})
+              کنار می‌کشم (<T t={terms.property} /> {fa(view.market[0]!)}{refund ? `، ${fa(refund)} سکه` : ''})
             </Button>
           )}
           <div className="fs__hand" role="group" aria-label="املاک شما">
             {view.owned[me]!.length === 0 && <span className="fs__empty">هنوز ملکی ندارید</span>}
             {view.owned[me]!.map((v) => sellable.has(v)
-              ? <button key={v} type="button" className={['fs-sell', hint?.type === 'sell' && hint.card === v ? 'fs-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'sell', card: v })} aria-label={`فروش ملک ${fa(v)}`}><Prop v={v} size="sm" flip={`p-${v}`} flipFrom="market" flipExit="market" /></button>
+              ? <button key={v} type="button" className={['fs-sell', hint?.type === 'sell' && hint.card === v ? 'fs-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'sell', card: v })} aria-label={`فروش ${tx(terms.property)} ${fa(v)}`}><Prop v={v} size="sm" flip={`p-${v}`} flipFrom="market" flipExit="market" /></button>
               : <span key={v} className={view.chosen[me] === v ? 'fs-sell fs-sell--chosen' : 'fs-sell'}><Prop v={v} size="sm" flip={`p-${v}`} flipFrom="market" flipExit="market" /></span>)}
           </div>
           {view.won && view.won[me]!.length > 0 && (

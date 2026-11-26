@@ -3,7 +3,8 @@
 // attack with dice tray, occupation, fortification, players and log. Shows only the projection: other hands are counts.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
-import { Button, Icon, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, Icon, RailSlot, TurnIndicator, ZoomBoard, tx, useFlip, useInFrame, usePop, useTermsLang, type GameRendererProps, type Term, DockSlot } from '@bg/ui';
+import { terms } from './terms.ts';
 import {
   CARD_FA, CONTINENTS, CONTINENT_OF, T, TERRITORY_FA, TERRITORY_IDS, cardKind, cardTerritory, isSet, setValue,
   type TerritoryId
@@ -33,17 +34,17 @@ const iso = (s: string) => `⁨${s}⁩`;
 const tFa = (t: number) => TERRITORY_FA[TERRITORY_IDS[t]!];
 type Hint = { type: string; [k: string]: unknown };
 
-const PHASE_FA: Record<Phase, string> = { setup: 'چیدن ارتش آغازین', reinforce: 'نیروی کمکی', attack: 'حمله', occupy: 'اشغال', fortify: 'جابه‌جایی' };
+const PHASE_T: Record<Phase, Term> = { setup: { fa: 'چیدن ارتش آغازین', bg: 'چیدن ارتش آغازین' }, reinforce: terms.reinforcement, attack: { fa: 'حمله', bg: 'حمله' }, occupy: { fa: 'اشغال', bg: 'اشغال' }, fortify: terms.fortify };
 
 function describe(e: LogEntry, name: (s: number) => string): string {
   const n = (s: number) => iso(name(s));
   switch (e.t) {
     case 'start': return `بازی شروع شد؛ ${n(e.first)} اول ارتش می‌چیند. هدف: ${e.goal === 'world' ? 'گرفتن هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}.`;
     case 'setup': return `${n(e.seat)} ${fa(e.armies)} ارتش آغازین چید.`;
-    case 'turn': return `نوبت ${fa(e.turn)}: ${n(e.seat)} — ${fa(e.income)} نیروی کمکی.`;
+    case 'turn': return `نوبت ${fa(e.turn)}: ${n(e.seat)} — ${fa(e.income)} ${tx(terms.reinforcement)}.`;
     case 'trade': return `${n(e.seat)} دسته (${e.cards.map((c) => CARD_FA[cardKind(c)]).join('، ')}) را با ${fa(e.value)} ارتش معاوضه کرد${e.bonus !== null ? ` و ۲ ارتش اضافه در ${tFa(e.bonus)} گرفت` : ''}.`;
     case 'place': return `${n(e.seat)} ${fa(e.armies)} ارتش در ${e.at.slice(0, 3).map(tFa).join('، ')}${e.at.length > 3 ? ' و …' : ''} چید.`;
-    case 'battle': return `${n(e.seat)} از ${tFa(e.from)} به ${tFa(e.to)} (${n(e.defender)}) ${e.blitz ? `حمله سریع کرد (${fa(e.rounds)} دور)` : 'حمله کرد'}: ${e.att.map(fa).join('،')} در برابر ${e.def.map(fa).join('،')}؛ مهاجم ${fa(e.lossA)} و مدافع ${fa(e.lossD)} ارتش از دست داد${e.conquered ? ' — فتح شد!' : '.'}`;
+    case 'battle': return `${n(e.seat)} از ${tFa(e.from)} به ${tFa(e.to)} (${n(e.defender)}) ${e.blitz ? `${tx(terms.blitz)} کرد (${fa(e.rounds)} دور)` : 'حمله کرد'}: ${e.att.map(fa).join('،')} در برابر ${e.def.map(fa).join('،')}؛ مهاجم ${fa(e.lossA)} و مدافع ${fa(e.lossD)} ارتش از دست داد${e.conquered ? ' — فتح شد!' : '.'}`;
     case 'occupy': return `${n(e.seat)} ${fa(e.armies)} ارتش وارد ${tFa(e.to)} کرد.`;
     case 'eliminate': return `${n(e.seat)} به دست ${n(e.by)} حذف شد${e.cards ? ` و ${fa(e.cards)} کارتش به او رسید` : ''}.`;
     case 'fortify': return `${n(e.seat)} ${fa(e.armies)} ارتش از ${tFa(e.from)} به ${tFa(e.to)} برد.`;
@@ -318,7 +319,7 @@ function DiceTray({ view, name, rolling }: { view: RiskView; name: (s: number) =
   const text = `آخرین نبرد: مهاجم ${b.att.map(fa).join('، ')}؛ مدافع ${b.def.map(fa).join('، ')}. مهاجم ${fa(b.lossA)} و مدافع ${fa(b.lossD)} ارتش از دست داد${b.rounds > 1 ? ` در ${fa(b.rounds)} دور` : ''}${b.conquered ? '؛ قلمرو فتح شد' : ''}.`;
   return (
     <section className="rk-tray" aria-label={text}>
-      <h3>آخرین نبرد{b.rounds > 1 ? ` (حمله سریع، ${fa(b.rounds)} دور)` : ''}</h3>
+      <h3>آخرین نبرد{b.rounds > 1 ? ` (${tx(terms.blitz)}، ${fa(b.rounds)} دور)` : ''}</h3>
       <div className="rk-tray__felt">
         {row('att', b.att, b.seat)}
         {row('def', b.def, b.defender)}
@@ -335,6 +336,7 @@ function DiceTray({ view, name, rolling }: { view: RiskView; name: (s: number) =
 // ---------- renderer ----------
 
 export default function RiskRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<RiskView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const hints = legalActions as Hint[];
   const has = (t: string) => hints.some((h) => h.type === t);
   const myTurn = mySeat !== null && view.current === mySeat && !view.outcome;
@@ -436,14 +438,14 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
     if (!targets.has(t)) return base;
     if (placing) return `${base}، افزودن ۱ ارتش${draft[t] ? ` (تاکنون ${fa(draft[t]!)})` : ''}`;
     if (view.phase === 'attack') return `${base}، ${attackTo.has(t) ? 'هدف حمله' : 'حمله از این‌جا'}`;
-    return `${base}، ${fortTo.has(t) ? 'مقصد جابه‌جایی' : 'جابه‌جایی از این‌جا'}`;
+    return `${base}، ${fortTo.has(t) ? `مقصد ${tx(terms.fortify)}` : `${tx(terms.fortify)} از این‌جا`}`;
   };
 
   // Status line.
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome) {
     if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
-    else if (!myTurn) status = { tone: 'wait', text: `نوبت ${iso(seatName(view.current))} — ${PHASE_FA[view.phase]}` };
+    else if (!myTurn) status = { tone: 'wait', text: `نوبت ${iso(seatName(view.current))} — ${tx(PHASE_T[view.phase])}` };
     else if (view.phase === 'setup') status = { tone: 'mine', text: `${fa(view.available)} ارتش آغازین را روی قلمروهایتان بچینید` };
     else if (view.phase === 'reinforce') status = { tone: 'mine', text: view.mustTrade ? 'اول باید یک دسته کارت معاوضه کنید' : `${fa(view.available)} ارتش کمکی را بچینید` };
     else if (view.phase === 'attack') status = { tone: 'mine', text: 'از قلمرو خود به همسایه دشمن حمله کنید یا حمله را تمام کنید' };
@@ -478,16 +480,16 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
             </div>
           </section>
           <p className="rk-rail__tip"><Icon name="book" size={18} />
-            <span>هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}. دستهٔ بعدی {fa(view.nextSetValue)} ارتش، جابه‌جایی {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}.</span>
+            <span>هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}. دستهٔ بعدی {fa(view.nextSetValue)} ارتش، {tx(terms.fortify)} {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}.</span>
           </p>
         </RailSlot>
       )}
       {!framed && <div className="rk__meta">
-        <span className="rk-chipmeta rk-chipmeta--turn">نوبت {fa(view.turn)}، {PHASE_FA[view.phase]}</span>
+        <span className="rk-chipmeta rk-chipmeta--turn">نوبت {fa(view.turn)}، {tx(PHASE_T[view.phase])}</span>
         <span className="rk-chipmeta">هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}</span>
         <span className="rk-chipmeta">دسته بعدی: {fa(view.nextSetValue)} ارتش</span>
         <span className="rk-chipmeta" data-flip-anchor="deck"><img src={CARD_BACK} alt="" aria-hidden="true" className="rk-deck" /> کارت در دسته: {fa(view.deckCount)}</span>
-        <span className="rk-chipmeta">جابه‌جایی: {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}</span>
+        <span className="rk-chipmeta">{tx(terms.fortify)}: {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}</span>
       </div>}
 
       <div className="rk-main">
@@ -504,7 +506,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
           {/* Frame: the turn panel is the dock row under the map (the map shrinks to fit), your cards go into the rail on desktop. */}
           {(() => { const turnPanels = (<>
           {myTurn && (view.phase === 'setup' || view.phase === 'reinforce') && (
-            <Panel title={view.phase === 'setup' ? 'چیدن ارتش آغازین' : view.elimTrade ? 'معاوضه پس از حذف بازیکن' : 'نیروی کمکی'} tone="decide">
+            <Panel title={view.phase === 'setup' ? 'چیدن ارتش آغازین' : view.elimTrade ? 'معاوضه پس از حذف بازیکن' : tx(terms.reinforcement)} tone="decide">
               {view.phase === 'reinforce' && !view.elimTrade && mySeat !== null && (
                 <p className="rk-help">
                   {fa(myCount)} قلمرو ÷ ۳ = {fa(Math.max(3, Math.floor(myCount / 3)))}{Math.floor(myCount / 3) < 3 ? ' (حداقل ۳)' : ''}
@@ -560,10 +562,10 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
                 <Button className={exp?.type === 'attack' ? 'rk-hintbtn' : ''} disabled={busy || sel === null || aim === null || dice > maxDice}
                   onClick={() => act({ type: 'attack', from: TERRITORY_IDS[sel!], to: TERRITORY_IDS[aim!], dice })}>حمله</Button>
                 <Button variant="secondary" disabled={busy || sel === null || aim === null || !has('blitz')}
-                  onClick={() => act({ type: 'blitz', from: TERRITORY_IDS[sel!], to: TERRITORY_IDS[aim!] })}>حمله سریع</Button>
+                  onClick={() => act({ type: 'blitz', from: TERRITORY_IDS[sel!], to: TERRITORY_IDS[aim!] })}>{tx(terms.blitz)}</Button>
                 <DockSlot><Button variant="ghost" className={exp?.type === 'endAttack' ? 'rk-hintbtn' : ''} disabled={busy || !has('endAttack')} onClick={() => act({ type: 'endAttack' })}>پایان حمله</Button></DockSlot>
               </div>
-              <p className="rk-help">حمله سریع با بیشترین تاس تکرار می‌شود تا قلمرو فتح شود یا ۱ ارتش بماند.</p>
+              <p className="rk-help">{tx(terms.blitz)} با بیشترین تاس تکرار می‌شود تا قلمرو فتح شود یا ۱ ارتش بماند.</p>
             </Panel>
           )}
 
@@ -579,14 +581,14 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
           )}
 
           {myTurn && view.phase === 'fortify' && (
-            <Panel title="جابه‌جایی پایان نوبت">
+            <Panel title={`${tx(terms.fortify)} پایان نوبت`}>
               <p className="rk-help">
                 {sel === null ? `قلمرو مبدأ را انتخاب کنید (${view.fortifyMode === 'connected' ? 'مقصد باید از راه قلمروهای خودتان وصل باشد' : 'فقط به قلمرو همسایه'}).` : aim === null ? `از ${tFa(sel)} به کجا؟` : `${tFa(sel)} ← ${tFa(aim)}`}
               </p>
               {sel !== null && aim !== null && <Stepper label="ارتش‌های جابه‌جاشونده" value={Math.min(moveN, fortMax)} min={1} max={fortMax} onChange={setMoveN} />}
               <div className="row">
                 <Button className={exp?.type === 'fortify' ? 'rk-hintbtn' : ''} disabled={busy || sel === null || aim === null || moveN < 1}
-                  onClick={() => act({ type: 'fortify', from: TERRITORY_IDS[sel!], to: TERRITORY_IDS[aim!], armies: Math.min(moveN, fortMax) })}>جابه‌جایی</Button>
+                  onClick={() => act({ type: 'fortify', from: TERRITORY_IDS[sel!], to: TERRITORY_IDS[aim!], armies: Math.min(moveN, fortMax) })}>{tx(terms.fortify)}</Button>
                 <DockSlot><Button variant="secondary" className={exp?.type === 'endTurn' ? 'rk-hintbtn' : ''} disabled={busy || !has('endTurn')} onClick={() => act({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>
               </div>
             </Panel>

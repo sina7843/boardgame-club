@@ -4,20 +4,22 @@
 // promotion come from `legalActions` and the view. Board coordinates stay literal (dir=ltr); text is Persian.
 import './renderer.css';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type ReactElement, type ReactNode } from 'react';
-import { motionOff, usePieceIds, type FrameClockState, type GameRendererProps, type TableFrame, type TableFrameSeat } from '@bg/ui';
+import { motionOff, tx, type Term, useTermsLang, usePieceIds, type FrameClockState, type GameRendererProps, type TableFrame, type TableFrameSeat } from '@bg/ui';
 import { Avatar, Badge, Button, Dialog, Icon, League, Segmented, Sheet, Slider, Switch, Tooltip } from '@bg/ui/bgv';
 import { PIECE_SETS, PIECE_SET_FA, pieceSrc, type PieceSet } from './pieces.tsx';
 import { moveSound, playChessSound, preloadSounds, DEFAULT_VOLUME } from './sounds.ts';
+import { terms } from './terms.ts';
 import { openingOf } from './openings.ts';
 import type { ChessView, Color, Piece, PieceType, PromoType } from './rules.ts';
 
 const FILES = 'abcdefgh';
 const faNum = (n: number) => n.toLocaleString('fa-IR', { useGrouping: false });
-const NAME_FA: Record<PieceType, string> = { K: 'شاه', Q: 'وزیر', R: 'رخ', B: 'فیل', N: 'اسب', P: 'سرباز' };
+const NAME_T: Record<PieceType, Term> = { K: terms.king, Q: terms.queen, R: terms.rook, B: terms.bishop, N: terms.knight, P: terms.pawn };
+const nameOf = (t: PieceType) => tx(NAME_T[t]);
 const COLOR_FA: Record<Color, string> = { w: 'سفید', b: 'سیاه' };
 const VALUE: Record<PieceType, number> = { P: 1, N: 3, B: 3, R: 5, Q: 9, K: 0 };
 const LEAGUE_FA: Record<string, string> = { bronze: 'برنز', silver: 'نقره', gold: 'طلا', platinum: 'پلاتین', diamond: 'الماس', master: 'استاد' };
-const pieceLabel = (p: Piece) => `${NAME_FA[p[1] as PieceType]} ${COLOR_FA[p[0] as Color]}`;
+const pieceLabel = (p: Piece) => `${nameOf(p[1] as PieceType)} ${COLOR_FA[p[0] as Color]}`;
 const sqName = (i: number) => FILES[i % 8]! + String(Math.floor(i / 8) + 1);
 const idx = (name: string) => (Number(name[1]) - 1) * 8 + FILES.indexOf(name[0]!);
 type MoveHint = { type: 'move'; from: string; to: string; promotion?: PromoType };
@@ -151,7 +153,7 @@ function PlayerBar({ seat, name, color, captured, lead, clock, small, off, set }
 }
 
 // ---------- end of game (CX-11) ----------
-const DRAW_FA = { stalemate: 'پات شد', repetition: 'تکرار سه‌بارهٔ یک وضعیت', fiftyMove: 'قانون ۵۰ حرکت', material: 'مهرهٔ کافی برای مات نمانده', agreement: 'با توافق دو طرف' } as const;
+const drawFa = () => ({ stalemate: `${tx(terms.stalemate)} شد`, repetition: 'تکرار سه‌بارهٔ یک وضعیت', fiftyMove: 'قانون ۵۰ حرکت', material: 'مهرهٔ کافی برای مات نمانده', agreement: 'با توافق دو طرف' } as const);
 function endWords(view: ChessView, mySeat: number | null, aborted: boolean): { title: string; reason: string; tone: 'win' | 'loss' | 'draw' | 'none' } | null {
   if (aborted) return { title: 'بازی لغو شد', reason: 'حرکت اول زده نشد. رتبه تغییر نمی‌کند.', tone: 'none' };
   const e = view.end;
@@ -167,16 +169,16 @@ function endWords(view: ChessView, mySeat: number | null, aborted: boolean): { t
     const flagged = view.colors.indexOf(view.turn); // the side to move ran out of time
     const timeoutMat = mySeat === null ? 'وقت یک طرف تمام شد، ولی حریف مهرهٔ کافی برای مات نداشت'
       : flagged === mySeat ? 'وقت شما تمام شد، ولی حریف مهرهٔ کافی برای مات نداشت' : 'وقت حریف تمام شد، ولی مهرهٔ کافی برای مات نداشتید';
-    return { title: 'مساوی', reason: drawReason === 'timeoutMaterial' ? timeoutMat : DRAW_FA[drawReason], tone: 'draw' };
+    return { title: 'مساوی', reason: drawReason === 'timeoutMaterial' ? timeoutMat : drawFa()[drawReason], tone: 'draw' };
   }
   if (winnerSeat === undefined) return null;
   const by = e.kind;
   if (mySeat === null) {
     const w = COLOR_FA[view.colors[winnerSeat]!];
-    return { title: `${w} برد`, reason: by === 'checkmate' ? `${w} مات کرد` : by === 'resign' ? 'تسلیم' : 'وقت تمام شد', tone: 'none' };
+    return { title: `${w} برد`, reason: by === 'checkmate' ? `${w} ${tx(terms.checkmate)} کرد` : by === 'resign' ? 'تسلیم' : 'وقت تمام شد', tone: 'none' };
   }
   const won = winnerSeat === mySeat;
-  const reason = by === 'checkmate' ? (won ? 'حریف را مات کردید' : 'مات شدید') : by === 'resign' ? (won ? 'حریف تسلیم شد' : 'تسلیم شدید') : (won ? 'وقت حریف تمام شد' : 'وقت شما تمام شد');
+  const reason = by === 'checkmate' ? (won ? `حریف را ${tx(terms.checkmate)} کردید` : `${tx(terms.checkmate)} شدید`) : by === 'resign' ? (won ? 'حریف تسلیم شد' : 'تسلیم شدید') : (won ? 'وقت حریف تمام شد' : 'وقت شما تمام شد');
   return { title: won ? 'بردید!' : 'باختید', reason, tone: won ? 'win' : 'loss' };
 }
 const scoreText = (view: ChessView): string | null => {
@@ -188,6 +190,7 @@ const scoreText = (view: ChessView): string | null => {
 
 // ---------- renderer ----------
 export default function ChessRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued, frame }: GameRendererProps<ChessView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const [prefs, setPrefs] = usePrefs();
   const phone = useNarrow(899);
   // Undo-window preview: the own move is already on the board (the server's answer will be the same board).
@@ -269,7 +272,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
     setFlash(false); setNotice(null);
     // D20: name the pinned piece («سرباز f7 میخ شده؛ حرکتش شاه را در کیش می‌گذارد»); a king step keeps the short text.
     const piece = liveView.board[idx(from)];
-    const text = pinned.has(from) && piece ? <>{NAME_FA[piece[1] as PieceType]} <bdi dir="ltr">{from}</bdi> میخ شده؛ حرکتش شاه را در کیش می‌گذارد</> : 'این حرکت شاه را در کیش می‌گذارد';
+    const text = pinned.has(from) && piece ? <>{nameOf(piece[1] as PieceType)} <bdi dir="ltr">{from}</bdi> میخ شده؛ حرکتش {tx(terms.king)} را در <bdi>{tx(terms.check)}</bdi> می‌گذارد</> : `این حرکت ${tx(terms.king)} را در ${tx(terms.check)} می‌گذارد`;
     later(() => { setFlash(true); setNotice(text); }, 0);
     later(() => setFlash(false), 400);
     later(() => setNotice(null), 3500);
@@ -368,7 +371,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   const [announce, setAnnounce] = useState('');
   const seen = useRef(liveView.history.length);
   useEffect(() => {
-    if (liveView.history.length > seen.current && last) setAnnounce(`${COLOR_FA[last.color]}: ${last.san}${liveView.inCheck && !liveView.outcome ? '، کیش' : ''}`);
+    if (liveView.history.length > seen.current && last) setAnnounce(`${COLOR_FA[last.color]}: ${last.san}${liveView.inCheck && !liveView.outcome ? `، ${tx(terms.check)}` : ''}`);
     seen.current = liveView.history.length;
   }, [liveView.history.length, last, liveView.inCheck, liveView.outcome]);
 
@@ -519,7 +522,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   } else if (myTurn && liveView.inCheck) {
     status = { tone: 'check', text: <><b>کیش!</b> شاه شما زیر حمله است. فقط حرکت‌هایی مجازند که کیش را رفع کنند.</> };
   } else if (myTurn && epVictim) {
-    status = { tone: 'turn', text: <><b>آن‌پاسان ممکن است.</b> سرباز حریف همین الان دو خانه جلو آمد و کنار سرباز شما ایستاد؛ فقط در همین حرکت می‌توانید آن را بزنید.</> };
+    status = { tone: 'turn', text: <><b>{tx(terms.enPassant)} ممکن است.</b> سرباز حریف همین الان دو خانه جلو آمد و کنار سرباز شما ایستاد؛ فقط در همین حرکت می‌توانید آن را بزنید.</> };
   } else if (myTurn && frame?.clocks?.[mySeat!]?.first) {
     // ENGINE.md P1: the bank waits until the first move; a missed first move aborts the game.
     status = { tone: 'turn', text: <><b>نوبت شماست.</b> برای حرکت اول {faNum(Math.ceil((frame.clocks[mySeat!]!.firstMs ?? 0) / 1000))} ثانیه وقت دارید؛ وگرنه بازی لغو می‌شود.</> };
@@ -667,7 +670,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
               return (
                 <button key={f} type="button" role="gridcell" data-sq={name} className={cls} onClick={() => tap(name)}
                   aria-disabled={!interactive || undefined} aria-pressed={selected === name || undefined}
-                  aria-label={`${name}، ${epTarget ? `زدن آن‌پاسان سرباز ${name[0]}${target!.from[1]}` : piece ? pieceLabel(piece) : 'خالی'}${target && !epTarget ? (piece ? '، زدن' : '، حرکت به اینجا') : ''}${i === kingInCheck ? '، کیش' : ''}${premove?.to === name ? '، پری‌موو' : ''}`}>
+                  aria-label={`${name}، ${epTarget ? `زدن ${tx(terms.enPassant)} ${tx(terms.pawn)} ${name[0]}${target!.from[1]}` : piece ? pieceLabel(piece) : 'خالی'}${target && !epTarget ? (piece ? '، زدن' : '، حرکت به اینجا') : ''}${i === kingInCheck ? `، ${tx(terms.check)}` : ''}${premove?.to === name ? `، ${tx(terms.premove)}` : ''}`}>
                   {piece && <img data-flip={ids[i]} data-flip-exit={`cap-${piece[0]}`} className={ghost?.from === name ? 'ch-pc is-ghost' : 'ch-pc'} src={pieceSrc(piece[1] as PieceType, piece[0] as Color, prefs.set)} alt="" draggable={false} />}
                   {badge && <span className={`ch-badge ch-badge--${badge}`} aria-hidden="true">{badge === 'win' ? <Icon name="crown" size={14} /> : badge === 'loss' ? <Icon name="x" size={14} /> : badge === 'resign' ? <Icon name="flag" size={14} /> : <b>½</b>}</span>}
                   {prefs.coords && f === cols[0] && <span className="ch-co ch-co--r" aria-hidden="true">{r + 1}</span>}
@@ -680,9 +683,9 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
         {promoTo && selected && (
           <>
             <div className="ch-scrim" onClick={() => setPromoTo(null)} aria-hidden="true" />
-            <div className="ch-promo" data-promo={promoTo} role="group" aria-label="ارتقای سرباز" style={{ ['--f' as string]: promoCol }}>
+            <div className="ch-promo" data-promo={promoTo} role="group" aria-label={`${tx(terms.promotion)} ${tx(terms.pawn)}`} style={{ ['--f' as string]: promoCol }}>
               {(['Q', 'N', 'R', 'B'] as PromoType[]).map((t) => (
-                <button key={t} type="button" className="ch-promo__p" disabled={busy} onClick={() => send({ from: selected, to: promoTo, promotion: t })} aria-label={NAME_FA[t]}>
+                <button key={t} type="button" className="ch-promo__p" disabled={busy} onClick={() => send({ from: selected, to: promoTo, promotion: t })} aria-label={nameOf(t)}>
                   <img className="ch-pc" src={pieceSrc(t, liveView.turn, prefs.set)} alt="" draggable={false} />
                 </button>
               ))}

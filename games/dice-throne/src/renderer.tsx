@@ -3,7 +3,8 @@
 // effect and lights up the ones your dice make. The defender gets a single «دفاع» roll.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, DockSlot } from '@bg/ui';
+import { terms } from './terms.ts';
 import boardWarrior from './art/dice-throne-board-warrior.png';
 import boardShadow from './art/dice-throne-board-shadow.png';
 import boardPyro from './art/dice-throne-board-pyro.png';
@@ -32,7 +33,7 @@ const BOX = [
 ];
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const effText = (e: Effect) => [e.dmg ? `${fa(e.dmg)} آسیب` : '', e.heal ? `+${fa(e.heal)} جان` : '', e.cp ? `+${fa(e.cp)} CP` : '', e.steal ? `دزدی ${fa(e.steal)} CP` : '',
-  e.wound ? `زخم ${fa(e.wound)}` : '', e.stun ? 'گیجی' : '', e.shield ? 'سپر' : '', e.undefendable ? 'دفاع‌ناپذیر' : ''].filter(Boolean).join('، ');
+  e.wound ? `زخم ${fa(e.wound)}` : '', e.stun ? tx(terms.stun) : '', e.shield ? tx(terms.shield) : '', e.undefendable ? tx(terms.undefendable) : ''].filter(Boolean).join('، ');
 const needText = (h: Hero, a: Ability) => (a.need.sym ? `${a.need.counts!.map(fa).join('/')}× ${h.symFa[a.need.sym]}` : a.need.combo ? Object.entries(a.need.combo).map(([s, c]) => `${fa(c)}× ${h.symFa[s]}`).join(' + ') : a.need.straight === 5 ? 'ردیف بلند (۵)' : 'ردیف کوتاه (۴)');
 
 export function DieFace({ hero, n, kept, rolling, tumble }: { hero: Hero; n: number; kept?: boolean; rolling?: boolean; tumble?: boolean }) {
@@ -53,6 +54,7 @@ interface AbCtx { attacks: Set<number>; busy: boolean; hint: Hint; onAction: Gam
 /** The hero board is the printed board image; the five abilities are hotspots over it (buttons on your own board, lit as the
  *  dice make them). HP, CP and status tokens sit next to it (the table frame also shows them in the seat strip). */
 function HeroBoard({ seat, label, active, mine, ctx }: { seat: number; label: string; active: boolean; mine: boolean; ctx: AbCtx }) {
+  useTermsLang();
   const { view } = ctx;
   const f = view.fighters[seat]!;
   const hero = f.hero !== null ? HEROES[f.hero]! : null;
@@ -61,7 +63,7 @@ function HeroBoard({ seat, label, active, mine, ctx }: { seat: number; label: st
   if (f.hp < hit.current.hp) hit.current.at = view.seq;
   hit.current.hp = f.hp;
   const attacking = view.current === seat && view.phase !== 'pick' && view.rolled;
-  const tokens = [{ key: 'wound', src: wound, fa: 'زخم', n: f.wound }, { key: 'stun', src: stun, fa: 'گیجی', n: f.stun ? 1 : 0 }, { key: 'shield', src: shieldArt, fa: 'سپر', n: f.shield ? 1 : 0 }];
+  const tokens = [{ key: 'wound', src: wound, fa: 'زخم', n: f.wound }, { key: 'stun', src: stun, fa: tx(terms.stun), n: f.stun ? 1 : 0 }, { key: 'shield', src: shieldArt, fa: tx(terms.shield), n: f.shield ? 1 : 0 }];
   return (
     <section className={`dt-banner dt-board ${mine ? 'dt-board--mine' : 'dt-board--opp'} ${hero ? `dt-h--${hero.key}` : ''} ${active ? 'dt-banner--now' : ''}`} aria-label={`صفحهٔ ${label}${hero ? `، ${hero.name}` : ''}`}>
       {hero ? (
@@ -83,7 +85,7 @@ function HeroBoard({ seat, label, active, mine, ctx }: { seat: number; label: st
           </div>
           <div className="dt-stats">
             <div className="dt-hp" role="meter" aria-valuemin={0} aria-valuemax={MAX_HP} aria-valuenow={Math.max(0, f.hp)} aria-label="جان"><b>{fa(Math.max(0, f.hp))}</b><small>جان</small></div>
-            <div className="dt-cp" aria-label="امتیاز رزم"><b>{fa(f.cp)}</b><small>CP</small></div>
+            <div className="dt-cp" aria-label={tx(terms.combatPoints)}><b>{fa(f.cp)}</b><small>CP</small></div>
             <div className="dt-st" aria-label="نشانه‌های وضعیت">
               {tokens.map((t) => <span key={t.key} className={t.n ? '' : 'is-zero'} aria-label={`${t.fa}: ${t.n ? fa(t.n) : 'ندارد'}`}><img src={t.src} alt="" />{fa(t.n)}</span>)}
             </div>
@@ -95,6 +97,7 @@ function HeroBoard({ seat, label, active, mine, ctx }: { seat: number; label: st
 }
 
 export default function DiceThroneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<DtView>) {
+  useTermsLang(); // re-render when the terms language changes
   const me = mySeat ?? 0;
   // My roll / defence waiting in the undo window or for the server: those dice tumble with no face until the result.
   type Sent = { type: string; keep?: boolean[] };
@@ -180,16 +183,16 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
           </div>
           {view.phase === 'offense' && <small className="dt-rolls">{view.rolled ? `${fa(view.rollsLeft)} ریختن مانده` : 'هنوز نریخته'}</small>}
           {defending && defHero ? (
-            <div className="dt-defdice"><small>دفاع:</small>{Array.from({ length: defHero.defense.dice }, (_, i) => <DieFace key={`t${i}`} hero={defHero} n={1} tumble />)}</div>
+            <div className="dt-defdice"><small><T t={terms.defense} />:</small>{Array.from({ length: defHero.defense.dice }, (_, i) => <DieFace key={`t${i}`} hero={defHero} n={1} tumble />)}</div>
           ) : view.defenseDice.length > 0 && defHero && view.phase !== 'defense' && (
-            <div className="dt-defdice"><small>دفاع:</small>{view.defenseDice.map((d, i) => (
+            <div className="dt-defdice"><small><T t={terms.defense} />:</small>{view.defenseDice.map((d, i) => (
               <span key={`${i}-${defMem.current.at}`} className="dt-dslot bg-roll" style={{ ['--i' as string]: i }}><DieFace hero={defHero} n={d} /></span>
             ))}</div>
           )}
           <div className="dt-bar">
             {roll && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'dt-hint' : ''} onClick={() => onAction({ type: 'roll', keep: view.rolled ? keep : [false, false, false, false, false] })}>{roll.extra ? 'ریختن اضافه (۲ CP)' : view.rolled ? 'ریختن دوباره' : 'ریختن تاس‌ها'}</Button></DockSlot>}
             {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>بدون حمله</Button></DockSlot>}
-            {canDefend && <Button size="sm" disabled={busy} className="dt-defend" onClick={() => onAction({ type: 'defend' })}>دفاع ({fa(defHero?.defense.dice ?? 0)} تاس)</Button>}
+            {canDefend && <Button size="sm" disabled={busy} className="dt-defend" onClick={() => onAction({ type: 'defend' })}><T t={terms.defense} /> ({fa(defHero?.defense.dice ?? 0)} تاس)</Button>}
           </div>
         </section>
       )}

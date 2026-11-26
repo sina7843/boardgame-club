@@ -3,16 +3,18 @@
 // points «بس!» and «آخرین فرصت» appear.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps, DockSlot, RailSlot, useInFrame } from '@bg/ui';
+import { Button, TurnIndicator, T, tx, type Term, useTermsLang, useFlip, usePrevious, type GameRendererProps, DockSlot, RailSlot, useInFrame } from '@bg/ui';
+import { terms } from './terms.ts';
 import { BACK, FACE } from './art.ts';
 import photos from './art/photos.webp';
 import { CARDS, duoKind, type Kind, type SspView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const KIND_FA: Record<Kind, string> = {
-  crab: 'خرچنگ', boat: 'قایق', fish: 'ماهی', swimmer: 'شناگر', shark: 'کوسه', shell: 'صدف', octopus: 'هشت‌پا', penguin: 'پنگوئن',
-  sailor: 'ملوان', lighthouse: 'فانوس', shoal: 'دسته‌ماهی', colony: 'کلونی', captain: 'ناخدا', mermaid: 'پری دریایی'
+export const KIND_T: Record<Kind, Term> = {
+  crab: terms.crab, boat: terms.boat, fish: terms.fish, swimmer: terms.swimmer, shark: terms.shark, shell: terms.shell, octopus: terms.octopus, penguin: terms.penguin,
+  sailor: terms.sailor, lighthouse: terms.lighthouse, shoal: terms.shoal, colony: terms.colony, captain: terms.captain, mermaid: terms.mermaid
 };
+export const kindName = (k: Kind) => tx(KIND_T[k]);
 // Origami photos are the BGA Sea Salt & Paper client art (see DECISIONS.md): photos.webp holds the picture part of its 55
 // cards (10 × 6). A card shows the printed card of its kind and colour, or the first of its kind; its colour stays as the frame.
 const PHOTO: Record<string, number> = { 'mermaid/white': 0, 'crab/navy': 1, 'crab/sky': 3, 'crab/black': 5, 'crab/yellow': 6, 'crab/green': 8, 'crab/gray': 9, 'boat/navy': 10, 'boat/sky': 12, 'boat/black': 14, 'boat/yellow': 16, 'fish/navy': 18, 'fish/sky': 20, 'fish/black': 21, 'fish/yellow': 23, 'fish/green': 24, 'swimmer/navy': 25, 'swimmer/sky': 26, 'swimmer/black': 27, 'swimmer/yellow': 28, 'swimmer/orange': 29, 'shark/navy': 30, 'shark/sky': 31, 'shark/black': 32, 'shark/green': 33, 'shark/purple': 34, 'shell/navy': 35, 'shell/sky': 36, 'shell/black': 37, 'shell/yellow': 38, 'shell/green': 39, 'shell/gray': 40, 'octopus/sky': 41, 'octopus/yellow': 42, 'octopus/green': 43, 'octopus/purple': 44, 'octopus/gray': 45, 'penguin/purple': 46, 'penguin/orange': 47, 'penguin/pink': 48, 'sailor/pink': 49, 'sailor/orange': 50, 'lighthouse/purple': 51, 'shoal/gray': 52, 'colony/green': 53, 'captain/orange': 54 };
@@ -25,16 +27,17 @@ export function PaperCard({ id, size = 'md', from, exit, flip = true }: { id: nu
   const c = CARDS[id]!;
   const face = FACE[PHOTO[`${c.kind}/${c.color}`] ?? -1];
   // Printed faces exist for 14 cards only; the others keep the sprite picture in a coloured frame.
-  if (face) return <span className={`sp2-card sp2-card--${size} sp2-card--face`} data-flip={flip ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={KIND_FA[c.kind]}><img src={face} alt="" draggable={false} /></span>;
+  if (face) return <span className={`sp2-card sp2-card--${size} sp2-card--face`} data-flip={flip ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={kindName(c.kind)}><img src={face} alt="" draggable={false} /></span>;
   return (
-    <span className={`sp2-card sp2-card--${size} sp2-c--${c.color}`} data-flip={flip ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={KIND_FA[c.kind]}>
+    <span className={`sp2-card sp2-card--${size} sp2-c--${c.color}`} data-flip={flip ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={kindName(c.kind)}>
       <span className="sp2-card__art" style={photo(c.kind, c.color)} aria-hidden="true" />
-      {size === 'md' && <small>{KIND_FA[c.kind]}</small>}
+      {size === 'md' && <small>{kindName(c.kind)}</small>}
     </span>
   );
 }
 
 export default function SspRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<SspView>) {
+  useTermsLang();
   const me = mySeat ?? -1;
   const framed = useInFrame() !== null;
   const isQueued = !!queued;
@@ -89,7 +92,7 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? {
       tone: 'mine' as const,
-      text: view.phase === 'draw' ? (view.lastChance ? 'آخرین فرصت! دو کارت از دسته یا کارت یک کپه' : 'دو کارت از دسته یا کارت روی یک کپه')
+      text: view.phase === 'draw' ? (view.lastChance ? `${tx(terms.lastChance)}! دو کارت از دسته یا کارت یک کپه` : 'دو کارت از دسته یا کارت روی یک کپه')
         : view.phase === 'choose' ? 'یکی را نگه دارید و دیگری را روی یک کپه بگذارید'
           : view.phase === 'crab' ? 'از کپه یک کارت بردارید' : 'جفت‌ها را بازی کنید یا نوبت را تمام کنید'
     }
@@ -100,7 +103,7 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>اول دو کارت از دسته بکشید (یکی را نگه دارید) یا یک کارت از کپه بردارید؛ بعد جفت‌ها را بازی کنید. با ۷ امتیاز «بس» یا «آخرین فرصت» را بزنید. هدف {fa(view.target)} امتیاز است.</p>
+          <p>اول دو کارت از دسته بکشید (یکی را نگه دارید) یا یک کارت از کپه بردارید؛ بعد جفت‌ها را بازی کنید. با ۷ امتیاز «<T t={terms.stop} />» یا «<T t={terms.lastChance} />» را بزنید. هدف {fa(view.target)} امتیاز است.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -176,14 +179,14 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
             <DockSlot><div className="sp2__bar">
               {duo === 'crab' && ([0, 1] as const).map((pile) => <Button key={pile} size="sm" disabled={busy || !view.pileCounts[pile]} onClick={() => onAction({ type: 'duo', cards: [sel[0]!, sel[1]!], pile })}>خرچنگ‌ها: کپهٔ {fa(pile + 1)}</Button>)}
               {duo === 'shark' && view.scores.map((_, k) => k).filter((k) => k !== me && view.handCount[k]).map((k) => <Button key={k} size="sm" disabled={busy} onClick={() => onAction({ type: 'duo', cards: [sel[0]!, sel[1]!], target: k })}>دزدی از <bdi>{who(k)}</bdi></Button>)}
-              {(duo === 'boat' || duo === 'fish') && <Button size="sm" disabled={busy || (duo === 'fish' && !view.deckCount)} onClick={() => onAction({ type: 'duo', cards: [sel[0]!, sel[1]!] })}>بازی جفت {duo === 'boat' ? '(نوبت اضافه)' : '(یک کارت از دسته)'}</Button>}
+              {(duo === 'boat' || duo === 'fish') && <Button size="sm" disabled={busy || (duo === 'fish' && !view.deckCount)} onClick={() => onAction({ type: 'duo', cards: [sel[0]!, sel[1]!] })}>بازی <T t={terms.duo} /> {duo === 'boat' ? '(نوبت اضافه)' : '(یک کارت از دسته)'}</Button>}
             </div></DockSlot>
           )}
           {view.phase === 'act' && myTurn && (
             <div className="sp2__bar">
               <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' && hint.call === 'pass' ? 'sp2-hint' : ''} onClick={() => onAction({ type: 'end', call: 'pass' })}>{view.extraTurn ? 'نوبت اضافه' : 'پایان نوبت'}</Button></DockSlot>
-              {has('end', 'stop') && <DockSlot><Button size="sm" disabled={busy} className={hint?.call === 'stop' ? 'sp2-hint' : ''} onClick={() => onAction({ type: 'end', call: 'stop' })}>بس!</Button></DockSlot>}
-              {has('end', 'last') && <DockSlot><Button size="sm" disabled={busy} onClick={() => onAction({ type: 'end', call: 'last' })}>آخرین فرصت</Button></DockSlot>}
+              {has('end', 'stop') && <DockSlot><Button size="sm" disabled={busy} className={hint?.call === 'stop' ? 'sp2-hint' : ''} onClick={() => onAction({ type: 'end', call: 'stop' })}>{tx(terms.stop)}!</Button></DockSlot>}
+              {has('end', 'last') && <DockSlot><Button size="sm" disabled={busy} onClick={() => onAction({ type: 'end', call: 'last' })}><T t={terms.lastChance} /></Button></DockSlot>}
             </div>
           )}
         </section>
@@ -191,7 +194,7 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
 
       {!framed && view.roundLog.length > 0 && (
         <table className="sp2__log"><thead><tr><th scope="col">دست</th>{view.scores.map((_, k) => <th key={k} scope="col"><bdi>{who(k)}</bdi></th>)}</tr></thead>
-          <tbody>{view.roundLog.map((r, i) => <tr key={i}><th scope="row">{fa(i + 1)} {r.call === 'stop' ? 'بس' : r.call === 'last' ? 'آخرین فرصت' : 'دسته تمام شد'}</th>{r.gains.map((g, k) => <td key={k}>{fa(g)}</td>)}</tr>)}</tbody></table>
+          <tbody>{view.roundLog.map((r, i) => <tr key={i}><th scope="row">{fa(i + 1)} {r.call === 'stop' ? tx(terms.stop) : r.call === 'last' ? tx(terms.lastChance) : 'دسته تمام شد'}</th>{r.gains.map((g, k) => <td key={k}>{fa(g)}</td>)}</tr>)}</tbody></table>
       )}
     </div>
   );

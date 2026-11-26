@@ -6,7 +6,8 @@
 // resource choices come from the server hints; flow = action → target → card → «ثبت», «برگرد» before it.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { RailSlot, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { RailSlot, tx, useFlip, usePop, useTermsLang, type GameAction, type GameRendererProps, type Term } from '@bg/ui';
+import { terms } from './terms.ts';
 import { Icon } from '@bg/ui/bgv';
 import LAYOUT from './data/layout.json' with { type: 'json' };
 import IDS from './data/content-id-map.json' with { type: 'json' };
@@ -31,10 +32,15 @@ const signed = (n: number) => (n > 0 ? `+${fa(n)}` : n < 0 ? `−${fa(-n)}` : fa
 /** No-break space (keeps «دست ۸» together). */
 const NBSP = String.fromCharCode(160);
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
-export const IND_FA: Record<Industry, string> = { cotton: 'کارخانهٔ پنبه', manufacturer: 'تولیدی', pottery: 'سفال‌گری', coal: 'معدن زغال', iron: 'ذوب‌آهن', brewery: 'آبجوسازی' };
+const IND_T: Record<Industry, Term> = { cotton: terms.cotton, manufacturer: terms.manufacturer, pottery: terms.pottery, coal: terms.coalMine, iron: terms.ironWorks, brewery: terms.brewery };
+// Read-through proxies: every access follows the current terms language («فارسی بردگیمی»).
+export const IND_FA = new Proxy({} as Record<Industry, string>, { get: (_, k: Industry) => tx(IND_T[k]) });
 const IND_EN: Record<Industry, string> = { cotton: 'Cotton Mill', manufacturer: 'Manufacturer', pottery: 'Pottery', coal: 'Coal Mine', iron: 'Iron Works', brewery: 'Brewery' };
 const ACTS = ['build', 'network', 'develop', 'sell', 'loan', 'scout', 'pass'] as const;
-const ACT_FA: Record<string, string> = { build: 'ساخت صنعت', network: 'ساخت مسیر', develop: 'توسعه', sell: 'فروش', loan: 'وام', scout: 'پیشاهنگ', pass: 'رد کردن' };
+const ACT_T: Record<string, Term> = { build: terms.build, network: terms.network, develop: terms.develop, sell: terms.sell, loan: terms.loan, scout: terms.scout, pass: terms.pass };
+const ACT_FA = new Proxy({} as Record<string, string>, { get: (_, k: string) => (ACT_T[k] ? tx(ACT_T[k]!) : undefined) });
+// Exact-match Persian → Term lookup for L.t(): only whole terms switch to Latin, sentences stay Persian.
+const TERM_BY_FA = new Map<string, Term>(Object.values(terms).map((x) => [x.fa, x]));
 const ACT_EN: Record<string, string> = { build: 'Build', network: 'Network', develop: 'Develop', sell: 'Sell', loan: 'Loan', scout: 'Scout', pass: 'Pass' };
 const REASON: Record<string, [string, string]> = {
   NO_BUILD: ['با کارت‌های دستتان جای مجازی برای ساخت نیست.', 'No legal build spot for the cards in your hand.'],
@@ -58,7 +64,7 @@ interface Lx { en: boolean; t: (fa: string, en: string) => string; n: (x: number
 function lx(en: boolean): Lx {
   const n = en ? (x: number) => String(x) : fa;
   return {
-    en, n, t: (f, e) => (en ? e : f), gbp: (x) => `£${n(x)}`, sg: (x) => (x > 0 ? `+${n(x)}` : x < 0 ? `−${n(-x)}` : n(0)),
+    en, n, t: (f, e) => (en ? e : TERM_BY_FA.has(f) ? tx(TERM_BY_FA.get(f)!) : f), gbp: (x) => `£${n(x)}`, sg: (x) => (x > 0 ? `+${n(x)}` : x < 0 ? `−${n(-x)}` : n(0)),
     ind: (x) => (en ? IND_EN[x] : IND_FA[x]), loc: (id) => (en ? LOC.get(id)?.nameEn : LOC.get(id)?.nameFa) ?? id, act: (k) => (en ? ACT_EN[k] : ACT_FA[k]) ?? k
   };
 }
@@ -465,6 +471,7 @@ type EraStage = 'income' | 'links' | 'tiles' | 'level1' | 'beer' | 'hand';
 const NO_TARGETS: Targets = { slots: [], links: [], merchants: [], ghost: null, ghostLinks: [], tip: null };
 
 export default function BrassRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<BrassView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const root = useRef<HTMLDivElement>(null);
   const phone = useMedia('(max-width: 899px)');
   const [en, setEn] = useState(false);

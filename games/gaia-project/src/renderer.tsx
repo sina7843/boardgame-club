@@ -9,15 +9,24 @@
 // Out-of-turn power charges (leech) and the auto-charge setting are sent at once.
 import './renderer.css';
 import { memo, useEffect, useMemo, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
-import { Button, fa, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, fa, tx, useTermsLang, type GameAction, type GameRendererProps, type Term } from '@bg/ui';
+import { terms } from './terms.ts';
 import { FeltPlate, PlayerCard } from '@bg/ui/bgv';
 import {
-  BUILDING_FA, BUILD_COST, CONTENT, POWER_ACTIONS, RESEARCH_COST, RES_FA, BASE_CONVERSIONS, TRACKS, TRACK_FA, WHEEL, buildMap, conversions, qicFor, fedCandidates, fedCheck, fedPlan, fedTokensAvailable, gaiaformPlan, gaiaProjectModule, incomeResults, leechAmount, minePlan, upgradeCost,
+  BUILDING_FA as BUILDING_FA0, BUILD_COST, CONTENT, POWER_ACTIONS, RESEARCH_COST, RES_FA as RES_FA0, BASE_CONVERSIONS, TRACKS, TRACK_FA as TRACK_FA0, WHEEL, buildMap, conversions, qicFor, fedCandidates, fedCheck, fedPlan, fedTokensAvailable, gaiaformPlan, gaiaProjectModule, incomeResults, leechAmount, minePlan, upgradeCost,
   type Bowls, type Building, type Gain, type GaiaAction, type GaiaState, type GaiaView, type Track
 } from './rules.ts';
 import { TERRANS_SPEND } from './content/factions-a.ts';
 import LAYOUT from './design/layout.json' with { type: 'json' };
 import IDS from './design/content-id-map.json' with { type: 'json' };
+
+// Read-through label tables for «فارسی بردگیمی»: entries with a Term follow the current terms language, the rest stay as the engine's Persian.
+const tp = <K extends string>(base: Record<K, string>, m: Partial<Record<K, Term>>): Record<K, string> => new Proxy(base, { get: (o, k) => { const x = m[k as K]; return x ? tx(x) : o[k as K]; } });
+const RES_FA = tp(RES_FA0, { c: terms.credits, o: terms.ore, k: terms.knowledge, pw: terms.powerCharge, t: terms.powerToken });
+const BUILDING_FA = tp(BUILDING_FA0, { mine: terms.mine, ts: terms.tradingStation, lab: terms.researchLab, pi: terms.planetaryInstitute, ac1: terms.knowledgeAcademy, ac2: terms.qicAcademy, gf: terms.gaiaformer, station: terms.spaceStation });
+const TRACK_FA = tp(TRACK_FA0, { terra: terms.terraforming, nav: terms.navigation, ai: terms.ai, gaia: terms.gaiaProject, eco: terms.economy, sci: terms.science });
+/** Exact-match Persian → Term for the game-layer UI table (whole terms only; sentences stay Persian). */
+const TERM_BY_FA = new Map<string, Term>(Object.values(terms).map((x) => [x.fa, x]));
 
 // ---------------- art ----------------
 
@@ -110,7 +119,7 @@ function specialFa(key: string): string {
   if (key === 'ac2') return 'اقدام آکادمی QIC';
   const [kind, id] = key.split(':') as [string, string];
   if (kind === 'faction') return `${factionFa(id)}: ${CONTENT.factions[id]?.effects?.action?.labelFa ?? key}`;
-  if (kind === 'booster') return `بوستر: ${CONTENT.boosters[id]?.effects?.action?.labelFa ?? key}`;
+  if (kind === 'booster') return `${tx(terms.booster)}: ${CONTENT.boosters[id]?.effects?.action?.labelFa ?? key}`;
   if (kind === 'tech') return `فناوری: ${CONTENT.techs[id]?.effects.action?.labelFa ?? key}`;
   return key;
 }
@@ -122,8 +131,8 @@ function decisionTitle(view: GaiaView, who: (s: number) => string): string {
     case 'tech': return `${who(d.seat)}: یک کاشی فناوری انتخاب کنید`;
     case 'cover': return `${who(d.seat)}: یک کاشی فناوری استاندارد را زیر ${techFa(d.adv)} بپوشانید`;
     case 'research': return `${who(d.seat)}: یک گام پژوهش رایگان`;
-    case 'lostPlanet': return `${who(d.seat)}: سیارهٔ گمشده را روی یک خانهٔ خالی در دسترس بگذارید`;
-    case 'income': return `${who(d.seat)}: درآمد دور ${fa(view.round)}: ${fa(d.pw)} شارژ قدرت و ${fa(d.t)} ژتون قدرت. کدام اول؟`;
+    case 'lostPlanet': return `${who(d.seat)}: ${tx(terms.lostPlanet)} را روی یک خانهٔ خالی در دسترس بگذارید`;
+    case 'income': return `${who(d.seat)}: درآمد دور ${fa(view.round)}: ${fa(d.pw)} ${RES_FA.pw} و ${fa(d.t)} ${RES_FA.t}. کدام اول؟`;
     case 'custom': return `${who(d.seat)}: ${d.labelFa}`;
   }
 }
@@ -156,15 +165,15 @@ function stepFa(view: GaiaView, a: GameAction): string {
   switch (a.type) {
     case 'faction': return `جناح ${factionFa(a.faction as string)}`;
     case 'place': return 'سازهٔ شروع';
-    case 'booster': return `بوستر: ${boosterFa(a.booster as string)}`;
-    case 'mine': return 'ساخت معدن';
+    case 'booster': return `${tx(terms.booster)}: ${boosterFa(a.booster as string)}`;
+    case 'mine': return tx(terms.buildMine);
     case 'upgrade': return `ارتقا به ${BUILDING_FA[a.to as Building]}`;
-    case 'gaiaform': return 'پروژهٔ گایا';
-    case 'federation': return `فدراسیون: ${fedFa(a.token as string)}`;
-    case 'research': return `پژوهش: ${TRACK_FA[a.track as Track]}`;
+    case 'gaiaform': return tx(terms.gaiaProject);
+    case 'federation': return `${tx(terms.federation)}: ${fedFa(a.token as string)}`;
+    case 'research': return `${tx(terms.research)}: ${TRACK_FA[a.track as Track]}`;
     case 'power': { const pa = POWER_ACTIONS.find((x) => x.id === a.id); return pa ? `${gainFa(pa.cost)}: ${pa.labelFa}` : String(a.id); }
     case 'special': return specialFa(a.id as string);
-    case 'pass': return a.booster ? `پاس، ${boosterFa(a.booster as string)}` : 'پاس';
+    case 'pass': return a.booster ? `${tx(terms.pass)}، ${boosterFa(a.booster as string)}` : tx(terms.pass);
     case 'convert': return CONV_FA[a.id as string] ?? convFa(a.id as string);
     case 'burn': return 'سوزاندن قدرت';
     case 'decide': return choiceFa(view, a.choice as string);
@@ -259,7 +268,7 @@ export function gaiaSeatCard(seat: SummarySeat, turn: boolean) {
       {pow && <div className="gp-panel__pow" title="چرخهٔ قدرت: ناحیهٔ گایا و کاسه‌های I، II، III">
         {PANEL_BOWLS.map(([k, label]) => <span key={k} data-bowl={k} className={`gp-bowl${k === 'gaia' ? ' gp-bowl--g' : ''}${k === 'b3' && (pow[k] ?? 0) >= POWER_READY ? ' is-ready' : ''}`}><i>{label}</i><b>{fa(pow[k] ?? 0)}</b></span>)}
       </div>}
-      <div className="gp-panel__inc"><img className="gp-ic" src={RES_ICON.pw} alt="" /><span>شارژ قدرت <b>{plus(inc?.pwCharge)}</b>، ژتون قدرت <b>{plus(inc?.pwTokens)}</b></span></div>
+      <div className="gp-panel__inc"><img className="gp-ic" src={RES_ICON.pw} alt="" /><span>{RES_FA.pw} <b>{plus(inc?.pwCharge)}</b>، {RES_FA.t} <b>{plus(inc?.pwTokens)}</b></span></div>
     </div>
   };
 }
@@ -332,7 +341,7 @@ const SpaceMap = memo(function SpaceMap({ c }: { c: Ctx }) {
     const p = P(cs[i]!);
     const put = (own: boolean, key: string, el: (k: string, cls: string) => ReactNode) => (own ? ownPieces : pieces).push(el(key, c.fresh(key)));
     if (h.planet === 'g' && original[i]?.planet === 'm') put(false, `${i}gt`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece="token" data-hex={i} src={art(IDS.pieces.gaiaPlanetToken)} alt="" loading="lazy" decoding="async" style={at(p.x, p.y, W, H, scale(4.6))} />);
-    if (h.planet === 'l') put(false, `${i}lost`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece="lost" data-hex={i} src={art(IDS.pieces.lostPlanet)} alt="سیارهٔ گمشده" decoding="async" style={at(p.x, p.y, W, H, scale(4.6))} />);
+    if (h.planet === 'l') put(false, `${i}lost`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece="lost" data-hex={i} src={art(IDS.pieces.lostPlanet)} alt={tx(terms.lostPlanet)} decoding="async" style={at(p.x, p.y, W, H, scale(4.6))} />);
     if (h.building && h.owner !== null) {
       const b = h.building, o = h.owner;
       put(o === c.me && b !== 'gf', `${i}b`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece={b === 'gf' ? 'GF' : STRUCT[b]} data-hex={i} data-seat={o}
@@ -408,7 +417,7 @@ const ResearchBoard = memo(function ResearchBoard({ c }: { c: Ctx }) {
     const a = c.legal.find((x) => x.type === 'decide' && x.choice === id);
     const style = at(x, y, W, H, w);
     const img = <img src={techArt(id)} alt={techFa(id)} draggable={false} />;
-    const tip = <Tip img={techArt(id)} title={kind === 'adv' ? 'فناوری پیشرفته' : 'فناوری استاندارد'} text={techFa(id)} />;
+    const tip = <Tip img={techArt(id)} title={kind === 'adv' ? tx(terms.techAdv) : tx(terms.techStd)} text={techFa(id)} />;
     return a ? <button key={id} type="button" className={`gp-at gp-tile${c.hint(a) ? ' gp-hint' : ''}`} data-pick="selectable" data-gp-piece={kind} data-id={id} data-slot={slot} aria-label={techFa(id)} style={style} onClick={() => c.tryAct(a)}>{img}{tip}</button>
       : <span key={id} className="gp-at gp-tile" tabIndex={0} data-gp-piece={kind} data-id={id} data-slot={slot} aria-label={techFa(id)} style={style}>{img}{tip}</span>;
   };
@@ -472,7 +481,7 @@ const FedSupply = memo(function FedSupply({ c }: { c: Ctx }) {
   const { view } = c;
   return (
     <div className="gp-fedbox">
-    <h4 className="gp-fedbox__title">توکن‌های فدراسیون</h4>
+    <h4 className="gp-fedbox__title">{tx(terms.fedTokens)}</h4>
     <ul className="gp-fedsupply" data-gp-board="fedsupply" aria-label="ذخیرهٔ توکن‌های فدراسیون">
         {Object.entries(view.fedSupply).map(([id, n]) => {
           const a = c.fedActs.get(id);
@@ -480,7 +489,7 @@ const FedSupply = memo(function FedSupply({ c }: { c: Ctx }) {
           return (
             <li key={id} className={n ? undefined : 'is-empty'} data-gp-piece="fed" data-id={id}>
               {a ? <button type="button" className={`gp-fedbtn${c.hint(a) ? ' gp-hint' : ''}`} data-pick="selectable" aria-label={fedFa(id)} onClick={() => c.tryAct(a)}>{img}</button>
-                : <span className="gp-fedbtn" tabIndex={0} aria-label={fedFa(id)}>{img}<Tip img={fedArt(id)} title="توکن فدراسیون" text={fedFa(id)} /></span>}
+                : <span className="gp-fedbtn" tabIndex={0} aria-label={fedFa(id)}>{img}<Tip img={fedArt(id)} title={tx(terms.fedToken)} text={fedFa(id)} /></span>}
               <small>×{fa(n)}</small>
             </li>
           );
@@ -536,7 +545,7 @@ const ScoringBoard = memo(function ScoringBoard({ c }: { c: Ctx }) {
         {all.map((b) => {
           const owner = view.pl.findIndex((p) => p.booster === b);
           const a = c.legal.find((x) => (x.type === 'booster' || x.type === 'pass') && x.booster === b);
-          const img = <><img src={boosterArt(b)} alt={boosterFa(b)} draggable={false} /><Tip img={boosterArt(b)} title={owner >= 0 ? `بوستر ${c.who(owner)}` : 'بوستر آزاد'} text={boosterFa(b)} /></>;
+          const img = <><img src={boosterArt(b)} alt={boosterFa(b)} draggable={false} /><Tip img={boosterArt(b)} title={owner >= 0 ? `${tx(terms.booster)} ${c.who(owner)}` : `${tx(terms.booster)} آزاد`} text={boosterFa(b)} /></>;
           return a
             ? <button key={b} type="button" className={`gp-boost ${a.type === 'pass' ? 'gp-pass-pick' : 'gp-booster-pick'}${c.hint(a) ? ' gp-hint' : ''}`} data-pick="selectable" data-gp-piece="booster" data-id={b} aria-label={boosterFa(b)} onClick={() => c.tryAct(a)}>{img}</button>
             : <span key={b} className={`gp-boost${owner >= 0 ? ' is-taken' : ''}`} tabIndex={0} data-gp-piece="booster" data-id={b} aria-label={boosterFa(b)}>{img}
@@ -582,7 +591,7 @@ const FactionBoardView = memo(function FactionBoardView({ c, seat }: { c: Ctx; s
           <div className="gp-layer">
             {scatter(p.power.gaia, bowls.gaia, 'g')}{scatter(p.power.b1, bowls.I, 'a')}{scatter(p.power.b2, bowls.II, 'b')}{scatter(p.power.b3, bowls.III, 'c')}
           </div>
-          {brain !== null && <img className="gp-at" data-gp-piece="ptok" data-id="brainstone" src={art(IDS.pieces.brainstone)} alt="سنگ مغز"
+          {brain !== null && <img className="gp-at" data-gp-piece="ptok" data-id="brainstone" src={art(IDS.pieces.brainstone)} alt={tx(terms.brainStone)}
             style={at(...((brain === 0 ? bowls.gaia : brain === 1 ? bowls.I : brain === 2 ? bowls.II : bowls.III) as [number, number]), W, H, bowls.tokenWidthPct * 1.3)} />}
           {own && conv.ids.map((id, i) => {
             const a = c.legal.find((x) => x.type === 'convert' && x.id === id);
@@ -594,7 +603,7 @@ const FactionBoardView = memo(function FactionBoardView({ c, seat }: { c: Ctx; s
           {p.booster && (boost.length
             ? <button type="button" className={`gp-boost is-avail${c.hint(boost[0]!) ? ' gp-hint' : ''}`} data-gp-piece="booster" data-gp-action={`special-booster:${p.booster}`} title={specialFa(`booster:${p.booster}`)} onClick={() => c.tryAct(boost[0]!)}><img src={boosterArt(p.booster)} alt={boosterFa(p.booster)} /></button>
             : <span className={`gp-boost${p.used.includes(`booster:${p.booster}`) ? ' is-used' : ''}`} tabIndex={0} data-gp-piece="booster" data-id={p.booster} aria-label={boosterFa(p.booster)}><img src={boosterArt(p.booster)} alt={boosterFa(p.booster)} />
-              <Tip img={boosterArt(p.booster)} title="بوستر این دور" text={boosterFa(p.booster)} />
+              <Tip img={boosterArt(p.booster)} title={`${tx(terms.booster)} این دور`} text={boosterFa(p.booster)} />
               {p.used.includes(`booster:${p.booster}`) && <img className="gp-used" src={art(IDS.pieces.actionToken)} alt="" />}</span>)}
         </div>
       </div>
@@ -609,7 +618,7 @@ const FactionBoardView = memo(function FactionBoardView({ c, seat }: { c: Ctx; s
             : <span key={t.id} className={`gp-own${t.covered ? ' is-covered' : ''}`} tabIndex={0} data-gp-piece={CONTENT.techs[t.id]?.kind ?? 'std'} data-id={t.id} title={techFa(t.id)}>{img}{used && <img className="gp-used" src={art(IDS.pieces.actionToken)} alt="" />}</span>;
         })}
         {p.feds.map((f, k) => <span key={`${f.id}${k}`} className="gp-own" tabIndex={0} data-gp-piece="fed" data-id={f.id} aria-label={`${fedFa(f.id)}${f.green ? '' : ' (خرج‌شده)'}`}><img src={fedArt(f.id, !f.green)} alt={fedFa(f.id)} />
-          <Tip img={fedArt(f.id, !f.green)} title={f.green ? 'توکن فدراسیون' : 'توکن فدراسیون (خرج‌شده)'} text={fedFa(f.id)} /></span>)}
+          <Tip img={fedArt(f.id, !f.green)} title={f.green ? tx(terms.fedToken) : `${tx(terms.fedToken)} (خرج‌شده)`} text={fedFa(f.id)} /></span>)}
         {own && orange.map((key) => {
           const list = special(key);
           return <Button key={key} size="sm" className={`gp-orange${list.some(c.hint) ? ' gp-hint' : ''}`} data-gp-action={`special-${key}`} onClick={() => c.tryAct(list[0]!)}>{specialFa(key)}</Button>;
@@ -649,8 +658,9 @@ function useMedia(query: string) {
 }
 
 export default function GaiaProjectRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<GaiaView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const [lang, setLang] = useState<Lang>(() => { try { return localStorage.getItem('gp.lang') === 'en' ? 'en' : 'fa'; } catch { return 'fa'; } });
-  const t = (k: UiKey) => UI[k][lang === 'en' ? 1 : 0];
+  const t = (k: UiKey) => (lang === 'en' ? UI[k][1] : TERM_BY_FA.has(UI[k][0]) ? tx(TERM_BY_FA.get(UI[k][0])!) : UI[k][0]);
   const [draft, setDraft] = useState<GameAction[]>([]);
   const [outbox, setOutbox] = useState<GameAction[]>([]);
   const [mode, setMode] = useState<Mode | null>(null);
@@ -941,7 +951,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
     if (dec?.kind === 'lostPlanet') {
       const a = lostSel !== null ? decAct(String(lostSel)) : undefined;
       return row(null, <>
-        <p><b>ناوبری ۵</b>: سیارهٔ گمشده را روی یک خانهٔ خالی در دسترس بگذارید. مثل ساخت معدن امتیاز می‌دهد و دیگران شارژ می‌کنند.</p>
+        <p><b>ناوبری ۵</b>: ${tx(terms.lostPlanet)} را روی یک خانهٔ خالی در دسترس بگذارید. مثل ساخت معدن امتیاز می‌دهد و دیگران شارژ می‌کنند.</p>
         <div className="gp-btnrow">
           <Button size="sm" data-option={a ? 'decide' : undefined} disabled={busy || !a} onClick={() => a && add(a)}>تأیید: معدن روی سیارهٔ گمشده</Button>
           <Button size="sm" variant="secondary" disabled={lostSel === null} onClick={() => setLostSel(null)}>{t('back')}</Button>
@@ -1005,7 +1015,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
               {flowSteps.length > 0 && <ol className="gp-steps">{flowSteps}{!canConfirm && <li className="gp-step is-now">…</li>}</ol>}
               {Object.keys(spent).length > 0 && <p className="gp-spent">هزینهٔ این نوبت: <CostPill g={spent} /></p>}
               {bowlEdit && <div className="gp-bowlpick" data-gp-pending="bowls">
-                <p className="gp-spent"><b>{bowlEdit.kind === 'gaiaform' ? 'پروژهٔ گایا' : 'ماهواره‌ها'}</b>: {fa(bowlEdit.n)} ژتون {bowlEdit.kind === 'gaiaform' ? 'به ناحیهٔ گایا می‌رود' : 'از بازی بیرون می‌رود'}. از کدام کاسه‌ها؟</p>
+                <p className="gp-spent"><b>{bowlEdit.kind === 'gaiaform' ? tx(terms.gaiaProject) : 'ماهواره‌ها'}</b>: {fa(bowlEdit.n)} ژتون {bowlEdit.kind === 'gaiaform' ? 'به ناحیهٔ گایا می‌رود' : 'از بازی بیرون می‌رود'}. از کدام کاسه‌ها؟</p>
                 {(['I', 'II', 'III'] as const).map((label, i) => <div key={label} className="gp-bowlrow">
                   <span>کاسهٔ {label} ({fa(bowlEdit.caps[i]!)} ژتون)</span>
                   <Button size="sm" variant="secondary" aria-label={`یکی کمتر از کاسهٔ ${label}`} disabled={busy || bowlEdit.from[i]! <= 0} onClick={() => moveBowl(i, -1)}>−</Button>
@@ -1054,8 +1064,8 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
           {drafting && view.phase === 'actions' && (!hasMain || heldNow) && !mode && !myDecision && convs.length > 0 && (
             <div className="gp-free" aria-label={t('free')}>
               <small>{t('free')}</small>
-              {brainChoice && <button type="button" className="gp-chipbtn" aria-pressed={brainSpend} title="سنگ مغز ۳ قدرت ارزش دارد و به کاسهٔ I برمی‌گردد" onClick={() => setBrainSpend(!brainSpend)}>
-                <img className="gp-ic" src={art(IDS.pieces.brainstone)} alt="" />{brainSpend ? 'سنگ مغز خرج می‌شود' : 'سنگ مغز نگه داشته می‌شود'}</button>}
+              {brainChoice && <button type="button" className="gp-chipbtn" aria-pressed={brainSpend} title={`${tx(terms.brainStone)} ۳ قدرت ارزش دارد و به کاسهٔ I برمی‌گردد`} onClick={() => setBrainSpend(!brainSpend)}>
+                <img className="gp-ic" src={art(IDS.pieces.brainstone)} alt="" />{brainSpend ? `${tx(terms.brainStone)} خرج می‌شود` : `${tx(terms.brainStone)} نگه داشته می‌شود`}</button>}
               {convs.map((a) => {
                 const ok = legal.some((x) => same(x, a));
                 return <button key={a.type === 'burn' ? 'burn' : String(a.id)} type="button" className={`gp-chipbtn${hint(a) ? ' gp-hint' : ''}`} data-move={a.type} data-reason={ok ? undefined : reasonOf(a)}

@@ -3,8 +3,9 @@
 // the points the current dice would score; a box is chosen and then confirmed with «ثبت».
 import './renderer.css';
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { Button, DockSlot, Icon, RailSlot, TurnIndicator, useInFrame, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, Icon, RailSlot, T, TurnIndicator, tx, useInFrame, useFlip, useTermsLang, type GameRendererProps, type Term } from '@bg/ui';
 import { LOWER, UPPER, UPPER_TARGET, isYahtzee, type Cat, type YahtzeeView } from './rules.ts';
+import { terms } from './terms.ts';
 import cup from './art/cup.webp';
 import die1 from './art/yahtzee-die-1.png';
 import die3 from './art/yahtzee-die-3.png';
@@ -15,10 +16,12 @@ import die6 from './art/yahtzee-die-6.png';
 const DIE_ART: Record<number, string> = { 1: die1, 3: die3, 4: die4, 5: die5, 6: die6 };
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const CAT_FA: Record<Cat, string> = {
-  ones: 'یک‌ها', twos: 'دوها', threes: 'سه‌ها', fours: 'چهارها', fives: 'پنج‌ها', sixes: 'شش‌ها',
-  threeKind: 'سه‌تایی', fourKind: 'چهارتایی', fullHouse: 'فول‌هاوس', smallStraight: 'ردیف کوچک', largeStraight: 'ردیف بزرگ', yahtzee: 'یاتزی', chance: 'شانس'
+const P = (fa: string): Term => ({ fa, bg: fa });
+const CAT_T: Record<Cat, Term> = {
+  ones: P('یک‌ها'), twos: P('دوها'), threes: P('سه‌ها'), fours: P('چهارها'), fives: P('پنج‌ها'), sixes: P('شش‌ها'),
+  threeKind: terms.threeKind, fourKind: terms.fourKind, fullHouse: terms.fullHouse, smallStraight: terms.smallStraight, largeStraight: terms.largeStraight, yahtzee: terms.yahtzee, chance: terms.chance
 };
+const catName = (c: Cat) => tx(CAT_T[c]);
 const CAT_HINT: Record<Cat, string> = {
   ones: 'جمع ۱ها', twos: 'جمع ۲ها', threes: 'جمع ۳ها', fours: 'جمع ۴ها', fives: 'جمع ۵ها', sixes: 'جمع ۶ها',
   threeKind: '۳ یکسان: جمع تاس‌ها', fourKind: '۴ یکسان: جمع تاس‌ها', fullHouse: '۳+۲: ۲۵', smallStraight: '۴ پشت سر هم: ۳۰', largeStraight: '۵ پشت سر هم: ۴۰', yahtzee: '۵ یکسان: ۵۰', chance: 'جمع تاس‌ها'
@@ -37,6 +40,7 @@ export function Die({ v }: { v: number }) {
 }
 
 export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<YahtzeeView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const me = mySeat ?? -1;
   const canRoll = legalActions.some((a) => a.type === 'roll');
   const options = new Map(legalActions.filter((a) => a.type === 'score').map((a) => [a.cat as Cat, a.points as number]));
@@ -102,7 +106,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
       {!framed && (
       <p className="yz__live" aria-live="polite">
         {!view.outcome && <span>دور {fa(round)} از ۱۳</span>}
-        {last && <span key={view.seq}><bdi>{who(last.seat)}</bdi> در «{CAT_FA[last.cat]}» {fa(last.points)} امتیاز نوشت{last.bonus ? ' و ۱۰۰ امتیاز پاداش یاتزی گرفت' : ''}.</span>}
+        {last && <span key={view.seq}><bdi>{who(last.seat)}</bdi> در «{catName(last.cat)}» {fa(last.points)} امتیاز نوشت{last.bonus ? ` و ۱۰۰ امتیاز ${tx(terms.bonus)} ${tx(terms.yahtzee)} گرفت` : ''}.</span>}
       </p>
       )}
 
@@ -114,11 +118,11 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
             <colgroup><col />{view.sheets.map((_, k) => <col key={k} className={k === me ? 'yz-colbg--me' : undefined} />)}</colgroup>
             <thead><tr className="yz-row--names"><th scope="col"><span className="yz-homelabel">خانه</span></th>{head}</tr></thead>
             <tbody>
-              <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}>بخش بالا</th></tr>
+              <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}><T t={terms.upperSection} /></th></tr>
               {UPPER.map((cat) => (
                 <Fragment key={cat}>
               <tr >
-                <th scope="row"><span>{CAT_FA[cat]}</span><small>{CAT_HINT[cat]}</small></th>
+                <th scope="row"><span>{catName(cat)}</span><small>{CAT_HINT[cat]}</small></th>
                 {view.sheets.map((sheet, k) => {
                   const v = sheet[cat];
                   const fresh = last && last.seat === k && last.cat === cat;
@@ -128,7 +132,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
                     const pts = options.get(cat)!;
                     return (
                       <td key={k}>
-                        <button type="button" disabled={busy || !!queued} aria-pressed={pick === cat} aria-label={`${CAT_FA[cat]}: ${fa(pts)} امتیاز`}
+                        <button type="button" disabled={busy || !!queued} aria-pressed={pick === cat} aria-label={`${catName(cat)}: ${fa(pts)} امتیاز`}
                           className={['yz-opt', pick === cat ? 'yz-opt--on' : '', pts === 0 ? 'yz-opt--zero' : '', hint?.type === 'score' && hint.cat === cat && pick !== cat ? 'yz-hint' : ''].join(' ')}
                           onClick={() => setPick(pick === cat ? null : cat)}>{fa(pts)}</button>
                       </td>
@@ -142,7 +146,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
             </tbody>
             <tfoot>
               <tr><th scope="row">جمع بالا</th>{view.totals.map((t, k) => <td key={k}>{fa(t.upper)}<small> / {fa(UPPER_TARGET)}</small></td>)}</tr>
-              <tr className="yz-row--bonus"><th scope="row">پاداش (۳۵)</th>{view.totals.map((t, k) => <td key={k}>{t.upperBonus ? <b className="yz-ok">✓ {fa(t.upperBonus)}</b> : UPPER.every((c) => view.sheets[k]![c] !== undefined) ? '۰' : '…'}</td>)}</tr>
+              <tr className="yz-row--bonus"><th scope="row"><T t={terms.bonus} /> (۳۵)</th>{view.totals.map((t, k) => <td key={k}>{t.upperBonus ? <b className="yz-ok">✓ {fa(t.upperBonus)}</b> : UPPER.every((c) => view.sheets[k]![c] !== undefined) ? '۰' : '…'}</td>)}</tr>
             </tfoot>
           </table>
         </div>
@@ -152,11 +156,11 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
             <colgroup><col />{view.sheets.map((_, k) => <col key={k} className={k === me ? 'yz-colbg--me' : undefined} />)}</colgroup>
             <thead><tr className="yz-row--names"><th scope="col"><span className="yz-homelabel">خانه</span></th>{head}</tr></thead>
             <tbody>
-              <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}>بخش پایین</th></tr>
+              <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}><T t={terms.lowerSection} /></th></tr>
               {LOWER.map((cat) => (
                 <Fragment key={cat}>
               <tr >
-                <th scope="row"><span>{CAT_FA[cat]}</span><small>{CAT_HINT[cat]}</small></th>
+                <th scope="row"><span>{catName(cat)}</span><small>{CAT_HINT[cat]}</small></th>
                 {view.sheets.map((sheet, k) => {
                   const v = sheet[cat];
                   const fresh = last && last.seat === k && last.cat === cat;
@@ -166,7 +170,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
                     const pts = options.get(cat)!;
                     return (
                       <td key={k}>
-                        <button type="button" disabled={busy || !!queued} aria-pressed={pick === cat} aria-label={`${CAT_FA[cat]}: ${fa(pts)} امتیاز`}
+                        <button type="button" disabled={busy || !!queued} aria-pressed={pick === cat} aria-label={`${catName(cat)}: ${fa(pts)} امتیاز`}
                           className={['yz-opt', pick === cat ? 'yz-opt--on' : '', pts === 0 ? 'yz-opt--zero' : '', hint?.type === 'score' && hint.cat === cat && pick !== cat ? 'yz-hint' : ''].join(' ')}
                           onClick={() => setPick(pick === cat ? null : cat)}>{fa(pts)}</button>
                       </td>
@@ -179,7 +183,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
               ))}
             </tbody>
             <tfoot>
-              <tr className="yz-row--bonus"><th scope="row">پاداش یاتزی</th>{view.totals.map((t, k) => <td key={k}>{t.yahtzeeBonus ? <b className="yz-ok" key={t.yahtzeeBonus}>+{fa(t.yahtzeeBonus)}</b> : '۰'}</td>)}</tr>
+              <tr className="yz-row--bonus"><th scope="row"><T t={terms.bonus} /> <T t={terms.yahtzee} /></th>{view.totals.map((t, k) => <td key={k}>{t.yahtzeeBonus ? <b className="yz-ok" key={t.yahtzeeBonus}>+{fa(t.yahtzeeBonus)}</b> : '۰'}</td>)}</tr>
               <tr className="yz-row--total"><th scope="row">امتیاز کل</th>{view.totals.map((t, k) => <td key={k}><b key={t.total} className="bg-pop">{fa(t.total)}</b></td>)}</tr>
             </tfoot>
           </table>
@@ -214,7 +218,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
           {myTurn && (
             <Button size="sm" variant={canRoll ? 'secondary' : 'primary'} disabled={busy || !pick || !!queued || options.size === 0} className={pick && hint?.type === 'score' && hint.cat === pick ? 'yz-hint yz-submit' : 'yz-submit'}
               onClick={() => pick && onAction({ type: 'score', cat: pick })}>
-              {pick ? `ثبت در جدول: ${fa(options.get(pick) ?? 0)} در «${CAT_FA[pick]}»` : options.size ? 'ثبت در جدول (یک خانه را انتخاب کنید)' : 'ثبت در جدول'}
+              {pick ? `ثبت در جدول: ${fa(options.get(pick) ?? 0)} در «${catName(pick)}»` : options.size ? 'ثبت در جدول (یک خانه را انتخاب کنید)' : 'ثبت در جدول'}
             </Button>
           )}
         </div>
@@ -224,7 +228,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
 
       {myTurn && view.rolls > 0 && isYahtzee(view.dice) && view.sheets[me]?.yahtzee !== undefined && (
         <p className="yz__joker" role="note">
-          یاتزی اضافه{view.sheets[me]!.yahtzee === 50 ? ' (+۱۰۰ پاداش)' : ''}؛ قانون جوکر: فقط خانه‌هایی که امتیازشان نمایش داده شده مجازند.
+          <T t={terms.yahtzee} /> اضافه{view.sheets[me]!.yahtzee === 50 ? ' (+۱۰۰ پاداش)' : ''}؛ قانون جوکر: فقط خانه‌هایی که امتیازشان نمایش داده شده مجازند.
         </p>
       )}
     </div>

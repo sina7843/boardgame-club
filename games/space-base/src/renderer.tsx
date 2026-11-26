@@ -4,7 +4,7 @@
 import './renderer.css';
 import ships from './art/ships.webp';
 import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, T, tx, useTermsLang, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import back1 from './art/sb-back1.png';
 import back50 from './art/sb-back50.png';
 import back99 from './art/sb-back99.png';
@@ -13,6 +13,7 @@ import die3 from './art/sb-die-3.png';
 import die4 from './art/sb-die-4.png';
 import die5 from './art/sb-die-5.png';
 import die6 from './art/sb-die-6.png';
+import { terms } from './terms.ts';
 import { GOAL, SHIPS, sectorsFor, type Reward, type SbView, type Ship } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -57,16 +58,17 @@ function Num({ v, className, children }: { v: number; className: string; childre
 }
 
 export function ShipCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }) {
+  useTermsLang();
   const x = SHIPS[id]!;
   return (
-    <span className={`sb-ship sb-ship--${size} sb-l--${x.level}`} aria-label={`${x.name}، بخش ${fa(x.sector)}${x.cost ? `، ${fa(x.cost)} اعتبار` : ''}`}>
+    <span className={`sb-ship sb-ship--${size} sb-l--${x.level}`} aria-label={`${x.name}، بخش ${fa(x.sector)}${x.cost ? `، ${fa(x.cost)} ${tx(terms.credits)}` : ''}`}>
       <span className="sb-ship__art" style={shipArt(x)} aria-hidden="true" />
       <b className="sb-ship__sec">{fa(x.sector)}</b>
       {x.cost > 0 && <b className="sb-ship__cost">{fa(x.cost)}</b>}
       <span className="sb-ship__name">{x.name}</span>
       <span className="sb-ship__blue">{rw(x.blue)}</span>
       {size === 'md' && <span className="sb-ship__red">{rw(x.red)}</span>}
-      {size === 'md' && x.onBuy && <span className="sb-ship__buy">خرید: {[x.onBuy.income ? `+${fa(x.onBuy.income)} درآمد` : '', x.onBuy.vp ? `${fa(x.onBuy.vp)}★` : ''].filter(Boolean).join(' ')}</span>}
+      {size === 'md' && x.onBuy && <span className="sb-ship__buy">خرید: {[x.onBuy.income ? `+${fa(x.onBuy.income)} ${tx(terms.income)}` : '', x.onBuy.vp ? `${fa(x.onBuy.vp)}★` : ''].filter(Boolean).join(' ')}</span>}
     </span>
   );
 }
@@ -75,6 +77,7 @@ type Hint = { type: string; use?: string; ship?: number } | null;
 const wideScreen = () => (typeof matchMedia === 'function' ? matchMedia('(min-width: 720px)').matches : true);
 
 export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SbView>) {
+  useTermsLang();
   const me = mySeat ?? 0;
   const q = queued as Queued | null | undefined;
   const view = preview(served, q, mySeat ?? -1);
@@ -102,7 +105,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : has('roll') ? { tone: 'mine' as const, text: 'تاس‌ها را بریزید' }
       : has('choose') ? { tone: 'mine' as const, text: 'دو بخش جدا یا جمع دو تاس؟' }
-        : has('pass') ? { tone: 'mine' as const, text: 'یک ناو بخرید یا نوبت را تمام کنید' }
+        : has('pass') ? { tone: 'mine' as const, text: `یک ${tx(terms.ship)} بخرید یا نوبت را تمام کنید` }
           : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const gain = (s: number) => view.gains.find((g) => g.seat === s);
   const [open] = useState(wideScreen);
@@ -122,7 +125,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
       <div className={`sb-bays ${compact ? 'sb-bays--compact' : 'sb-bays--board'}`} dir="ltr" role="list" aria-label="بخش‌های ۱ تا ۱۲">
         {b.station.map((st, i) => {
           const x = SHIPS[st]!, dep = b.deployed[i]!;
-          const label = `بخش ${fa(i + 1)}: ${x.name}، آبی ${rw(x.blue)}${dep.length ? `، ${fa(dep.length)} ناو مستقر، قرمز ${rw(redSum(dep))}` : ''}`;
+          const label = `بخش ${fa(i + 1)}: ${x.name}، آبی ${rw(x.blue)}${dep.length ? `، ${fa(dep.length)} ${tx(terms.ship)} مستقر، قرمز ${rw(redSum(dep))}` : ''}`;
           return (
             <span key={i} role="listitem" aria-label={label} className={`sb-bay ${lit.includes(i + 1) ? 'sb-bay--lit' : ''}`} data-flip={compact ? flipOf(st) : undefined}>
               <b className="sb-bay__n">{fa(i + 1)}</b>
@@ -165,8 +168,8 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
         </div>
         <span className="sb-readouts">
           <Num className="sb-vp" v={b.vp}>★ {compact ? fa(b.vp) : `${fa(b.vp)} از ${fa(GOAL)} امتیاز`}</Num>
-          <Num className="sb-credits" v={b.credits}><i className="sb-cube" aria-hidden="true" />{fa(b.credits)}¢ اعتبار</Num>
-          <Num className="sb-income" v={b.income}><i className="sb-cube sb-cube--inc" aria-hidden="true" />درآمد {fa(b.income)}</Num>
+          <Num className="sb-credits" v={b.credits}><i className="sb-cube" aria-hidden="true" />{fa(b.credits)}¢ <T t={terms.credits} /></Num>
+          <Num className="sb-income" v={b.income}><i className="sb-cube sb-cube--inc" aria-hidden="true" /><T t={terms.income} /> {fa(b.income)}</Num>
           {g && (g.credits || g.vp) ? <span className="sb-gain">+{rw(g)}</span> : null}
         </span>
       </div>
@@ -184,7 +187,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
             <details className="sb-fold" open={open}>
               <summary className="sb-rival__head">
                 <bdi>{who(k)}</bdi>
-                <span>★ {fa(b.vp)}<span className="bgv-sep" />{fa(b.credits)}¢<span className="bgv-sep" />درآمد {fa(b.income)}</span>
+                <span>★ {fa(b.vp)}<span className="bgv-sep" />{fa(b.credits)}¢<span className="bgv-sep" /><T t={terms.income} /> {fa(b.income)}</span>
                 {gain(k) && (gain(k)!.credits || gain(k)!.vp) ? <span className="sb-gain">+{rw(gain(k))}</span> : null}
               </summary>
               <Ledger seat={k} compact />
@@ -205,10 +208,10 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
         {has('pass') && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پایان نوبت بدون خرید</Button></DockSlot>}
       </section>
 
-      <section className="sb-yard" aria-label="کارگاه ناو">
+      <section className="sb-yard" aria-label={`کارگاه ${tx(terms.ship)}`}>
         {view.shop.map((row, l) => (
           <div key={l} className="sb-yard__row">
-            <span className="sb-yard__lvl" data-flip-anchor={`deck-${l}`} role="img" aria-label={`دستهٔ ${['سبک', 'میانه', 'سنگین'][l]}، ${fa(view.deckCounts[l]!)} ناو`}><img src={DECK_BACK[l]} alt="" draggable={false} /><b>{fa(view.deckCounts[l]!)}</b></span>
+            <span className="sb-yard__lvl" data-flip-anchor={`deck-${l}`} role="img" aria-label={`دستهٔ ${['سبک', 'میانه', 'سنگین'][l]}، ${fa(view.deckCounts[l]!)} ${tx(terms.ship)}`}><img src={DECK_BACK[l]} alt="" draggable={false} /><b>{fa(view.deckCounts[l]!)}</b></span>
             {row.map((id) => {
               const can = buyable.has(id);
               return <button key={id} type="button" data-flip={`s${id}`} data-flip-from={`deck-${l}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', ship: id })}

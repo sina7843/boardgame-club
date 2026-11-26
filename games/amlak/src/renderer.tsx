@@ -2,9 +2,10 @@
 // the phase; property management, trade composer and responder; players and log. All state shown is public.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Icon, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, Icon, RailSlot, T, TurnIndicator, ZoomBoard, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps, DockSlot } from '@bg/ui';
 import { AmlakBoard, Landmarks, SEAT_COLORS, Token } from './board-art.tsx';
 import { BOARD, BAIL, GROUP_COLOR, GROUP_FA, STATION_RENT, cardById, priceOf } from './board.ts';
+import { terms } from './terms.ts';
 import { unmortgageCost, type AmlakView, type LogEntry, type TradeSide } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -43,19 +44,19 @@ type Hint = { type: string; sq?: number; to?: number; min?: number; max?: number
 function describe(e: LogEntry, name: (s: number) => string): string {
   const who = (s: number) => (s === -1 ? 'بانک' : s === -2 ? 'صندوق پارکینگ' : name(s));
   switch (e.t) {
-    case 'roll': return `${name(e.seat)} تاس ریخت: ${fa(e.dice[0])} و ${fa(e.dice[1])}${e.dice[0] === e.dice[1] ? ' (جفت)' : ''}${e.jail === 'stay' ? '؛ در زندان ماند' : e.jail === 'forced' ? '؛ سومین بار — جریمه می‌پردازد' : ''}.`;
+    case 'roll': return `${name(e.seat)} تاس ریخت: ${fa(e.dice[0])} و ${fa(e.dice[1])}${e.dice[0] === e.dice[1] ? ' (جفت)' : ''}${e.jail === 'stay' ? `؛ در ${tx(terms.jail)} ماند` : e.jail === 'forced' ? '؛ سومین بار — جریمه می‌پردازد' : ''}.`;
     case 'move': return `${name(e.seat)} به «${BOARD[e.to]!.nameFa}» رفت${e.salary ? ` و ${money(e.salary)} حقوق گرفت` : ''}.`;
     case 'buy': return `${name(e.seat)} «${BOARD[e.sq]!.nameFa}» را به ${money(e.price)} خرید.`;
     case 'decline': return `${name(e.seat)} «${BOARD[e.sq]!.nameFa}» را نخرید.`;
     case 'bid': return `${name(e.seat)} ${money(e.amount)} پیشنهاد داد.`;
-    case 'auctionPass': return `${name(e.seat)} از مزایده کنار کشید.`;
-    case 'auctionWon': return e.seat === null ? `«${BOARD[e.sq]!.nameFa}» در مزایده فروش نرفت.` : `${name(e.seat)} «${BOARD[e.sq]!.nameFa}» را در مزایده به ${money(e.price)} برد.`;
+    case 'auctionPass': return `${name(e.seat)} از ${tx(terms.auction)} کنار کشید.`;
+    case 'auctionWon': return e.seat === null ? `«${BOARD[e.sq]!.nameFa}» در ${tx(terms.auction)} فروش نرفت.` : `${name(e.seat)} «${BOARD[e.sq]!.nameFa}» را در ${tx(terms.auction)} به ${money(e.price)} برد.`;
     case 'pay': return `${name(e.seat)} ${money(e.amount)} به ${who(e.to)} پرداخت${e.why === 'rent' ? ' (اجاره)' : e.why === 'tax' ? ' (مالیات)' : e.why === 'bail' ? ' (جریمه زندان)' : ''}.`;
     case 'collect': return `${name(e.seat)} ${money(e.amount)} گرفت${e.why === 'parking' ? ' (جایزه پارکینگ)' : ''}.`;
     case 'card': return `${name(e.seat)} کارت کشید: ${cardById(e.card).textFa}`;
-    case 'jail': return `${name(e.seat)} به زندان رفت${e.why === 'doubles' ? ' (سه جفت پشت‌سرهم)' : ''}.`;
-    case 'leaveJail': return `${name(e.seat)} از زندان آزاد شد${e.how === 'bail' ? ' (پرداخت جریمه)' : e.how === 'card' ? ' (کارت آزادی)' : ' (جفت)'}.`;
-    case 'build': return `${name(e.seat)} در «${BOARD[e.sq]!.nameFa}» ${e.houses === 5 ? 'هتل' : 'خانه'} ساخت.`;
+    case 'jail': return `${name(e.seat)} به ${tx(terms.jail)} رفت${e.why === 'doubles' ? ' (سه جفت پشت‌سرهم)' : ''}.`;
+    case 'leaveJail': return `${name(e.seat)} از ${tx(terms.jail)} آزاد شد${e.how === 'bail' ? ' (پرداخت جریمه)' : e.how === 'card' ? ' (کارت آزادی)' : ' (جفت)'}.`;
+    case 'build': return `${name(e.seat)} در «${BOARD[e.sq]!.nameFa}» ${e.houses === 5 ? tx(terms.hotel) : 'خانه'} ساخت.`;
     case 'sell': return `${name(e.seat)} یک ساختمان در «${BOARD[e.sq]!.nameFa}» را فروخت.`;
     case 'mortgage': return `${name(e.seat)} «${BOARD[e.sq]!.nameFa}» را ${e.on ? 'رهن گذاشت' : 'از رهن درآورد'}.`;
     case 'trade': return e.accepted === null ? `${name(e.from)} به ${name(e.to)} پیشنهاد معامله داد.` : `${name(e.to)} معامله با ${name(e.from)} را ${e.accepted ? 'پذیرفت' : 'رد کرد'}.`;
@@ -68,7 +69,7 @@ function describe(e: LogEntry, name: (s: number) => string): string {
 /** Title-deed rows: [label, value]. */
 function rentRows(i: number): [string, string][] {
   const b = BOARD[i]!;
-  if (b.kind === 'street') return [['اجاره زمین', money(b.rents[0])], ['با کل رنگ', money(b.rents[0] * 2)], ...[1, 2, 3, 4].map((h): [string, string] => [`با ${fa(h)} خانه`, money(b.rents[h]!)]), ['با هتل', money(b.rents[5])]];
+  if (b.kind === 'street') return [['اجاره زمین', money(b.rents[0])], ['با کل رنگ', money(b.rents[0] * 2)], ...[1, 2, 3, 4].map((h): [string, string] => [`با ${fa(h)} خانه`, money(b.rents[h]!)]), [`با ${tx(terms.hotel)}`, money(b.rents[5])]];
   if (b.kind === 'station') return STATION_RENT.slice(1).map((r, k): [string, string] => [`با ${fa(k + 1)} ایستگاه`, money(r)]);
   if (b.kind === 'utility') return [['با یک شرکت', '۴ × عدد تاس'], ['با هر دو شرکت', '۱۰ × عدد تاس']];
   if (b.kind === 'tax') return [['پرداخت', money(b.amount)]];
@@ -76,6 +77,7 @@ function rentRows(i: number): [string, string][] {
 }
 
 export default function AmlakRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<AmlakView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   // Undo-window preview of the own buy / build: the ribbon or house is already on the board and the money already paid
   // (all known to the client); undo clears `queued` and it animates back. The roll itself is never previewed.
   const view = useMemo((): AmlakView => {
@@ -121,8 +123,8 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
   const framed = useInFrame() !== null;
   const wide = useWide();
   const status = view.outcome ? null : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' } : mine
-    ? { tone: 'mine' as const, text: view.trade ? 'پیشنهاد معامله برای شما' : view.phase === 'auction' ? 'مزایده: نوبت پیشنهاد شما' : view.phase === 'debt' ? 'بدهی دارید: پول جور کنید' : view.phase === 'buy' ? 'خرید یا مزایده؟' : view.phase === 'end' ? 'کارهای نوبت را انجام دهید یا نوبت را تمام کنید' : 'نوبت شماست: تاس بریزید' }
-    : { tone: 'wait' as const, text: `در انتظار ${seatName(waiting)}${view.phase === 'auction' ? ' (مزایده)' : view.phase === 'debt' ? ' (بدهی)' : view.trade ? ' (پاسخ معامله)' : ''}` };
+    ? { tone: 'mine' as const, text: view.trade ? 'پیشنهاد معامله برای شما' : view.phase === 'auction' ? `${tx(terms.auction)}: نوبت پیشنهاد شما` : view.phase === 'debt' ? 'بدهی دارید: پول جور کنید' : view.phase === 'buy' ? 'خرید یا مزایده؟' : view.phase === 'end' ? 'کارهای نوبت را انجام دهید یا نوبت را تمام کنید' : 'نوبت شماست: تاس بریزید' }
+    : { tone: 'wait' as const, text: `در انتظار ${seatName(waiting)}${view.phase === 'auction' ? ` (${tx(terms.auction)})` : view.phase === 'debt' ? ' (بدهی)' : view.trade ? ' (پاسخ معامله)' : ''}` };
 
   const manage = useMemo(() => {
     const map = new Map<number, string[]>();
@@ -155,13 +157,13 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
         )}
         {mine && !view.trade && view.phase === 'buy' && myProps.some((i) => manage.has(i)) && (
           <details className="am-panel">
-            <summary>رهن یا فروش برای تأمین پول خرید</summary>
+            <summary>{tx(terms.mortgage)} یا فروش برای تأمین پول خرید</summary>
             <ManageList view={view} props={myProps} manage={manage} busy={busy} send={send} />
           </details>
         )}
         {manageOpen && myProps.length > 0 && (
           <details className="am-panel" open={manage.size > 0}>
-            <summary>مدیریت املاک (ساخت، فروش، رهن)</summary>
+            <summary>مدیریت املاک (ساخت، فروش، {tx(terms.mortgage)})</summary>
             <ManageList view={view} props={myProps} manage={manage} busy={busy} send={send} />
           </details>
         )}
@@ -187,7 +189,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
           <p className="am-tip"><Icon name="book" size={18} />
             <span>{view.phase === 'buy' && mine
               ? 'اگر نخرید، ملک بین همه مزایده می‌شود و شما هم می‌توانید پیشنهاد بدهید. با همهٔ خیابان‌های هم‌رنگ اجارهٔ زمین دو برابر می‌شود و از آن به بعد می‌توانید خانه بسازید.'
-              : `ملک بی‌صاحب را بخرید یا به مزایده بروید. ساخت باید یکنواخت باشد. خانه‌های بانک ${fa(view.housesLeft)}، هتل‌ها ${fa(view.hotelsLeft)}.`}</span>
+              : `ملک بی‌صاحب را بخرید یا به ${tx(terms.auction)} بروید. ساخت باید یکنواخت باشد. خانه‌های بانک ${fa(view.housesLeft)}، هتل‌ها ${fa(view.hotelsLeft)}.`}</span>
           </p>
           {wide && extras}
         </RailSlot>
@@ -202,7 +204,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
             {selected !== null ? <SquareCard view={view} i={selected} seatName={seatName} onClose={() => setSelected(null)} />
               : sideDeed !== null && (
                 <figure className="am-sidedeed"><Deed view={view} i={sideDeed} seatName={seatName} />
-                  <figcaption>{view.phase === 'auction' ? 'در مزایده' : 'این ملک صاحب ندارد'}</figcaption></figure>
+                  <figcaption>{view.phase === 'auction' ? `در ${tx(terms.auction)}` : 'این ملک صاحب ندارد'}</figcaption></figure>
               )}
           </div>
         </div>
@@ -213,7 +215,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
             <section className="am-panel--decide am-turn" aria-label="تصمیم">
               <div className="am-turn__text">
                 {view.trade ? <><b>پیشنهاد معامله از <bdi>{seatName(view.trade.from)}</bdi></b><TradeSummary trade={view.trade} seatName={seatName} /></>
-                  : view.phase === 'auction' ? <><b>مزایده</b><small>بالاترین پیشنهاد: {view.auction!.leader === null ? 'هنوز نیست' : <>{money(view.auction!.high)} از <bdi>{seatName(view.auction!.leader)}</bdi></>}</small></>
+                  : view.phase === 'auction' ? <><b><T t={terms.auction} /></b><small>بالاترین پیشنهاد: {view.auction!.leader === null ? 'هنوز نیست' : <>{money(view.auction!.high)} از <bdi>{seatName(view.auction!.leader)}</bdi></>}</small></>
                   : view.phase === 'debt' && debt ? <><b>بدهی: {money(debt.amount)}</b><small>به {debt.to >= 0 ? <bdi>{seatName(debt.to)}</bdi> : debt.to === -2 ? 'صندوق پارکینگ' : 'بانک'}</small></>
                   : rollLine ? <><b>{rollLine}</b>{view.phase === 'buy' && <small>{money(priceOf(pos))}</small>}</>
                   : <b>{status?.text}</b>}
@@ -230,7 +232,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
                 </>}
                 {!view.trade && view.phase === 'buy' && <>
                   <Button disabled={busy || !has('buy')} variant={expected?.type === 'buy' ? 'brand' : 'primary'} onClick={() => send({ type: 'buy' })}>خرید به {money(priceOf(pos))}</Button>
-                  <Button variant="secondary" icon="players" disabled={busy} onClick={() => send({ type: 'decline' })}>{view.rules.auction ? 'نمی‌خرم، مزایده' : 'نمی‌خرم'}</Button>
+                  <Button variant="secondary" icon="players" disabled={busy} onClick={() => send({ type: 'decline' })}>{view.rules.auction ? `نمی‌خرم، ${tx(terms.auction)}` : 'نمی‌خرم'}</Button>
                 </>}
                 {!view.trade && view.phase === 'auction' && bidHint && <>
                   <label className="am-field">پیشنهاد شما (هزار تومان)
@@ -303,13 +305,13 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
                   <Deed view={view} i={pos} seatName={seatName} />
                   <div className="am-row">
                     <Button disabled={busy || !has('buy')} variant={expected?.type === 'buy' ? 'brand' : 'primary'} onClick={() => send({ type: 'buy' })}>خرید به {money(priceOf(pos))}</Button>
-                    <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'decline' })}>{view.rules.auction ? 'نمی‌خرم (مزایده)' : 'نمی‌خرم'}</Button>
+                    <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'decline' })}>{view.rules.auction ? `نمی‌خرم (${tx(terms.auction)})` : 'نمی‌خرم'}</Button>
                   </div>
                 </>
               )}
               {!view.trade && view.phase === 'auction' && bidHint && (
                 <>
-                  <h3>مزایده</h3>
+                  <h3><T t={terms.auction} /></h3>
                   <Deed view={view} i={view.auction!.sq} seatName={seatName} compact />
                   <p className="am-help">بالاترین پیشنهاد: {view.auction!.leader === null ? 'هنوز نیست' : `${money(view.auction!.high)} از ${seatName(view.auction!.leader)}`}</p>
                   <label className="am-field">پیشنهاد شما (هزار تومان)
@@ -344,7 +346,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
 
           {mine && !view.trade && view.phase === 'buy' && myProps.some((i) => manage.has(i)) && (
             <details className="am-panel">
-              <summary>رهن یا فروش برای تأمین پول خرید</summary>
+              <summary>{tx(terms.mortgage)} یا فروش برای تأمین پول خرید</summary>
               <ManageList view={view} props={myProps} manage={manage} busy={busy} send={send} />
             </details>
           )}
@@ -353,7 +355,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
             <>
               {myProps.length > 0 && (
                 <details className="am-panel" open={manage.size > 0}>
-                  <summary>مدیریت املاک (ساخت، فروش، رهن)</summary>
+                  <summary>مدیریت املاک (ساخت، فروش، {tx(terms.mortgage)})</summary>
                   <ManageList view={view} props={myProps} manage={manage} busy={busy} send={send} />
                 </details>
               )}
@@ -375,7 +377,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
                   <span className="am-wallet__pawn" aria-hidden="true"><svg viewBox="-20 -19 40 36"><Token seat={seat} /></svg><i>{fa(seat + 1)}</i></span>
                   <span className="am-wallet__who">
                     <bdi className="am-wallet__name">{seatName(seat)}</bdi>{seat === mySeat && <span className="am-wallet__me"> (شما)</span>}
-                    {pl.inJail && <span className="am-tag">زندان</span>}
+                    {pl.inJail && <span className="am-tag"><T t={terms.jail} /></span>}
                     {pl.jailCards.length > 0 && <span className="am-tag am-tag--card">کارت آزادی</span>}
                     {pl.bankrupt && <span className="am-tag am-tag--out">ورشکسته</span>}
                   </span>
@@ -434,7 +436,7 @@ function Deed({ view, i, seatName, compact }: { view: AmlakView; i: number; seat
           <span>رهن {money(b.price / 2)}</span>
           {b.kind === 'street' && <span>هر خانه {money(b.house)}</span>}
           {owner !== null && owner !== undefined && (
-            <span>مالک <bdi>{seatName(owner)}</bdi>{view.mortgaged[i] ? `، در رهن (فک رهن ${money(unmortgageCost(i))})` : ''}{view.houses[i] ? `، ${view.houses[i] === 5 ? 'هتل' : `${fa(view.houses[i]!)} خانه`}` : ''}</span>
+            <span>مالک <bdi>{seatName(owner)}</bdi>{view.mortgaged[i] ? `، در ${tx(terms.mortgage)} (${tx(terms.unmortgage)} ${money(unmortgageCost(i))})` : ''}{view.houses[i] ? `، ${view.houses[i] === 5 ? tx(terms.hotel) : `${fa(view.houses[i]!)} خانه`}` : ''}</span>
           )}
         </footer>
       )}
@@ -446,19 +448,19 @@ function Deed({ view, i, seatName, compact }: { view: AmlakView; i: number; seat
 function CardFace({ id, text, who, seq }: { id: string; text: string; who: string; seq: number }) {
   const chance = id.startsWith('ch');
   return (
-    <figure data-flip={`card-${seq}`} data-flip-from={chance ? 'deck-chance' : 'deck-chest'} className={chance ? 'am-cardface am-cardface--chance' : 'am-cardface am-cardface--chest'} aria-label={`${chance ? 'شانس' : 'صندوق'}: ${text}`}>
+    <figure data-flip={`card-${seq}`} data-flip-from={chance ? 'deck-chance' : 'deck-chest'} className={chance ? 'am-cardface am-cardface--chance' : 'am-cardface am-cardface--chest'} aria-label={`${chance ? tx(terms.chance) : tx(terms.chest)}: ${text}`}>
       <span className="am-cardface__badge" aria-hidden="true">{chance ? '؟' : '▣'}</span>
-      <figcaption><span className="am-cardface__kind">{chance ? 'شانس' : 'صندوق'}، <bdi>{who}</bdi></span>{text}</figcaption>
+      <figcaption><span className="am-cardface__kind">{chance ? tx(terms.chance) : tx(terms.chest)}، <bdi>{who}</bdi></span>{text}</figcaption>
     </figure>
   );
 }
 
 function ManageList({ view, props, manage, busy, send }: { view: AmlakView; props: number[]; manage: Map<number, string[]>; busy: boolean; send: (a: Record<string, unknown>) => void }) {
   const LABEL: Record<string, (i: number) => string> = {
-    build: (i) => { const b = BOARD[i]!; return `ساخت ${view.houses[i] === 4 ? 'هتل' : 'خانه'} (${money(b.kind === 'street' ? b.house : 0)})`; },
+    build: (i) => { const b = BOARD[i]!; return `ساخت ${view.houses[i] === 4 ? tx(terms.hotel) : 'خانه'} (${money(b.kind === 'street' ? b.house : 0)})`; },
     sell: (i) => { const b = BOARD[i]!; return `فروش ساختمان (+${money(b.kind === 'street' ? b.house / 2 : 0)})`; },
-    mortgage: (i) => `رهن (+${money(priceOf(i) / 2)})`,
-    unmortgage: (i) => `فک رهن (${money(unmortgageCost(i))})`
+    mortgage: (i) => `${tx(terms.mortgage)} (+${money(priceOf(i) / 2)})`,
+    unmortgage: (i) => `${tx(terms.unmortgage)} (${money(unmortgageCost(i))})`
   };
   return (
     <ul className="am-manage">
@@ -467,7 +469,7 @@ function ManageList({ view, props, manage, busy, send }: { view: AmlakView; prop
         const acts = manage.get(i) ?? [];
         return (
           <li key={i}>
-            <span>{b.kind === 'street' && <span className="am-swatch" style={{ background: GROUP_COLOR[b.group] }} aria-hidden="true" />}{b.nameFa}{view.houses[i] ? `، ${view.houses[i] === 5 ? 'هتل' : `${fa(view.houses[i]!)} خانه`}` : ''}{view.mortgaged[i] ? '، در رهن' : ''}</span>
+            <span>{b.kind === 'street' && <span className="am-swatch" style={{ background: GROUP_COLOR[b.group] }} aria-hidden="true" />}{b.nameFa}{view.houses[i] ? `، ${view.houses[i] === 5 ? tx(terms.hotel) : `${fa(view.houses[i]!)} خانه`}` : ''}{view.mortgaged[i] ? `، در ${tx(terms.mortgage)}` : ''}</span>
             <span className="am-manage__acts">{acts.map((t) => <Button key={t} size="sm" variant="secondary" disabled={busy} onClick={() => send({ type: t, sq: i })}>{LABEL[t]!(i)}</Button>)}</span>
           </li>
         );
@@ -501,7 +503,7 @@ function TradeComposer({ view, mySeat, partners, seatName, busy, send }: { view:
     <fieldset className="am-tradeside">
       <legend>{label}</legend>
       {tradable(seat).map((i) => (
-        <label key={i} className="am-check"><input type="checkbox" checked={sideVal.props.includes(i)} onChange={() => toggle(sideVal, set, i)} />{BOARD[i]!.nameFa}{view.mortgaged[i] ? ' (رهن)' : ''}</label>
+        <label key={i} className="am-check"><input type="checkbox" checked={sideVal.props.includes(i)} onChange={() => toggle(sideVal, set, i)} />{BOARD[i]!.nameFa}{view.mortgaged[i] ? ` (${tx(terms.mortgage)})` : ''}</label>
       ))}
       <label className="am-field">پول (هزار تومان، حداکثر {fa(view.p[seat]!.cash)})
         <input type="number" inputMode="numeric" min={0} max={view.p[seat]!.cash} value={sideVal.cash} onChange={(e) => set({ ...sideVal, cash: Math.max(0, Math.min(view.p[seat]!.cash, Number(e.target.value) || 0)) })} />

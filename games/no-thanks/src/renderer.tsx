@@ -2,9 +2,10 @@
 // lowest of a run scores), and two big buttons. Others' chip counts are secret until the end.
 import './renderer.css';
 import { useMemo, useRef } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps } from '@bg/ui';
 import { cardPoints, runs, type NoThanksView } from './rules.ts';
 import cardsArt from './art/cards.webp';
+import { terms } from './terms.ts';
 
 const GC = import.meta.glob<string>('./art/gc/no-thanks-*.png', { eager: true, import: 'default' });
 const gc = (n: string | number) => GC[`./art/gc/no-thanks-${n}.png`];
@@ -16,6 +17,7 @@ const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const hue = (c: number) => 200 - ((c - 3) / 32) * 200;
 
 export default function NoThanksRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<NoThanksView>) {
+  useTermsLang(); // re-render when the terms language changes
   // Undo-window preview: a taken card already lies in your row with its chips counted, a refusal already put your chip
   // on the card; undo returns them. The next card from the deck only comes with the server's answer.
   const pending = mySeat !== null && real.card !== null && (queued?.type === 'take' || queued?.type === 'pass') ? queued.type : null;
@@ -50,7 +52,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>کارت‌ها امتیاز منفی‌اند. از هر رشتهٔ عدد پشت‌سرهم فقط کوچک‌ترین کارت حساب می‌شود و هر ژتون یک امتیاز کم می‌کند. ژتون‌های دیگران مخفی است.</p>
+          <p>کارت‌ها امتیاز منفی‌اند. از هر رشتهٔ عدد پشت‌سرهم فقط کوچک‌ترین کارت حساب می‌شود و هر <T t={terms.chip} /> یک امتیاز کم می‌کند. ژتون‌های دیگران مخفی است.</p>
         </RailSlot>
       )}
 
@@ -60,7 +62,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
           <span className="nt-deck__n">{fa(view.deckCount)}</span>
         </div>
         {view.card !== null ? (
-          <div key={view.card} data-flip={`c-${view.card}`} data-flip-from="deck" className="nt-card nt-card--big nt-card--art" style={{ ['--h' as string]: hue(view.card), ...(gc(view.card) ? { backgroundImage: `url(${gc(view.card)})`, backgroundSize: '100% 100%', backgroundPosition: 'center' } : cardArt(view.card)) }} aria-label={`کارت ${fa(view.card)} با ${fa(view.pot)} ژتون رویش`}>
+          <div key={view.card} data-flip={`c-${view.card}`} data-flip-from="deck" className="nt-card nt-card--big nt-card--art" style={{ ['--h' as string]: hue(view.card), ...(gc(view.card) ? { backgroundImage: `url(${gc(view.card)})`, backgroundSize: '100% 100%', backgroundPosition: 'center' } : cardArt(view.card)) }} aria-label={`کارت ${fa(view.card)} با ${fa(view.pot)} ${tx(terms.chip)} رویش`}>
             <span className="nt-card__corner">{fa(view.card)}</span>
             <strong className="nt-card__n">{fa(view.card)}</strong>
             <span className="nt-pot" aria-hidden="true">
@@ -75,10 +77,10 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
       {myTurn && (() => { const btns = (
         <>
           <Button className={hint === 'take' ? 'nt-btn--take nt-btn--hint' : 'nt-btn--take'} disabled={busy} onClick={() => onAction({ type: 'take' })}>
-            برمی‌دارم{view.pot ? ` (${fa(view.pot)} ژتون)` : ''}
+            برمی‌دارم{view.pot ? ` (${fa(view.pot)} ${tx(terms.chip)})` : ''}
           </Button>
           <Button variant="secondary" className={hint === 'pass' ? 'nt-btn--pass nt-btn--hint' : 'nt-btn--pass'} disabled={busy || !has('pass')} onClick={() => onAction({ type: 'pass' })}>
-            نه، مرسی! (−{fa(1)})
+            <T t={terms.noThanks} /> (−{fa(1)})
           </Button>
         </>
       ); return framed ? <DockSlot>{btns}</DockSlot> : <div className="nt__actions">{btns}</div>; })()}
@@ -91,7 +93,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
             <li key={s} data-flip-anchor={`seat-${s}`} className={['nt-pl', s === view.current && !view.outcome ? 'nt-pl--turn' : '', view.active[s] ? '' : 'nt-pl--out', s === mySeat ? 'nt-pl--me' : ''].join(' ')}>
               <div className="nt-pl__head">
                 <bdi className="nt-pl__name">{who(s)}</bdi>
-                <span className="nt-pl__chips bg-pop" key={`h${view.chips[s]}`} aria-label={view.chips[s] === null ? 'ژتون‌ها مخفی' : `${fa(view.chips[s]!)} ژتون`}><img src={gc('chip')} alt="" aria-hidden="true" width={16} />{view.chips[s] === null ? '؟' : fa(view.chips[s]!)}</span>
+                <span className="nt-pl__chips bg-pop" key={`h${view.chips[s]}`} aria-label={view.chips[s] === null ? 'ژتون‌ها مخفی' : `${fa(view.chips[s]!)} ${tx(terms.chip)}`}><img src={gc('chip')} alt="" aria-hidden="true" width={16} />{view.chips[s] === null ? '؟' : fa(view.chips[s]!)}</span>
                 {!framed && <span className="nt-pl__pts">امتیاز کارت‌ها {fa(pts)}</span>}
                 {view.scores && <strong className="nt-pl__score">نهایی {fa(view.scores[s]!)}</strong>}
               </div>
@@ -109,7 +111,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
           );
         })}
       </ul>
-      {!framed && last && !view.outcome && <p className="nt__last" role="status">{last.t === 'take' ? `${who(last.seat)} ${fa(last.card!)} را برداشت` : last.t === 'pass' || last.t === 'timeout' ? `${who(last.seat)}: «نه، مرسی!»` : `${who(last.seat)} کنار رفت`}</p>}
+      {!framed && last && !view.outcome && <p className="nt__last" role="status">{last.t === 'take' ? `${who(last.seat)} ${fa(last.card!)} را برداشت` : last.t === 'pass' || last.t === 'timeout' ? `${who(last.seat)}: «${tx(terms.noThanks)}»` : `${who(last.seat)} کنار رفت`}</p>}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 // geta board grouped by dish, with running set points; the plates just revealed pop in.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { RailSlot, T, TurnIndicator, tx, type Term, useTermsLang, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
 import tempura from './art/sushi-go-tempura.png';
 import sashimi from './art/sushi-go-sashimi.png';
 import dumpling from './art/sushi-go-dumpling.png';
@@ -15,13 +15,15 @@ import puddingIcon from './art/sushi-go-pudding-icon.png';
 import wasabi from './art/sushi-go-wasabi.png';
 import chopsticks from './art/sushi-go-chopsticks.png';
 import mat from './art/sushi-go-mat.png';
+import { terms } from './terms.ts';
 import { MAKI, setScore, type Kind, type Played, type SushiGoView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const NAME: Record<Kind, string> = {
-  tempura: 'تمپورا', sashimi: 'ساشیمی', dumpling: 'دامپلینگ', maki1: 'ماکی ۱', maki2: 'ماکی ۲', maki3: 'ماکی ۳', salmon: 'نیگیری سالمون',
-  squid: 'نیگیری ماهی مرکب', egg: 'نیگیری تخم‌مرغ', pudding: 'پودینگ', wasabi: 'واسابی', chopsticks: 'چاپستیک'
+const NAME_T: Record<Kind, Term> = {
+  tempura: terms.tempura, sashimi: terms.sashimi, dumpling: terms.dumpling, maki1: terms.maki1, maki2: terms.maki2, maki3: terms.maki3, salmon: terms.salmonNigiri,
+  squid: terms.squidNigiri, egg: terms.eggNigiri, pudding: terms.pudding, wasabi: terms.wasabi, chopsticks: terms.chopsticks
 };
+const nameOf = (k: Kind) => tx(NAME_T[k]);
 const NOTE: Record<Kind, string> = {
   tempura: 'دوتا = ۵', sashimi: 'سه‌تا = ۱۰', dumpling: '۱ ۳ ۶ ۱۰ ۱۵', maki1: 'رول بیشتر', maki2: 'رول بیشتر', maki3: 'رول بیشتر', salmon: '۲',
   squid: '۳', egg: '۱', pudding: 'آخر بازی', wasabi: 'نیگیری ×۳', chopsticks: 'بعداً دو کارت'
@@ -35,7 +37,7 @@ export function Plate({ k, size = 'md', fresh, wasabi, flip, flipFrom, exit, pen
   const src = ART[k];
   return (
     <span className={['sg-plate', `sg-plate--${size}`, fresh ? 'sg-plate--fresh' : '', pending ? 'sg-plate--pending' : '', wasabi ? 'sg-plate--wasabi' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
-      {src ? <img className="sg-plate__img" src={src} alt={NAME[k]} draggable={false} /> : <span className="sg-plate__img sg-ph" role="img" aria-label={NAME[k]}>{NAME[k]}</span>}
+      {src ? <img className="sg-plate__img" src={src} alt={nameOf(k)} draggable={false} /> : <span className="sg-plate__img sg-ph" role="img" aria-label={nameOf(k)}>{nameOf(k)}</span>}
       {size === 'md' && <span className="sg-plate__note">{NOTE[k]}</span>}
     </span>
   );
@@ -53,7 +55,7 @@ function Tableau({ t, fresh, seat, from, mine, sum }: { sum?: boolean; mine?: bo
   return (
     <div className={['sg-tab', 'sg-tab--mat', mine ? 'sg-tab--me' : ''].join(' ')} style={{ ['--mat' as string]: `url(${mat})` }}>
       {groups.map(({ k, items }) => (
-        <span key={k} className="sg-tab__g" title={NAME[k]}>
+        <span key={k} className="sg-tab__g" title={nameOf(k)}>
           {items.map((c, i) => <Plate key={i} k={k} size="sm" wasabi={c.wasabi} pending={c.pending} fresh={!c.pending && fresh.includes(k) && i === items.length - 1}
             flip={c.id ?? `t-${seat}-${k}-${i}`} flipFrom={from} exit={k === 'pudding' ? `pud-${seat}` : 'drop'} />)}
         </span>
@@ -69,6 +71,7 @@ function Pop({ n }: { n: number }) {
 }
 
 export default function SushiGoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SushiGoView>) {
+  useTermsLang();
   const can = new Set(legalActions.filter((a) => a.type === 'pick').map((a) => a.card as Kind));
   const canChop = legalActions.some((a) => a.type === 'chopsticks');
   const [chop, setChop] = useState(false);
@@ -111,7 +114,7 @@ export default function SushiGoRenderer({ view, legalActions, mySeat, seatName, 
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : can.size ? { tone: 'mine' as const, text: chop ? (first === null ? 'چاپستیک: کارت اول را انتخاب کنید' : 'و کارت دوم…') : 'یک بشقاب بردارید' }
+    : can.size ? { tone: 'mine' as const, text: chop ? (first === null ? `${tx(terms.chopsticks)}: کارت اول را انتخاب کنید` : 'و کارت دوم…') : 'یک بشقاب بردارید' }
       : { tone: 'wait' as const, text: `منتظر ${waiting.map(who).join('، ')}` };
 
   const framed = useInFrame() !== null;
@@ -126,7 +129,7 @@ export default function SushiGoRenderer({ view, legalActions, mySeat, seatName, 
   return (
     <div className="sg" ref={root} data-seq={view.seq}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      {framed && !view.outcome && <RailSlot><p>هم‌زمان یک کارت برمی‌دارید و بقیهٔ دست را به نفر بعد می‌دهید. نیگیری روی واسابی سه برابر می‌شود.</p><p>دور {fa(view.round)} از {fa(view.rounds)}، {fa(view.handSize)} کارت در دست</p></RailSlot>}
+      {framed && !view.outcome && <RailSlot><p>هم‌زمان یک کارت برمی‌دارید و بقیهٔ دست را به نفر بعد می‌دهید. <T t={terms.nigiri} /> روی <T t={terms.wasabi} /> سه برابر می‌شود.</p><p>دور {fa(view.round)} از {fa(view.rounds)}، {fa(view.handSize)} کارت در دست</p></RailSlot>}
       {!framed && !view.outcome && <p className="sg__round">دور {fa(view.round)} از {fa(view.rounds)}، {fa(view.handSize)} کارت در هر دست</p>}
 
       <ul className="sg__players" aria-label="بازیکنان">
@@ -138,7 +141,7 @@ export default function SushiGoRenderer({ view, legalActions, mySeat, seatName, 
                 {place && <b className="sg-pl__place">{fa(place)}</b>}
                 <bdi className="sg-pl__name">{who(s)}</bdi>
                 {!framed && <span className="sg-pl__score"><Pop n={view.scores[s]!} /></span>}
-                <span className="sg-pl__pud" data-flip-anchor={`pud-${s}`} aria-label={`${fa(view.puddings[s]!)} پودینگ`}><img className="sg-pud-ic" src={puddingIcon} alt="" /><Pop n={view.puddings[s]!} /></span>
+                <span className="sg-pl__pud" data-flip-anchor={`pud-${s}`} aria-label={`${fa(view.puddings[s]!)} ${tx(terms.pudding)}`}><img className="sg-pud-ic" src={puddingIcon} alt="" /><Pop n={view.puddings[s]!} /></span>
                 {!framed && !view.outcome && <span className={`sg-pl__flag ${view.picked[s] ? 'sg-pl__flag--ok' : ''}`}>{view.picked[s] ? 'برداشت' : 'در فکر…'}</span>}
               </div>
               {!view.outcome && <Tableau sum={!framed} mine={s === me} t={s === me ? myTable : view.table[s]!} fresh={view.revealed[s] ?? []} seat={s} from={s === mySeat ? 'hand' : `seat-${s}`} />}
@@ -150,18 +153,18 @@ export default function SushiGoRenderer({ view, legalActions, mySeat, seatName, 
       {!framed && view.lastRound.length > 0 && (
         <table className="sg__scores">
           <thead><tr><th scope="col">امتیاز</th>{view.scores.map((_, k) => <th key={k} scope="col"><bdi>{who(k)}</bdi></th>)}</tr></thead>
-          <tbody>{view.lastRound.map((r, i) => <tr key={i}><th scope="row">{i < view.rounds ? `دور ${fa(i + 1)}` : 'پودینگ'}</th>{r.map((v, k) => <td key={k}>{fa(v)}</td>)}</tr>)}</tbody>
+          <tbody>{view.lastRound.map((r, i) => <tr key={i}><th scope="row">{i < view.rounds ? `دور ${fa(i + 1)}` : tx(terms.pudding)}</th>{r.map((v, k) => <td key={k}>{fa(v)}</td>)}</tr>)}</tbody>
         </table>
       )}
 
       {view.hand && !view.outcome && (
         <section className="sg__me" aria-label="دست شما">
-          {Array.isArray(myPick) && <p className="sg__picked">انتخاب شما: {myPick.map((k) => NAME[k]).join(' و ')} — منتظر بقیه</p>}
-          {canChop && <button type="button" className={`sg-chop ${chop ? 'sg-chop--on' : ''}`} aria-pressed={chop} onClick={() => { setChop(!chop); setFirst(null); }}>چاپستیک: دو کارت بردار</button>}
+          {Array.isArray(myPick) && <p className="sg__picked">انتخاب شما: {myPick.map((k) => nameOf(k)).join(' و ')} — منتظر بقیه</p>}
+          {canChop && <button type="button" className={`sg-chop ${chop ? 'sg-chop--on' : ''}`} aria-pressed={chop} onClick={() => { setChop(!chop); setFirst(null); }}>{tx(terms.chopsticks)}: دو کارت بردار</button>}
           <div className={`sg-belt ${myPick === false ? '' : 'sg-belt--done'}`} role="group" aria-label="کارت‌های دست" data-flip-anchor="hand" style={{ ['--n' as string]: handShown.length, ['--cols' as string]: Math.ceil(handShown.length / 2) }}>
             {handShown.map(({ k, i, id }) => (
               <button key={id} type="button" data-flip={id} data-flip-from={`seat-${(me - 1 + view.players) % view.players}`} data-flip-exit={`seat-${(me + 1) % view.players}`} className={['sg-pick', first === i ? 'sg-pick--on' : '', hint?.type === 'pick' && hint.card === k ? 'sg-hint' : ''].join(' ')}
-                disabled={busy || !can.has(k)} onClick={() => tap(i)} aria-label={`برداشتن ${NAME[k]}`} style={{ ['--i' as string]: i }}>
+                disabled={busy || !can.has(k)} onClick={() => tap(i)} aria-label={`برداشتن ${nameOf(k)}`} style={{ ['--i' as string]: i }}>
                 <Plate k={k} />
               </button>
             ))}

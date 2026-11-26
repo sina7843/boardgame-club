@@ -11,7 +11,8 @@
 // `me.blocked`, `me.values`, `respond.options`).
 import './renderer.css';
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import { RailSlot, ZoomBoard, useFlip, useFresh, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { RailSlot, ZoomBoard, tx as termTx, useFlip, useFresh, usePop, useTermsLang, type GameAction, type GameRendererProps, type Term } from '@bg/ui';
+import { terms } from './terms.ts';
 import { Avatar, Button as DsButton } from '@bg/ui/bgv';
 
 /** The DS Button as-is (icons, disabled tile, `pressed` only for real toggles). */
@@ -23,7 +24,7 @@ function Button({ variant = 'primary', size = 'md', icon, ...rest }: BtnProps) {
   return <DsButton variant={variant} {...(size === 'sm' ? { size: 'sm' as const } : {})} {...(icon ? { icon: icon as never } : {})} {...rest} />;
 }
 import {
-  AWARD_COSTS, AWARDS, CARD, MILESTONE_COST, MILESTONES, PROJECTS, PROJECT_FA, RES, RES_FA, CARDRES_FA, SPACE, NAME_FA, OCEANS_MAX, OXY_MAX, TEMP_MAX,
+  AWARD_COSTS, AWARDS, CARD, MILESTONE_COST, MILESTONES, PROJECTS, PROJECT_FA as PROJECT_FA0, RES, RES_FA as RES_FA0, CARDRES_FA as CARDRES_FA0, SPACE, NAME_FA, OCEANS_MAX, OXY_MAX, TEMP_MAX,
   type CardDef, type Project, type Res, type Tag, type TmDetail, type TmView
 } from './rules.ts';
 import LAYOUT from './design/layout.json' with { type: 'json' };
@@ -50,8 +51,18 @@ const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const num = (n: number, en: boolean) => (en ? String(n) : fa(n));
 const signed = (n: number, en: boolean) => (n > 0 ? `+${num(n, en)}` : n < 0 ? `−${num(-n, en)}` : num(0, en));
 const TAGS_ORDER: (Tag | 'event')[] = ['building', 'space', 'science', 'power', 'earth', 'jovian', 'plant', 'microbe', 'animal', 'city', 'event'];
-const TAG_FA: Record<Tag | 'event', string> = { building: 'ساختمان', space: 'فضا', science: 'علم', power: 'انرژی', earth: 'زمین', jovian: 'مشتری', plant: 'گیاه', microbe: 'میکروب', animal: 'جانور', city: 'شهر', event: 'رویداد' };
-const TILE_FA = { greenery: 'فضای سبز', ocean: 'اقیانوس', city: 'شهر', special: 'کاشی ویژه' } as const;
+const TAG_FA0: Record<Tag | 'event', string> = { building: 'ساختمان', space: 'فضا', science: 'علم', power: 'انرژی', earth: 'زمین', jovian: 'مشتری', plant: 'گیاه', microbe: 'میکروب', animal: 'جانور', city: 'شهر', event: 'رویداد' };
+const TILE_FA0 = { greenery: 'فضای سبز', ocean: 'اقیانوس', city: 'شهر', special: 'کاشی ویژه' } as const;
+// Read-through label tables for «فارسی بردگیمی»: entries with a Term follow the current terms language, the rest stay Persian.
+const tp = <K extends string>(base: Record<K, string>, m: Partial<Record<K, Term>>): Record<K, string> => new Proxy(base, { get: (o, k) => { const x = m[k as K]; return x ? termTx(x) : o[k as K]; } });
+const TAG_FA = tp(TAG_FA0, { building: terms.tagBuilding, space: terms.tagSpace, science: terms.tagScience, power: terms.tagPower, earth: terms.tagEarth, jovian: terms.tagJovian, plant: terms.tagPlant, microbe: terms.tagMicrobe, animal: terms.tagAnimal, city: terms.tagCity, event: terms.tagEvent });
+const TILE_FA = tp(TILE_FA0, { greenery: terms.greenery, ocean: terms.ocean, city: terms.city });
+const RES_FA = tp(RES_FA0, { mc: terms.mc, steel: terms.steel, titanium: terms.titanium, plants: terms.plants, energy: terms.energy, heat: terms.heat });
+const CARDRES_FA = tp(CARDRES_FA0, { microbe: terms.tagMicrobe, animal: terms.tagAnimal });
+const PROJECT_FA = tp(PROJECT_FA0, { sellPatents: terms.sellPatents, powerPlant: terms.powerPlant, asteroid: terms.asteroid, aquifer: terms.aquifer, greenery: terms.greenery, city: terms.city });
+/** Exact-match Persian → Term lookup (whole terms only; sentences stay Persian). */
+const TERM_BY_FA = new Map<string, Term>(Object.values(terms).map((x) => [x.fa, x]));
+const faT = (s: string) => (TERM_BY_FA.has(s) ? termTx(TERM_BY_FA.get(s)!) : s);
 const PROJECT_EN: Record<Project, string> = { sellPatents: 'Sell patents', powerPlant: 'Power plant', asteroid: 'Asteroid', aquifer: 'Aquifer', greenery: 'Greenery', city: 'City' };
 const PROJECT_FX_EN: Record<Project, string> = { sellPatents: '1 M€ per card', powerPlant: '+1 energy production', asteroid: '+1 temperature, +1 TR', aquifer: 'Place an ocean', greenery: 'Greenery, +1 oxygen', city: 'City, +1 M€ production' };
 const TILE_EN = { greenery: 'greenery', ocean: 'ocean', city: 'city', special: 'special tile' } as const;
@@ -196,12 +207,12 @@ function Board({ view, en, seatName, picks, picked, onSpace, hint, boardAct }: B
       {temp && <img className="tm-at tm-cube tm-cube--track" style={pos(temp[0], temp[1], WIN.trackCube)} src={WHITE} alt="" />}
       {oxy && <img className="tm-at tm-cube tm-cube--track" style={pos(oxy[0], oxy[1], WIN.trackCube)} src={WHITE} alt="" />}
       <span className="tm-boardplate tm-boardplate--start" data-flip-anchor="deck"><img className="tm-ic" src={art(MAP.cardBack)} alt="" />{en ? `Deck ${view.deck}` : `دسته ${fa(view.deck)}`}<span className="bgv-sep" />{en ? `Discard ${view.discard}` : `دورریز ${fa(view.discard)}`}</span>
-      <span className="tm-boardplate tm-boardplate--end"><img className="tm-ic" src={icon('generation')} alt="" />{en ? `Generation ${view.generation}` : `نسل ${fa(view.generation)}`}</span>
+      <span className="tm-boardplate tm-boardplate--end"><img className="tm-ic" src={icon('generation')} alt="" />{en ? `Generation ${view.generation}` : `${termTx(terms.generation)} ${fa(view.generation)}`}</span>
       {(L.standardProjects.ids as Project[]).map((pr, i) => {
         const [x, y] = L.standardProjects.centres[i] as [number, number];
         const a = boardAct(`project:${pr}`);
         return <button key={pr} type="button" className={`tm-spbtn${a.avail ? ' is-avail' : ''}${a.hint ? ' tm-hint' : ''}`} style={pos(x, y, WIN.standardProjectButton[0], WIN.standardProjectButton[1])}
-          data-tm-action={`sp-${pr}`} data-act={`project-${pr}`} disabled={!a.ok} title={a.reason} aria-label={`${PROJECT_FA[pr]}${pr !== 'sellPatents' ? `، ${fa(PROJECTS[pr])} مگاکردیت` : ''}${a.reason ? `، ${a.reason}` : ''}`} onClick={a.go} />;
+          data-tm-action={`sp-${pr}`} data-act={`project-${pr}`} disabled={!a.ok} title={a.reason} aria-label={`${PROJECT_FA[pr]}${pr !== 'sellPatents' ? `، ${fa(PROJECTS[pr])} ${termTx(terms.mc)}` : ''}${a.reason ? `، ${a.reason}` : ''}`} onClick={a.go} />;
       })}
       {MILESTONES.map((m, i) => {
         const [x, y] = L.milestones.iconCentres[i] as [number, number];
@@ -210,7 +221,7 @@ function Board({ view, en, seatName, picks, picked, onSpace, hint, boardAct }: B
         return <span key={m.id}>
           <button type="button" className={`tm-mabtn${a.avail ? ' is-avail' : ''}${a.hint ? ' tm-hint' : ''}`} style={pos(x, y + L.milestones.button.centreDy, WIN.plaqueButton[0], WIN.plaqueButton[1])}
             data-tm-action={`milestone-${m.id}`} disabled={!a.ok} title={a.reason}
-            aria-label={`نقطهٔ عطف ${m.nameFa}: ${m.textFa}، ${fa(MILESTONE_COST)} مگاکردیت${t ? `، ثبت‌شده برای ${seatName(t.seat)}` : a.reason ? `، ${a.reason}` : ''}`} onClick={a.go} />
+            aria-label={`${termTx(terms.milestone)} ${m.nameFa}: ${m.textFa}، ${fa(MILESTONE_COST)} ${termTx(terms.mc)}${t ? `، ثبت‌شده برای ${seatName(t.seat)}` : a.reason ? `، ${a.reason}` : ''}`} onClick={a.go} />
           {t && <img className="tm-at tm-cube tm-cube--plaque" style={pos(x, y, WIN.plaqueCube)} src={cubeArt(t.seat)} alt="" />}
         </span>;
       })}
@@ -222,7 +233,7 @@ function Board({ view, en, seatName, picks, picked, onSpace, hint, boardAct }: B
         return <span key={aw.id}>
           <button type="button" className={`tm-mabtn${a.avail ? ' is-avail' : ''}${a.hint ? ' tm-hint' : ''}`} style={pos(x, y + L.awards.button.centreDy, WIN.plaqueButton[0], WIN.plaqueButton[1])}
             data-tm-action={`award-${aw.id}`} disabled={!a.ok} title={a.reason}
-            aria-label={`جایزهٔ ${aw.nameFa}: ${aw.textFa}${t ? `، تأمین‌شده توسط ${seatName(t.seat)}` : next !== null ? `، هزینهٔ بعدی ${fa(next)} مگاکردیت` : ''}${!t && a.reason ? `، ${a.reason}` : ''}`} onClick={a.go} />
+            aria-label={`${termTx(terms.awardE)} ${aw.nameFa}: ${aw.textFa}${t ? `، تأمین‌شده توسط ${seatName(t.seat)}` : next !== null ? `، هزینهٔ بعدی ${fa(next)} ${termTx(terms.mc)}` : ''}${!t && a.reason ? `، ${a.reason}` : ''}`} onClick={a.go} />
           {t && <img className="tm-at tm-cube tm-cube--plaque" style={pos(x, y, WIN.plaqueCube)} src={cubeArt(t.seat)} alt="" />}
         </span>;
       })}
@@ -265,15 +276,15 @@ function Dashboard({ view, en, zoom, setZoom, help, setHelp, settings }: { view:
       {open && <div className="tm-dash__settings">{settings}</div>}
       {help && <ul className="tm-dash__help">
         {(Object.keys(PROJECTS) as Project[]).map((pr) => <li key={pr}><b>{en ? PROJECT_EN[pr] : PROJECT_FA[pr]}</b> {pr === 'sellPatents' ? (en ? '1 M€ per card' : 'هر کارت ۱ مگاکردیت') : `${num(PROJECTS[pr], en)} ${en ? 'M€' : 'مگاکردیت'}: ${en ? PROJECT_FX_EN[pr] : PROJECT_FX[pr]}`}</li>)}
-        <li><b>{en ? 'Milestone' : 'نقطهٔ عطف'}</b> {en ? `${MILESTONE_COST} M€, 5 VP, 3 at most` : `${fa(MILESTONE_COST)} مگاکردیت، ۵ امتیاز، حداکثر ۳`}</li>
-        <li><b>{en ? 'Award' : 'جایزه'}</b> {en ? `${AWARD_COSTS.join(' / ')} M€; 5 and 2 VP` : `${AWARD_COSTS.map(fa).join(' / ')} مگاکردیت؛ ۵ و ۲ امتیاز`}</li>
+        <li><b>{en ? 'Milestone' : termTx(terms.milestone)}</b> {en ? `${MILESTONE_COST} M€, 5 VP, 3 at most` : `${fa(MILESTONE_COST)} ${termTx(terms.mc)}، ۵ امتیاز، حداکثر ۳`}</li>
+        <li><b>{en ? 'Award' : termTx(terms.award)}</b> {en ? `${AWARD_COSTS.join(' / ')} M€; 5 and 2 VP` : `${AWARD_COSTS.map(fa).join(' / ')} ${termTx(terms.mc)}؛ ۵ و ۲ امتیاز`}</li>
         <li><b>{en ? 'Conversions' : 'تبدیل‌ها'}</b> {en ? '8 plants → greenery; 8 heat → +1 temperature' : '۸ گیاه به فضای سبز؛ ۸ گرما به ۱ پلهٔ دما'}</li>
       </ul>}
       <div className="tm-dash__params">
-        <span className="tm-param" role="meter" aria-label="اکسیژن" aria-valuemin={0} aria-valuemax={OXY_MAX} aria-valuenow={view.oxygen}><img className="tm-ic" src={icon('oxygen')} alt="" /><b key={view.oxygen} className={`tm-num ${pO}`}>{num(view.oxygen, en)}٪</b></span>
-        <span className="tm-param" role="meter" aria-label="دما" aria-valuemin={-30} aria-valuemax={TEMP_MAX} aria-valuenow={view.temperature}><img className="tm-ic" src={icon('temperature')} alt="" /><b key={view.temperature} className={`tm-num ${pT}`}>{signed(view.temperature, en)}°C</b></span>
-        <span className="tm-param" role="meter" aria-label="اقیانوس" aria-valuemin={0} aria-valuemax={OCEANS_MAX} aria-valuenow={view.oceans}><img className="tm-ic" src={icon('ocean')} alt="" /><b key={view.oceans} className={pW}>{num(view.oceans, en)}</b></span>
-        <span className="tm-param" aria-label="نسل"><img className="tm-ic" src={icon('generation')} alt="" /><b>{num(view.generation, en)}</b></span>
+        <span className="tm-param" role="meter" aria-label={termTx(terms.oxygen)} aria-valuemin={0} aria-valuemax={OXY_MAX} aria-valuenow={view.oxygen}><img className="tm-ic" src={icon('oxygen')} alt="" /><b key={view.oxygen} className={`tm-num ${pO}`}>{num(view.oxygen, en)}٪</b></span>
+        <span className="tm-param" role="meter" aria-label={termTx(terms.temperature)} aria-valuemin={-30} aria-valuemax={TEMP_MAX} aria-valuenow={view.temperature}><img className="tm-ic" src={icon('temperature')} alt="" /><b key={view.temperature} className={`tm-num ${pT}`}>{signed(view.temperature, en)}°C</b></span>
+        <span className="tm-param" role="meter" aria-label={termTx(terms.ocean)} aria-valuemin={0} aria-valuemax={OCEANS_MAX} aria-valuenow={view.oceans}><img className="tm-ic" src={icon('ocean')} alt="" /><b key={view.oceans} className={pW}>{num(view.oceans, en)}</b></span>
+        <span className="tm-param" aria-label={termTx(terms.generation)}><img className="tm-ic" src={icon('generation')} alt="" /><b>{num(view.generation, en)}</b></span>
       </div>
     </section>
   );
@@ -284,7 +295,7 @@ function PanelBody({ d, en, rail }: { d: TmDetail; en: boolean; rail?: boolean }
   return (
     <div className="tm-panel">
       <div className="tm-panel__row">
-        <span className="tm-tr" style={{ backgroundImage: `url(${icon('tr')})` }} title={en ? 'Terraform rating' : 'رتبهٔ زمین‌سازی'}><b>{num(d.tr, en)}</b></span>
+        <span className="tm-tr" style={{ backgroundImage: `url(${icon('tr')})` }} title={en ? 'Terraform rating' : termTx(terms.tr)}><b>{num(d.tr, en)}</b></span>
         <span className="tm-handn" title={en ? 'Cards in hand' : 'کارت در دست'}><img className="tm-ic" src={art(MAP.cardBack)} alt="" />{num(d.hand, en)}</span>
         {!rail && d.firstPlayer && <img className="tm-fp" src={art(MAP.firstPlayer)} alt={en ? 'First player' : 'نفر اول'} title={en ? 'First player' : 'نفر اول'} />}
         {d.corp && <span className="tm-logo">{art(MAP.corpLogos![d.corp]) ? <img src={art(MAP.corpLogos![d.corp])} alt={cardName(d.corp, en)} /> : <span className="tm-ph">{cardName(d.corp, en)}</span>}</span>}
@@ -374,14 +385,14 @@ function PlayerArea({ view, k, me, en, seatName, cardPick, convert }: {
       <header className="tm-ahead">
         <span className="tm-ahead__name" style={{ color: `var(--tm-${colorOf(k)}-ink)` }}><bdi>{seatName(k)}</bdi>{me && <span className="tm-you">{en ? 'you' : 'شما'}</span>}{p.passed && view.phase === 'action' && <small>{en ? 'passed' : 'پاس داده'}</small>}</span>
         {p.corp && <span className="tm-logo">{art(MAP.corpLogos![p.corp]) ? <img src={art(MAP.corpLogos![p.corp])} alt={cardName(p.corp, en)} /> : <span className="tm-ph">{cardName(p.corp, en)}</span>}</span>}
-        <span className="tm-score" title={`رتبه ${fa(p.score.tr)} + نقطهٔ عطف ${fa(p.score.milestones)} + جایزه ${fa(p.score.awards)} + فضای سبز ${fa(p.score.greenery)} + شهر ${fa(p.score.city)} + کارت ${fa(p.score.cards)}`}><b>{num(p.score.total, en)}</b><small>{en ? 'VP' : 'امتیاز'}</small></span>
-        <span key={p.tr} className={`tm-tr ${popTr}`} style={{ backgroundImage: `url(${icon('tr')})` }} title={en ? 'Terraform rating' : 'رتبهٔ زمین‌سازی'}><b>{num(p.tr, en)}</b></span>
+        <span className="tm-score" title={`${termTx(terms.trShort)} ${fa(p.score.tr)} + ${termTx(terms.milestone)} ${fa(p.score.milestones)} + ${termTx(terms.award)} ${fa(p.score.awards)} + ${termTx(terms.greenery)} ${fa(p.score.greenery)} + ${termTx(terms.city)} ${fa(p.score.city)} + کارت ${fa(p.score.cards)}`}><b>{num(p.score.total, en)}</b><small>{en ? 'VP' : 'امتیاز'}</small></span>
+        <span key={p.tr} className={`tm-tr ${popTr}`} style={{ backgroundImage: `url(${icon('tr')})` }} title={en ? 'Terraform rating' : termTx(terms.tr)}><b>{num(p.tr, en)}</b></span>
         <span className="tm-handn" title={en ? 'Cards in hand' : 'کارت در دست'}><img className="tm-ic" src={art(MAP.cardBack)} alt="" />{num(p.hand, en)}</span>
         <div className="tm-ahead__res">
           {RES.map((r) => {
             const go = me && (r === 'plants' || r === 'heat') ? convert(r) : undefined;
             const inner = <><img className="tm-ic" src={RES_ICON[r]} alt="" /><span className="tm-rs__nums"><b>{num(p.res[r], en)}</b><span className={`tm-prodv${p.prod[r] < 0 ? ' is-neg' : ''}`}>{signed(p.prod[r], en)}</span></span></>;
-            const label = en ? `${RES_EN[r]}: ${p.res[r]}, production ${signed(p.prod[r], true)}` : `${RES_FA[r]}: ${fa(p.res[r])}، تولید ${signed(p.prod[r], false)}`;
+            const label = en ? `${RES_EN[r]}: ${p.res[r]}, production ${signed(p.prod[r], true)}` : `${RES_FA[r]}: ${fa(p.res[r])}، ${termTx(terms.production)} ${signed(p.prod[r], false)}`;
             return go ? <button key={r} type="button" className="tm-rs is-avail" aria-label={`${label}؛ ${r === 'plants' ? (en ? 'convert to greenery' : 'تبدیل به فضای سبز') : (en ? 'convert to temperature' : 'تبدیل به دما')}`} data-act={r === 'plants' ? 'convertPlants' : 'convertHeat'} onClick={go}>{inner}</button>
               : <span key={r} className="tm-rs" title={label}>{inner}</span>;
           })}
@@ -428,13 +439,14 @@ type Hint = GameAction & { cost?: number; steel?: boolean; titanium?: boolean; p
 const same = (a: Record<string, unknown>, b: Record<string, unknown>) => JSON.stringify(a) === JSON.stringify(b);
 
 export default function TerraformingMarsRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<TmView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const root = useRef<HTMLDivElement>(null);
   const view = previewView(served, queued ?? null, mySeat);
   useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const phone = usePhone();
   const [lang, setLang] = useLocal<'fa' | 'en'>('lang', 'fa');
   const en = lang === 'en';
-  const t = (f: string, e: string) => (en ? e : f);
+  const t = (f: string, e: string) => (en ? e : faT(f));
   const tx = t;
   const reasonText = (c: string | undefined) => reasonOf(c, en);
   const [floating, setFloating] = useLocal('floatingHand', false);
@@ -593,7 +605,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
       case 'play': return <>{t('بازی', 'Play')} <b>{cardName(flow.card, en)}</b> {c(cost)}</>;
       case 'cardAction': return <>{t('کنش', 'Use')} <b>{cardName(flow.card, en)}</b>{cost ? <> {c(cost)}</> : null}</>;
       case 'project': return <>{t('پروژهٔ استاندارد', 'Standard project')} <b>{en ? PROJECT_EN[flow.project] : PROJECT_FA[flow.project]}</b> {c(cost)}<small> ({en ? PROJECT_FX_EN[flow.project] : PROJECT_FX[flow.project]})</small></>;
-      case 'sell': return <>{t('فروش امتیاز اختراع: کارت‌های دست را انتخاب کنید؛', 'Sell patents: pick cards in your hand;')} <b>{en ? `sell ${flow.cards.length} = ${flow.cards.length} M€` : `فروش ${fa(flow.cards.length)} کارت = ${fa(flow.cards.length)} مگاکردیت`}</b></>;
+      case 'sell': return <>{t('فروش امتیاز اختراع: کارت‌های دست را انتخاب کنید؛', 'Sell patents: pick cards in your hand;')} <b>{en ? `sell ${flow.cards.length} = ${flow.cards.length} M€` : `فروش ${fa(flow.cards.length)} کارت = ${fa(flow.cards.length)} ${termTx(terms.mc)}`}</b></>;
       case 'milestone': return <>{t('ثبت نقطهٔ عطف', 'Claim milestone')} <b>{(en ? MILESTONES.find((m) => m.id === flow.id)?.name : MILESTONES.find((m) => m.id === flow.id)?.nameFa)}</b> {c(cost)}</>;
       case 'award': return <>{t('تأمین جایزهٔ', 'Fund award')} <b>{(en ? AWARDS.find((m) => m.id === flow.id)?.name : AWARDS.find((m) => m.id === flow.id)?.nameFa)}</b> {c(cost)}</>;
       case 'convertPlants': return <><b>{fa(me?.plantsPerGreenery ?? 8)}</b> <img className="tm-ic" src={RES_ICON.plants} alt="گیاه" /> ← <img className="tm-ic" src={icon('greenery')} alt="فضای سبز" />{t('؛ بعد از تأیید جای فضای سبز را انتخاب می‌کنید', '; after confirming, choose the greenery space')}</>;
@@ -662,7 +674,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
         })}</div>
       </>}
       {(inSheet || menu === 'milestones') && <>
-        {inSheet && <b className="tm-label">{en ? `Milestones (${MILESTONE_COST} M€, 5 VP)` : `نقطهٔ عطف (${fa(MILESTONE_COST)} مگاکردیت، ۵ امتیاز)`}</b>}
+        {inSheet && <b className="tm-label">{en ? `Milestones (${MILESTONE_COST} M€, 5 VP)` : `${termTx(terms.milestone)} (${fa(MILESTONE_COST)} ${termTx(terms.mc)}، ۵ امتیاز)`}</b>}
         <div className={inSheet ? 'tm-sgrid' : 'tm-bar__row'}>{MILESTONES.map((m) => {
           const a = boardAct(`milestone:${m.id}`);
           const taken = view.milestones.find((x) => x.id === m.id);
@@ -672,7 +684,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
         })}</div>
       </>}
       {(inSheet || menu === 'awards') && view.awards.length < 3 && <>
-        {inSheet && <b className="tm-label">{en ? `Awards (${AWARD_COSTS[view.awards.length]} M€; 5 and 2 VP)` : `جایزه (${fa(AWARD_COSTS[view.awards.length]!)} مگاکردیت؛ ۵ و ۲ امتیاز)`}</b>}
+        {inSheet && <b className="tm-label">{en ? `Awards (${AWARD_COSTS[view.awards.length]} M€; 5 and 2 VP)` : `${termTx(terms.award)} (${fa(AWARD_COSTS[view.awards.length]!)} ${termTx(terms.mc)}؛ ۵ و ۲ امتیاز)`}</b>}
         <div className={inSheet ? 'tm-sgrid' : 'tm-bar__row'}>{AWARDS.map((aw) => {
           const a = boardAct(`award:${aw.id}`);
           const taken = view.awards.find((x) => x.id === aw.id);
@@ -762,7 +774,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
         <div className="tm-dockprompt tm-dockprompt--clock">{!phone && <span className="tm-clock" data-shell-clock="" />}<span className="tm-bar__long"><b>{t('نسل ۱:', 'Generation 1:')}</b> {t('یک شرکت و هر تعداد از ۱۰ کارت را انتخاب کنید؛ هر کارت ۳ مگاکردیت از پول شرکت. انتخاب همه هم‌زمان و پنهان است.', 'choose a corporation and any of the 10 cards; each card costs 3 M€ of its money. Everyone chooses at the same time, in secret.')}</span>
           <span className="tm-total"><img className="tm-ic" src={RES_ICON.mc} alt="" />{corp
             ? (en ? `${cardName(corp, en)} + ${sel.length} cards = ${3 * sel.length} of ${startMc}` : `${cardName(corp, en)} + ${fa(sel.length)} کارت = ${fa(3 * sel.length)} از ${fa(startMc)}`)
-            : (en ? `Corporation + ${sel.length} cards = ${3 * sel.length}` : `شرکت + ${fa(sel.length)} کارت = ${fa(3 * sel.length)}`)}
+            : (en ? `Corporation + ${sel.length} cards = ${3 * sel.length}` : `${termTx(terms.corporation)} + ${fa(sel.length)} کارت = ${fa(3 * sel.length)}`)}
             {corp && <span className="tm-total__left">{en ? `; ${startMc - 3 * sel.length} left` : `؛ می‌ماند ${fa(startMc - 3 * sel.length)}`}</span>}</span></div>
         <div className="tm-bar__row">
           <Button icon="check" data-tm-confirm="" data-act="corp" disabled={busy || !corp || 3 * sel.length > startMc} onClick={() => send({ type: 'corp', corp, cards: sel })}>{t('تأیید انتخاب', 'Confirm choice')}</Button>
@@ -825,7 +837,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
       <div className="tm-zone__head">
         <h2>{corpHint ? t('انتخاب آغازین', 'Starting choice') : draft ? t('درفت', 'Draft') : research ? t('پژوهش', 'Research') : t('دست شما', 'Your hand')}</h2>
         <small>{en ? (corpHint ? `corporation ${corp ? 1 : 0} of 2, cards ${sel.length} of 10` : pickCards ? `${sel.length} picked` : `${me?.hand.length ?? 0} cards; playable ones are ringed. Hover a card to enlarge it.`)
-          : corpHint ? `شرکت ${corp ? '۱' : '۰'} از ۲، کارت ${fa(sel.length)} از ۱۰` : pickCards ? `${fa(sel.length)} انتخاب‌شده` : `${fa(me?.hand.length ?? 0)} کارت؛ کارت‌های قابل بازی حلقه دارند، نشانگر را روی کارت نگه دارید تا بزرگ شود.`}</small>
+          : corpHint ? `${termTx(terms.corporation)} ${corp ? '۱' : '۰'} از ۲، کارت ${fa(sel.length)} از ۱۰` : pickCards ? `${fa(sel.length)} انتخاب‌شده` : `${fa(me?.hand.length ?? 0)} کارت؛ کارت‌های قابل بازی حلقه دارند، نشانگر را روی کارت نگه دارید تا بزرگ شود.`}</small>
         {!pickCards && !phone && <Button size="sm" variant="ghost" {...(floating ? { pressed: true } : {})} onClick={() => setFloating(!floating)}>{t('شناور', 'Float')}</Button>}
       </div>
       {corpHint && <div className="tm-pickzone">
@@ -900,10 +912,10 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
             <span className="tm-score"><b>{num(view.players[k]!.score.total, en)}</b><small>{t('امتیاز', 'VP')}</small></span>
           </div>
           <PanelBody d={detailOf(view, k)} en={en} /></div>)}
-        {view.log.length > 0 && <ol className="tm-log" aria-live="polite">{view.log.slice(-8).reverse().map((l, i) => <li key={`${view.seq}-${i}`}><bdi>{seatName(l.seat)}</bdi>: {LOG_TXT[l.kind]?.[en ? 1 : 0] ?? l.kind}{l.card ? ` «${cardName(l.card, en)}»` : ''}{l.detail ? ` «${en ? PROJECT_EN[l.detail as Project] ?? MILESTONES.find((m) => m.id === l.detail)?.name ?? AWARDS.find((m) => m.id === l.detail)?.name ?? l.detail : PROJECT_FA[l.detail as Project] ?? MILESTONES.find((m) => m.id === l.detail)?.nameFa ?? AWARDS.find((m) => m.id === l.detail)?.nameFa ?? l.detail}»` : ''}</li>)}</ol>}
+        {view.log.length > 0 && <ol className="tm-log" aria-live="polite">{view.log.slice(-8).reverse().map((l, i) => <li key={`${view.seq}-${i}`}><bdi>{seatName(l.seat)}</bdi>: {faT(LOG_TXT[l.kind]?.[en ? 1 : 0] ?? l.kind)}{l.card ? ` «${cardName(l.card, en)}»` : ''}{l.detail ? ` «${en ? PROJECT_EN[l.detail as Project] ?? MILESTONES.find((m) => m.id === l.detail)?.name ?? AWARDS.find((m) => m.id === l.detail)?.name ?? l.detail : PROJECT_FA[l.detail as Project] ?? MILESTONES.find((m) => m.id === l.detail)?.nameFa ?? AWARDS.find((m) => m.id === l.detail)?.nameFa ?? l.detail}»` : ''}</li>)}</ol>}
       </aside>
       {phone && <div className="tm-mturn"><span className="tm-clock" data-shell-clock="" />
-        <span className="tm-genchip">{en ? `Generation ${view.generation}` : `نسل ${fa(view.generation)}`}{view.phase === 'action' && !view.outcome ? <><span className="bgv-sep" />{en ? `action ${view.actionsTaken + 1} of 2` : `کنش ${fa(view.actionsTaken + 1)} از ۲`}</> : null}</span></div>}
+        <span className="tm-genchip">{en ? `Generation ${view.generation}` : `${termTx(terms.generation)} ${fa(view.generation)}`}{view.phase === 'action' && !view.outcome ? <><span className="bgv-sep" />{en ? `action ${view.actionsTaken + 1} of 2` : `کنش ${fa(view.actionsTaken + 1)} از ۲`}</> : null}</span></div>}
       {phone && <div className="tm-tabs" role="tablist">
         <button type="button" role="tab" aria-selected={tab === 'mars'} onClick={() => setTab('mars')}>{t('مریخ', 'Mars')}</button>
         <button type="button" role="tab" aria-selected={tab === 'hand'} onClick={() => setTab('hand')}>{corpHint ? t('انتخاب آغازین', 'Start') : draft ? t('درفت', 'Draft') : research ? t('پژوهش', 'Research') : `${t('دست', 'Hand')} ${num(me?.hand.length ?? 0, en)}`}</button>
@@ -924,7 +936,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
       {view.outcome && (
         <section className="tm-zone tm-result" aria-label="امتیاز پایانی">
           <table>
-            <thead><tr>{(en ? ['Place', 'Player', 'TR', 'Milestones', 'Awards', 'Greenery', 'Cities', 'Cards', 'Total', 'M€'] : ['رتبه', 'بازیکن', 'رتبهٔ زمین‌سازی', 'نقطهٔ عطف', 'جایزه', 'فضای سبز', 'شهر', 'کارت', 'جمع', 'مگاکردیت']).map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
+            <thead><tr>{(en ? ['Place', 'Player', 'TR', 'Milestones', 'Awards', 'Greenery', 'Cities', 'Cards', 'Total', 'M€'] : ['رتبه', 'بازیکن', termTx(terms.tr), termTx(terms.milestone), termTx(terms.award), termTx(terms.greenery), termTx(terms.city), 'کارت', 'جمع', termTx(terms.mc)]).map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>{view.outcome.placements.map((pl) => {
               const sc = view.players[pl.seat]!.score;
               return <tr key={pl.seat}><td>{fa(pl.place)}</td><td><bdi>{seatName(pl.seat)}</bdi></td><td>{fa(sc.tr)}</td><td>{fa(sc.milestones)}</td><td>{fa(sc.awards)}</td><td>{fa(sc.greenery)}</td><td>{fa(sc.city)}</td><td>{fa(sc.cards)}</td><td><b>{fa(sc.total)}</b></td><td>{fa(view.players[pl.seat]!.res.mc)}</td></tr>;

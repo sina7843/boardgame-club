@@ -3,7 +3,7 @@
 // one communicated card; your hand is below with a radio-style "ارتباط" mode for showing a card.
 import './renderer.css';
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, tx, useTermsLang, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import cB4 from './art/the-crew-b4.png';
 import cG1 from './art/the-crew-g1.png';
 import cG8 from './art/the-crew-g8.png';
@@ -23,6 +23,7 @@ import order1 from './art/the-crew-order-1.png';
 import orderLast from './art/the-crew-order-last.png';
 import radioOn from './art/the-crew-radio-available.png';
 import commanderPng from './art/the-crew-commander.png';
+import { terms } from './terms.ts';
 import { cardFa, rank, suit } from './trick.ts';
 import type { CrewTask, CrewView } from './rules.ts';
 
@@ -60,6 +61,7 @@ const nineLabel = (t: CrewTask) => (t.card ? <CrewCard c={t.card} size="sm" /> :
 type Hint = { type: string; card?: string; task?: number } | null;
 
 export function CrewTable({ view: served, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued, label, theme, backdrop, art }: GameRendererProps<CrewView> & { label: (t: CrewTask) => ReactNode; theme: 'space' | 'sea'; backdrop?: string; art: CrewArt }) {
+  useTermsLang();
   const me = mySeat ?? -1;
   const framed = useInFrame() !== null;
   const hint = expected as unknown as Hint;
@@ -85,10 +87,10 @@ export function CrewTable({ view: served, legalActions, mySeat, seatName, busy: 
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : drafting.length ? { tone: 'mine' as const, text: 'یک وظیفه بردارید' }
+    : drafting.length ? { tone: 'mine' as const, text: `یک ${tx(terms.task)} بردارید` }
       : talk ? { tone: 'mine' as const, text: 'کارتی را که می‌خواهید نشان دهید انتخاب کنید' }
         : playable.size ? { tone: 'mine' as const, text: view.trick.length ? 'از خال اول پیروی کنید' : 'دست را شروع کنید' }
-          : { tone: 'wait' as const, text: view.phase === 'draft' ? `${seatName(view.drafter)} وظیفه برمی‌دارد` : `نوبت ${seatName(view.current)}` };
+          : { tone: 'wait' as const, text: view.phase === 'draft' ? `${seatName(view.drafter)} ${tx(terms.task)} برمی‌دارد` : `نوبت ${seatName(view.current)}` };
   const statusIcon = (t: CrewTask) => (t.status === 'done' ? '✓' : t.status === 'failed' ? '✗' : '…');
   const order = (t: CrewTask) => (t.order === 'last' ? 'Ω' : t.order !== undefined ? fa(t.order) : null);
 
@@ -96,9 +98,9 @@ export function CrewTable({ view: served, legalActions, mySeat, seatName, busy: 
     <ArtCtx.Provider value={art}>
     <div ref={root} className={`cw cw--${theme}${framed ? ' cw--framed' : ''}`} style={backdrop ? ({ '--cw-bd': `url(${backdrop})` } as CSSProperties) : undefined} data-seq={view.seq} data-phase={view.phase}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      {framed && <RailSlot><p>هر وظیفه باید به دست صاحبش برده شود و همهٔ خدمه با هم می‌برند یا می‌بازند. دربارهٔ کارت‌هایتان حرف نزنید؛ فقط یک بار می‌توانید یک کارت را نشان دهید.</p></RailSlot>}
+      {framed && <RailSlot><p>هر <T t={terms.task} /> باید به دست صاحبش برده شود و همهٔ خدمه با هم می‌برند یا می‌بازند. دربارهٔ کارت‌هایتان حرف نزنید؛ فقط یک بار می‌توانید یک کارت را نشان دهید.</p></RailSlot>}
 
-      <section className="cw-tasks" aria-label="وظیفه‌ها">
+      <section className="cw-tasks" aria-label={`${tx(terms.task)}‌ها`}>
         {view.tasks.map((t) => {
           const can = drafting.includes(t.id);
           const body = (
@@ -118,7 +120,7 @@ export function CrewTable({ view: served, legalActions, mySeat, seatName, busy: 
       <ul className="cw-crew" aria-label="خدمه">
         {view.handCounts.map((n, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['cw-mate', k === view.current && view.phase === 'play' && !view.outcome ? 'cw-mate--now' : '', k === me ? 'cw-mate--me' : ''].join(' ')}>
-            {k === view.commander && (art.commander ? <img className="cw-mate__cmd cw-mate__cmd--img" src={art.commander} alt="فرمانده" /> : <span className="cw-mate__cmd" title="فرمانده">★</span>)}
+            {k === view.commander && (art.commander ? <img className="cw-mate__cmd cw-mate__cmd--img" src={art.commander} alt={tx(terms.commander)} /> : <span className="cw-mate__cmd" title={tx(terms.commander)}>★</span>)}
             <bdi className="cw-mate__name">{who(k)}</bdi>
             {!framed && <small>{fa(n)} کارت <span className="bgv-sep" /> {fa(view.won[k]!.length)} دست</small>}
             {view.comms[k] && <span className="cw-comm"><CrewCard c={view.comms[k]!.card} size="sm" flip={`m-${view.comms[k]!.card}`} flipFrom={`seat-${k}`} /><small>{KIND_FA[view.comms[k]!.kind]}</small></span>}
@@ -133,7 +135,7 @@ export function CrewTable({ view: served, legalActions, mySeat, seatName, busy: 
           <span key={p.seat} className="cw-play" data-flip={`c-${p.card}`} data-flip-from={`seat-${p.seat}`}><CrewCard c={p.card} /><bdi>{who(p.seat)}</bdi></span>
         )) : view.lastTrick ? (
           <span className="cw-last"><small>دست قبل را <bdi>{who(view.lastTrick.winner)}</bdi> برد:</small>{view.lastTrick.cards.map((p) => <CrewCard key={p.seat} c={p.card} size="sm" flip={`c-${p.card}`} exit={`seat-${view.lastTrick!.winner}`} />)}</span>
-        ) : <small className="cw-empty">{view.phase === 'draft' ? 'اول وظیفه‌ها پخش می‌شوند' : 'فرمانده دست اول را شروع می‌کند'}</small>}
+        ) : <small className="cw-empty">{view.phase === 'draft' ? `اول ${tx(terms.task)}‌ها پخش می‌شوند` : `${tx(terms.commander)} دست اول را شروع می‌کند`}</small>}
         {view.aside && <small className="cw-aside">کنار گذاشته: {cardFa(view.aside)}</small>}
       </section>
 

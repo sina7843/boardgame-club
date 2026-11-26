@@ -2,13 +2,14 @@
 // teammates show only how many cards they still hold; your cards are at the bottom with one big "play" button.
 import './renderer.css';
 import { useRef, type ReactNode } from 'react';
-import { DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { DockSlot, RailSlot, T, TurnIndicator, tx, useTermsLang, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import cardBack from './art/the-mind-back.png';
 import blank from './art/the-mind-blank.png';
 import lifeOn from './art/the-mind-life-active.png';
 import lifeOff from './art/the-mind-life-inactive.png';
 import starOn from './art/the-mind-star-active.png';
 import starOff from './art/the-mind-star-inactive.png';
+import { terms } from './terms.ts';
 import type { TheMindView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -33,6 +34,7 @@ function Acts({ framed, children }: { framed: boolean; children: ReactNode }) {
 }
 
 export default function TheMindRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<TheMindView>) {
+  useTermsLang();
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${view.seq}|${queued?.type ?? ''}`);
   const busy = sending || !!queued;
@@ -63,9 +65,9 @@ export default function TheMindRenderer({ view, legalActions, mySeat, seatName, 
       {/* Pile and the level / lives / stars board side by side, as in the reference (QA round 2: the strip broke). */}
       <section className="tmd__center" aria-label="کارت‌های زمین">
         <div className="tmd__hud">
-          <span className="tmd__level"><small>مرحله</small><b key={view.level} className="bg-pop">{fa(view.level)}</b><small>از {fa(view.levels)}</small></span>
-          <span className={last?.kind === 'mistake' ? 'tmd__lives bg-hit' : 'tmd__lives'} key={`l${view.lives}`} aria-label={`${fa(view.lives)} جان`}>{Array.from({ length: Math.max(5, view.lives) }, (_, k) => <Heart key={k} on={k < view.lives} />)}</span>
-          <small aria-hidden="true">جان</small>
+          <span className="tmd__level"><small><T t={terms.level} /></small><b key={view.level} className="bg-pop">{fa(view.level)}</b><small>از {fa(view.levels)}</small></span>
+          <span className={last?.kind === 'mistake' ? 'tmd__lives bg-hit' : 'tmd__lives'} key={`l${view.lives}`} aria-label={`${fa(view.lives)} ${tx(terms.life)}`}>{Array.from({ length: Math.max(5, view.lives) }, (_, k) => <Heart key={k} on={k < view.lives} />)}</span>
+          <small aria-hidden="true"><T t={terms.life} /></small>
           <span className="tmd__stars bg-pop" key={`s${view.stars}`} aria-label={`${fa(view.stars)} ستاره`}>{Array.from({ length: 3 }, (_, k) => <Star key={k} on={k < view.stars} />)}</span>
           <small aria-hidden="true">ستاره</small>
         </div>

@@ -7,11 +7,12 @@
 // placement comes from the engine prompt; flow = select → «تأیید», «برگرد» before it (no after-send undo window).
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react';
-import { Icon, RailSlot, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Icon, RailSlot, tx, useFlip, useTermsLang, type GameAction, type GameRendererProps, type Term } from '@bg/ui';
+import { terms } from './terms.ts';
 import IDS from './data/content-id-map.json' with { type: 'json' };
 import BCELLS from './data/building-cells.json' with { type: 'json' };
 import {
-  ACTION_FA, ANIMAL, ICON_FA, KIND_FA, PROJECT, REG, SPONSOR, TILES, UNI_FA, CELLS, xy, nameOf, appealIncome,
+  ANIMAL, ICON_FA, KIND_FA, PROJECT, REG, SPONSOR, TILES, UNI_FA, CELLS, xy, nameOf, appealIncome,
   type ActionKey, type ArkView, type ArkDetail, type MapView, type Icon as IconKey
 } from './rules.ts';
 
@@ -50,6 +51,8 @@ const ICON_ORDER: IconKey[][] = [
 const ACTION_KEYS: ActionKey[] = ['animals', 'build', 'cards', 'association', 'sponsors'];
 const FOLDER_CITY = ['San Diego, USA', 'Frankfurt, GER', 'Johannesburg, SA', 'Sao Paulo, BR', 'Okinawa, JP', 'Sydney, AUS'];
 
+const ACTION_T: Record<ActionKey, Term> = { animals: terms.animals, build: terms.build, cards: terms.cards, association: terms.association, sponsors: terms.sponsors };
+const actName = (k: ActionKey) => (ACTION_T[k] ? tx(ACTION_T[k]) : '');
 const kindName = (k: string) => KIND_FA[k] ?? REG.cards.get(Number(k.slice(1)))?.building?.nameFa ?? nameOf(Number(k.slice(1)));
 const isStdKind = (k: string) => /^e\d$/.test(k);
 function cardText(id: number): string {
@@ -159,7 +162,7 @@ function CardImg({ id, cw, pick, onClick, onZoom, flip, from, exit, label, hint,
 const victims = (e: Record<string, unknown>, who: (s: number) => string) => ((e.seats as number[] | undefined) ?? []).map(who).join('، ');
 function logLine(e: Record<string, unknown>, who: (s: number) => string): string {
   const w = who(e.seat as number);
-  const card = typeof e.card === 'number' ? nameOf(e.card) : typeof e.card === 'string' ? ACTION_FA[e.card as ActionKey] ?? '' : '';
+  const card = typeof e.card === 'number' ? nameOf(e.card) : typeof e.card === 'string' ? actName(e.card as ActionKey) : '';
   switch (e.t) {
     case 'action': return `${w}: کنش ${card} با قدرت ${fa(e.strength as number)}`;
     case 'xtoken': return `${w}: کنش نشان X با ${card}`;
@@ -168,20 +171,20 @@ function logLine(e: Record<string, unknown>, who: (s: number) => string): string
     case 'build': return `${w} ${kindName(String(e.kind))} ساخت`;
     case 'project': return `${w} از ${card} پشتیبانی کرد`;
     case 'release': return `${w} ${card} را در طبیعت رها کرد`;
-    case 'partner': return `${w} باغ‌وحش همکار ${ICON_FA[e.zoo as IconKey]} گرفت`;
+    case 'partner': return `${w} ${tx(terms.partnerZoo)} ${ICON_FA[e.zoo as IconKey]} گرفت`;
     case 'uni': return `${w} ${UNI_FA[e.uni as keyof typeof UNI_FA]} گرفت`;
     case 'donate': return `${w} اهدا کرد`;
-    case 'rep': return `${w} ۲ اعتبار گرفت`;
+    case 'rep': return `${w} ۲ ${tx(terms.reputation)} گرفت`;
     case 'upgrade': return `${w} ${card} را ارتقا داد`;
     case 'snap': return `${w} کارتی از ویترین قاپید`;
-    case 'sponsorBreak': return `${w} پول گرفت و استراحت را ${fa(e.n as number)} خانه جلو برد`;
-    case 'break': return `${w} استراحت را آغاز کرد`;
-    case 'breakRun': return 'استراحت: درآمد و بازنشانی';
-    case 'venom': return `${w} به خاطر زهر ۲ پول داد`;
-    case 'venomed': return `${victims(e, who)} از ${w} نشان زهر گرفت`;
-    case 'constricted': return `${victims(e, who)} از ${w} نشان فشار گرفت`;
-    case 'pilferCard': return `${w} یک کارت از دست داد (دستبرد)`;
-    case 'pilferMoney': return `${w} پول از دست داد (دستبرد)`;
+    case 'sponsorBreak': return `${w} پول گرفت و ${tx(terms.break)} را ${fa(e.n as number)} خانه جلو برد`;
+    case 'break': return `${w} ${tx(terms.break)} را آغاز کرد`;
+    case 'breakRun': return `${tx(terms.break)}: درآمد و بازنشانی`;
+    case 'venom': return `${w} به خاطر ${tx(terms.venom)} ۲ پول داد`;
+    case 'venomed': return `${victims(e, who)} از ${w} نشان ${tx(terms.venom)} گرفت`;
+    case 'constricted': return `${victims(e, who)} از ${w} نشان ${tx(terms.constriction)} گرفت`;
+    case 'pilferCard': return `${w} یک کارت از دست داد (${tx(terms.pilfering)})`;
+    case 'pilferMoney': return `${w} پول از دست داد (${tx(terms.pilfering)})`;
     case 'end': return 'بازی تمام شد';
     default: return '';
   }
@@ -216,25 +219,26 @@ const cardOf = (value: string): number | null => {
 type PanelData = Pick<PlayerView, 'money' | 'x' | 'rep' | 'cp' | 'appeal' | 'handCount' | 'handLimit' | 'slots' | 'strengths' | 'up' | 'tok' | 'icons'> & { income: number };
 /** Panel body shared by the shell rail (arkSeatCard, from publicSummary `detail`) and the renderer's own rail outside the shell. */
 function PanelBody({ p }: { p: PanelData }) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   return (
     <>
       <span className="an-bpi" dir="ltr">
         <span className="an-bc an-bc--money" title="پول"><img src={UI('money')} alt="" /><b className="an-num">{fa(p.money)}</b></span>
         <span className="an-bc an-bc--x" title="نشان X (حداکثر ۵)"><b className="an-num">{fa(p.x)}</b><img src={UI('xtoken')} alt="" /></span>
-        <span className="an-bc an-bc--rep" title="اعتبار"><img src={UI('reputation')} alt="" /><b className="an-num">{fa(p.rep)}</b></span>
-        <span className="an-bc an-bc--cp" title="امتیاز حفاظت"><img src={UI('conservation')} alt="" /><b className="an-num">{fa(p.cp)}</b></span>
-        <span className="an-bc an-bc--appeal" title="جذابیت"><img src={UI('appeal')} alt="" /><b className="an-num">{fa(p.appeal)}</b><i className="an-inc an-num" title="درآمد استراحت">{fa(p.income)}</i></span>
+        <span className="an-bc an-bc--rep" title={tx(terms.reputation)}><img src={UI('reputation')} alt="" /><b className="an-num">{fa(p.rep)}</b></span>
+        <span className="an-bc an-bc--cp" title={tx(terms.conservationPoints)}><img src={UI('conservation')} alt="" /><b className="an-num">{fa(p.cp)}</b></span>
+        <span className="an-bc an-bc--appeal" title={tx(terms.appeal)}><img src={UI('appeal')} alt="" /><b className="an-num">{fa(p.appeal)}</b><i className="an-inc an-num" title="درآمد استراحت">{fa(p.income)}</i></span>
         <span className="an-bc an-bc--hand" title="کارت در دست / سقف در استراحت"><b className="an-num">{fa(p.handCount)}<small>/{fa(p.handLimit)}</small></b><img src={BACK} alt="" /></span>
       </span>
       <span className="an-bpa" dir="ltr" aria-label="ترتیب کارت‌های کنش (چپ = قدرت ۱)">
         {p.slots.map((k, i) => {
           const t = p.tok[k];
           return (
-            <span key={k} className={`an-bpa__s${p.up[k] ? ' is-up' : ''}`} title={`${ACTION_FA[k]} ${p.up[k] ? 'II' : 'I'}، قدرت ${fa(p.strengths[i]!)}`}>
+            <span key={k} className={`an-bpa__s${p.up[k] ? ' is-up' : ''}`} title={`${actName(k)} ${p.up[k] ? 'II' : 'I'}، قدرت ${fa(p.strengths[i]!)}`}>
               <img src={UI(`act-${k}`)} alt="" />
-              {t.venom > 0 && <img className="an-bpa__tok" src={TOK_ART.venom} alt="زهر" />}
-              {t.mult > 0 && <img className="an-bpa__tok" src={TOK_ART.mult} alt="دوبرابرکننده" />}
-              {t.con > 0 && <img className="an-bpa__tok" src={TOK_ART.con} alt="فشار" />}
+              {t.venom > 0 && <img className="an-bpa__tok" src={TOK_ART.venom} alt={tx(terms.venom)} />}
+              {t.mult > 0 && <img className="an-bpa__tok" src={TOK_ART.mult} alt={tx(terms.multiplier)} />}
+              {t.con > 0 && <img className="an-bpa__tok" src={TOK_ART.con} alt={tx(terms.constriction)} />}
             </span>
           );
         })}
@@ -281,6 +285,7 @@ export function arkSeatCard(seat: { seat: number; primary?: { value: number }; s
   };
 }
 function Panel({ p, name, me, turn, viewing, onEye, place }: { p: PlayerView; name: string; me: boolean; turn: boolean; viewing: boolean; onEye: () => void; place?: number }) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   return (
     <div className={['bgv-pcard an-panel an-bp', me ? 'is-you' : '', turn ? 'is-turn' : ''].join(' ')} data-seat={p.seat} style={seatStyle(p.seat)} data-flip-anchor={`seat-${p.seat}`}>
       <div className="an-bp__head">
@@ -304,6 +309,7 @@ const ZOOMS = [1, 1.5, 2, 2.5];
 function ZooMap({ map, p, name, targets, preview, onCell, hintCells, focus, phone }: {
   map: MapView; p: PlayerView; name: string; targets?: Set<string>; preview?: Placement | null; onCell?: (c: string) => void; hintCells?: string[]; focus?: boolean; phone?: boolean;
 }) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const bld = p.buildings; // the selected placement is already in here as id -1 (previewView), drawn as the ghost
   const wrap = useRef<HTMLDivElement>(null);
   const [z, setZ] = useState(1);
@@ -366,6 +372,7 @@ function ZooMap({ map, p, name, targets, preview, onCell, hintCells, focus, phon
 }
 
 function Played({ p, me, finals, onZoom }: { p: PlayerView; me: boolean; finals: number[] | null; onZoom: (id: number | null) => void }) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const animals = p.zoo.filter((id) => ANIMAL[id]);
   const sponsors = p.zoo.filter((id) => SPONSOR[id]);
   const col = (title: string, icon: string, ids: number[]) => (
@@ -383,8 +390,8 @@ function Played({ p, me, finals, onZoom }: { p: PlayerView; me: boolean; finals:
   );
   return (
     <div className="an-played">
-      {col('حیوانات', 'act-animals', animals)}
-      {col('حامیان', 'act-sponsors', sponsors)}
+      {col(tx(terms.animals), 'act-animals', animals)}
+      {col(tx(terms.sponsors), 'act-sponsors', sponsors)}
       <div className="an-pcol">
         <h4><img src={UI('endgame')} alt="" />امتیاز پایانی</h4>
         <div className="an-finals">
@@ -414,6 +421,7 @@ const nameEn = (id: number) => ANIMAL[id]?.name ?? SPONSOR[id]?.name ?? PROJECT[
 
 // ---------------- main ----------------
 export default function ArkNovaRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<ArkView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const root = useRef<HTMLDivElement>(null);
   const prompt = served.prompt as PromptView | null;
   const mine = !!prompt && prompt.seat === mySeat && !served.outcome;
@@ -519,11 +527,11 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
             const on = !!o && sel === o.value;
             return o ? (
               <button key={k} type="button" className={`bgv-btn bgv-btn--secondary bgv-btn--sm an-opt${hintClass(isExp({ value: o.value }) && !on)}`} data-opt={o.value} aria-pressed={on} onClick={() => setSel(on ? null : o.value)}>
-                <img src={UI(`act-${k}`)} className="an-ic" alt="" />{ACTION_FA[k]}{me?.up[k] ? ' II' : ''} <span className="an-strength an-num">{fa((me?.strengths[i] ?? 0) + xSpend)}</span>
+                <img src={UI(`act-${k}`)} className="an-ic" alt="" />{actName(k)}{me?.up[k] ? ' II' : ''} <span className="an-strength an-num">{fa((me?.strengths[i] ?? 0) + xSpend)}</span>
               </button>
             ) : (
               <button key={k} type="button" className="bgv-btn bgv-btn--secondary bgv-btn--sm" disabled title="این کنش با این قدرت کاری نمی‌کند">
-                <img src={UI(`act-${k}`)} className="an-ic" alt="" />{ACTION_FA[k]}{me?.up[k] ? ' II' : ''} <span className="an-strength an-num">{fa((me?.strengths[i] ?? 0) + xSpend)}</span>
+                <img src={UI(`act-${k}`)} className="an-ic" alt="" />{actName(k)}{me?.up[k] ? ' II' : ''} <span className="an-strength an-num">{fa((me?.strengths[i] ?? 0) + xSpend)}</span>
               </button>
             );
           })}
@@ -586,7 +594,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
         <div className="an-bar__row"><span className="an-bar__text"><b>نوبت شماست</b>: {faDigits(prompt.label)}</span>{!phone && <span data-shell-clock="" className="an-clockslot" />}</div>
         {body}
         {phone && view.me && <div className="an-bar__row an-dock">{isTurn && me && me.slots.map((k, i) => { const o = turnOpt(k); const on = !!o && sel === o.value; return (
-          <button key={k} type="button" className={`an-dockact${on ? ' is-picked' : ''}`} disabled={!o} aria-pressed={o ? on : undefined} aria-label={`${ACTION_FA[k]}، قدرت ${fa(me.strengths[i]! + xSpend)}`} onClick={() => o && setSel(on ? null : o.value)}>
+          <button key={k} type="button" className={`an-dockact${on ? ' is-picked' : ''}`} disabled={!o} aria-pressed={o ? on : undefined} aria-label={`${actName(k)}، قدرت ${fa(me.strengths[i]! + xSpend)}`} onClick={() => o && setSel(on ? null : o.value)}>
             <img src={actArt(k, me.up[k])} alt="" /><span className="an-act__str an-num">{fa(me.strengths[i]! + xSpend)}</span>
           </button>); })}<button type="button" className="bgv-btn bgv-btn--secondary bgv-btn--sm" data-act="hand" aria-pressed={drawer} aria-expanded={drawer} onClick={() => setDrawer(!drawer)}><img src={BACK} className="an-ic" alt="" />دست ({fa(view.me?.hand.length ?? 0)})</button></div>}
       </section>
@@ -624,7 +632,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
   const range = me?.range ?? 0;
   const displayZone = (
     <section className="bgv-felt an-zone an-t-boards" aria-label="ویترین و مسیر اعتبار">
-      <div className="an-zone__head"><h2>ویترین</h2><small>{me ? `پوشه‌های ۱ تا ${fa(range)} در محدودهٔ اعتبار شما (حلقهٔ کهربایی)` : 'هزینهٔ برداشتن = شمارهٔ پوشه'}</small></div>
+      <div className="an-zone__head"><h2>{tx(terms.display)}</h2><small>{me ? `پوشه‌های ۱ تا ${fa(range)} در محدودهٔ اعتبار شما (حلقهٔ کهربایی)` : 'هزینهٔ برداشتن = شمارهٔ پوشه'}</small></div>
       <div className="an-pool bgv-scroll-x" dir="ltr" role="group" aria-label="ویترین (پوشه‌های ۱ تا ۶)">
         {view.display.map((id, i) => {
           const o = id !== null ? optionOf(id) : undefined;
@@ -640,9 +648,9 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
           );
         })}
       </div>
-      <div className="an-strip an-rep" data-an-track="rep" dir="ltr" role="group" aria-label="مسیر اعتبار">
+      <div className="an-strip an-rep" data-an-track="rep" dir="ltr" role="group" aria-label={`مسیر ${tx(terms.reputation)}`}>
         <img src={art('art/bga/reputation-track.webp')} className="an-base" alt="" width={2752} height={95} />
-        {view.players.map((p, k) => <img key={p.seat} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: اعتبار ${fa(p.rep)}`}
+        {view.players.map((p, k) => <img key={p.seat} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: ${tx(terms.reputation)} ${fa(p.rep)}`}
           style={{ left: `${(repX(p.rep) * 100 + (view.players.filter((q) => q.rep === p.rep && q.seat < p.seat).length) * 0.9).toFixed(2)}%`, top: `${50 - k * 0}%` }} />)}
         {Object.entries(REP_BONUS).map(([r, ic]) => <img key={r} src={UI(ic)} className="an-repb" alt="" title={`پاداش اعتبار ${fa(Number(r))}`} style={{ left: `${(repX(Number(r)) * 100).toFixed(2)}%` }} />)}
       </div>
@@ -676,23 +684,23 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
   );
   const consZone = (
     <section className="bgv-felt an-zone an-t-boards" aria-label="مسیر حفاظت و انجمن">
-      <div className="an-strip an-cons" data-an-track="cp" dir="ltr" role="group" aria-label="مسیر حفاظت">
+      <div className="an-strip an-cons" data-an-track="cp" dir="ltr" role="group" aria-label={`مسیر ${tx(terms.conservation)}`}>
         <img src={art('art/bga/conservation-track.webp')} className="an-base" alt="" width={3188} height={330} />
         {view.players.map((p) => {
           const same = view.players.filter((q) => Math.min(10, q.cp) === Math.min(10, p.cp) && q.seat < p.seat).length;
-          return <img key={p.seat} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: حفاظت ${fa(p.cp)}`}
+          return <img key={p.seat} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: ${tx(terms.conservation)} ${fa(p.cp)}`}
             style={{ left: `${(cpX(p.cp) * 100 + same * 1.4).toFixed(2)}%`, top: `${22 + same * 6}%` }} />;
         })}
         {view.players.filter((p) => p.cp > 10).map((p) => <span key={`n${p.seat}`} className="an-cnum an-num" style={{ left: `${(cpX(10) * 100).toFixed(2)}%`, top: '48%' }}>{fa(p.cp)}</span>)}
         {([5, 8] as const).flatMap((m) => view.bonusTiles[m].map((t, i) => <img key={`${m}${t}`} src={tileArt(t)} className="an-at an-piece an-btile" alt={TILES[t]?.nameFa ?? t} title={TILES[t]?.nameFa ?? t}
           style={{ left: `${CP_TILE[m][i]![0] * 100}%`, top: `${CP_TILE[m][i]![1] * 100}%` }} />))}
-        <button className="an-zoomhint" type="button" aria-haspopup="dialog" onClick={() => setScoreOpen(true)}><Icon name="grid" size={16} />مسیر جذابیت</button>
+        <button className="an-zoomhint" type="button" aria-haspopup="dialog" onClick={() => setScoreOpen(true)}><Icon name="grid" size={16} />مسیر {tx(terms.appeal)}</button>
       </div>
       <div className="an-assoc2">
         {projectBand(view.projects, 'پروژه‌های بازی‌شده', Math.max(0, (view.n === 4 ? 3 : 2) - view.projects.length))}
-        <div className="an-bab" dir="ltr" data-an-board="association" role="group" aria-label="بورد انجمن">
+        <div className="an-bab" dir="ltr" data-an-board="association" role="group" aria-label={`بورد ${tx(terms.association)}`}>
           <img src={art('art/bga/association-board.webp')} className="an-base" alt="" width={BAB.w} height={BAB.h} />
-          {view.zoosAvail.map((z) => BAB_ZOO[z] && <img key={z} src={partnerArt(z)} className="an-at an-piece an-ptile" alt={`باغ‌وحش همکار ${ICON_FA[z]}`} style={atP(BAB_ZOO[z]!, BAB.w, BAB.h)} />)}
+          {view.zoosAvail.map((z) => BAB_ZOO[z] && <img key={z} src={partnerArt(z)} className="an-at an-piece an-ptile" alt={`${tx(terms.partnerZoo)} ${ICON_FA[z]}`} style={atP(BAB_ZOO[z]!, BAB.w, BAB.h)} />)}
           {view.unisAvail.map((u) => BAB_UNI[u] && <img key={u} src={uniArt(u)} className="an-at an-piece an-utile" alt={UNI_FA[u]} style={atP(BAB_UNI[u]!, BAB.w, BAB.h)} />)}
           {(['rep', 'zoo', 'uni', 'project'] as const).flatMap((k) => view.assoc[k].map((sd, j) => (
             <img key={`${k}${j}`} src={piece('worker', sd)} className="an-at an-piece an-worker" alt={who(sd)} style={at(BAB_TASK[k]![0] + j * 70, BAB_TASK[k]![1], BAB.w, BAB.h)} />
@@ -704,7 +712,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
             const first = opts[0];
             return (
               <button key={k} type="button" data-task={k} className={`an-hot${opts.length ? ' is-avail' : ''}${first && sel === first.value ? ' is-picked' : ''}`} disabled={!opts.length || k === 'project'}
-                aria-label={{ rep: '۲ اعتبار', zoo: 'باغ‌وحش همکار', uni: 'دانشگاه', project: 'پروژهٔ حفاظت' }[k]}
+                aria-label={{ rep: `۲ ${tx(terms.reputation)}`, zoo: tx(terms.partnerZoo), uni: tx(terms.university), project: 'پروژهٔ حفاظت' }[k]}
                 style={{ ...at(x, y, BAB.w, BAB.h), inlineSize: pct(w, BAB.w), blockSize: pct(h, BAB.h) }}
                 onClick={() => first && opts.length === 1 && setSel(sel === first.value ? null : first.value)} />
             );
@@ -753,16 +761,16 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
               const t = zp.tok[k];
               return (
                 <button key={k} type="button" className={`an-act${o ? ' is-avail' : ''}${on ? ' is-picked' : ''}`} data-slot={i + 1} data-act-card={k} disabled={!o}
-                  aria-pressed={o ? on : undefined} aria-label={`${ACTION_FA[k]}${zp.up[k] ? ' II' : ''}، قدرت ${fa(zp.strengths[i]!)}`} data-flip={`slot-${zp.seat}-${k}`}
+                  aria-pressed={o ? on : undefined} aria-label={`${actName(k)}${zp.up[k] ? ' II' : ''}، قدرت ${fa(zp.strengths[i]!)}`} data-flip={`slot-${zp.seat}-${k}`}
                   onClick={() => o && setSel(on ? null : o.value)}>
                   <img src={actArt(k, zp.up[k])} alt="" draggable={false} />
                   <span className="an-act__str an-num">{fa(zp.strengths[i]!)}</span>
                   <span className="an-act__toks">
-                    {t.venom > 0 && <img src={TOK_ART.venom} alt="نشان زهر" />}
-                    {t.mult > 0 && <img src={TOK_ART.mult} alt="نشان دوبرابرکننده" />}
-                    {t.con > 0 && <img src={TOK_ART.con} alt="نشان فشار" />}
+                    {t.venom > 0 && <img src={TOK_ART.venom} alt={`نشان ${tx(terms.venom)}`} />}
+                    {t.mult > 0 && <img src={TOK_ART.mult} alt={`نشان ${tx(terms.multiplier)}`} />}
+                    {t.con > 0 && <img src={TOK_ART.con} alt={`نشان ${tx(terms.constriction)}`} />}
                   </span>
-                  <span className="an-act__fa">{ACTION_FA[k]}{zp.up[k] ? ' II' : ''}</span>
+                  <span className="an-act__fa">{actName(k)}{zp.up[k] ? ' II' : ''}</span>
                 </button>
               );
             })}
@@ -808,7 +816,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
     <section className="bgv-card an-result" aria-label="امتیاز پایانی">
       <h3>امتیاز پایانی (جذابیت منهای عدد هدف حفاظت)</h3>
       <table className="an-table">
-        <thead><tr><th>رتبه</th><th>بازیکن</th><th>جذابیت</th><th>حفاظت</th><th>عدد هدف</th><th>پروژه‌های پشتیبانی‌شده</th><th>امتیاز</th></tr></thead>
+        <thead><tr><th>رتبه</th><th>بازیکن</th><th>{tx(terms.appeal)}</th><th>{tx(terms.conservation)}</th><th>عدد هدف</th><th>پروژه‌های پشتیبانی‌شده</th><th>امتیاز</th></tr></thead>
         <tbody>{[...view.final].sort((a, b) => (placeOf(a.seat) ?? 9) - (placeOf(b.seat) ?? 9)).map((f) => (
           <tr key={f.seat} style={seatStyle(f.seat)}><td>{fa(placeOf(f.seat) ?? 0)}</td><td><bdi>{who(f.seat)}</bdi></td><td>{fa(f.appeal)}</td><td>{fa(f.cp)}</td><td>{fa(f.target)}</td>
             <td>{fa(view.players[f.seat]!.supported)}</td><td><b>{fa(f.vp)}</b></td></tr>
@@ -824,10 +832,10 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
         <header className="an-sheet__head"><h3>بورد امتیاز</h3><button type="button" className="bgv-btn bgv-btn--ghost bgv-btn--sm" onClick={() => setScoreOpen(false)}>بستن</button></header>
         <div className="an-boardimg an-main-board" dir="ltr">
           <img src={art('art/boards/main-board.webp')} className="an-base" alt="" />
-          {view.players.map((p, k) => <img key={`a${p.seat}`} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: جذابیت ${fa(p.appeal)}`} style={at(appealXY(Math.min(113, p.appeal))[0] + k * 8, appealXY(Math.min(113, p.appeal))[1] - k * 8, MB.w, MB.h)} />)}
-          {view.players.map((p, k) => <img key={`c${p.seat}`} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: حفاظت ${fa(p.cp)}`} style={at(cpXY(p.cp)[0] + k * 8, cpXY(p.cp)[1] - k * 8, MB.w, MB.h)} />)}
-          {view.players.map((p, k) => <img key={`r${p.seat}`} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: اعتبار ${fa(p.rep)}`} style={at(repMB(p.rep)[0] + k * 8, repMB(p.rep)[1] - k * 8, MB.w, MB.h)} />)}
-          <img src={art('art/wooden-pieces/break-token.webp')} className="an-at an-piece an-brk" alt={`استراحت ${fa(view.brk)} از ${fa(view.brkMax)}`} style={atP(breakXY(view.brk, view.brkMax), MB.w, MB.h)} />
+          {view.players.map((p, k) => <img key={`a${p.seat}`} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: ${tx(terms.appeal)} ${fa(p.appeal)}`} style={at(appealXY(Math.min(113, p.appeal))[0] + k * 8, appealXY(Math.min(113, p.appeal))[1] - k * 8, MB.w, MB.h)} />)}
+          {view.players.map((p, k) => <img key={`c${p.seat}`} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: ${tx(terms.conservation)} ${fa(p.cp)}`} style={at(cpXY(p.cp)[0] + k * 8, cpXY(p.cp)[1] - k * 8, MB.w, MB.h)} />)}
+          {view.players.map((p, k) => <img key={`r${p.seat}`} src={piece('counter', p.seat)} className="an-at an-piece an-counter" alt={`${who(p.seat)}: ${tx(terms.reputation)} ${fa(p.rep)}`} style={at(repMB(p.rep)[0] + k * 8, repMB(p.rep)[1] - k * 8, MB.w, MB.h)} />)}
+          <img src={art('art/wooden-pieces/break-token.webp')} className="an-at an-piece an-brk" alt={`${tx(terms.break)} ${fa(view.brk)} از ${fa(view.brkMax)}`} style={atP(breakXY(view.brk, view.brkMax), MB.w, MB.h)} />
         </div>
       </section>
     </div>
@@ -839,7 +847,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
       <RailSlot><div className="rail-top an-sc">
       <section className="bgv-card an-cfg" data-an-cfg="" aria-label="وضعیت میز">
         <div className="an-cfg__row">
-          <span className="an-brkbox" title="مسیر استراحت"><img src={art('art/wooden-pieces/break-token.webp')} alt="" /><span className="an-num">{fa(view.brk)}/{fa(view.brkMax)}</span><small>استراحت</small></span>
+          <span className="an-brkbox" title={`مسیر ${tx(terms.break)}`}><img src={art('art/wooden-pieces/break-token.webp')} alt="" /><span className="an-num">{fa(view.brk)}/{fa(view.brkMax)}</span><small>{tx(terms.break)}</small></span>
           <span className="an-pile" title="دسته" data-flip-anchor="deck"><img src={BACK} alt="" /><span className="an-num">{fa(view.deckCount)}</span></span>
           <span className="an-pile" title="دورریخته" data-flip-anchor="discard"><img src={UI('hand-cards')} alt="" /><span className="an-num">{fa(view.discardCount)}</span></span>
         </div>

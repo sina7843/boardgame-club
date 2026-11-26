@@ -13,7 +13,8 @@ import cube1 from './art/backgammon-cube-1.png';
 import cube2 from './art/backgammon-cube-2.png';
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePieceIds, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePieceIds, usePop, useTermsLang, tx, type GameRendererProps, DockSlot } from '@bg/ui';
+import { terms } from './terms.ts';
 import { CHECKERS, nextSteps, pipCount, step as applyStep, target, type BgView, type From, type LogEntry, type Pos, type Step } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -61,6 +62,7 @@ function cells(p: Pos): string[] {
 }
 
 export default function BackgammonRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<BgView>) {
+  useTermsLang(); // re-render when the terms language changes
   const framed = useInFrame() !== null; // the shell draws players, pips, cube and whose-turn
   const me = mySeat ?? 0;
   const flip = me === 1;
@@ -151,8 +153,8 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
     const waiting = view.phase === 'cube' ? 1 - view.current : view.current;
     if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
     else if (waiting === mySeat) {
-      status = { tone: 'mine', text: view.phase === 'cube' ? `حریف بازی را دو برابر کرد (${fa(view.cube.value * 2)} امتیاز)` : view.phase === 'roll' ? 'نوبت شماست: تاس بریزید یا دوبل کنید' : complete ? 'حرکت کامل شد' : view.bar[me]! > 0 && !steps.length ? 'اول مهره زده‌شده را از بار وارد کنید' : 'نوبت شماست: یک مهره را بزنید' };
-    } else status = { tone: 'wait', text: view.phase === 'cube' ? `${seatName(waiting)} درباره دوبل تصمیم می‌گیرد` : `نوبت ${seatName(waiting)}` };
+      status = { tone: 'mine', text: view.phase === 'cube' ? `حریف بازی را دو برابر کرد (${fa(view.cube.value * 2)} امتیاز)` : view.phase === 'roll' ? `نوبت شماست: تاس بریزید یا ${tx(terms.double)} کنید` : complete ? 'حرکت کامل شد' : view.bar[me]! > 0 && !steps.length ? `اول مهره زده‌شده را از ${tx(terms.bar)} وارد کنید` : 'نوبت شماست: یک مهره را بزنید' };
+    } else status = { tone: 'wait', text: view.phase === 'cube' ? `${seatName(waiting)} درباره ${tx(terms.double)} تصمیم می‌گیرد` : `نوبت ${seatName(waiting)}` };
   }
 
   const pointLabel = (i: number) => `خانه ${fa(me === 0 ? i + 1 : 24 - i)}`;
@@ -168,7 +170,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>{view.phase === 'cube' ? 'قبول یعنی بازی با کیوب دو برابر ادامه می‌یابد؛ واگذار یعنی همین حالا یک امتیاز می‌دهید.' : 'هر عدد تاس یک حرکت جدا است. اگر مهره‌ای روی بار دارید، اول باید آن را وارد کنید. بیرون بردن فقط وقتی همهٔ مهره‌ها در خانهٔ شما باشند.'}</p>
+          <p>{view.phase === 'cube' ? `قبول یعنی بازی با ${tx(terms.cube)} دو برابر ادامه می‌یابد؛ واگذار یعنی همین حالا یک امتیاز می‌دهید.` : `هر عدد تاس یک حرکت جدا است. اگر مهره‌ای روی ${tx(terms.bar)} دارید، اول باید آن را وارد کنید. ${tx(terms.bearOff)} فقط وقتی همهٔ مهره‌ها در خانهٔ شما باشند.`}</p>
         </RailSlot>
       )}
       {!framed && <div className="bgm__players">
@@ -176,14 +178,14 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
           <div key={s} className={['bgm-pl', s === view.current && !view.outcome ? 'bgm-pl--turn' : ''].join(' ')}>
             <span className={`bgm-pl__chip bgm-pl__chip--${s === 0 ? 'ivory' : 'ebony'}`} aria-hidden="true" />
             <bdi className="bgm-pl__name">{name(s)}</bdi>
-            <span className="bgm-pl__stat" title="مجموع فاصله تا بیرون بردن">پیپ {fa(pips[s]!)}</span>
+            <span className="bgm-pl__stat" title={`مجموع فاصله تا ${tx(terms.bearOff)}`}>{tx(terms.pip)} {fa(pips[s]!)}</span>
             <span key={pos.off[s]} className={`bgm-pl__stat ${offPop[s]}`}>بیرون {fa(pos.off[s]!)} از {fa(CHECKERS)}</span>
           </div>
         ))}
         {view.rules.cube && (
-          <div className="bgm-cube" aria-label={`کیوب ${fa(view.cube.value)}${view.cube.owner === null ? '، وسط' : view.cube.owner === me ? '، دست شما' : '، دست حریف'}`}>
+          <div className="bgm-cube" aria-label={`${tx(terms.cube)} ${fa(view.cube.value)}${view.cube.owner === null ? '، وسط' : view.cube.owner === me ? '، دست شما' : '، دست حریف'}`}>
             <span key={view.cube.value} className={`bgm-cube__face ${cubePop}`} aria-hidden="true">{fa(view.cube.value === 1 ? 64 : view.cube.value)}</span>
-            <small>{view.cube.owner === null ? 'کیوب وسط' : view.cube.owner === me ? 'کیوب دست شما' : 'کیوب دست حریف'}</small>
+            <small>{view.cube.owner === null ? `${tx(terms.cube)} وسط` : view.cube.owner === me ? `${tx(terms.cube)} دست شما` : `${tx(terms.cube)} دست حریف`}</small>
           </div>
         )}
       </div>}
@@ -254,7 +256,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
             const isSrc = seat === me && sources.has('bar') && !busy && !sent;
             return (
               <g key={`bar${seat}`} className={['bgm-bar', isSrc ? 'bgm-bar--src' : ''].join(' ')} role="button" tabIndex={isSrc ? 0 : -1}
-                aria-label={`بار: ${fa(n)} مهره ${seat === me ? 'شما' : 'حریف'}${isSrc ? '، اول این را وارد کنید' : ''}`}
+                aria-label={`${tx(terms.bar)}: ${fa(n)} مهره ${seat === me ? 'شما' : 'حریف'}${isSrc ? '، اول این را وارد کنید' : ''}`}
                 onClick={() => seat === me && tapSource('bar')} onKeyDown={(e) => { if (seat === me && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tapSource('bar'); } }}>
                 {Array.from({ length: Math.min(n, 3) }, (_, k) => (
                   <g key={ids[cellOf.bar(seat, k)]} data-flip={`ck-${ids[cellOf.bar(seat, k)]}`}><Checker x={BARX} y={bottom ? H / 2 + 58 + k * 2 * R * 0.9 : H / 2 - 58 - k * 2 * R * 0.9} seat={seat} /></g>
@@ -286,7 +288,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
             const v = view.cube.value, y = view.cube.owner === null ? H / 2 : view.cube.owner === me ? H - F - R - 2 - 4 * 2 * R - 8 : F + R + 2 + 4 * 2 * R + 8;
             const art = v === 1 ? cube1 : v === 2 ? cube2 : null;
             return (
-              <g className="bgm-cubeart" role="img" aria-label={`کیوب ${fa(v)}${view.cube.owner === null ? '، وسط' : view.cube.owner === me ? '، دست شما' : '، دست حریف'}`}>
+              <g className="bgm-cubeart" role="img" aria-label={`${tx(terms.cube)} ${fa(v)}${view.cube.owner === null ? '، وسط' : view.cube.owner === me ? '، دست شما' : '، دست حریف'}`}>
                 {art
                   ? <image href={art} x={BARX - 22} y={y - 22} width="44" height="44" filter="url(#bgm-shadow)" />
                   /* art exists only for the faces 1 (64) and 2; higher faces keep a plain numbered square until the art ships. */
@@ -327,7 +329,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
           {myMove && steps.length > 0 && !busy && <Button key="undo" size="sm" variant="ghost" onClick={undoStep}>برگرداندن حرکت</Button>}
           {complete && !busy && !sent && <Button key="send" size="sm" onClick={() => send(steps)}>ثبت حرکت</Button>}
           {has('roll') && <Button key="roll" disabled={busy} onClick={() => { setRollAsked(true); onAction({ type: 'roll' }); }}>تاس بریز</Button>}
-          {has('double') && <Button key="double" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'double' })}>دوبل (×۲)</Button>}
+          {has('double') && <Button key="double" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'double' })}>{tx(terms.double)} (×۲)</Button>}
           {has('take') && <Button key="take" disabled={busy} onClick={() => onAction({ type: 'take' })}>قبول ({fa(view.cube.value * 2)} امتیاز)</Button>}
           {has('drop') && <Button key="drop" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'drop' })}>واگذار ({fa(view.cube.value)} امتیاز)</Button>}
         </DockSlot>
@@ -337,7 +339,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
       {view.win && (
         <p className="bgm__win" role="status">
           {view.win.seat === mySeat ? 'بردید' : <><bdi>{seatName(view.win.seat)}</bdi> برد</>}
-          {view.win.kind === 'backgammon' ? ' — مارس ترکی' : view.win.kind === 'gammon' ? ' — مارس' : ''}: {fa(view.win.points)} امتیاز
+          {view.win.kind === 'backgammon' ? ` — ${tx(terms.backgammon)}` : view.win.kind === 'gammon' ? ` — ${tx(terms.gammon)}` : ''}: {fa(view.win.points)} امتیاز
         </p>
       )}
     </div>

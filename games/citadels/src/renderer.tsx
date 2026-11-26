@@ -3,7 +3,8 @@
 // its own small panel during your character's turn.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameRendererProps, DockSlot } from '@bg/ui';
+import { terms } from './terms.ts';
 import { CHARACTERS, DISTRICTS, type CitadelsView } from './rules.ts';
 // Handoff art: characters (cit-c-1..8) and district cards are full printed faces (cost and name included).
 import c1 from './art/cit-c-1.png';
@@ -58,6 +59,7 @@ export function CharToken({ c, state, from }: { c: number; state?: string; from?
 }
 
 export default function CitadelsRenderer({ view: real, legalActions: realLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CitadelsView>) {
+  useTermsLang(); // re-render when the terms language changes
   const me = mySeat ?? -1;
   // Undo-window preview of an own pick, keep or build, from what this client already knows: the character joins your
   // picks, the kept card joins your hand, the built district leaves the hand for your city (and its cost leaves your gold).
@@ -81,10 +83,10 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : pick ? { tone: 'mine' as const, text: 'یک شخصیت مخفیانه انتخاب کنید' }
+    : pick ? { tone: 'mine' as const, text: `یک ${tx(terms.character)} مخفیانه انتخاب کنید` }
       : income ? { tone: 'mine' as const, text: `نوبت ${CHARACTERS[view.calling]} شما: ۲ طلا یا دو کارت؟` }
         : keep ? { tone: 'mine' as const, text: 'یکی از دو کارت را نگه دارید' }
-          : canEnd ? { tone: 'mine' as const, text: `محله بسازید${ability ? ' یا از توانایی استفاده کنید' : ''}، بعد نوبت را تمام کنید` }
+          : canEnd ? { tone: 'mine' as const, text: `${tx(terms.district)} بسازید${ability ? ` یا از ${tx(terms.ability)} استفاده کنید` : ''}، بعد نوبت را تمام کنید` }
             : { tone: 'wait' as const, text: view.phase === 'draft' ? 'انتخاب شخصیت‌ها…' : `${CHARACTERS[view.calling]} بازی می‌کند` };
   const charState = (c: number) => (view.faceUp.includes(c) ? 'is-out' : c === view.killed ? 'is-dead' : view.calling === c && view.phase !== 'draft' ? 'is-now' : view.revealed.includes(c) ? 'is-done' : '');
 
@@ -93,14 +95,14 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>دور {fa(view.round)}<span className="bgv-sep" /> تاج: <bdi>{who(view.crown)}</bdi><span className="bgv-sep" /> دسته: {fa(view.deckCount)}. هر محله به اندازهٔ قیمتش امتیاز دارد؛ با ساختن هشتمین محله بازی در پایان همین دور تمام می‌شود.</p>
+          <p>دور {fa(view.round)}<span className="bgv-sep" /> <T t={terms.crown} />: <bdi>{who(view.crown)}</bdi><span className="bgv-sep" /> دسته: {fa(view.deckCount)}. هر محله به اندازهٔ قیمتش امتیاز دارد؛ با ساختن هشتمین محله بازی در پایان همین دور تمام می‌شود.</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className={framed ? 'visually-hidden' : 'ct2__round'} data-flip-anchor="deck">دور {fa(view.round)}، تاج: <bdi>{who(view.crown)}</bdi>، دسته: {fa(view.deckCount)}</p>
+      <p className={framed ? 'visually-hidden' : 'ct2__round'} data-flip-anchor="deck">دور {fa(view.round)}، <T t={terms.crown} />: <bdi>{who(view.crown)}</bdi>، دسته: {fa(view.deckCount)}</p>
 
       {/* While you pick, the pool is the character strip; showing the full 1–8 track too duplicated it. */}
-      {!(pick && view.pool) && <section className="ct2__track" aria-label="شخصیت‌ها">
+      {!(pick && view.pool) && <section className="ct2__track" aria-label={tx(terms.characters)}>
         {[1, 2, 3, 4, 5, 6, 7, 8].map((c) => (
           <span key={c} className={c === view.killed ? 'ct2-slot bg-hit' : 'ct2-slot'}>
             <CharToken c={c} state={charState(c)} />
@@ -111,7 +113,7 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
       </section>}
 
       {pick && view.pool && (
-        <div className="ct2__pool" data-flip-anchor="pool" role="group" aria-label="انتخاب شخصیت">
+        <div className="ct2__pool" data-flip-anchor="pool" role="group" aria-label={`انتخاب ${tx(terms.character)}`}>
           {view.pool.map((c) => <button key={c} type="button" className={`ct2-pick ${hint?.char === c ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'pick', char: c })}><CharToken c={c} from="deck" /></button>)}
         </div>
       )}
@@ -126,8 +128,8 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
       )}
 
       {ability && (
-        <section className="ct2__ability" aria-label="توانایی">
-          <small>توانایی {CHARACTERS[ability.char]}:</small>
+        <section className="ct2__ability" aria-label={tx(terms.ability)}>
+          <small><T t={terms.ability} /> {CHARACTERS[ability.char]}:</small>
           {ability.char === 1 && [2, 3, 4, 5, 6, 7, 8].map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'kill', char: c })}><Thumb c={c} />کشتن {CHARACTERS[c]}</button>)}
           {ability.char === 2 && [3, 4, 5, 6, 7, 8].filter((c) => c !== view.killed).map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'rob', char: c })}><Thumb c={c} />دزدی از {CHARACTERS[c]}</button>)}
           {ability.char === 3 && <>
@@ -145,7 +147,7 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.cities.map((_, k) => k)).map((s) => (
           <li key={s} data-flip-anchor={s === me ? 'hand' : `seat-${s}`} className={['ct2-city', s === me ? 'ct2-city--me' : '', view.outcome?.placements[0]?.seat === s ? 'ct2-city--win' : ''].join(' ')}>
             <div className="ct2-city__head">
-              {view.crown === s && <img className="ct2-crown" src={crown} alt="تاج" title="تاج" />}
+              {view.crown === s && <img className="ct2-crown" src={crown} alt={tx(terms.crown)} title={tx(terms.crown)} />}
               <bdi className="ct2-city__name">{who(s)}</bdi>
               {!framed && <Pop n={view.gold[s]!} className="ct2-gold"><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</Pop>}
               {!framed && <Pop n={view.handCount[s]!}>{fa(view.handCount[s]!)} کارت</Pop>}
@@ -159,7 +161,7 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
 
       {view.hand && !view.outcome && (
         <section className="ct2__me" aria-label="دست شما">
-          {view.myPicks.length > 0 && <div className="ct2__mine">شخصیت‌های شما: {view.myPicks.map((c) => <CharToken key={c} c={c} from="pool" />)}</div>}
+          {view.myPicks.length > 0 && <div className="ct2__mine"><T t={terms.characters} /> شما: {view.myPicks.map((c) => <CharToken key={c} c={c} from="pool" />)}</div>}
           <div className="ct2__hand" data-flip-anchor="hand">
             {view.hand.map((id) => {
               const selecting = ability?.char === 3;

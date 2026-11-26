@@ -3,8 +3,9 @@
 // "discard"; then draw from the deck or a pile.
 import './renderer.css';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameRendererProps } from '@bg/ui';
 import cardsArt from './art/cards.webp';
+import { terms } from './terms.ts';
 
 const GC = import.meta.glob<string>('./art/gc/lost-cities-*.png', { eager: true, import: 'default' });
 const gc = (n: string) => GC[`./art/gc/lost-cities-${n}.png`];
@@ -25,16 +26,17 @@ export function Card({ id, size = 'md', back, flip, flipFrom, exit }: { id?: Car
   const v = value(id);
   const face = gc(`${id}`);
   return (
-    <span className={['lc-card', `lc-card--${size}`, `lc-c--${c}`, v ? '' : 'lc-card--wager'].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`${COLOR_FA[c]} ${v ? fa(v) : 'شرط'}`}>
+    <span className={['lc-card', `lc-card--${size}`, `lc-c--${c}`, v ? '' : 'lc-card--wager'].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`${COLOR_FA[c]} ${v ? fa(v) : tx(terms.wager)}`}>
       <i className="lc-card__art" style={face ? { backgroundImage: `url(${face})`, backgroundSize: '100% 100%', backgroundPosition: 'center' } : art(v ? v - 2 : 9, ROW[c])} />
       <span className="lc-card__v">{v ? fa(v) : '×'}</span>
       {v ? <svg viewBox="-20 -20 40 40" aria-hidden="true" className="lc-card__g"><Glyph c={c} /></svg> : null}
-      {size === 'md' && <span className="lc-card__n">{v ? COLOR_FA[c] : 'شرط'}</span>}
+      {size === 'md' && <span className="lc-card__n">{v ? COLOR_FA[c] : tx(terms.wager)}</span>}
     </span>
   );
 }
 
 export default function LostCitiesRenderer({ view: real, legalActions: realLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LostCitiesView>) {
+  useTermsLang(); // re-render when the terms language changes
   const me = mySeat ?? 0;
   // Undo-window preview: a played / discarded card already lies on its expedition / pile, a card taken from a pile is
   // already in the hand. A deck draw is hidden information and waits for the server.
@@ -53,7 +55,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : placing ? { tone: 'mine' as const, text: sel ? 'روی سفر بگذارید یا دور بیندازید' : 'یک کارت از دستتان انتخاب کنید' }
+    : placing ? { tone: 'mine' as const, text: sel ? `روی ${tx(terms.expedition)} بگذارید یا دور بیندازید` : 'یک کارت از دستتان انتخاب کنید' }
       : draws.size ? { tone: 'mine' as const, text: 'یک کارت بردارید: از دسته یا کپه‌ها' }
         : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
   const last = view.last;
@@ -71,7 +73,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>کارت‌های هر سفر باید از کارت قبلی بزرگ‌تر باشند و «شرط» فقط پیش از اولین عدد می‌آید. هر سفرِ شروع‌شده ۲۰ امتیاز خرج دارد؛ هشت کارت در یک سفر ۲۰ امتیاز جایزه دارد.</p>
+          <p>کارت‌های هر <T t={terms.expedition} /> باید از کارت قبلی بزرگ‌تر باشند و «<T t={terms.wager} />» فقط پیش از اولین عدد می‌آید. هر سفرِ شروع‌شده ۲۰ امتیاز خرج دارد؛ هشت کارت در یک <T t={terms.expedition} /> ۲۰ امتیاز جایزه دارد.</p>
         </RailSlot>
       )}
       {!framed && <p className="lc__score" data-flip-anchor="seat-opp">
@@ -85,7 +87,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
           const canDraw = draws.has(c) && !busy;
           return (
             <div key={c} className={`lc-col lc-c--${c}`}>
-              <div className="lc-col__exp lc-col__exp--opp" aria-label={`سفر ${COLOR_FA[c]} ${who(opp)}`}>
+              <div className="lc-col__exp lc-col__exp--opp" aria-label={`${tx(terms.expedition)} ${COLOR_FA[c]} ${who(opp)}`}>
                 {view.exp[opp]![c].length > 0 && <span className="lc-col__pts">{fa(expScore(view.exp[opp]![c]))}</span>}
                 {view.exp[opp]![c].map((id, i) => <Card key={i} id={id} size="sm" flip={expId(false, id, i)} flipFrom="seat-opp" />)}
               </div>
@@ -97,7 +99,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
                 {top ? <Card id={top} key={top + view.discard[c].length} flip={value(top) ? `c-${top}` : `c-${top}.p${view.discard[c].length}`} flipFrom={lastSeat} exit="seat-opp" /> : <span className="lc-pile__name">{COLOR_FA[c]}</span>}
                 {view.discard[c].length > 1 && <span className="lc-pile__n bg-pop" key={view.discard[c].length}>{fa(view.discard[c].length)}</span>}
               </button>
-              <div className="lc-col__exp lc-col__exp--me" aria-label={`سفر ${COLOR_FA[c]} شما`}>
+              <div className="lc-col__exp lc-col__exp--me" aria-label={`${tx(terms.expedition)} ${COLOR_FA[c]} شما`}>
                 {myExp[c].map((id, i) => <Card key={i} id={id} size="sm" flip={expId(true, id, i)} flipFrom="hand-me" />)}
                 {myExp[c].length > 0 && <span className="lc-col__pts">{fa(expScore(myExp[c]))}</span>}
               </div>
@@ -112,7 +114,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
             disabled={!draws.has('deck') || busy} onClick={() => onAction({ type: 'draw', from: 'deck' })}>
             <Card back size="sm" /><span key={view.deckCount} className="bg-pop">دسته: {fa(view.deckCount)} کارت</span>
           </button>
-          {!framed && last && <span className="lc__last" key={view.seq}><bdi>{who(last.seat)}</bdi> {last.kind === 'play' ? 'روی سفر گذاشت' : last.kind === 'discard' ? 'دور انداخت' : last.from === 'deck' ? 'از دسته برداشت' : `از کپهٔ ${COLOR_FA[last.from as Color]} برداشت`}{last.card && last.kind !== 'draw' ? `: ${COLOR_FA[color(last.card)]} ${value(last.card) ? fa(value(last.card)) : 'شرط'}` : ''}</span>}
+          {!framed && last && <span className="lc__last" key={view.seq}><bdi>{who(last.seat)}</bdi> {last.kind === 'play' ? `روی ${tx(terms.expedition)} گذاشت` : last.kind === 'discard' ? 'دور انداخت' : last.from === 'deck' ? 'از دسته برداشت' : `از کپهٔ ${COLOR_FA[last.from as Color]} برداشت`}{last.card && last.kind !== 'draw' ? `: ${COLOR_FA[color(last.card)]} ${value(last.card) ? fa(value(last.card)) : tx(terms.wager)}` : ''}</span>}
         </div>
       )}
 
@@ -133,7 +135,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
           {placing && sel && (() => {
             const btns = (
               <>
-                <Button size="sm" disabled={busy || !canPlay(myExp, sel)} className={hint?.type === 'play' ? 'lc-hint' : ''} onClick={() => onAction({ type: 'play', card: sel })}>روی سفر {COLOR_FA[color(sel)]}</Button>
+                <Button size="sm" disabled={busy || !canPlay(myExp, sel)} className={hint?.type === 'play' ? 'lc-hint' : ''} onClick={() => onAction({ type: 'play', card: sel })}>روی <T t={terms.expedition} /> {COLOR_FA[color(sel)]}</Button>
                 <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'discard' ? 'lc-hint' : ''} onClick={() => onAction({ type: 'discard', card: sel })}>دور بینداز</Button>
               </>
             );

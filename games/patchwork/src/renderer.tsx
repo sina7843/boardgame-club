@@ -3,7 +3,7 @@
 // where its corner goes (a preview shows if it fits), then «بدوز».
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, RailSlot, TurnIndicator, motionOff, useFlip, useInFrame, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, T, tx, useTermsLang, motionOff, useFlip, useInFrame, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
 import boardBlue from './art/patchwork-board-blue.png';
 import boardRed from './art/patchwork-board-red.png';
 import pa1 from './art/patchwork-p1.png';
@@ -26,6 +26,7 @@ import bonusArt from './art/patchwork-bonus.png';
 import leatherArt from './art/patchwork-leather.png';
 import markerBlue from './art/patchwork-marker-blue.png';
 import markerRed from './art/patchwork-marker-red.png';
+import { terms } from './terms.ts';
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
 // Time track: 8×8 spiral printed on patchwork-time.png (square size 63 of 600 px, origin 48). Index 0 is the start strip, 53 the centre star.
@@ -62,8 +63,9 @@ export function Shape({ id, rot = 0, flip = false, cell = 0.7 }: { id: number; r
 }
 
 function Quilt({ board, q, was, big, preview, ok, onCell, hintCell, anchor }: { board?: string; q: (number | null)[][]; was?: (number | null)[][]; big?: boolean; anchor?: string; preview?: Set<string>; ok?: boolean; onCell?: (r: number, c: number) => void; hintCell?: [number, number] | null }) {
+  useTermsLang();
   return (
-    <div data-flip-anchor={anchor} style={board ? { backgroundImage: `url(${board})` } : undefined} className={`pw-quilt ${big ? 'pw-quilt--big' : ''}`} role={onCell ? 'grid' : undefined} aria-label="لحاف">
+    <div data-flip-anchor={anchor} style={board ? { backgroundImage: `url(${board})` } : undefined} className={`pw-quilt ${big ? 'pw-quilt--big' : ''}`} role={onCell ? 'grid' : undefined} aria-label={tx(terms.quilt)}>
       {q.map((row, r) => row.map((id, c) => {
         const k = `${r},${c}`;
         const fresh = !!was && id !== null && was[r]![c] === null;
@@ -79,6 +81,7 @@ function Quilt({ board, q, was, big, preview, ok, onCell, hintCell, anchor }: { 
 }
 
 export default function PatchworkRenderer({ view: real, legalActions: realLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<PatchworkView>) {
+  useTermsLang();
   const me = mySeat ?? 0;
   const opp = 1 - me;
   // Undo-window preview: a bought patch is already sewn on (and paid for, with the pawn moved on), an advance already
@@ -136,8 +139,8 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : leather ? { tone: 'mine' as const, text: 'تکهٔ چرمی ۱×۱: یک خانهٔ خالی لحاف را بزنید' }
-      : myTurn ? { tone: 'mine' as const, text: pick === null ? 'تکه بخرید یا جلو بروید' : 'جای گوشهٔ تکه را روی لحاف بزنید' }
+    : leather ? { tone: 'mine' as const, text: `${tx(terms.leather)} ۱×۱: یک خانهٔ خالی ${tx(terms.quilt)} را بزنید` }
+      : myTurn ? { tone: 'mine' as const, text: pick === null ? `${tx(terms.patch)} بخرید یا جلو بروید` : `جای گوشهٔ ${tx(terms.patch)} را روی ${tx(terms.quilt)} بزنید` }
         : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
 
   const onCell = (r: number, c: number) => {
@@ -151,12 +154,12 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>یک تکه از سه تکهٔ بعد از مهرهٔ خنثی بخرید یا جلوتر از حریف بروید. خانهٔ خالی در پایان ۲ امتیاز کم می‌کند.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <section className="pw-track" aria-label="مسیر زمان" style={{ backgroundImage: `url(${timeBoard})` }}>
+      <section className="pw-track" aria-label={tx(terms.timeTrack)} style={{ backgroundImage: `url(${timeBoard})` }}>
         {Array.from({ length: END + 1 }, (_, i) => {
           const [r, c] = SPIRAL[i] ?? [0, 0];
           return (
             <span key={i} className={['pw-track__sq', view.leatherLeft.includes(i) ? 'pw-track__sq--lea' : ''].join(' ')} style={{ left: `${(48 + 63 * (c + 0.5)) / 6}%`, top: `${(48 + 63 * (r + 0.5)) / 6}%` }}>
-              {view.leatherLeft.includes(i) && <img className="pw-leather" src={leatherArt} alt="تکهٔ چرمی" draggable={false} />}
+              {view.leatherLeft.includes(i) && <img className="pw-leather" src={leatherArt} alt={tx(terms.leather)} draggable={false} />}
               {view.pos[me] === i && <span data-pawn={me} className="pw-pawn-slot"><img className="pw-marker" src={markerBlue} alt="شما" draggable={false} /></span>}
               {view.pos[opp] === i && <span data-pawn={opp} className="pw-pawn-slot"><img className="pw-marker pw-marker--opp" src={markerRed} alt={who(opp)} draggable={false} /></span>}
             </span>
@@ -165,20 +168,20 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
       </section>
 
       {!view.outcome && (
-        <section className="pw__market" aria-label="تکه‌ها">
-          {framed && <img className="pw-neutral" src={pawnArt} alt="مهرهٔ خنثی" draggable={false} />}
+        <section className="pw__market" aria-label={tx(terms.patches)}>
+          {framed && <img className="pw-neutral" src={pawnArt} alt={tx(terms.neutral)} draggable={false} />}
           {upcoming.map((id) => {
             const p = PATCHES[id]!;
             const can = buyable.has(id) && !busy;
             return (
               <button key={id} type="button" data-flip={`patch-${id}`} data-flip-exit={view.current === me ? 'quilt-me' : 'quilt-opp'} disabled={!can} aria-pressed={pick === id} onClick={() => { setPick(pick === id ? null : id); setRot(0); setFlip(false); setAt(null); }}
                 className={['pw-patch', offer.has(id) ? 'pw-patch--offer' : '', pick === id ? 'pw-patch--on' : '', hint?.type === 'buy' && hint.patch === id && pick !== id ? 'pw-hint' : ''].join(' ')}
-                aria-label={`تکه: ${fa(p.cost)} دکمه، ${fa(p.time)} زمان، درآمد ${fa(p.buttons)}`}>
-                {PATCH_ART[id] ? <img className="pw-patch__art" src={PATCH_ART[id]} alt="" draggable={false} /> : <><Shape id={id} /><span className="pw-patch__meta"><span><b className="pw-btn" />{fa(p.cost)}</span><span>{fa(p.time)} زمان</span></span></>}
+                aria-label={`${tx(terms.patch)}: ${fa(p.cost)} ${tx(terms.button)}، ${fa(p.time)} ${tx(terms.time)}، ${tx(terms.income)} ${fa(p.buttons)}`}>
+                {PATCH_ART[id] ? <img className="pw-patch__art" src={PATCH_ART[id]} alt="" draggable={false} /> : <><Shape id={id} /><span className="pw-patch__meta"><span><b className="pw-btn" />{fa(p.cost)}</span><span>{fa(p.time)} <T t={terms.time} /></span></span></>}
               </button>
             );
           })}
-          <span className="pw__left">{fa(view.circle.length)} تکه</span>
+          <span className="pw__left">{fa(view.circle.length)} <T t={terms.patch} /></span>
         </section>
       )}
 
@@ -204,7 +207,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
 
       {canAdvance && !view.outcome && (
         <div className="pw__actions">
-          <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'advance' ? 'pw-hint' : ''} onClick={() => onAction({ type: 'advance' })}>جلو رفتن (+{fa(advanceGain)} دکمه)</Button></DockSlot>
+          <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'advance' ? 'pw-hint' : ''} onClick={() => onAction({ type: 'advance' })}>جلو رفتن (+{fa(advanceGain)} <T t={terms.button} />)</Button></DockSlot>
         </div>
       )}
     </div>
@@ -242,6 +245,7 @@ function Pop({ n, className, children }: { n: number; className: string; childre
 
 /** A player's quilt board as on the table: the 9×9 board with its button pocket — buttons, button income, time, the 7×7 tile. */
 function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: PatchworkView; k: number; me?: boolean; name: string; buttonsPop: boolean; children: ReactNode }) {
+  useTermsLang();
   // The opponent's board starts folded on phones (tap to open); its pocket stays readable.
   const framed = useInFrame() !== null;
   const [open0, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
@@ -253,27 +257,27 @@ function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: Patchwo
   const nextInc = INCOME.find((x) => x > pos);
   const inc = view.income[k]!;
   return (
-    <section className={['pw-board', me ? 'pw-board--me' : 'pw-board--opp', turn ? 'pw-board--turn' : '', win ? 'pw-board--win' : ''].join(' ')} aria-label={`لحاف ${name}`}>
+    <section className={['pw-board', me ? 'pw-board--me' : 'pw-board--opp', turn ? 'pw-board--turn' : '', win ? 'pw-board--win' : ''].join(' ')} aria-label={`${tx(terms.quilt)} ${name}`}>
       {!framed && <header className="pw-board__head">
         <i className={`pw-pawn ${me ? 'pw-pawn--me' : 'pw-pawn--opp'}`} aria-hidden="true" />
         <bdi className="pw-board__name">{name}</bdi>
         {turn && <span className="pw-board__turn">در نوبت</span>}
         <Pop n={score(view, k)} className="pw-board__score">امتیاز <bdi dir="ltr">{score(view, k) < 0 ? `−${fa(-score(view, k))}` : fa(score(view, k))}</bdi></Pop>
-        {!me && <button type="button" className="pw-board__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن لحاف ${name}` : `باز کردن لحاف ${name}`}>{open ? '▴' : '▾'}</button>}
+        {!me && <button type="button" className="pw-board__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن ${tx(terms.quilt)} ${name}` : `باز کردن ${tx(terms.quilt)} ${name}`}>{open ? '▴' : '▾'}</button>}
       </header>}
       <div className="pw-board__body">
         {open && <div className="pw-board__quilt">{children}</div>}
         {!framed && <ul className="pw-pocket" aria-label="جیب دکمه">
-          <li className="pw-pocket__btns" title="دکمه‌های در دست"><b className="pw-btn pw-btn--big" aria-hidden="true" /><span className={buttonsPop ? 'bg-pop' : ''} key={view.buttons[k]}>{fa(view.buttons[k]!)}</span><small>دکمه</small></li>
+          <li className="pw-pocket__btns" title={`${tx(terms.buttons)} در دست`}><b className="pw-btn pw-btn--big" aria-hidden="true" /><span className={buttonsPop ? 'bg-pop' : ''} key={view.buttons[k]}>{fa(view.buttons[k]!)}</span><small><T t={terms.button} /></small></li>
           <li className="pw-pocket__inc" title="درآمد دکمه‌ای لحاف در هر خانهٔ درآمد">
-            <small>درآمد</small>
+            <small><T t={terms.income} /></small>
             <span className="pw-pocket__row" aria-hidden="true">{Array.from({ length: Math.min(inc, 8) }, (_, i) => <b key={i} className="pw-btn" />)}</span>
             <b>{fa(inc)}</b>
           </li>
-          <li className="pw-pocket__time" title="جای مهره روی مسیر زمان">
-            <small>زمان</small><b>{fa(pos)}/{fa(END)}</b>
+          <li className="pw-pocket__time" title={`جای مهره روی ${tx(terms.timeTrack)}`}>
+            <small><T t={terms.time} /></small><b>{fa(pos)}/{fa(END)}</b>
             <span className="pw-pocket__bar" aria-hidden="true"><span style={{ inlineSize: `${(pos / END) * 100}%` }} /></span>
-            {nextInc !== undefined && <small>درآمد بعدی: {fa(nextInc - pos)} خانه</small>}
+            {nextInc !== undefined && <small><T t={terms.income} /> بعدی: {fa(nextInc - pos)} خانه</small>}
           </li>
           <li className="pw-pocket__empty" title="هر خانهٔ خالی در پایان −۲"><small>خالی</small><b>{fa(empty)}</b><small>(−{fa(empty * 2)})</small></li>
           <li className={['pw-tile7', view.bonus7 === k ? 'pw-tile7--on' : view.bonus7 !== null ? 'pw-tile7--gone' : ''].join(' ')}

@@ -3,7 +3,8 @@
 // Tap a pile's rule, or one or two vegetables; tap one of your rules first to flip it into a vegetable this turn.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, useTermsLang, type GameAction, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import { CARDS, VEG, counts, ruleScore, scores, type PointSaladView, type Rule, type Veg } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -78,6 +79,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const hint = expected as unknown as { type: string; pile?: number; slots?: number[] } | null;
+  useTermsLang();
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const myTurn = piles.size > 0 || !!vegHint;
   const all = view.veggies.map(counts);
@@ -87,7 +89,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: 'یک دستور یا دو سبزی بردارید' }
+    : myTurn ? { tone: 'mine' as const, text: `یک ${tx(terms.pointCard)} یا دو سبزی بردارید` }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const order = mySeat === null ? view.rules.map((_, k) => k) : [mySeat, ...view.rules.map((_, k) => k).filter((k) => k !== mySeat)];
 
@@ -99,7 +101,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>یا یک دستور از بالای دسته بردارید، یا تا دو سبزی از بازار. هر دستور را می‌توانید به یک سبزی تبدیل کنید. دستورها در پایان بازی امتیاز می‌دهند.</p>
+          <p>یا یک <T t={terms.pointCard} /> از بالای دسته بردارید، یا تا دو سبزی از بازار. هر <T t={terms.pointCard} /> را می‌توانید به یک سبزی تبدیل کنید. {tx(terms.pointCard)}ها در پایان بازی امتیاز می‌دهند.</p>
         </RailSlot>
       )}
 
@@ -111,7 +113,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
               <div key={p} className="ps-crate">
                 {top !== null && top !== undefined
                   ? <button type="button" data-flip-anchor={`crate-${p}`} className={['ps-pile', hint?.type === 'rule' && hint.pile === p ? 'ps-hint' : ''].join(' ')} disabled={!piles.has(p) || busy || sel.length > 0}
-                    onClick={() => act({ type: 'rule', pile: p, ...extra })} aria-label={`برداشتن دستور دستهٔ ${fa(p + 1)}`}><RuleCard id={top} from={`crate-${p}`} /><small>{fa(view.pileCounts[p]!)} کارت</small></button>
+                    onClick={() => act({ type: 'rule', pile: p, ...extra })} aria-label={`برداشتن ${tx(terms.pointCard)} دستهٔ ${fa(p + 1)}`}><RuleCard id={top} from={`crate-${p}`} /><small>{fa(view.pileCounts[p]!)} کارت</small></button>
                   : p === waiting ? <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">…</span> : <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">خالی</span>}
                 <div className="ps-crate__veg">
                   {[p * 2, p * 2 + 1].map((i) => {

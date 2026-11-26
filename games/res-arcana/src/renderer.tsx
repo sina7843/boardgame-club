@@ -3,32 +3,37 @@
 // Places of power and monuments wait on a velvet shelf; your mage and artifacts sit in front of you.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, T, tx, type Term, useTermsLang, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import artE from './art/ra-ess-elan.png';
 import artL from './art/ra-ess-life.png';
 import artC from './art/ra-ess-calm.png';
 import artD from './art/ra-ess-death.png';
 import artG from './art/ra-ess-gold.png';
-import { CARDS, ESS, ESS_FA, vpOf, type Ess, type Pile, type RaView } from './rules.ts';
+import { terms } from './terms.ts';
+import { CARDS, ESS, vpOf, type Ess, type Pile, type RaView } from './rules.ts';
 
 // Painted crystals cut from a generated sheet (see DECISIONS.md), shown as round essence icons.
 const art = (k: Ess) => ({ backgroundImage: `url(${{ e: artE, l: artL, c: artC, d: artD, g: artG }[k]})` });
+const ESS_T: Record<Ess, Term> = { e: terms.elan, l: terms.life, c: terms.calm, d: terms.death, g: terms.gold };
+const essName = (k: Ess) => tx(ESS_T[k]);
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** `pop` bumps a gem whose count changed (use for a player's essence pool, not for printed card costs). */
 export function Gems({ pile, empty, pop }: { pile: Pile; empty?: string; pop?: boolean }) {
-  const items = ESS.flatMap((k) => (pile[k] ? [<span key={pop ? `${k}${pile[k]}` : k} className={pop ? 'ra-gem bg-pop' : 'ra-gem'} style={art(k)} aria-label={`${fa(pile[k]!)} ${ESS_FA[k]}`}>{fa(pile[k]!)}</span>] : []));
+  useTermsLang();
+  const items = ESS.flatMap((k) => (pile[k] ? [<span key={pop ? `${k}${pile[k]}` : k} className={pop ? 'ra-gem bg-pop' : 'ra-gem'} style={art(k)} aria-label={`${fa(pile[k]!)} ${essName(k)}`}>{fa(pile[k]!)}</span>] : []));
   return items.length ? <span className="ra-gems">{items}</span> : <small className="ra-none">{empty ?? '—'}</small>;
 }
 
 export function ArcCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }) {
+  useTermsLang();
   const c = CARDS[id]!;
   return (
     <span className={`ra-card ra-card--${size} ra-k--${c.kind}`} aria-label={c.name}>
       <span className="ra-card__name">{c.name}</span>
       {c.vp > 0 && <b className="ra-card__vp">{fa(c.vp)}★</b>}
       {size === 'md' && c.kind !== 'mage' && <span className="ra-card__row"><small>هزینه</small><Gems pile={c.cost} empty="رایگان" /></span>}
-      {Object.keys(c.collect).length > 0 && <span className="ra-card__row"><small>تولید</small><Gems pile={c.collect} /></span>}
-      {c.power && <span className="ra-card__row ra-card__pw"><small>قدرت</small><Gems pile={c.power.pay} empty="·" /><i>←</i><Gems pile={c.power.gain} empty="" />{c.power.vp ? <b>{fa(c.power.vp)}★</b> : null}</span>}
+      {Object.keys(c.collect).length > 0 && <span className="ra-card__row"><small><T t={terms.collect} /></small><Gems pile={c.collect} /></span>}
+      {c.power && <span className="ra-card__row ra-card__pw"><small><T t={terms.power} /></small><Gems pile={c.power.pay} empty="·" /><i>←</i><Gems pile={c.power.gain} empty="" />{c.power.vp ? <b>{fa(c.power.vp)}★</b> : null}</span>}
     </span>
   );
 }
@@ -62,6 +67,7 @@ function Num({ v, className, children }: { v: number; className: string; childre
 }
 
 export default function ResArcanaRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<RaView>) {
+  useTermsLang();
   const me = mySeat ?? 0;
   const q = queued as Queued | null | undefined;
   const view = preview(served, q, mySeat ?? -1);
@@ -87,26 +93,26 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
   const mine = view.mages[me]!;
   const framed = useInFrame() !== null; // the shell draws the seat strip, scores and whose turn
   const status = view.outcome ? null
-    : myTurn ? { tone: 'mine' as const, text: dropping !== null ? 'کدام جوهر را می‌خواهید؟' : 'یک کار انجام دهید یا رد کنید' }
+    : myTurn ? { tone: 'mine' as const, text: dropping !== null ? `کدام ${tx(terms.essence)} را می‌خواهید؟` : 'یک کار انجام دهید یا رد کنید' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 
   return (
     <div className={framed ? 'ra ra--framed' : 'ra'} ref={root} data-seq={view.seq}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نوبت یک کار: بازی کردن کارت، خریدن مکان قدرت یا بنا، فعال کردن قدرت، یا دور انداختن کارت برای جوهر. با «رد کردن» از این دور بیرون می‌روید. اول به ۱۰ امتیاز برسد می‌برد.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نوبت یک کار: بازی کردن کارت، خریدن <T t={terms.placeOfPower} /> یا <T t={terms.monument} />، فعال کردن <T t={terms.power} />، یا دور انداختن کارت برای <T t={terms.essence} />. با «رد کردن» از این دور بیرون می‌روید. اول به ۱۰ امتیاز برسد می‌برد.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!framed && <p className="ra-round">دور {fa(view.round)}</p>}
 
-      <ul className="ra-rivals" aria-label="جادوگران">
+      <ul className="ra-rivals" aria-label={tx(terms.mages)}>
         {view.mages.map((g, k) => (k === me ? null : (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['ra-rival', k === view.current && !view.outcome ? 'is-now' : '', g.passed ? 'is-passed' : ''].join(' ')}>
-            <div className="ra-rival__head"><bdi>{who(k)}</bdi><Num className="ra-vp" v={g.vp}>{fa(g.vp)}★</Num><Gems pile={g.ess} empty="بی‌جوهر" pop />{burst(k)}<small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
+            <div className="ra-rival__head"><bdi>{who(k)}</bdi><Num className="ra-vp" v={g.vp}>{fa(g.vp)}★</Num><Gems pile={g.ess} empty={tx(terms.noEssence)} pop />{burst(k)}<small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
             <div className="ra-row">{g.table.map((id) => <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${k}`} data-flip-anchor={`c${id}`} className={view.tapped.includes(id) ? 'is-tapped' : ''}><ArcCard id={id} size="sm" /></span>)}</div>
           </li>
         )))}
       </ul>
 
-      <section className="ra-shelf" aria-label="مکان‌های قدرت و بناها">
-        {framed && <h3 className="ra-label">مکان‌های قدرت و بناها</h3>}
+      <section className="ra-shelf" aria-label={`${tx(terms.placesOfPower)} و ${tx(terms.monuments)}`}>
+        {framed && <h3 className="ra-label"><T t={terms.placesOfPower} /> و <T t={terms.monuments} /></h3>}
         {[...view.places, ...view.monuments].map((id) => {
           const ok = can('buy', id);
           return (
@@ -114,12 +120,12 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
               className={['ra-pick', ok ? 'is-can' : '', hint?.type === 'buy' && hint.card === id ? 'ra-hint' : ''].join(' ')}><ArcCard id={id} /></button>
           );
         })}
-        <small className="ra-shelf__left">بناهای دیگر: {fa(view.monumentsLeft)}</small>
+        <small className="ra-shelf__left"><T t={terms.monumentsOf} /> دیگر: {fa(view.monumentsLeft)}</small>
       </section>
 
       <section data-flip-anchor={`seat-${me}`} className={`ra-me ${myTurn ? 'is-now' : ''}`} aria-label="میز شما">
         {framed && <h3 className="ra-label">میز شما</h3>}
-        <div className={framed ? 'ra-me__head ra-me__head--framed' : 'ra-me__head'}><bdi>{who(me)}</bdi><Num className="ra-vp ra-vp--lg" v={mine.vp}>{fa(mine.vp)} از ۱۰ ★</Num><Gems pile={mine.ess} empty="بی‌جوهر" pop />{burst(me)}</div>
+        <div className={framed ? 'ra-me__head ra-me__head--framed' : 'ra-me__head'}><bdi>{who(me)}</bdi><Num className="ra-vp ra-vp--lg" v={mine.vp}>{fa(mine.vp)} از ۱۰ ★</Num><Gems pile={mine.ess} empty={tx(terms.noEssence)} pop />{burst(me)}</div>
         <div className="ra-row">
           {mine.table.map((id) => {
             const ok = can('tap', id);
@@ -142,7 +148,7 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
                 </span>
                 {dropping === id && (
                   <span className="ra-drop">
-                    {ESS.map((k: Ess) => <button key={k} type="button" className="ra-gem" style={art(k)} disabled={busy} aria-label={k === 'g' ? '۱ طلا' : `۲ ${ESS_FA[k]}`} onClick={() => onAction({ type: 'discard', card: id, gain: k })}>{k === 'g' ? '۱' : '۲'}</button>)}
+                    {ESS.map((k: Ess) => <button key={k} type="button" className="ra-gem" style={art(k)} disabled={busy} aria-label={k === 'g' ? `۱ ${essName(k)}` : `۲ ${essName(k)}`} onClick={() => onAction({ type: 'discard', card: id, gain: k })}>{k === 'g' ? '۱' : '۲'}</button>)}
                   </span>
                 )}
               </span>

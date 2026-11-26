@@ -3,12 +3,13 @@
 // follower stands (or none), then place. Board coordinates are module-defined, so the map itself is LTR.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePrevious, tx, useTermsLang, type GameRendererProps } from '@bg/ui';
 import tilesArt from './art/tiles.webp';
 import meepleB from './art/cc-m-b.png';
 import meepleG from './art/cc-m-g.png';
 import meepleY from './art/cc-m-y.png';
 import backArt from './art/cc-back.png';
+import { terms } from './terms.ts';
 import { TILES, feature, groups, key, segments, type CarcView, type Placed } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -69,12 +70,13 @@ export function TileDefs() {
 }
 
 const segLabel = (t: string, rot: number, seg: string) => {
-  if (seg === 'm') return 'صومعه';
+  if (seg === 'm') return tx(terms.monastery);
   const g = groups(t, rot, seg[0] as 'c' | 'r')[Number(seg.slice(1))]!;
-  return `${seg[0] === 'c' ? 'شهر' : 'جاده'} (${g.map((d) => DIRS[d]).join('، ')})`;
+  return `${tx(seg[0] === 'c' ? terms.city : terms.road)} (${g.map((d) => DIRS[d]).join('، ')})`;
 };
 
 export default function CarcassonneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CarcView>) {
+  useTermsLang(); // re-render when the terms language changes
   // Undo-window preview: the own tile already lies on the map (with its follower); undo lifts it back to the dock.
   const pending = queued?.type === 'place' && view.tile && mySeat !== null ? queued as unknown as { x: number; y: number; rot: number; meeple?: string } : null;
   const placeRaw = legalActions.find((a) => a.type === 'place') as { options: { x: number; y: number; rot: number }[] } | undefined;
@@ -179,7 +181,7 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
           <Button variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate}>چرخاندن</Button>
           <Button variant="primary" disabled={busy || !spot} onClick={confirm}>تأیید جا</Button>
           {mySeat !== null && (
-            <ul className="cc__supply" aria-label={`${fa(view.meeplesLeft[mySeat]!)} پیرو در دست شما`}>
+            <ul className="cc__supply" aria-label={`${fa(view.meeplesLeft[mySeat]!)} ${tx(terms.meeple)} در دست شما`}>
               {Array.from({ length: 7 }, (_, i) => <li key={i} className={i < view.meeplesLeft[mySeat]! ? '' : 'is-used'}><svg viewBox="0 0 18 21" aria-hidden><Meeple color={SEAT_COLORS[mySeat]!} x={9} y={10} /></svg></li>)}
             </ul>
           )}
@@ -193,14 +195,14 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
             <svg viewBox="0 0 18 21" className={`cc-player__meeple ${before && before.meeplesLeft[s] !== view.meeplesLeft[s] ? 'bg-pop' : ''}`} key={view.meeplesLeft[s]} aria-hidden><Meeple color={SEAT_COLORS[s]!} x={9} y={10} /></svg>
             <bdi className="cc-player__name">{who(s)}</bdi>
             <span className={`cc-player__score ${before && before.scores[s] !== view.scores[s] ? 'bg-pop' : ''}`} key={view.scores[s]}>{fa(view.scores[s]!)}</span>
-            <span className="cc-player__left" aria-label={`${fa(view.meeplesLeft[s]!)} پیرو`}>×{fa(view.meeplesLeft[s]!)}</span>
+            <span className="cc-player__left" aria-label={`${fa(view.meeplesLeft[s]!)} ${tx(terms.meeple)}`}>×{fa(view.meeplesLeft[s]!)}</span>
           </li>
         ))}
       </ul>}
 
       {!framed && last && last.scored.length > 0 && (
         <p className="cc__news" key={view.seq} role="status">
-          {last.scored.map((x, i) => <span key={i} style={{ ['--who' as string]: SEAT_COLORS[x.seat] }}><bdi>{who(x.seat)}</bdi> +{fa(x.pts)} {x.kind === 'city' ? 'شهر' : x.kind === 'road' ? 'جاده' : 'صومعه'}</span>)}
+          {last.scored.map((x, i) => <span key={i} style={{ ['--who' as string]: SEAT_COLORS[x.seat] }}><bdi>{who(x.seat)}</bdi> +{fa(x.pts)} {tx(x.kind === 'city' ? terms.city : x.kind === 'road' ? terms.road : terms.monastery)}</span>)}
         </p>
       )}
 
@@ -222,8 +224,8 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
           </div>
         )}
         {place && spot && view.tile && (
-          <div className="cc__follow" role="group" aria-label="پیرو">
-            <button type="button" className={`cc-chip ${meeple === null ? 'cc-chip--on' : ''}`} aria-pressed={meeple === null} onClick={() => setMeeple(null)}>بدون پیرو</button>
+          <div className="cc__follow" role="group" aria-label={tx(terms.meeple)}>
+            <button type="button" className={`cc-chip ${meeple === null ? 'cc-chip--on' : ''}`} aria-pressed={meeple === null} onClick={() => setMeeple(null)}>بدون {tx(terms.meeple)}</button>
             {segments(view.tile).map((seg) => (
               <button key={seg} type="button" disabled={!free(seg)} aria-pressed={meeple === seg} onClick={() => setMeeple(seg)}
                 className={['cc-chip', meeple === seg ? 'cc-chip--on' : '', hint?.meeple === seg && meeple !== seg ? 'cc-hint' : ''].join(' ')}>{segLabel(view.tile!, shownRot, seg)}</button>

@@ -4,7 +4,7 @@
 // Bean pictures are the printed (German edition) card art from github.com/Alyarafa20/bohnanza-demo-gui (see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePrevious, useTermsLang, type GameRendererProps, type Term } from '@bg/ui';
 import coffee from './art/coffee.webp';
 import wax from './art/wax.webp';
 import blue from './art/blue.webp';
@@ -27,12 +27,16 @@ import d_wax from './art/bohnanza-wax.png';
 import thaler from './art/bohnanza-thaler.png';
 import deckArt from './art/bohnanza-deck.png';
 import { BEANS, BEAN_INFO, payout, type Bean, type BeanView } from './rules.ts';
+import { terms } from './terms.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const SEED: Record<Bean, string> = {
   coffee: '#6b4226', wax: '#e9cf5b', blue: '#3f6fb5', chili: '#c8321f', stink: '#8a9a3a',
   green: '#4caf50', soy: '#d9b26a', blackeye: '#f2ede0', red: '#a8202a', garden: '#c77fa8'
 };
+
+const BEAN_T: Record<Bean, Term> = { coffee: terms.coffee, wax: terms.wax, blue: terms.blue, chili: terms.chili, stink: terms.stink, green: terms.green, soy: terms.soy, blackeye: terms.blackeye, red: terms.red, garden: terms.garden };
+const beanName = (b: Bean) => tx(BEAN_T[b]);
 
 // Bean art is cut from a generated sprite sheet (see DECISIONS.md).
 const ART: Record<Bean, string> = { coffee, wax, blue, chili, stink, green, soy, blackeye, red, garden };
@@ -67,14 +71,14 @@ const FACE: Partial<Record<Bean, string>> = { blue: d_blue, chili: d_chili, coff
 export function BeanCard({ b, size = 'md', count, flip, flipFrom, flipExit }: { b: Bean; size?: 'sm' | 'md'; count?: number; flip?: string; flipFrom?: string; flipExit?: string }) {
   const info = BEAN_INFO[b];
   if (FACE[b]) return (
-    <span className={`bn-card bn-card--art bn-card--${size}`} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`لوبیای ${info.name}${count ? `، ${fa(count)} عدد` : ''}`}>
+    <span className={`bn-card bn-card--art bn-card--${size}`} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`لوبیای ${beanName(b)}${count ? `، ${fa(count)} عدد` : ''}`}>
       <img src={FACE[b]} className="bn-card__img" alt="" aria-hidden="true" draggable={false} />
       {count !== undefined && <b className="bn-card__count bg-pop" key={count}>{fa(count)}</b>}
     </span>
   );
   return (
-    <span className={`bn-card bn-card--${size}`} style={{ ['--seed' as string]: SEED[b] }} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`لوبیای ${info.name}${count ? `، ${fa(count)} عدد` : ''}`}>
-      <span className="bn-card__name">{info.name}</span>
+    <span className={`bn-card bn-card--${size}`} style={{ ['--seed' as string]: SEED[b] }} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`لوبیای ${beanName(b)}${count ? `، ${fa(count)} عدد` : ''}`}>
+      <span className="bn-card__name">{beanName(b)}</span>
       <img src={ART[b]} className="bn-bean" alt="" aria-hidden="true" draggable={false} />
       {size === 'md' && (
         <span className="bn-card__meter" aria-hidden>
@@ -89,6 +93,7 @@ export function BeanCard({ b, size = 'md', count, flip, flipFrom, flipExit }: { 
 type Hint = { type: string; field?: number; to?: number; faceUp?: number[]; card?: number } | null;
 
 export default function BohnanzaRenderer({ view: served, legalActions: servedLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<BeanView>) {
+  useTermsLang(); // re-render when the terms language changes
   const me = mySeat ?? -1;
   // Undo window: my plant / harvest shows at once from what I already know (the front hand card, the picked pending
   // card, the field's payout); undo clears `queued` and the card flies back.
@@ -152,7 +157,7 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
             {mine && (
               <span className="bn-field__acts">
                 {canPlant && <Button size="sm" disabled={busy} className={hint && hint.type !== 'offer' && hint.field === i && (hint.type === 'plant' || hint.card === pickCard) ? 'bn-hint' : ''} onClick={() => onAction(plantAction)}>کاشتن اینجا</Button>}
-                {harvestable.has(i) && f.bean && <button type="button" className="bn-link" disabled={busy} onClick={() => onAction({ type: 'harvest', field: i })}>برداشت ({fa(payout(f.bean!, f.n))} سکه)</button>}
+                {harvestable.has(i) && f.bean && <button type="button" className="bn-link" disabled={busy} onClick={() => onAction({ type: 'harvest', field: i })}><T t={terms.harvest} /> ({fa(payout(f.bean!, f.n))} سکه)</button>}
               </span>
             )}
           </div>
@@ -200,12 +205,12 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
               {fieldsOf(s, false)}
               {treasury(s, false)}
             </div>
-            {view.pending[s]!.length > 0 && <small className="bn-rival__pending">باید بکارد: {view.pending[s]!.map((b) => BEAN_INFO[b].name).join('، ')}</small>}
+            {view.pending[s]!.length > 0 && <small className="bn-rival__pending">باید بکارد: {view.pending[s]!.map((b) => beanName(b)).join('، ')}</small>}
           </li>
         ))}
       </ul>
 
-      <section className="bn__market" data-flip-anchor="market" aria-label="میز معامله">
+      <section className="bn__market" data-flip-anchor="market" aria-label={`میز ${tx(terms.trade)}`}>
         <span className="bn-deck" data-flip-anchor="deck" style={{ backgroundImage: `url(${deckArt})` }}><b>{fa(view.deckCount)}</b><small>دسته</small></span>
         <div className="bn__faceup">
           {view.faceUp.length ? view.faceUp.map((b, i) => (
@@ -214,23 +219,23 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
             ) : <span key={i} className="bn-pick"><BeanCard b={b} flip={faceIds[i]} flipFrom="deck" flipExit={faceExit(i)} /></span>
           )) : <small className="bn__cloth">{view.phase === 'plant' ? 'کارت‌ها بعد از کاشتن رو می‌شوند' : 'میز معامله خالی است'}</small>}
         </div>
-        {!framed && view.last && <small className="bn__last" key={view.seq}><bdi>{who(view.last.seat)}</bdi> {view.last.kind === 'harvest' ? `برداشت کرد: ${view.last.detail.replace(/\d+/g, (d) => fa(Number(d)))}` : view.last.kind === 'trade' ? 'معامله را پذیرفت' : view.last.kind === 'decline' ? 'پیشنهاد را رد کرد' : 'مزرعهٔ سوم خرید'}</small>}
+        {!framed && view.last && <small className="bn__last" key={view.seq}><bdi>{who(view.last.seat)}</bdi> {view.last.kind === 'harvest' ? `${tx(terms.harvest)} کرد: ${view.last.detail.replace(/\d+/g, (d) => fa(Number(d)))}` : view.last.kind === 'trade' ? `${tx(terms.trade)} را پذیرفت` : view.last.kind === 'decline' ? 'پیشنهاد را رد کرد' : 'مزرعهٔ سوم خرید'}</small>}
       </section>
 
       {offering && (
         <section className="bn__offer" aria-label="ساختن پیشنهاد">
           <div className="bn__row"><small>به:</small>{others.map((k) => <button key={k} type="button" className={`bn-chip ${target === k ? 'bn-chip--on' : ''}`} aria-pressed={target === k} onClick={() => setTo(k)}><bdi>{who(k)}</bdi></button>)}</div>
           <div className="bn__row"><small>در عوض می‌خواهم:</small>
-            {BEANS.map((b) => <button key={b} type="button" className="bn-chip bn-chip--bean" style={{ ['--seed' as string]: SEED[b] }} onClick={() => setWant([...want, b])}>{BEAN_INFO[b].name}</button>)}
+            {BEANS.map((b) => <button key={b} type="button" className="bn-chip bn-chip--bean" style={{ ['--seed' as string]: SEED[b] }} onClick={() => setWant([...want, b])}>{beanName(b)}</button>)}
           </div>
           <p className="bn__summary">
-            می‌دهید: {giveUp.length + giveHand.length ? [...giveUp.map((i) => view.faceUp[i]), ...giveHand.map((i) => view.hand?.[i])].filter((b) => b !== undefined).map((b) => BEAN_INFO[b].name).join('، ') : 'هیچ'} — می‌خواهید: {want.length ? want.map((b) => BEAN_INFO[b].name).join('، ') : 'هیچ (بخشش)'}
+            می‌دهید: {giveUp.length + giveHand.length ? [...giveUp.map((i) => view.faceUp[i]), ...giveHand.map((i) => view.hand?.[i])].filter((b) => b !== undefined).map((b) => beanName(b)).join('، ') : 'هیچ'} — می‌خواهید: {want.length ? want.map((b) => beanName(b)).join('، ') : 'هیچ (بخشش)'}
             {want.length > 0 && <button type="button" className="bn-link" onClick={() => setWant([])}>پاک کردن</button>}
           </p>
           <div className="bn__row">
             <Button size="sm" disabled={busy || !(giveUp.length + giveHand.length + want.length)} className={hint?.type === 'offer' && giveUp.length ? 'bn-hint' : ''}
-              onClick={() => onAction({ type: 'offer', to: target, faceUp: giveUp, hand: giveHand, want })}>{want.length ? 'پیشنهاد معامله' : 'بخشیدن'}</Button>
-            <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTrade' ? 'bn-hint' : ''} onClick={() => onAction({ type: 'endTrade' })}>پایان معامله</Button>
+              onClick={() => onAction({ type: 'offer', to: target, faceUp: giveUp, hand: giveHand, want })}>{want.length ? `پیشنهاد ${tx(terms.trade)}` : 'بخشیدن'}</Button>
+            <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTrade' ? 'bn-hint' : ''} onClick={() => onAction({ type: 'endTrade' })}>پایان <T t={terms.trade} /></Button>
           </div>
         </section>
       )}

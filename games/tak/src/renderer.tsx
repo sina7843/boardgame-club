@@ -4,7 +4,8 @@
 // hand is empty.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePieceIds, usePop, useTermsLang, tx, type Term, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 // Board and stones: design/games/group-a/art/tak, copied as-is.
 import bF from './art/tak-b-F.png';
 import bS from './art/tak-b-S.png';
@@ -23,7 +24,8 @@ const W = 652, X0 = 0.0575 * W;
 const BOARD: Record<number, string> = { 4: board4, 5: board5, 6: board6 };
 const K = 48; // stone slots per square for identity tracking (ponytail: a taller stack is not tracked above this)
 const STONE: Record<Color, Record<Kind, string>> = { w: { F: wF, S: wS, C: wC }, b: { F: bF, S: bS, C: bC } };
-const KIND_FA: Record<Kind, string> = { F: 'سنگ تخت', S: 'دیوار', C: 'سرستون' };
+const KIND_T: Record<Kind, Term> = { F: terms.flat, S: terms.wall, C: terms.cap };
+const kindName = (k: Kind) => tx(KIND_T[k]);
 
 type Queued = { type: string; at?: number; kind?: Kind; from?: number; dir?: Dir; drops?: number[] };
 
@@ -52,6 +54,7 @@ function preview(v: TakView, q: Queued | null | undefined): TakView {
 }
 
 export default function TakRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<TakView>) {
+  useTermsLang(); // re-render when the terms language changes
   const framed = useInFrame() !== null; // the shell draws players, reserves and the move log
   const q = queued as Queued | null | undefined;
   const view = preview(served, q);
@@ -127,7 +130,7 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : canPlace ? { tone: 'mine' as const, text: opening ? 'اولین نوبت: یک سنگ تخت حریف را بگذارید' : sel ? (sel.dir ? `${fa(sel.lift - sel.drops.reduce((a, b) => a + b, 0))} سنگ در دست؛ خانه بعدی را بزنید` : 'تعداد را انتخاب کنید و جهت را بزنید') : 'نوبت شما: بگذارید یا پشته‌ای را جابه‌جا کنید' }
+    : canPlace ? { tone: 'mine' as const, text: opening ? `اولین نوبت: یک ${tx(terms.flat)} حریف را بگذارید` : sel ? (sel.dir ? `${fa(sel.lift - sel.drops.reduce((a, b) => a + b, 0))} سنگ در دست؛ خانه بعدی را بزنید` : 'تعداد را انتخاب کنید و جهت را بزنید') : 'نوبت شما: بگذارید یا پشته‌ای را جابه‌جا کنید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
   // Piece-type bar (reference: «گذاشتن» تخت / دیوار / سرستون and «برداشتن» ۱…n) is always shown, disabled when it does not
@@ -139,7 +142,7 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
       <span className="tak__kinds" role="group" aria-label="گذاشتن">
         {(['F', 'S', 'C'] as Kind[]).map((k) => (
           <button key={k} type="button" aria-pressed={(kindsOn && kind === k) || (firstTurn && k === 'F')} disabled={firstTurn ? k !== 'F' : !kindsOn || (k === 'C' ? !reserve.caps : !reserve.stones)} onClick={() => setKind(k)}>
-            <img className="tak-kind" src={STONE[myColor][k]} alt="" aria-hidden="true" />{KIND_FA[k]}
+            <img className="tak-kind" src={STONE[myColor][k]} alt="" aria-hidden="true" />{kindName(k)}
             <span className="tak__left">{fa(k === 'C' ? reserve.caps : reserve.stones)}</span>
           </button>
         ))}
@@ -161,9 +164,9 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {framed && (
         <RailSlot>
-          <p>{opening ? <>اولین نوبت: یک <b>سنگ تخت حریف</b> را بگذارید.</>
+          <p>{opening ? <>اولین نوبت: یک <b>{tx(terms.flat)} حریف</b> را بگذارید.</>
             : sel ? <>سنگ‌ها را در یک خط پخش کنید؛ <b>هر خانه دست‌کم یک سنگ</b> می‌گیرد.</>
-              : <>جاده‌ای از دو لبهٔ روبه‌رو با سنگ‌های تخت و سرستون بسازید. دیوار جاده نیست و روی آن فقط سرستون می‌نشیند.</>}</p>
+              : <>جاده‌ای از دو لبهٔ روبه‌رو با سنگ‌های تخت و {tx(terms.cap)} بسازید. {tx(terms.wall)} {tx(terms.road)} نیست و روی آن فقط {tx(terms.cap)} می‌نشیند.</>}</p>
         </RailSlot>
       )}
       {!framed && (
@@ -172,7 +175,7 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
             <div key={c} className={['tak-side', view.turn === c && !view.outcome ? 'tak-side--turn' : ''].join(' ')}>
               <img className="tak-side__chip" src={STONE[c].F} alt="" aria-hidden="true" />
               <bdi className="tak-side__name">{who(c)}</bdi>
-              <Stat n={view.reserve[c].stones * 100 + view.reserve[c].caps}>{fa(view.reserve[c].stones)} سنگ{view.reserve[c].caps ? <><span className="bgv-sep" />{fa(view.reserve[c].caps)} سرستون</> : null}</Stat>
+              <Stat n={view.reserve[c].stones * 100 + view.reserve[c].caps}>{fa(view.reserve[c].stones)} سنگ{view.reserve[c].caps ? <><span className="bgv-sep" />{fa(view.reserve[c].caps)} {tx(terms.cap)}</> : null}</Stat>
             </div>
           ))}
         </div>
@@ -187,7 +190,7 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
             const isHint = hint?.at === i;
             return (
               <g key={i} role="gridcell" tabIndex={lit ? 0 : -1}
-                aria-label={`${'abcdef'[i % n]}${Math.floor(i / n) + 1}: ${stack.length ? `${fa(stack.length)} سنگ، بالایی ${KIND_FA[stack.at(-1)!.t]} ${stack.at(-1)!.c === myColor ? 'شما' : 'حریف'}` : 'خالی'}${moveTargets.has(i) ? '، گذاشتن سنگ اینجا' : ''}`}
+                aria-label={`${'abcdef'[i % n]}${Math.floor(i / n) + 1}: ${stack.length ? `${fa(stack.length)} سنگ، بالایی ${kindName(stack.at(-1)!.t)} ${stack.at(-1)!.c === myColor ? 'شما' : 'حریف'}` : 'خالی'}${moveTargets.has(i) ? '، گذاشتن سنگ اینجا' : ''}`}
                 className={['tak-sq', lit ? 'tak-sq--lit' : '', moveTargets.has(i) ? 'tak-sq--drop' : '', sel?.from === i ? 'tak-sq--sel' : '', road.has(i) ? 'tak-sq--road' : '', isHint ? 'tak-sq--hint' : '',
                   last && ((last.t === 'place' && last.at === i) || (last.t === 'move' && last.from === i)) ? 'tak-sq--last' : ''].join(' ')}
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
@@ -202,7 +205,7 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
       </ZoomBoard>
 
       {tools}
-      {view.end && <p className="tak__end" role="status">{view.end.kind === 'road' ? 'جاده کامل شد!' : view.end.kind === 'flats' ? `شمارش سنگ‌های تخت: سفید ${fa(view.end.flats!.w)} — سیاه ${fa(view.end.flats!.b)}` : view.end.kind === 'resign' ? 'انصراف' : 'اتمام زمان'}</p>}
+      {view.end && <p className="tak__end" role="status">{view.end.kind === 'road' ? `${tx(terms.road)} کامل شد!` : view.end.kind === 'flats' ? `شمارش سنگ‌های تخت: سفید ${fa(view.end.flats!.w)} — سیاه ${fa(view.end.flats!.b)}` : view.end.kind === 'resign' ? 'انصراف' : 'اتمام زمان'}</p>}
     </div>
   );
 }

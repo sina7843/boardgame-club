@@ -6,3 +6,4 @@ export { Confetti } from './confetti.tsx';
 export { ZoomBoard } from './zoom.tsx';
 export { usePieceIds, useFresh, usePop } from './pieces.ts';
 export { DockSlot, DockSlotHost, RailSlot, RailSlotHost, FrameKindHost, useInFrame, type FrameKind } from './dock.tsx';
+export * from './terms.tsx';

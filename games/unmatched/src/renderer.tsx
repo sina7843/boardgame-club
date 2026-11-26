@@ -2,8 +2,9 @@
 // the server prompt, combat panel, own hand and event log. Shows only the projection; other hands are counts.
 import { cardPicture } from './card-art.ts';
 import './renderer.css';
+import { terms } from './terms.ts';
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, T, tx, type Term, useTermsLang, motionOff, useFlip, useInFrame, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
 import chArt_alice from './art/unmatched-ch-alice.png';
 import chArt_arthur from './art/unmatched-ch-arthur.png';
 import chArt_dracula from './art/unmatched-ch-dracula.png';
@@ -23,7 +24,8 @@ const HERO_ART: Record<string, string> = { alice: chArt_alice, arthur: chArt_art
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 type Hint = { type: string; [k: string]: unknown };
 
-const TYPE_FA: Record<CardDef['type'], string> = { attack: 'حمله', defense: 'دفاع', versatile: 'همه‌کاره', scheme: 'نقشه' };
+const TYPE_T: Record<CardDef['type'], Term> = { attack: terms.attack, defense: terms.defense, versatile: terms.versatile, scheme: terms.scheme };
+const typeName = (t: CardDef['type']) => tx(TYPE_T[t]);
 const TYPE_ICON: Record<CardDef['type'], string> = { attack: '✷', defense: '⛨', versatile: '✷⛨', scheme: 'ϟ' };
 const WHY_FA: Record<string, string> = {
   maneuver: 'مبارزانتان را یکی‌یکی جابه‌جا کنید',
@@ -120,7 +122,7 @@ function describe(e: LogEntry, view: UnmatchedView, seatName: (s: number) => str
     case 'place': return `${fn(e.fighter)} در خانه ${fa(e.to + 1)} قرار گرفت.`;
     case 'scheme': return `${fn(e.fighter)} نقشه «${slugName(view, seatOf(e.fighter), e.card)}» را بازی کرد.`;
     case 'attack': return `${fn(e.fighter)} به ${fn(e.target)} ${e.ranged ? 'از دور ' : ''}حمله کرد.`;
-    case 'reveal': return `کارت‌ها رو شد: حمله ${fa(e.aVal)} در برابر دفاع ${fa(e.dVal)}؛ ${e.damage ? `${fa(e.damage)} آسیب نبرد` : 'بدون آسیب نبرد'}${e.cancelA || e.cancelD ? ' (اثری لغو شد)' : ''}.`;
+    case 'reveal': return `کارت‌ها رو شد: ${tx(terms.attack)} ${fa(e.aVal)} در برابر ${tx(terms.defense)} ${fa(e.dVal)}؛ ${e.damage ? `${fa(e.damage)} آسیب نبرد` : 'بدون آسیب نبرد'}${e.cancelA || e.cancelD ? ' (اثری لغو شد)' : ''}.`;
     case 'damage': return `${fn(e.fighter)} ${fa(e.n)} آسیب دید.`;
     case 'heal': return `سلامتی ${fn(e.fighter)} به ${fa(e.to)} رسید.`;
     case 'defeated': return `${fn(e.fighter)} شکست خورد!`;
@@ -153,14 +155,15 @@ const heroColor = (view: UnmatchedView, seat: number) => HEROES[view.heroes[seat
 function UmCard({ view, card, state, onClick, hint, small, fan, flip, from, exit, extra }: {
   view: UnmatchedView; card: CardRef; state?: 'selected' | 'playable' | 'dim' | 'boost'; onClick?: () => void; hint?: boolean; small?: boolean; fan?: number; flip?: string; from?: string; exit?: string; extra?: string;
 }) {
+  useTermsLang();
   const d = cardDefOf(view, card);
   if (!d) return null;
   const pic = cardPicture(view.heroes[card.seat] ?? '', d.slug);
-  const label = `${d.nameFa}، ${TYPE_FA[d.type]}${d.value !== null ? ` ${fa(d.value)}` : ''}، تقویت ${fa(d.boost)}، ${bannerFa(view, card.seat, d)}${d.textFa ? `. ${d.textFa}` : ''}`;
+  const label = `${d.nameFa}، ${typeName(d.type)}${d.value !== null ? ` ${fa(d.value)}` : ''}، ${tx(terms.boost)} ${fa(d.boost)}، ${bannerFa(view, card.seat, d)}${d.textFa ? `. ${d.textFa}` : ''}`;
   const body = (
     <>
       <span className="um-card__top">
-        <span className="um-card__type"><span aria-hidden="true">{TYPE_ICON[d.type]}</span> {TYPE_FA[d.type]}</span>
+        <span className="um-card__type"><span aria-hidden="true">{TYPE_ICON[d.type]}</span> {typeName(d.type)}</span>
         {d.value !== null && <span className="um-card__value">{fa(d.value)}</span>}
       </span>
       {!small && (pic
@@ -169,7 +172,7 @@ function UmCard({ view, card, state, onClick, hint, small, fan, flip, from, exit
       <span className="um-card__name">{d.nameFa}</span>
       <span className="um-card__banner">{bannerFa(view, card.seat, d)}</span>
       {!small && d.textFa && <span className="um-card__text">{d.textFa}</span>}
-      <span className="um-card__boost" title="ارزش تقویت">{fa(d.boost)}</span>
+      <span className="um-card__boost" title={`ارزش ${tx(terms.boost)}`}>{fa(d.boost)}</span>
       <span className="um-card__sheen" aria-hidden="true" />
     </>
   );
@@ -397,6 +400,7 @@ function preview(v: UnmatchedView, me: number | null, q: GameAction | null | und
 // ---------- renderer ----------
 
 export default function UnmatchedRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<UnmatchedView>) {
+  useTermsLang();
   // Undo-window preview: my queued move walks the fighter, an attack / defence card leaves the hand for the combat
   // panel, a scheme card goes to the discard pile. Draws, effects and combat results wait for the server.
   const view = preview(served, mySeat, queued);
@@ -603,9 +607,9 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
                         <span className="um-hero__stats">
                           <span className="um-stat"><span aria-hidden="true">♥</span> سلامتی {fa(hero.hero.hp)}</span>
                           <span className="um-stat"><span aria-hidden="true">➜</span> حرکت {fa(hero.move)}</span>
-                          <span className="um-stat"><span aria-hidden="true">{hero.hero.ranged ? '➶' : '⚔'}</span> {hero.hero.ranged ? 'دوربرد' : 'نزدیک‌زن'}</span>
+                          <span className="um-stat"><span aria-hidden="true">{hero.hero.ranged ? '➶' : '⚔'}</span> <T t={hero.hero.ranged ? terms.ranged : terms.melee} /></span>
                         </span>
-                        <span>{hero.sidekick.count ? <>یاور: {hero.sidekick.nameFa}{hero.sidekick.count > 1 ? ` ×${fa(hero.sidekick.count)}` : ''} ({fa(hero.sidekick.hp)} سلامتی، {hero.sidekick.ranged ? 'دوربرد' : 'نزدیک‌زن'})</> : 'بدون یاور'}</span>
+                        <span>{hero.sidekick.count ? <><T t={terms.sidekick} />: {hero.sidekick.nameFa}{hero.sidekick.count > 1 ? ` ×${fa(hero.sidekick.count)}` : ''} ({fa(hero.sidekick.hp)} سلامتی، <T t={hero.sidekick.ranged ? terms.ranged : terms.melee} />)</> : 'بدون یاور'}</span>
                         <small>{hero.abilityFa}</small>
                       </button></Fragment>
                     );
@@ -623,10 +627,10 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
               {p.kind === 'action' && (
                 <>
                   <div className="um-actions" role="group" aria-label="اقدام‌ها">
-                    <Button disabled={busy} variant={exp?.type === 'maneuver' ? 'brand' : 'primary'} onClick={() => send({ type: 'maneuver' })}>مانور (کشیدن + حرکت)</Button>
-                    <Button disabled={busy || !schemes.length} variant={mode === 'scheme' ? 'brand' : 'secondary'} onClick={() => setMode(mode === 'scheme' ? null : 'scheme')}>نقشه{schemes.length ? '' : ' (کارتی نیست)'}</Button>
+                    <Button disabled={busy} variant={exp?.type === 'maneuver' ? 'brand' : 'primary'} onClick={() => send({ type: 'maneuver' })}><T t={terms.maneuver} /> (کشیدن + حرکت)</Button>
+                    <Button disabled={busy || !schemes.length} variant={mode === 'scheme' ? 'brand' : 'secondary'} onClick={() => setMode(mode === 'scheme' ? null : 'scheme')}><T t={terms.scheme} />{schemes.length ? '' : ' (کارتی نیست)'}</Button>
                     <Button disabled={busy || !attacks.length} variant={mode === 'attack' || exp?.type === 'attack' ? 'brand' : 'secondary'} onClick={() => { setMode(mode === 'attack' ? null : 'attack'); setSelFighter(null); setSelTarget(null); setSelCard(null); setSelBoost(null); }}>
-                      حمله{attacks.length ? '' : ' (هدفی نیست)'}
+                      <T t={terms.attack} />{attacks.length ? '' : ' (هدفی نیست)'}
                     </Button>
                   </div>
                   {mode === 'scheme' && (
@@ -817,6 +821,7 @@ function ChoiceList({ label, items, onPick, busy, selected, hint, compact }: {
  * Everything is public: opponents get the same card in a compact form (ability folded away), never their hand.
  */
 function PlayerPanel({ view, was, seat, me, name }: { view: UnmatchedView; was?: UnmatchedView; seat: number; me: boolean; name: string }) {
+  useTermsLang();
   const hero = HEROES[view.heroes[seat] ?? ''];
   const fighters = view.fighters.filter((f) => f.seat === seat);
   const turn = view.current === seat && !view.outcome && view.turnNo > 0;
@@ -845,13 +850,13 @@ function PlayerPanel({ view, was, seat, me, name }: { view: UnmatchedView; was?:
               {lead && <HpDial f={lead} name={fighterName(view, lead.id)} big />}
               <div className="um-hc__facts">
                 <span className="um-hc__fact"><span aria-hidden="true">➜</span>حرکت <b>{fa(hero.move)}</b></span>
-                <span className="um-hc__fact"><span aria-hidden="true">{hero.hero.ranged ? '➶' : '⚔'}</span>{hero.hero.ranged ? 'دوربرد' : 'نزدیک‌زن'}</span>
+                <span className="um-hc__fact"><span aria-hidden="true">{hero.hero.ranged ? '➶' : '⚔'}</span><T t={hero.hero.ranged ? terms.ranged : terms.melee} /></span>
                 {notes.length > 0 && <span className="um-hc__note">{notes.join('، ')}</span>}
               </div>
             </div>
             {kicks.length > 0 && (
               <div className="um-hc__kicks">
-                <small>یاور: {hero.sidekick.nameFa}، {hero.sidekick.ranged ? 'دوربرد' : 'نزدیک‌زن'}</small>
+                <small><T t={terms.sidekick} />: {hero.sidekick.nameFa}، <T t={hero.sidekick.ranged ? terms.ranged : terms.melee} /></small>
                 <ul className="um-hp">{kicks.map((f) => <li key={f.id}><HpDial f={f} name={fighterName(view, f.id)} /></li>)}</ul>
               </div>
             )}
@@ -860,8 +865,8 @@ function PlayerPanel({ view, was, seat, me, name }: { view: UnmatchedView; was?:
             : <details className="um-hc__ability"><summary>توانایی ویژه</summary><p>{hero.abilityFa}</p></details>}
           <div className="um-player__counts">
             <span className="um-stackc"><i className="um-stackc__ic um-stackc__ic--hand" aria-hidden="true" />دست <b key={counts.hand} className={pop(counts.hand, was?.handCounts[seat])}>{fa(counts.hand)}</b></span>
-            <span className="um-stackc" data-flip-anchor={`deck-${seat}`}><i className="um-stackc__ic um-stackc__ic--deck" aria-hidden="true" />دسته <b key={counts.deck} className={pop(counts.deck, was?.deckCounts[seat])}>{fa(counts.deck)}</b>{counts.deck === 0 ? ' (خسته!)' : ''}</span>
-            <span className="um-stackc" data-flip-anchor={`discard-${seat}`}><i className="um-stackc__ic um-stackc__ic--discard" aria-hidden="true" />دورریخته <b key={counts.discard} className={pop(counts.discard, was?.discards[seat]?.length)}>{fa(counts.discard)}</b></span>
+            <span className="um-stackc" data-flip-anchor={`deck-${seat}`}><i className="um-stackc__ic um-stackc__ic--deck" aria-hidden="true" /><T t={terms.deck} /> <b key={counts.deck} className={pop(counts.deck, was?.deckCounts[seat])}>{fa(counts.deck)}</b>{counts.deck === 0 ? ' (خسته!)' : ''}</span>
+            <span className="um-stackc" data-flip-anchor={`discard-${seat}`}><i className="um-stackc__ic um-stackc__ic--discard" aria-hidden="true" /><T t={terms.discard} /> <b key={counts.discard} className={pop(counts.discard, was?.discards[seat]?.length)}>{fa(counts.discard)}</b></span>
           </div>
         </div>
       ) : <div className="um-hc__body um-muted">در حال انتخاب قهرمان…</div>}
@@ -904,6 +909,7 @@ function HeroGallery({ view, pick, hint, busy }: { view: UnmatchedView; pick?: (
 }
 
 function CombatPanel({ view, mySeat }: { view: UnmatchedView; mySeat: number | null }) {
+  useTermsLang();
   const c = view.combat!;
   const fn = (f: string) => fighterName(view, f);
   const aSeat = Number(c.attacker[0]);
@@ -917,27 +923,28 @@ function CombatPanel({ view, mySeat }: { view: UnmatchedView; mySeat: number | n
       <div className="um-combat__row">
         <div className="um-combat__side">
           {stand(c.attacker)}
-          <span className="um-muted">حمله</span>
+          <span className="um-muted"><T t={terms.attack} /></span>
           {c.aCard ? <UmCard view={view} card={c.aCard} small flip={fid('play-a', aSeat, c.aCard)} from={`seat-${aSeat}`} exit={`discard-${aSeat}`} extra={aSeat === mySeat ? '' : 'bg-flip-in'} /> : <CardBack label="کارت حمله رو به پایین" flip="play-a" from={`seat-${aSeat}`} exit={`discard-${aSeat}`} {...back(aSeat)} />}
-          {c.hasBoost && (c.boost ? <span className="um-combat__boost">تقویت: <UmCard view={view} card={c.boost} small flip={fid('play-b', aSeat, c.boost)} from={`seat-${aSeat}`} exit={`discard-${aSeat}`} extra={aSeat === mySeat ? '' : 'bg-flip-in'} /></span> : <CardBack label="کارت تقویت رو به پایین" flip="play-b" from={`seat-${aSeat}`} exit={`discard-${aSeat}`} {...back(aSeat)} />)}
+          {c.hasBoost && (c.boost ? <span className="um-combat__boost"><T t={terms.boost} />: <UmCard view={view} card={c.boost} small flip={fid('play-b', aSeat, c.boost)} from={`seat-${aSeat}`} exit={`discard-${aSeat}`} extra={aSeat === mySeat ? '' : 'bg-flip-in'} /></span> : <CardBack label="کارت تقویت رو به پایین" flip="play-b" from={`seat-${aSeat}`} exit={`discard-${aSeat}`} {...back(aSeat)} />)}
         </div>
         <span className="um-vs" aria-hidden="true"><span>VS</span></span>
         <div className="um-combat__side">
           {stand(c.defender)}
-          <span className="um-muted">دفاع</span>
+          <span className="um-muted"><T t={terms.defense} /></span>
           {c.dCard ? <UmCard view={view} card={c.dCard} small flip={fid('play-d', c.dSeat, c.dCard)} from={`seat-${c.dSeat}`} exit={`discard-${c.dSeat}`} extra={c.dSeat === mySeat ? '' : 'bg-flip-in'} /> : c.defended ? (c.revealed ? <span className="um-muted">بدون کارت دفاع</span> : <CardBack label="کارت دفاع رو به پایین" flip="play-d" from={`seat-${c.dSeat}`} exit={`discard-${c.dSeat}`} {...back(c.dSeat)} />) : <span className="um-muted">{c.dSeat === mySeat ? 'انتخاب کنید…' : 'مدافع در حال انتخاب…'}</span>}
         </div>
         {c.aVal !== null && <span className="um-combat__dmg" aria-hidden="true">{(c.damage ?? 0) > 0 ? `−${fa(c.damage ?? 0)}` : '۰'}</span>}
       </div>
-      {c.aVal !== null && <p className="um-combat__result">حمله {fa(c.aVal)} − دفاع {fa(c.dVal ?? 0)} = <strong>{fa(c.damage ?? 0)} آسیب</strong>، {c.won === 'a' ? 'مهاجم برد' : 'مدافع برد'}</p>}
+      {c.aVal !== null && <p className="um-combat__result"><T t={terms.attack} /> {fa(c.aVal)} − <T t={terms.defense} /> {fa(c.dVal ?? 0)} = <strong>{fa(c.damage ?? 0)} آسیب</strong>، {c.won === 'a' ? 'مهاجم برد' : 'مدافع برد'}</p>}
     </section>
   );
 }
 
 function LastCombat({ e }: { e: Extract<LogEntry, { t: 'reveal' }> }) {
+  useTermsLang();
   return (
     <section className="um-panel um-panel--quiet" aria-label="آخرین نبرد">
-      <p>آخرین نبرد: حمله {fa(e.aVal)} در برابر دفاع {fa(e.dVal)} — {e.damage ? `${fa(e.damage)} آسیب` : 'بدون آسیب'}.</p>
+      <p>آخرین نبرد: <T t={terms.attack} /> {fa(e.aVal)} در برابر <T t={terms.defense} /> {fa(e.dVal)} — {e.damage ? `${fa(e.damage)} آسیب` : 'بدون آسیب'}.</p>
     </section>
   );
 }

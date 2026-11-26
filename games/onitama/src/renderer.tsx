@@ -3,7 +3,8 @@
 // card first narrows the targets to that card.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePieceIds, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePieceIds, usePrevious, useTermsLang, tx, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 // Board, pieces and cards: design/games/group-a/art/onitama, copied as-is (the design ships 7 of the 16 card faces).
 import rM from './art/onitama-red-master.png';
 import rS from './art/onitama-red-student.png';
@@ -36,6 +37,7 @@ function preview(v: OnitamaView, seat: number, q: GameRendererProps<OnitamaView>
 }
 
 export default function OnitamaRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<OnitamaView>) {
+  useTermsLang(); // re-render when the terms language changes
   const framed = useInFrame() !== null; // the shell draws players, clocks, whose-turn and the move log
   const me = mySeat ?? 0;
   // Undo window: my move (piece, capture, card swap) shows at once; undo clears `queued` and it all glides back.
@@ -83,7 +85,7 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
     : view.current === mySeat
       ? { tone: 'mine' as const, text: passes.length ? 'حرکتی ممکن نیست: یک کارت را عوض کنید' : from === null ? 'نوبت شما: یک مهره را بزنید' : 'یک خانه روشن را بزنید' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
-  const endText = view.end && { stone: 'استاد زده شد (راه سنگ)', stream: 'استاد به معبد رسید (راه رود)', resign: 'انصراف', timeout: 'اتمام زمان', repetition: 'تکرار سه‌باره — مساوی' }[view.end.kind];
+  const endText = view.end && { stone: `${tx(terms.master)} زده شد (${tx(terms.wayStone)})`, stream: `${tx(terms.master)} به ${tx(terms.temple)} رسید (${tx(terms.wayStream)})`, resign: 'انصراف', timeout: 'اتمام زمان', repetition: 'تکرار سه‌باره — مساوی' }[view.end.kind];
 
   // Rail card «استاد / شاگرد» (reference): my piece art and the students left on each side.
   const mine = (t: 'M' | 'S') => `${me === 0 ? 'r' : 'b'}${t}` as Piece;
@@ -96,10 +98,10 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
         <RailSlot>
           <p>{view.current === mySeat && !view.outcome
             ? <>اول <b>یک مهره</b> و بعد یک خانهٔ روشن را بزنید، یا اول <b>کارت</b> را بزنید تا فقط حرکت‌های همان کارت پیدا شود.</>
-            : <>برنده کسی است که <b>استاد حریف را بزند</b> یا استاد خود را به <b>معبد حریف</b> برساند.</>}</p>
+            : <>برنده کسی است که <b>{tx(terms.master)} حریف را بزند</b> یا {tx(terms.master)} خود را به <b>{tx(terms.temple)} حریف</b> برساند.</>}</p>
           <div className="oni-kinds">
-            <div><img src={ART[mine('M')]} alt="" /><span><b>استاد</b>زدنش یعنی برد</span></div>
-            <div><img src={ART[mine('S')]} alt="" /><span><b>شاگرد</b>{fa(students(me))} شاگرد شما<span className="oni-sep" aria-hidden />{fa(students(1 - me))} شاگرد حریف</span></div>
+            <div><img src={ART[mine('M')]} alt="" /><span><b>{tx(terms.master)}</b>زدنش یعنی برد</span></div>
+            <div><img src={ART[mine('S')]} alt="" /><span><b>{tx(terms.student)}</b>{fa(students(me))} {tx(terms.student)} شما<span className="oni-sep" aria-hidden />{fa(students(1 - me))} {tx(terms.student)} حریف</span></div>
           </div>
         </RailSlot>
       )}
@@ -122,7 +124,7 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
               const isHint = hint && (from === null ? hint.from === i : hint.to === i);
               return (
                 <g key={i} role="gridcell" tabIndex={isSrc || tg.length ? 0 : -1}
-                  aria-label={`${'abcde'[i % 5]}${Math.floor(i / 5) + 1}${view.board[i] ? `: ${pieceFa(view.board[i]!, me)}` : ''}${tg.length ? `، مقصد با ${tg.map((m) => cardById(m.card).nameFa).join(' یا ')}` : isSrc ? '، قابل حرکت' : ''}`}
+                  aria-label={`${'abcde'[i % 5]}${Math.floor(i / 5) + 1}${view.board[i] ? `: ${pieceFa(view.board[i]!, me)}` : ''}${tg.length ? `، مقصد با ${tg.map((m) => cardName(m.card)).join(' یا ')}` : isSrc ? '، قابل حرکت' : ''}`}
                   className={['oni-sq', isSrc ? 'oni-sq--src' : '', from === i ? 'oni-sq--sel' : '', isHint ? 'oni-sq--hint' : ''].join(' ')}
                   onClick={() => tapSquare(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapSquare(i); } }}>
                   <rect x={x - S / 2} y={y - S / 2} width={S} height={S} fill="transparent" />
@@ -163,12 +165,12 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
       {choice && (
         <div className="oni__choice" role="group" aria-label="کدام کارت؟">
           <span>با کدام کارت؟</span>
-          {choice.map((m) => <Button key={m.card} size="sm" disabled={busy} onClick={() => go(m)}>{cardById(m.card).nameFa}</Button>)}
+          {choice.map((m) => <Button key={m.card} size="sm" disabled={busy} onClick={() => go(m)}>{cardName(m.card)}</Button>)}
         </div>
       )}
       {passes.length > 0 && (
         <div className="oni__choice" role="group" aria-label="عوض کردن کارت">
-          {passes.map((id) => <Button key={id} size="sm" disabled={busy} onClick={() => onAction({ type: 'pass', card: id })}>عوض کردن «{cardById(id).nameFa}»</Button>)}
+          {passes.map((id) => <Button key={id} size="sm" disabled={busy} onClick={() => onAction({ type: 'pass', card: id })}>عوض کردن «{cardName(id)}»</Button>)}
         </div>
       )}
       {endText && <p className="oni__end" role="status">{endText}</p>}
@@ -176,7 +178,8 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
   );
 }
 
-const pieceFa = (p: Piece, me: number) => `${(p[0] === 'r') === (me === 0) ? 'شما' : 'حریف'} — ${p[1] === 'M' ? 'استاد' : 'شاگرد'}`;
+const cardName = (id: string) => { const c = cardById(id); return tx({ fa: c.nameFa, bg: c.nameEn }); };
+const pieceFa = (p: Piece, me: number) => `${(p[0] === 'r') === (me === 0) ? 'شما' : 'حریف'} — ${p[1] === 'M' ? tx(terms.master) : tx(terms.student)}`;
 
 const ART: Record<Piece, string> = { rM, rS, bM, bS };
 
@@ -186,16 +189,17 @@ function Token({ x, y, p }: { x: number; y: number; p: Piece }) {
 }
 
 function MoveCard({ id, upside, selectable, selected, onSelect }: { id: string; upside?: boolean; selectable?: boolean; selected?: boolean; onSelect?: () => void }) {
+  useTermsLang();
   const c = cardById(id);
   const art = CARD_ART[id];
   const body = art ? (
     <>
       <img src={art} alt="" draggable={false} />
-      <span className="oni-card__cap">{c.nameFa}</span>
+      <span className="oni-card__cap">{tx({ fa: c.nameFa, bg: c.nameEn })}</span>
     </>
-  ) : <strong className="oni-card__name">{c.nameFa}</strong>;
+  ) : <strong className="oni-card__name">{tx({ fa: c.nameFa, bg: c.nameEn })}</strong>;
   const cls = ['oni-card', art ? 'oni-card--art' : '', upside && art ? 'oni-card--upside' : '', selected ? 'oni-card--sel' : ''].join(' ');
-  const label = `کارت ${c.nameFa}: ${c.moves.map(([dx, dy]) => `${dy > 0 ? `${dy} جلو` : dy < 0 ? `${-dy} عقب` : ''}${dx ? ` ${Math.abs(dx)} ${dx > 0 ? 'راست' : 'چپ'}` : ''}`.trim()).join('، ')}`;
+  const label = `کارت ${tx({ fa: c.nameFa, bg: c.nameEn })}: ${c.moves.map(([dx, dy]) => `${dy > 0 ? `${dy} جلو` : dy < 0 ? `${-dy} عقب` : ''}${dx ? ` ${Math.abs(dx)} ${dx > 0 ? 'راست' : 'چپ'}` : ''}`.trim()).join('، ')}`;
   return selectable
     ? <button type="button" data-flip={`card-${id}`} className={cls} aria-pressed={selected} aria-label={label} onClick={onSelect}>{body}</button>
     : <div data-flip={`card-${id}`} className={cls} role="img" aria-label={label}>{body}</div>;

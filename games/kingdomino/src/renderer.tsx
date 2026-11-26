@@ -3,7 +3,8 @@
 // Rotate the domino, tap where its first half goes, choose your next domino, confirm.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useInFrame, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, T, tx, type Term, useTermsLang, useInFrame, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
+import { terms } from './terms.ts';
 import { DIRS, DOMINOES, canPlace, scoreKingdom, type Cell, type Half, type KingdominoView, type Terrain } from './rules.ts';
 
 import d01 from './art/kingdomino-d01.png';
@@ -51,13 +52,15 @@ const DOM_ART: Record<number, string> = { 1: d01, 2: d02, 3: d03, 4: d04, 7: d07
 const CASTLE = [castlePink, castleBlue, castleOrange, castleGreen];
 const KING = [kingPink, kingBlue, kingOrange, kingGreen];
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const TERRAIN_FA: Record<Terrain | 'C', string> = { W: 'گندم‌زار', F: 'جنگل', L: 'دریاچه', G: 'چمنزار', S: 'باتلاق', M: 'معدن', C: 'قلعه' };
+const TERRAIN_T: Record<Terrain | 'C', Term> = { W: terms.wheat, F: terms.forest, L: terms.lake, G: terms.grassland, S: terms.swamp, M: terms.mine, C: terms.castle };
+export const TERRAIN_FA = (t: Terrain | 'C') => tx(TERRAIN_T[t]);
 const SEAT = ['#d1495b', '#2f80c9', '#e0a526', '#8e5bd1'];
 
 export function Square({ cell, size = 'md', seat }: { cell: Cell | Half | null; size?: 'sm' | 'md'; seat?: number }) {
+  useTermsLang();
   if (!cell) return <span className={`kd-sq kd-sq--${size} kd-sq--empty`} />;
   return (
-    <span className={`kd-sq kd-sq--${size} kd-t--${cell.t}`} aria-label={`${TERRAIN_FA[cell.t]}${cell.c ? `، ${fa(cell.c)} تاج` : ''}`}>
+    <span className={`kd-sq kd-sq--${size} kd-t--${cell.t}`} aria-label={`${TERRAIN_FA(cell.t)}${cell.c ? `، ${fa(cell.c)} ${tx(terms.crown)}` : ''}`}>
       {cell.t === 'C' ? <img className="kd-castle-img" src={CASTLE[(seat ?? 0) % 4]} alt="" draggable={false} />
         : cell.c > 0 && <span className="kd-crowns">{Array.from({ length: cell.c }, (_, i) => <i key={i} />)}</span>}
     </span>
@@ -65,12 +68,14 @@ export function Square({ cell, size = 'md', seat }: { cell: Cell | Half | null; 
 }
 
 export function Domino({ dom, size = 'md' }: { dom: number; size?: 'sm' | 'md' }) {
+  useTermsLang();
   const [a, b] = DOMINOES[dom]!;
-  if (DOM_ART[dom + 1]) return <span className={`kd-dom kd-dom--img kd-dom--${size}`} aria-label={`دومینو ${fa(dom + 1)}`}><img src={DOM_ART[dom + 1]} alt="" draggable={false} /><b className="kd-dom__n">{fa(dom + 1)}</b></span>;
+  if (DOM_ART[dom + 1]) return <span className={`kd-dom kd-dom--img kd-dom--${size}`} aria-label={`${tx(terms.domino)} ${fa(dom + 1)}`}><img src={DOM_ART[dom + 1]} alt="" draggable={false} /><b className="kd-dom__n">{fa(dom + 1)}</b></span>;
   return <span className={`kd-dom kd-dom--${size}`}><Square cell={a} size={size} /><Square cell={b} size={size} /><b className="kd-dom__n">{fa(dom + 1)}</b></span>;
 }
 
 function Kingdom({ id, k, was, from, big, onCell, ok, preview, hint }: { id: string; k: (Cell | null)[][]; was?: (Cell | null)[][]; from?: string; big?: boolean; onCell?: (r: number, c: number) => void; ok?: Set<string>; preview?: Map<string, Half>; hint?: [number, number] | null }) {
+  useTermsLang();
   let n = 0;
   // The kingdom may only span 5×5: cells that can no longer fall inside that frame are printed faded.
   let r0 = 9, r1 = -1, c0 = 9, c1 = -1;
@@ -91,7 +96,7 @@ function Kingdom({ id, k, was, from, big, onCell, ok, preview, hint }: { id: str
   };
   [w0, w1] = pad(w0, w1); [x0, x1] = pad(x0, x1);
   return (
-    <div className={`kd-kingdom ${big ? 'kd-kingdom--big' : ''}`} style={{ gridTemplateColumns: `repeat(${x1 - x0 + 1}, auto)` }} role={onCell ? 'group' : undefined} aria-label="سرزمین ۵×۵">
+    <div className={`kd-kingdom ${big ? 'kd-kingdom--big' : ''}`} style={{ gridTemplateColumns: `repeat(${x1 - x0 + 1}, auto)` }} role={onCell ? 'group' : undefined} aria-label={`${tx(terms.kingdom)} ۵×۵`}>
       {k.map((row, r) => row.map((cell, c) => {
         if (r < w0 || r > w1 || c < x0 || c > x1) return null;
         const key = `${r},${c}`;
@@ -132,6 +137,7 @@ function withQueued(view: KingdominoView, me: number, q: Queued): KingdominoView
 }
 
 export default function KingdominoRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<KingdominoView>) {
+  useTermsLang();
   const me = mySeat ?? 0;
   const q = mySeat === null ? null : (queued as Queued);
   const view = withQueued(real, me, q);
@@ -168,8 +174,8 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : pickHint ? { tone: 'mine' as const, text: 'یک دومینو از ردیف بعد انتخاب کنید' }
-      : playHint ? { tone: 'mine' as const, text: playHint.canPlace ? (at ? (needSlot && slot === null ? 'دومینوی بعدی‌تان را انتخاب کنید' : 'تأیید کنید') : 'بچرخانید و جای نیمهٔ اول را بزنید') : 'این دومینو جا نمی‌شود: دور بیندازید' }
+    : pickHint ? { tone: 'mine' as const, text: `یک ${tx(terms.domino)} از ردیف بعد انتخاب کنید` }
+      : playHint ? { tone: 'mine' as const, text: playHint.canPlace ? (at ? (needSlot && slot === null ? `${tx(terms.dominoOf)} بعدی‌تان را انتخاب کنید` : 'تأیید کنید') : 'بچرخانید و جای نیمهٔ اول را بزنید') : `این ${tx(terms.domino)} جا نمی‌شود: دور بیندازید` }
         : { tone: 'wait' as const, text: `نوبت ${view.actor === null ? '' : who(view.actor)}` };
   const send = () => {
     if (!playHint || busy) return;
@@ -198,19 +204,19 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
   const framed = useInFrame() !== null;
   return (
     <div className={framed ? 'kd kd--framed' : 'kd'} data-seq={view.seq} ref={root}>
-      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>دومینو را کنار زمین‌های هم‌نوع بگذارید (یا کنار قلعه)؛ سرزمین ۵ در ۵ است. امتیاز هر ناحیه خانه‌ها ضربدر تاج‌هاست.</p></RailSlot>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p><T t={terms.domino} /> را کنار زمین‌های هم‌نوع بگذارید (یا کنار <T t={terms.castle} />)؛ <T t={terms.kingdom} /> ۵ در ۵ است. امتیاز هر ناحیه خانه‌ها ضربدر <T t={terms.crown} />‌هاست.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!view.outcome && (
-        <section className="kd__lines" aria-label="دومینوها">
+        <section className="kd__lines" aria-label={`${tx(terms.domino)}ها`}>
           {view.phase === 'play' && line(view.current, 'cur')}
           {view.next.length > 0 && line(view.next, 'next')}
-          <span className="kd__deck" data-flip-anchor="deck">{fa(view.deckCount)} دومینو در کیسه</span>
+          <span className="kd__deck" data-flip-anchor="deck">{fa(view.deckCount)} <T t={terms.domino} /> در کیسه</span>
         </section>
       )}
 
       {playHint && (
         <div className="kd__tools">
-          {framed && <small className="kd__mine-label">دومینوی شما</small>}
+          {framed && <small className="kd__mine-label"><T t={terms.dominoOf} /> شما</small>}
           <span className="kd__mine"><Domino dom={playHint.dom} /></span>
           {framed ? (
             <DockSlot>
@@ -243,6 +249,7 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
 
 /** A player's kingdom as it lies on the table: the castle in the player's colour, the 5×5 frame, and the tally of crowns. */
 function Realm({ s, name, k, me, turn, place, children }: { s: number; name: string; k: (Cell | null)[][]; me?: boolean; turn: boolean; place?: number; children: ReactNode }) {
+  useTermsLang();
   // Rivals' kingdoms start folded on phones (tap to open); the tally stays visible.
   const [open, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
   const framed = useInFrame() !== null;
@@ -250,19 +257,19 @@ function Realm({ s, name, k, me, turn, place, children }: { s: number; name: str
   const filled = k.flat().filter((x) => x && x.t !== 'C').length;
   return (
     <section className={['kd-player', me ? 'kd-player--me' : '', turn ? 'kd-player--turn' : '', place === 1 ? 'kd-player--win' : ''].join(' ')} style={{ ['--seat' as string]: SEAT[s % 4] }}
-      aria-label={me ? 'سرزمین شما' : `سرزمین ${name}`} data-flip-anchor={`realm-${s}`}>
+      aria-label={me ? `${tx(terms.kingdom)} شما` : `${tx(terms.kingdom)} ${name}`} data-flip-anchor={`realm-${s}`}>
       <div className="kd-player__head">
         <img className="kd-king" data-flip-anchor={`seat-${s}`} src={KING[s % 4]} alt="" aria-hidden="true" draggable={false} />
         <bdi>{name}</bdi>
         {!framed && turn && <span className="kd-player__turn">در نوبت</span>}
         {!framed && place !== undefined && <span className="kd-player__place">رتبهٔ {fa(place)}</span>}
         {!framed && <Score v={sc.total} suffix=" امتیاز" />}
-        {!me && <button type="button" className="kd-player__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن سرزمین ${name}` : `باز کردن سرزمین ${name}`}>{open ? '▴' : '▾'}</button>}
+        {!me && <button type="button" className="kd-player__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن ${tx(terms.kingdom)} ${name}` : `باز کردن ${tx(terms.kingdom)} ${name}`}>{open ? '▴' : '▾'}</button>}
       </div>
       {open && children}
       {!framed && <ul className="kd-tally" aria-label="شمارش">
-        <li title="تاج‌ها"><span className="kd-crowns kd-crowns--tally" aria-hidden="true"><i /></span>تاج <b>{fa(sc.crowns)}</b></li>
-        <li title="بزرگ‌ترین ناحیه">بزرگ‌ترین ناحیه <b>{fa(sc.largest)}</b></li>
+        <li title={`${tx(terms.crown)}‌ها`}><span className="kd-crowns kd-crowns--tally" aria-hidden="true"><i /></span><T t={terms.crown} /> <b>{fa(sc.crowns)}</b></li>
+        <li title={tx(terms.largestArea)}><T t={terms.largestArea} /> <b>{fa(sc.largest)}</b></li>
         <li title="خانه‌های پر از ۲۴">زمین <b>{fa(filled)}/۲۴</b></li>
       </ul>}
     </section>

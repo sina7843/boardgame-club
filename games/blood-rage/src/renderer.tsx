@@ -4,7 +4,8 @@
 // «ثبت». The renderer computes no rules: targets, costs and effects come from `legalActions` (ENGINE.md §9).
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { RailSlot, type GameAction, type GameRendererProps } from '@bg/ui';
+import { RailSlot, tx, useTermsLang, type GameAction, type GameRendererProps, type Term } from '@bg/ui';
+import { terms } from './terms.ts';
 import IDS from './content/content-id-map.json' with { type: 'json' };
 import { CARD_BY_NUM, CLANS, FJORDS as C_FJORDS, MAP_SIZE, PROVINCES as C_PROV, SLOTS, ART_OF_DEF, RAGNAROK_GLORY } from './content/index.ts';
 import { CARD_BY_ID } from './data.ts';
@@ -15,7 +16,9 @@ const ART = import.meta.glob<string>('./art/**/*.webp', { eager: true, import: '
 const art = (path: string) => ART[`./art/${path}`] ?? '';
 // ponytail: one module-level language (one Blood Rage table per page); move to a React context if two tables ever share a page.
 let LANG: 'fa' | 'en' = 'fa';
-const t = (faText: string, en: string) => (LANG === 'en' ? en : faText);
+// «فارسی بردگیمی»: a Persian term that has an entry in ./terms.ts shows its Latin name (exact match only; sentences stay Persian).
+const TERM_BY_FA = new Map<string, Term>(Object.values(terms).map((x) => [x.fa, x]));
+const t = (faText: string, en: string) => (LANG === 'en' ? en : TERM_BY_FA.has(faText) ? tx(TERM_BY_FA.get(faText)!) : faText);
 const fa = (n: number) => (LANG === 'en' ? String(n) : n.toLocaleString('fa-IR', { useGrouping: Math.abs(n) >= 1000 }).replace(/٬/g, ','));
 const SLUG = (clan: number) => CLANS.find((c) => c.id === clan)?.slug ?? 'wolf';
 const CLAN_FA = (clan: number) => { const c = CLANS.find((x) => x.id === clan); return (LANG === 'en' ? c?.nameEn : c?.nameFa) ?? ''; };
@@ -120,6 +123,7 @@ type Mode =
 type H = GameAction & { [k: string]: unknown };
 
 export default function BloodRageRenderer({ view: v, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<BloodRageView>) {
+  useTermsLang(); // re-render when the terms language changes (module-level helpers read it through tx)
   const hints = legalActions as H[];
   const [mode, setMode] = useState<Mode | null>(null);
   const [open, setOpen] = useState<string | null>(null);

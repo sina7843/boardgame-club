@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { DEFAULT_ALERT_PREFS, type AlertPrefs } from '@bg/contracts';
+import { setTermsLang } from '@bg/ui';
 import { api } from './api.ts';
 
 /** Per-device display preferences (localStorage). Game sounds read `muted` once they exist (DRAGON-01). */
@@ -9,10 +10,12 @@ export interface Prefs {
   muted: boolean;
   /** Undo window for a move before it is sent (ms as text); 'off' sends at once. */
   undo: 'off' | '500' | '1000' | '2000';
+  /** Game terms inside tables: 'fa' = Persian words, 'fa-bg' = «فارسی بردگیمی» (Latin board-game terms). */
+  terms: 'fa' | 'fa-bg';
 }
 
 const KEY = 'bg.prefs';
-const DEFAULTS: Prefs = { theme: 'system', motion: 'system', muted: false, undo: '500' };
+const DEFAULTS: Prefs = { theme: 'system', motion: 'system', muted: false, undo: '500', terms: 'fa' };
 const THEME_COLOR = { light: '#142B3B', dark: '#142B3B' }; // ds-check-ignore: <meta theme-color> needs literal hex (design/brand/LOGO-USAGE.md)
 const DARK = '(prefers-color-scheme: dark)';
 
@@ -23,7 +26,8 @@ export function readPrefs(raw: string | null): Prefs {
       theme: p.theme === 'light' || p.theme === 'dark' ? p.theme : 'system',
       motion: p.motion === 'reduce' || p.motion === 'full' ? p.motion : 'system',
       muted: p.muted === true,
-      undo: p.undo === 'off' || p.undo === '1000' || p.undo === '2000' ? p.undo : '500'
+      undo: p.undo === 'off' || p.undo === '1000' || p.undo === '2000' ? p.undo : '500',
+      terms: p.terms === 'fa-bg' ? 'fa-bg' : 'fa'
     };
   } catch {
     return DEFAULTS;
@@ -31,6 +35,7 @@ export function readPrefs(raw: string | null): Prefs {
 }
 
 function apply(p: Prefs): void {
+  setTermsLang(p.terms);
   const root = document.documentElement;
   // BGV tokens switch only on data-theme, so "system" resolves the device scheme (kept live by PrefsProvider).
   root.dataset.theme = p.theme === 'system' ? (matchMedia(DARK).matches ? 'dark' : 'light') : p.theme;

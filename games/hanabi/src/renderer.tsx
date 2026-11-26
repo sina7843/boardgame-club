@@ -3,7 +3,7 @@
 // teammate's card to give a colour or number clue, or one of your cards to play or discard it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, T, TurnIndicator, tx, useFlip, useInFrame, usePop, useTermsLang, type GameAction, type GameRendererProps } from '@bg/ui';
 import fwR from './art/fw-red.webp';
 import fwY from './art/fw-yellow.webp';
 import fwG from './art/fw-green.webp';
@@ -33,6 +33,7 @@ import d_y4 from './art/hanabi-y4.png';
 import d_y5 from './art/hanabi-y5.png';
 
 import cardsArt from './art/cards.webp';
+import { terms } from './terms.ts';
 import { CARDS, COLORS, type Color, type HanabiView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -56,6 +57,7 @@ export function Firework({ c, n, size = 'md' }: { c: Color; n: number | null; si
 }
 
 export default function HanabiRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction: send, expected, queued }: GameRendererProps<HanabiView>) {
+  useTermsLang(); // re-render when the terms language changes
   const me = mySeat ?? -1;
   // My card being played or discarded (undo window, or sent and not answered yet) leaves my hand face down at once;
   // whether it fits a firework is only known from the server's answer. Undo brings it back.
@@ -106,7 +108,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
-    : myTurn ? { tone: 'mine' as const, text: view.finalLeft !== null ? `دسته تمام شد: ${fa(view.finalLeft)} نوبت مانده` : 'سرنخ بدهید، کارت بازی کنید یا دور بیندازید' }
+    : myTurn ? { tone: 'mine' as const, text: view.finalLeft !== null ? `دسته تمام شد: ${fa(view.finalLeft)} نوبت مانده` : `${tx(terms.clue)} بدهید، کارت بازی کنید یا دور بیندازید` }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const last = view.last;
   const framed = useInFrame() !== null;
@@ -121,15 +123,15 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
     <div className="hb" ref={root} data-seq={served.seq}>
       {framed && (
         <RailSlot>
-          <p>سرنخ فقط رنگ یا عدد کارت‌های هم‌تیمی را نشان می‌دهد و یک ژتون خرج می‌کند؛ کارت‌های خودتان را نمی‌بینید.{view.finalLeft !== null ? ` دسته تمام شد؛ ${fa(view.finalLeft)} نوبت مانده.` : ''}</p>
+          <p><T t={terms.clue} /> فقط رنگ یا عدد کارت‌های هم‌تیمی را نشان می‌دهد و یک ژتون خرج می‌کند؛ کارت‌های خودتان را نمی‌بینید.{view.finalLeft !== null ? ` دسته تمام شد؛ ${fa(view.finalLeft)} نوبت مانده.` : ''}</p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="hb__sky" aria-label="آتش‌بازی‌ها">
         <div className="hb__tokens">
-          <span className={`hb__clues ${cluePop}`} key={`c${view.clues}`} aria-label={`${fa(view.clues)} ژتون سرنخ`}>{Array.from({ length: 8 }, (_, i) => <img key={i} src={clue} alt="" className={i < view.clues ? 'on' : ''} />)}</span>
-          <span className={last?.kind === 'play' && !last.ok ? 'hb__fuses bg-hit' : 'hb__fuses'} key={`f${view.fuses}`} aria-label={`${fa(view.fuses)} فیوز`}>{Array.from({ length: 3 }, (_, i) => <img key={i} src={fuse} alt="" className={i < view.fuses ? 'on' : ''} />)}</span>
+          <span className={`hb__clues ${cluePop}`} key={`c${view.clues}`} aria-label={`${fa(view.clues)} ژتون ${tx(terms.clue)}`}>{Array.from({ length: 8 }, (_, i) => <img key={i} src={clue} alt="" className={i < view.clues ? 'on' : ''} />)}</span>
+          <span className={last?.kind === 'play' && !last.ok ? 'hb__fuses bg-hit' : 'hb__fuses'} key={`f${view.fuses}`} aria-label={`${fa(view.fuses)} ${tx(terms.fuse)}`}>{Array.from({ length: 3 }, (_, i) => <img key={i} src={fuse} alt="" className={i < view.fuses ? 'on' : ''} />)}</span>
           <span data-flip-anchor="deck">دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b></span>
           <span className="hb__pending" data-flip-anchor="pending">
             {pendingIdx !== null && myIds[pendingIdx] && <span data-flip={myIds[pendingIdx]} className="hb-mine hb-mine--pending" aria-label="کارت شما در راه"><span className="hb-mine__face">?</span></span>}
@@ -148,8 +150,8 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
         {!framed && last && (
           <p className="hb__last" role="status" key={view.seq}>
             <bdi>{who(last.seat)}</bdi>{' '}
-            {last.kind === 'clue' ? <>به <bdi>{who(last.to!)}</bdi> سرنخ داد: «{last.color ? COLOR_FA[last.color] : fa(last.rank!)}»</>
-              : last.kind === 'discard' ? 'یک کارت دور انداخت' : last.ok ? 'یک کارت درست بازی کرد ✨' : 'کارت اشتباه بازی کرد و یک فیوز سوخت'}
+            {last.kind === 'clue' ? <>به <bdi>{who(last.to!)}</bdi> <T t={terms.clue} /> داد: «{last.color ? COLOR_FA[last.color] : fa(last.rank!)}»</>
+              : last.kind === 'discard' ? 'یک کارت دور انداخت' : last.ok ? 'یک کارت درست بازی کرد ✨' : `کارت اشتباه بازی کرد و یک ${tx(terms.fuse)} سوخت`}
           </p>
         )}
       </section>
@@ -159,7 +161,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
           <li key={k} data-flip-anchor={`seat-${k}`} className={['hb-mate', view.current === k && !view.outcome ? 'hb-mate--turn' : '', target === k ? 'hb-mate--on' : ''].join(' ')}>
             <div className="hb-mate__head">
               <bdi className="hb-mate__name">{who(k)}</bdi>
-              {canClue && !busy && <button type="button" className={`hb-clueBtn ${hint?.type === 'clue' && hint.to === k && target !== k ? 'hb-hint' : ''}`} onClick={() => { setTarget(target === k ? null : k); setMine(null); }}>سرنخ بده</button>}
+              {canClue && !busy && <button type="button" className={`hb-clueBtn ${hint?.type === 'clue' && hint.to === k && target !== k ? 'hb-hint' : ''}`} onClick={() => { setTarget(target === k ? null : k); setMine(null); }}><T t={terms.clue} /> بده</button>}
             </div>
             <div className="hb-mate__hand">
               {view.hands[k]!.map((h, i) => (
@@ -170,7 +172,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
               ))}
             </div>
             {target === k && (
-              <div className="hb-clues" role="group" aria-label="سرنخ">
+              <div className="hb-clues" role="group" aria-label={tx(terms.clue)}>
                 {clueColors.map((c) => <button key={c} type="button" className={`hb-cl hb-c--${c} ${hint?.color === c ? 'hb-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'clue', to: k, color: c })}>{COLOR_FA[c]}</button>)}
                 {clueRanks.map((r) => <button key={r} type="button" className={`hb-cl hb-cl--n ${hint?.rank === r ? 'hb-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'clue', to: k, rank: r })}>{fa(r)}</button>)}
               </div>
