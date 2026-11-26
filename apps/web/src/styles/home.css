@@ -3,6 +3,8 @@
 .hm-h2 { font-size: 20px; font-weight: 700; line-height: 1.5; color: var(--heading); display: flex; align-items: center; gap: 8px; margin: 0; min-inline-size: 0; }
 .hm-link { font-size: 14px; font-weight: 700; color: var(--link); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .hm-thumb { inline-size: 80px; block-size: 45px; border-radius: var(--radius-sm); object-fit: cover; flex: none; display: block; background: var(--surface-raised); }
+/* DS `img.bgv-box` (0,1,1) sets inline-size:auto and would let box art render at natural size; outrank it. */
+img.bgv-box.hm-thumb { inline-size: 80px; block-size: 45px; max-inline-size: 80px; max-block-size: 45px; border-radius: var(--radius-sm); object-fit: cover; }
 .hm-meta { display: flex; align-items: center; gap: 4px 6px; flex-wrap: wrap; font-size: 13px; color: var(--text-muted); min-inline-size: 0; }
 .hm-sechead { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; }
 .hm-sechead > .hm-h2 { flex: 1 1 auto; }
@@ -132,7 +134,7 @@ dialog.celebrate .bgv-dialog { inline-size: 100%; max-inline-size: none; }
 .hm-hint__tip { position: absolute; z-index: var(--z-sheet); inset-block-start: 100%; inset-inline-start: 0; inline-size: max-content; max-inline-size: min(280px, 80vw); font-size: 14px; }
 
 .hm-learn { display: grid; gap: var(--space-2); justify-items: start; }
-.hm-learn .hm-thumb { inline-size: 100%; block-size: auto; aspect-ratio: 16 / 9; border-radius: var(--radius-md); object-fit: cover; }
+.hm-learn img.bgv-box.hm-thumb, .hm-learn .hm-thumb { max-inline-size: 100%; max-block-size: none; inline-size: 100%; block-size: auto; aspect-ratio: 16 / 9; border-radius: var(--radius-md); object-fit: cover; }
 .hm-friend { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; border-block-end: 1px solid var(--line); }
 .hm-friend:last-child { border-block-end: 0; }
 .hm-friend > :first-child { flex: 1; min-inline-size: 0; }
